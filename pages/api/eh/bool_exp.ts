@@ -1,8 +1,8 @@
 import Cors from 'cors';
-import { generateApolloClient } from '@deepcase/hasura/client';
-import { corsMiddleware } from '@deepcase/hasura/cors-middleware';
-import { HasuraApi } from "@deepcase/hasura/api";
-import { generateMutation, generateSerial } from '@deepcase/deeplinks/imports/gql';
+import { generateApolloClient } from '@deep-foundation/hasura/client';
+import { corsMiddleware } from '@deep-foundation/hasura/cors-middleware';
+import { HasuraApi } from "@deep-foundation/hasura/api";
+import { generateMutation, generateSerial } from '@deep-foundation/deeplinks/imports/gql';
 
 export const api = new HasuraApi({
   path: process.env.MIGRATIONS_HASURA_PATH,

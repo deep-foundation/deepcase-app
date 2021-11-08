@@ -1,8 +1,8 @@
-import { TokenProvider, useTokenController } from '@deepcase/deeplinks/imports/react-token';
-import { ApolloClientTokenizedProvider } from '@deepcase/react-hasura/apollo-client-tokenized-provider';
-import { useApolloClient } from '@deepcase/react-hasura/use-apollo-client';
-import { LocalStoreProvider } from '@deepcase/store/local';
-import { QueryStoreProvider } from '@deepcase/store/query';
+import { TokenProvider, useTokenController } from '@deep-foundation/deeplinks/imports/react-token';
+import { ApolloClientTokenizedProvider } from '@deep-foundation/react-hasura/apollo-client-tokenized-provider';
+import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client';
+import { LocalStoreProvider } from '@deep-foundation/store/local';
+import { QueryStoreProvider } from '@deep-foundation/store/query';
 import { colors, createTheme, ThemeProvider } from './ui';
 import React, { useEffect } from 'react';
 import { AuthProvider } from './auth';

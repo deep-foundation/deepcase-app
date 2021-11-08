@@ -1,15 +1,15 @@
 import Cors from 'cors';
-import { generateApolloClient } from '@deepcase/hasura/client';
-import { corsMiddleware } from '@deepcase/hasura/cors-middleware';
-import { HasuraApi } from "@deepcase/hasura/api";
-import { sql } from '@deepcase/hasura/sql';
-import { generateMutation, generateQuery, generateSerial, insertMutation } from '@deepcase/deeplinks/imports/gql';
+import { generateApolloClient } from '@deep-foundation/hasura/client';
+import { corsMiddleware } from '@deep-foundation/hasura/cors-middleware';
+import { HasuraApi } from "@deep-foundation/hasura/api";
+import { sql } from '@deep-foundation/hasura/sql';
+import { generateMutation, generateQuery, generateSerial, insertMutation } from '@deep-foundation/deeplinks/imports/gql';
 import { gql } from 'apollo-boost';
 import vm from 'vm';
 
-import { generatePermissionWhere, permissions } from '@deepcase/deeplinks/imports/permission';
-import { GLOBAL_ID_TABLE_VALUE, GLOBAL_ID_TABLE_COLUMN } from '@deepcase/deeplinks/imports/global-ids';
-import { reject, resolve } from '@deepcase/deeplinks/imports/promise';
+import { generatePermissionWhere, permissions } from '@deep-foundation/deeplinks/imports/permission';
+import { GLOBAL_ID_TABLE_VALUE, GLOBAL_ID_TABLE_COLUMN } from '@deep-foundation/deeplinks/imports/global-ids';
+import { reject, resolve } from '@deep-foundation/deeplinks/imports/promise';
 
 const SCHEMA = 'public';
 

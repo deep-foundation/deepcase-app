@@ -1,7 +1,7 @@
 import { useQuery } from '@apollo/client';
-import { useTokenController } from '@deepcase/deeplinks/imports/react-token';
-import { useApolloClient } from '@deepcase/react-hasura/use-apollo-client';
-import { useLocalStore } from '@deepcase/store/local';
+import { useTokenController } from '@deep-foundation/deeplinks/imports/react-token';
+import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client';
+import { useLocalStore } from '@deep-foundation/store/local';
 import { useEffect } from 'react';
 import { JWT } from './gql';
 

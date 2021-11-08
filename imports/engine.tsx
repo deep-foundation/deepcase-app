@@ -1,11 +1,11 @@
-import { generateSerial, insertMutation } from '@deepcase/deeplinks/imports/gql';
+import { generateSerial, insertMutation } from '@deep-foundation/deeplinks/imports/gql';
 import axios from 'axios';
 import React, { useCallback, useState } from 'react';
 import { Button, Grid, ButtonGroup, Divider, LinearProgress, TextField, Typography } from './ui';
-import { IOptions } from '@deepcase/deeplinks/imports/engine';
-import { useLocalStore } from '@deepcase/store/local';
-import { useApolloClient } from '@deepcase/react-hasura/use-apollo-client';
-import { useApolloClientRegenerator } from '@deepcase/react-hasura/apollo-client-regenerator';
+import { IOptions } from '@deep-foundation/deeplinks/imports/engine';
+import { useLocalStore } from '@deep-foundation/store/local';
+import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client';
+import { useApolloClientRegenerator } from '@deep-foundation/react-hasura/apollo-client-regenerator';
 import { useTheme } from '@material-ui/styles';
 import Link from 'next/link';
 import { PaperPanel } from '../pages';
@@ -78,7 +78,7 @@ export const EngineWindow = React.memo<any>(function EngineWindow({
             onChange={(e) => setPath(e.target.value)}
           />
           <Typography>
-            Please enter your $PATH env var from terminal. <Typography component={Link} href="https://github.com/deepcase/deepcase/issues/56">issue</Typography>
+            Please enter your $PATH env var from terminal. <Typography component={Link} href="https://github.com/deep-foundation/dev/issues/56">issue</Typography>
           </Typography>
           <PaperPanel style={{ padding: theme.spacing(1) }}>
             <Typography component="pre" color="primary">

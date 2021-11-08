@@ -1,11 +1,11 @@
 import { useSubscription } from '@apollo/client';
 import { Capacitor } from '@capacitor/core';
-import { GLOBAL_ID_CONTAIN, GLOBAL_ID_PACKAGE, GLOBAL_ID_PROMISE, GLOBAL_ID_THEN, GLOBAL_ID_RESOLVED, GLOBAL_ID_REJECTED } from '@deepcase/deeplinks/imports/global-ids';
-import { minilinks } from '@deepcase/deeplinks/imports/minilinks';
-import { useTokenController } from '@deepcase/deeplinks/imports/react-token';
-import { useApolloClient } from '@deepcase/react-hasura/use-apollo-client';
-import { useLocalStore } from '@deepcase/store/local';
-import { useQueryStore } from '@deepcase/store/query';
+import { GLOBAL_ID_CONTAIN, GLOBAL_ID_PACKAGE, GLOBAL_ID_PROMISE, GLOBAL_ID_THEN, GLOBAL_ID_RESOLVED, GLOBAL_ID_REJECTED } from '@deep-foundation/deeplinks/imports/global-ids';
+import { minilinks } from '@deep-foundation/deeplinks/imports/minilinks';
+import { useTokenController } from '@deep-foundation/deeplinks/imports/react-token';
+import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client';
+import { useLocalStore } from '@deep-foundation/store/local';
+import { useQueryStore } from '@deep-foundation/store/query';
 import { Add, Clear, Colorize, LaptopChromebook, Visibility as VisibilityOn , VisibilityOff } from '@material-ui/icons';
 import { useTheme } from '@material-ui/styles';
 import { useDebounceCallback } from '@react-hook/debounce';

@@ -1,6 +1,6 @@
 import express from 'express';
 import fkill from 'fkill';
-import { call } from '@deepcase/deeplinks/imports/engine';
+import { call } from '@deep-foundation/deeplinks/imports/engine';
 
 import { promisify } from 'util';
 import { exec } from 'child_process';

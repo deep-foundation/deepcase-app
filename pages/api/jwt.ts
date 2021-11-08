@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 
 import gql from 'graphql-tag';
-import { generateRemoteSchema } from '@deepcase/hasura/remote-schema';
+import { generateRemoteSchema } from '@deep-foundation/hasura/remote-schema';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 

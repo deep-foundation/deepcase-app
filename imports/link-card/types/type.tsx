@@ -1,5 +1,5 @@
-import { generateSerial, insertMutation } from '@deepcase/deeplinks/imports/gql';
-import { useApolloClient } from '@deepcase/react-hasura/use-apollo-client';
+import { generateSerial, insertMutation } from '@deep-foundation/deeplinks/imports/gql';
+import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client';
 import React from 'react';
 import { useSelectedLinks } from '../../../pages';
 import { Button, Grid } from '../../ui';

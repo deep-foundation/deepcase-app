@@ -1,4 +1,4 @@
-# deepcase deeplinks application
+# deep-foundation deepcase
 
 ## envs
 

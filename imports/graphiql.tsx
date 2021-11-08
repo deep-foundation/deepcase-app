@@ -4,8 +4,8 @@ import { useApolloClient } from '@apollo/client';
 import { GRAPHQL_PATH, GRAPHQL_SSL } from './provider';
 import 'graphiql/graphiql.css';
 import { useMemo, useState } from 'react';
-import { generateHeaders } from '@deepcase/hasura/client';
-import { TokenContext, useToken } from '@deepcase/react-hasura/token-context';
+import { generateHeaders } from '@deep-foundation/hasura/client';
+import { TokenContext, useToken } from '@deep-foundation/react-hasura/token-context';
 import { makeStyles } from '@material-ui/styles';
 
 const useStyles = makeStyles(() => ({

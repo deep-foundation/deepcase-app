@@ -4,16 +4,16 @@ import { Delete } from '../icons';
 import { useMutation, useQuery, useSubscription } from '@apollo/client';
 import { updateString, insertString, deleteString, insertBoolExp, updateBoolExp, deleteBoolExp, LINKS, LINKS_WHERE } from '../gql';
 import { useDebouncedCallback } from 'use-debounce';
-import { useApolloClient } from '@deepcase/react-hasura/use-apollo-client';
+import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client';
 import MonacoEditor from 'react-monaco-editor';
 
 import { LinkCardType } from './types/type';
 import { LinkCardSubject } from './types/subject';
 import { LinkCardRule } from './types/rule';
 import { LinkCardPackage } from './types/package';
-import { Packager } from '@deepcase/deeplinks/imports/packager';
-import { generateMutation, generateSerial } from '@deepcase/deeplinks/imports/gql';
-import { GLOBAL_ID_TABLE, GLOBAL_ID_TABLE_COLUMN, GLOBAL_ID_TABLE_VALUE } from '@deepcase/deeplinks/imports/global-ids';
+import { Packager } from '@deep-foundation/deeplinks/imports/packager';
+import { generateMutation, generateSerial } from '@deep-foundation/deeplinks/imports/gql';
+import { GLOBAL_ID_TABLE, GLOBAL_ID_TABLE_COLUMN, GLOBAL_ID_TABLE_VALUE } from '@deep-foundation/deeplinks/imports/global-ids';
 
 export function LinkCard({
   link,

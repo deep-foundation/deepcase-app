@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { useApolloClient } from '@apollo/client';
-import { generateSerial, insertMutation } from '@deepcase/deeplinks/imports/gql';
+import { generateSerial, insertMutation } from '@deep-foundation/deeplinks/imports/gql';
 import { Grid } from '../../ui';
 import React from 'react';
 import { useAuth } from '../../auth';

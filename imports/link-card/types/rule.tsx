@@ -4,13 +4,13 @@ import { Delete, Insert } from '../../icons';
 import { useMutation, useSubscription } from '@apollo/client';
 import { updateString, insertString, deleteString, updateNumber, insertNumber, deleteNumber, insertBoolExp, updateBoolExp, deleteBoolExp, LINKS_WHERE, insertLink, deleteLink } from '../../gql';
 import { useDebouncedCallback } from 'use-debounce';
-import { useApolloClient } from '@deepcase/react-hasura/use-apollo-client';
+import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client';
 import MonacoEditor from 'react-monaco-editor';
-import { generateSerial, insertMutation } from '@deepcase/deeplinks/imports/gql';
+import { generateSerial, insertMutation } from '@deep-foundation/deeplinks/imports/gql';
 import { useOperation, useSelectedLinks } from '../../../pages';
 import { useClickEmitter } from '../../click-emitter';
 import { useMemo } from 'react';
-import { minilinks } from '@deepcase/deeplinks/imports/minilinks';
+import { minilinks } from '@deep-foundation/deeplinks/imports/minilinks';
 import { flatten } from 'lodash';
 
 export function LinkCardRule({
