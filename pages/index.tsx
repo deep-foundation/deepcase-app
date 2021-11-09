@@ -145,7 +145,7 @@ const defaultGraphiqlHeight = 300;
 export function PageContent() {
   const auth = useAuth();
   const theme = useTheme();
-  const [drawerSize, setDrawerSize] = useState({ width: 800, height: 500 });
+  const [windowSize, setWindowSize] = useState({ width: 800, height: 500 });
   const [graphiqlHeight, setGraphiqlHeight] = useState(defaultGraphiqlHeight);
   const [flyPanel, setFlyPanel] = useState<any>();
 
@@ -301,7 +301,7 @@ export function PageContent() {
   >
     <ReactResizeDetector
       handleWidth handleHeight
-      onResize={(width, height) => setDrawerSize({ width, height })}
+      onResize={(width, height) => setWindowSize({ width, height })}
     />
     <Popover
       open={!!flyPanel}
@@ -328,7 +328,8 @@ export function PageContent() {
         ><Add/></IconButton>
       </div>}
     </Popover>
-    <ForceGraph
+    {[<ForceGraph
+      key={''+windowSize.width+windowSize.height}
       Component={forceGraph}
       graphData={outD}
       backgroundColor={theme?.palette?.background?.default}
@@ -422,7 +423,7 @@ export function PageContent() {
       onNodeHover={(node) => {
         
       }}
-    />
+    />]}
     <div className={classes.overlay}>
       <div className={classes.top}>
         <PaperPanel className={cn(classes.topPaper, classes.transitionHoverScale)}>
