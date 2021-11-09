@@ -21,7 +21,7 @@ import { useAuth } from '../imports/auth';
 import { useClickEmitter } from '../imports/click-emitter';
 import { EnginePanel, EngineWindow, useEngineConnected } from '../imports/engine';
 import { deleteLink, insertLink, LINKS_string } from '../imports/gql';
-import { ForceGraph, ForceGraph2D } from '../imports/graph';
+import { ForceGraph, ForceGraph2D, ForceGraph3D, ForceGraphVR, SpriteText, Three } from '../imports/graph';
 import { LinkCard } from '../imports/link-card/index';
 import { Provider } from '../imports/provider';
 import { Backdrop, Button, ButtonGroup, Grid, IconButton, makeStyles, Paper, Popover, TextField, Typography } from '../imports/ui';
@@ -31,7 +31,7 @@ import pckg from '../package.json';
 const Graphiql = dynamic(() => import('../imports/graphiql').then(m => m.Graphiql), { ssr: false });
 
 const transitionHoverScale = {
-  transition: 'all 0.5s ease',
+  transition: 'all 0.25s ease',
   transform: 'scale(1)',
   '&:hover': {
     transform: 'scale(1.01)',
@@ -151,11 +151,13 @@ export function PageContent() {
 
   const [showTypes, setShowTypes] = useQueryStore('show-types', false);
   const [promises, setPromises] = useQueryStore('promises', false);
+  const [graphiql, setGraphiql] = useQueryStore('graphiql', false);
   const [showMP, setShowMP] = useQueryStore('show-mp', false);
   const [clickSelect, setClickSelect] = useState(false);
   const [selectedLinks, setSelectedLinks] = useSelectedLinks();
   const [container, setContainer] = useQueryStore('container', 0);
   const [containerVisible, setContainerVisible] = useState(true);
+  const [forceGraph, setForceGraph] = useState(ForceGraph2D);
   const [inserting, setInserting] = useQueryStore<any>('dc-dg-ins', {});
   const [operation, setOperation] = useOperation();
   const [connected, setConnected] = useEngineConnected();
@@ -327,9 +329,9 @@ export function PageContent() {
       </div>}
     </Popover>
     <ForceGraph
-      Component={ForceGraph2D}
+      Component={forceGraph}
       graphData={outD}
-      // backgroundColor={theme?.palette?.background?.default}
+      backgroundColor={theme?.palette?.background?.default}
       linkAutoColorBy={(l) => l.color || '#fff'}
       linkOpacity={1}
       linkWidth={0.5}
@@ -352,8 +354,6 @@ export function PageContent() {
         ? [5, 5]
         : false
       )}
-      width={drawerSize.width}
-      height={drawerSize.height}
       nodeCanvasObject={(node, ctx, globalScale) => {
         const _l = node.label || [];
 
@@ -379,10 +379,34 @@ export function PageContent() {
           ctx.fillText(_l[i], node.x, node.y + (i * 12/globalScale) );
       }}
       // nodeThreeObject={node => {
-      //   const sprite = new SpriteText(node?.n?.key);
-      //   sprite.color = '#fff';
+      //   return new Three.Mesh(
+      //     [
+      //       new Three.BoxGeometry(Math.random() * 20, Math.random() * 20, Math.random() * 20),
+      //       new Three.ConeGeometry(Math.random() * 10, Math.random() * 20),
+      //       new Three.CylinderGeometry(Math.random() * 10, Math.random() * 10, Math.random() * 20),
+      //       new Three.DodecahedronGeometry(Math.random() * 10),
+      //       new Three.SphereGeometry(Math.random() * 10),
+      //       new Three.TorusGeometry(Math.random() * 10, Math.random() * 2),
+      //       new Three.TorusKnotGeometry(Math.random() * 10, Math.random() * 2)
+      //     ][node.id%7],
+      //     new Three.MeshLambertMaterial({
+      //       color: Math.round(Math.random() * Math.pow(2, 24)),
+      //       transparent: true,
+      //       opacity: 0.75
+      //     })
+      //   );
+      // }}
+      // nodeThreeObject={node => {
+      //   const _l = node.label || [];
+
+      //   const isSelected = screenFind ? (
+      //     node?.link?.id.toString() === screenFind || !!(_l?.join(' ')?.includes(screenFind))
+      //   ) : selectedLinks?.find(id => id === node?.link?.id);
+
+      //   const sprite = new SpriteText(_l.join(' '));
+      //   sprite.color = isSelected ? '#fff' : '#707070';
       //   sprite.textHeight = 8;
-      //   return sprite;
+      //   return new Three.Mesh(sprite);
       // }}
       onNodeDragEnd={node => {
         if (node.fx) delete node.fx;
@@ -426,6 +450,13 @@ export function PageContent() {
                 </Grid>
                 <Grid item>
                   <ButtonGroup variant="outlined">
+                    <Button color={forceGraph == ForceGraph2D ? 'primary' : 'default'} onClick={() => setForceGraph(ForceGraph2D)}>2d</Button>
+                    <Button color={forceGraph == ForceGraph3D ? 'primary' : 'default'} onClick={() => setForceGraph(ForceGraph3D)}>3d</Button>
+                    <Button color={forceGraph == ForceGraphVR ? 'primary' : 'default'} onClick={() => setForceGraph(ForceGraphVR)}>vr</Button>
+                  </ButtonGroup>
+                </Grid>
+                <Grid item>
+                  <ButtonGroup variant="outlined">
                     <Button
                       color={operation === 'container' ? 'primary' : 'default'}
                       onClick={() => setOperation(operation === 'container' ? '' : 'container')}
@@ -440,6 +471,16 @@ export function PageContent() {
                       onClick={() => setContainerVisible((containerVisible) => !containerVisible)}
                     >
                       {containerVisible ? <VisibilityOn/> : <VisibilityOff/>}
+                    </Button>
+                  </ButtonGroup>
+                </Grid>
+                <Grid item>
+                  <ButtonGroup variant="outlined">
+                    <Button
+                      color={graphiql ? 'primary' : 'default'}
+                      onClick={() => setGraphiql(!graphiql)}
+                    >
+                      GQL
                     </Button>
                   </ButtonGroup>
                 </Grid>
@@ -541,7 +582,7 @@ export function PageContent() {
           </Grid>
         </PaperPanel>
       </div>
-      <div className={classes.bottom} style={{ height: graphiqlHeight }}>
+      <div className={classes.bottom} style={{ height: graphiql ? graphiqlHeight : 0 }}>
         <PaperPanel className={classes.bottomPaper} elevation={1}>
           {/* @ts-ignore */}
           <Graphiql defaultQuery={LINKS_string} onVisualize={(query: string, variables: any) => {
@@ -554,7 +595,7 @@ export function PageContent() {
         </PaperPanel>
       </div>
     </div>
-    {!!connected && <Draggable
+    {!!connected && graphiql && <Draggable
       axis="y"
       handle=".handle"
       defaultPosition={{x: 0, y: 0}}

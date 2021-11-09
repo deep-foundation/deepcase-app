@@ -1,11 +1,25 @@
 // @flow
+import { makeStyles } from '@material-ui/core';
 import _ from 'lodash';
 import React, { Component, useState, useCallback, useRef } from 'react';
 
-let ForceGraph3D, ForceGraph2D, ForceGraphAR, ForceGraphVR, ForceGraph, SpriteText;
+let ForceGraph3D, ForceGraph2D, ForceGraphAR, ForceGraphVR, ForceGraph, SpriteText, Three;
+
+const useStyles = makeStyles(() => ({
+  wrapper: {
+    '& div': {
+      position: 'absolute',
+      left: 0,
+      top: 0,
+      width: '100%',
+      height: '100%',
+    }
+  },
+}));
 
 if (_.get(process, 'browser')) {
   SpriteText = require('three-spritetext').default;
+  Three = require('three');
 
   ForceGraph3D = require('react-force-graph').ForceGraph3D;
   ForceGraph2D = require('react-force-graph').ForceGraph2D;
@@ -16,6 +30,7 @@ if (_.get(process, 'browser')) {
     const fgRef = useRef<any>();
     const [last, setLast] = useState(0);
     const Component = props.Component || ForceGraph3D;
+    const classes = useStyles();
 
     const onNodeClick = useCallback(node => {
       const now = new Date().valueOf();
@@ -34,7 +49,7 @@ if (_.get(process, 'browser')) {
       props.onNodeClick && props.onNodeClick(node);
     }, [fgRef, last]);
 
-    return <Component
+    return <div className={classes.wrapper}><Component
       ref={fgRef}
       {...props}
       // TODO arrows without slow fps
@@ -45,7 +60,7 @@ if (_.get(process, 'browser')) {
         onNodeClick(node);
         props.onNodeClick && props.onNodeClick(node);
       }}
-    />
+    /></div>;
   };
 } else {
   SpriteText = (...args: any): any => null;
@@ -58,4 +73,4 @@ if (_.get(process, 'browser')) {
   ForceGraph = () => null;
 }
 
-export { SpriteText, ForceGraph3D, ForceGraph2D, ForceGraphAR, ForceGraphVR, ForceGraph };
+export { SpriteText, ForceGraph3D, ForceGraph2D, ForceGraphAR, ForceGraphVR, ForceGraph, Three };
