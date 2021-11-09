@@ -51,14 +51,6 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: theme?.palette?.background?.default,
     },
   },
-  '@keyframes deeplinksBackground': {
-    from: {
-      backgroundSize: '0.5em 0.5em',
-    },
-    to: {
-      backgroundSize: '3em 3em',
-    },
-  },
   root: {
     position: 'absolute',
     top: 0,
@@ -66,7 +58,6 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     height: '100%',
     backgroundColor: theme?.palette?.background?.default,
-    backgroundImage: 'linear-gradient(#202a38 .1em, transparent .1em), linear-gradient(90deg, #202a38 .1em, transparent .1em)',
     overflow: 'hidden',
     animation: '5s $deeplinksBackground ease'
   },
@@ -298,13 +289,6 @@ export function PageContent() {
   onNodeClickRef.current = onNodeClick;
 
   const rootRef = useRef<any>();
-  const handleZoom = useCallback(({ k, x, y }) => {
-    if (rootRef.current) {
-      const size = k * 3;
-      rootRef.current.style['background-position'] = `${x}px ${y}px`;
-      rootRef.current.style['background-size'] = `${size}em ${size}em`;
-    }
-  }, []);
 
   return <div
     ref={rootRef}
@@ -414,7 +398,6 @@ export function PageContent() {
       onNodeHover={(node) => {
         
       }}
-      onZoom={handleZoom}
     />
     <div className={classes.overlay}>
       <div className={classes.top}>
