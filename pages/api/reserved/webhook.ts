@@ -31,8 +31,8 @@ export default async (req, res) => {
     const mutateLinksResult = await client.mutate(insertLinks(links));
     const ids = mutateLinksResult.data['m0']?.returning?.map(link => link.id);
     if (!ids)  res.status(500).json({ error: 'insert links error' });
-    const mutateReservedResult = await client.mutate(insertReserved(ids, 12312));
-    if (!mutateReservedResult.data['m0']?.returning?.[0]?.id) res.status(500).json({ error: 'insert resrved error' });
+    const mutateReservedResult = await client.mutate(insertReserved(ids, 0)); // TODO: user_id instead 0
+    if (!mutateReservedResult.data['m0']?.returning[0]?.id) res.status(500).json({ error: 'insert resrved error' });
     return res.json({ ids });
   } catch(error) {
     return res.status(500).json({ error: error.toString() });
