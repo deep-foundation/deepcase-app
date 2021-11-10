@@ -5,7 +5,7 @@ import { HasuraApi } from '@deep-foundation/hasura/api';
 import { generateQuery, generateQueryData } from '@deep-foundation/deeplinks/imports/gql'
 import { deleteReserved, deleteLinksIfReserved } from '../../../imports/gql';
 
-const RESERVED_LIFETIME_MS = +process.env.RESERVED_LIFETIME || 24 * 60 * 60 * 1000;
+const RESERVED_LIFETIME_MS = +process.env.RESERVED_LIFETIME || 1000;
 
 export const api = new HasuraApi({
   path: process.env.MIGRATIONS_HASURA_PATH,
@@ -24,7 +24,6 @@ export default async (req, res) => {
   await corsMiddleware(req, res, cors);
   try {
     const body = req?.body;
-    console.log(body);
     const result = await client.query(generateQuery({
       queries: [
         generateQueryData({ tableName: 'reserved', returning: `id reserved_ids`, variables: { where: {
@@ -37,15 +36,14 @@ export default async (req, res) => {
     }));
     const reserved = result.data['q0'];
     
-    const reservedIds = [reserved.map(reserved => reserved.id)]
+    const reservedIds = reserved.map(reserved => reserved.id);
     let linksIds = [];
-    for (let i = 0; i < reserved.length; i++) linksIds = linksIds.concat(reserved?.reserved_ids);
+    for (let i = 0; i < reserved.length; i++) linksIds = linksIds.concat(reserved[i]?.reserved_ids);
 
-    const deleteLinksResult = await client.mutate(deleteLinksIfReserved(linksIds));
-    console.log(deleteLinksResult.data['m0'])
+    if (!reservedIds.length) return res.json({ cleaned: reservedIds });
+    const deleteLinksResult = await client.mutate(deleteLinksIfReserved(linksIds));    
     const cleaned = deleteLinksResult.data['m0']?.returning?.map(link => link.id);
-    const deleteReservedResult = await client.mutate(deleteReserved(reservedIds));
-    console.log(deleteReservedResult.data['m0'])
+    await client.mutate(deleteReserved(reservedIds));
 
     return res.json({ cleaned });
   } catch(error) {
