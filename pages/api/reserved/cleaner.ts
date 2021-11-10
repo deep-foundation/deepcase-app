@@ -35,14 +35,17 @@ export default async (req, res) => {
       name: 'CRON_RESERVED',
     }));
     const reserved = result.data['q0'];
+    if (!reserved.length) return res.json({ cleaned: [] });
     
     const reservedIds = reserved.map(reserved => reserved.id);
     let linksIds = [];
     for (let i = 0; i < reserved.length; i++) linksIds = linksIds.concat(reserved[i]?.reserved_ids);
 
-    if (!reservedIds.length) return res.json({ cleaned: reservedIds });
-    const deleteLinksResult = await client.mutate(deleteLinksIfReserved(linksIds));    
-    const cleaned = deleteLinksResult.data['m0']?.returning?.map(link => link.id);
+    let cleaned = [];
+    if (linksIds.length) {
+      const deleteLinksResult = await client.mutate(deleteLinksIfReserved(linksIds));  
+      cleaned = deleteLinksResult.data['m0']?.returning?.map(link => link.id);  
+    }
     await client.mutate(deleteReserved(reservedIds));
 
     return res.json({ cleaned });
