@@ -32,7 +32,7 @@ export default async (req, res) => {
     const ids = mutateLinksResult.data['m0']?.returning?.map(link => link.id);
     if (!ids)  res.status(500).json({ error: 'insert links error' });
     const mutateReservedResult = await client.mutate(insertReserved(ids, 12312));
-    if (!mutateLinksResult.data['m0']?.returning?.[0]?.id) res.status(500).json({ error: 'insert resrved error' });
+    if (!mutateReservedResult.data['m0']?.returning?.[0]?.id) res.status(500).json({ error: 'insert resrved error' });
     return res.json({ ids });
   } catch(error) {
     return res.status(500).json({ error: error.toString() });
