@@ -43,10 +43,11 @@ export default async (req, res) => {
 
     const deleteLinksResult = await client.mutate(deleteLinksIfReserved(linksIds));
     console.log(deleteLinksResult.data['m0'])
+    const cleaned = deleteLinksResult.data['m0']?.returning?.map(link => link.id);
     const deleteReservedResult = await client.mutate(deleteReserved(reservedIds));
     console.log(deleteReservedResult.data['m0'])
 
-    return res.json({ cleaned: [] });
+    return res.json({ cleaned });
   } catch(error) {
     return res.status(500).json({ error: error.toString() });
   }

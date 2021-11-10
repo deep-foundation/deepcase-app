@@ -29,7 +29,7 @@ export default async (req, res) => {
     const links = [];
     for (let i = 0; i < count; i++) links[i] = { type_id: 0 };
     const mutateLinksResult = await client.mutate(insertLinks(links));
-    const ids = mutateLinksResult.data['m0']?.returning?.map(node => node.id);
+    const ids = mutateLinksResult.data['m0']?.returning?.map(link => link.id);
     if (!ids)  res.status(500).json({ error: 'insert links error' });
     const mutateReservedResult = await client.mutate(insertReserved(ids, 12312));
     if (!mutateLinksResult.data['m0']?.returning?.[0]?.id) res.status(500).json({ error: 'insert resrved error' });
