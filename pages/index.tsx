@@ -7,7 +7,7 @@ import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client
 import { useLocalStore } from '@deep-foundation/store/local';
 import { useQueryStore } from '@deep-foundation/store/query';
 import { Add, Clear, Colorize, LaptopChromebook, Visibility as VisibilityOn , VisibilityOff } from '@material-ui/icons';
-import { useTheme } from '@material-ui/styles';
+import { useTheme } from '@material-ui/core/styles';
 import { useDebounceCallback } from '@react-hook/debounce';
 import axios from 'axios';
 import cn from 'classnames';
@@ -25,6 +25,7 @@ import { ForceGraph, ForceGraph2D, ForceGraph3D, ForceGraphVR, SpriteText, Three
 import { LinkCard } from '../imports/link-card/index';
 import { Provider } from '../imports/provider';
 import { Backdrop, Button, ButtonGroup, Grid, IconButton, makeStyles, Paper, Popover, TextField, Typography } from '../imports/ui';
+
 import pckg from '../package.json';
 
 // @ts-ignore

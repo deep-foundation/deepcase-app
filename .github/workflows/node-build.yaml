@@ -1,0 +1,22 @@
+name: Deploy deeplinks app
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+defaults:
+  run:
+    working-directory: ./
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '15.10'
+      - name: node-buildsteps
+      - run: npm run build
+          
