@@ -80,12 +80,12 @@ export const insertLinks = (links: { from_id?: number; to_id?: number; type_id: 
   });
 }
 
-export const deleteLinks = (ids: number[]) => {
+export const deleteLinksIfReserved = (ids: number[]) => {
   return generateSerial({
     actions: [
       generateMutation({
         tableName: 'links', operation: 'delete',
-        variables: { where: { id: { _in: ids } } },
+        variables: { where: { id: { _in: ids }, type_id: { _eq: 0 } } },
       }),
     ],
     name: 'DELETE_LINKS',
@@ -104,12 +104,12 @@ export const insertReserved = (reserved_ids: String[],  userId: Number ) => {
   });
 }
 
-export const deleteReserveds = (reserveds: number[]) => {
+export const deleteReserved = (reserved: number[]) => {
   return generateSerial({
     actions: [
       generateMutation({
         tableName: 'reserved', operation: 'delete',
-        variables: { where: { id: { _in: reserveds } } },
+        variables: { where: { id: { _in: reserved } } },
       }),
     ],
     name: 'DELETE_RESERVEDS',

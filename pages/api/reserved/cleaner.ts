@@ -3,9 +3,7 @@ import { generateApolloClient } from '@deep-foundation/hasura/client';
 import { corsMiddleware } from '@deep-foundation/hasura/cors-middleware';
 import { HasuraApi } from '@deep-foundation/hasura/api';
 import { generateQuery, generateQueryData } from '@deep-foundation/deeplinks/imports/gql'
-import { DeleteReserved, deleteLinks } from '../../../imports/gql';
-
-const SCHEMA = 'public';
+import { deleteReserved, deleteLinksIfReserved } from '../../../imports/gql';
 
 const RESERVED_LIFETIME_MS = +process.env.RESERVED_LIFETIME || 24 * 60 * 60 * 1000;
 
@@ -29,7 +27,7 @@ export default async (req, res) => {
     console.log(body);
     const result = await client.query(generateQuery({
       queries: [
-        generateQueryData({ tableName: 'reserved', returning: `reserved_ids`, variables: { where: {
+        generateQueryData({ tableName: 'reserved', returning: `id reserved_ids`, variables: { where: {
           created_at: {
             _lt: new Date(Date.now() - RESERVED_LIFETIME_MS)
           }
@@ -37,7 +35,16 @@ export default async (req, res) => {
       ],
       name: 'CRON_RESERVED',
     }));
-    console.log(result.data['q0']);
+    const reserved = result.data['q0'];
+    
+    const reservedIds = [reserved.map(reserved => reserved.id)]
+    let linksIds = [];
+    for (let i = 0; i < reserved.length; i++) linksIds = linksIds.concat(reserved?.reserved_ids);
+
+    const deleteLinksResult = await client.mutate(deleteLinksIfReserved(linksIds));
+    console.log(deleteLinksResult.data['m0'])
+    const deleteReservedResult = await client.mutate(deleteReserved(reservedIds));
+    console.log(deleteReservedResult.data['m0'])
 
     return res.json({ cleaned: [] });
   } catch(error) {
