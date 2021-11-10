@@ -68,6 +68,30 @@ export const DELETE_LINKS = gql`mutation DELETE_LINKS($where: links_bool_exp!) {
 export const INSERT_STRING = gql`mutation INSERT_STRING($objects: [string_insert_input!]!) { insert_string: insert_string(objects: $objects) { returning { id } } }`;
 export const UPDATE_STRING = gql`mutation UPDATE_STRING($set: string_set_input, $where: string_bool_exp!) { update_string: update_string(_set: $set, where: $where) { returning { id } } }`;
 
+export const insertLinks = (links: { from_id?: number; to_id?: number; type_id: number; }[]) => {
+  return generateSerial({
+    actions: [
+      generateMutation({
+        tableName: 'links', operation: 'insert',
+        variables: { objects: links },
+      }),
+    ],
+    name: 'INSERT_LINKS',
+  });
+}
+
+export const insertReserved = (reserved_ids: String[],  userId: Number ) => {
+  return generateSerial({
+    actions: [
+      generateMutation({
+        tableName: 'reserved', operation: 'insert',
+        variables: { objects: { reserved_ids, user_id: userId, created_at: new Date().toISOString() } },
+      }),
+    ],
+    name: 'INSERT_RESERVED',
+  });
+}
+
 export const insertLink = (link: { from_id?: number; to_id?: number; type_id: number; }) => {
   return generateSerial({
     actions: [

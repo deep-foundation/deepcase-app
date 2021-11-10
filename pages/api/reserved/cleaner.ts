@@ -22,7 +22,7 @@ export default async (req, res) => {
   await corsMiddleware(req, res, cors);
   try {
     const event = req?.body?.event;
-    console.log(event);
+    console.log('AZAZAZA', req);
     return res.json({ result: 'exaplained' });
   } catch(error) {
     return res.status(500).json({ error: error.toString() });
