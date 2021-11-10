@@ -5,7 +5,7 @@ import { HasuraApi } from '@deep-foundation/hasura/api';
 import { generateQuery, generateQueryData } from '@deep-foundation/deeplinks/imports/gql'
 import { deleteReserved, deleteLinksIfReserved } from '../../../imports/gql';
 
-const RESERVED_LIFETIME_MS = +process.env.RESERVED_LIFETIME || 1000;
+const RESERVED_LIFETIME_MS = +process.env.RESERVED_LIFETIME || 24 * 60 * 60 * 1000;
 
 export const api = new HasuraApi({
   path: process.env.MIGRATIONS_HASURA_PATH,
