@@ -28,13 +28,17 @@ export default async (req, res) => {
     // const token = req?.body?.session_variables;
     const links = [];
     for (let i = 0; i < count; i++) links[i] = { type_id: 0 };
+    console.log('reserve count', count);
     const mutateLinksResult = await client.mutate(insertLinks(links));
     const ids = mutateLinksResult.data['m0']?.returning?.map(node => node.id);
+    console.log('reserve ids', ids);
     if (!ids)  res.status(500).json({ error: 'insert links error' });
     const mutateReservedResult = await client.mutate(insertReserved(ids, 12312));
+    console.log(mutateReservedResult.errors, mutateReservedResult.data);
     if (!mutateLinksResult.data['m0']?.returning?.[0]?.id) res.status(500).json({ error: 'insert resrved error' });
     return res.json({ ids });
   } catch(error) {
+    console.log(JSON.stringify(error, null, 2));
     return res.status(500).json({ error: error.toString() });
   }
 };

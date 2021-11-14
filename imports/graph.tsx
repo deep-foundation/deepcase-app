@@ -7,7 +7,12 @@ let ForceGraph3D, ForceGraph2D, ForceGraphAR, ForceGraphVR, ForceGraph, SpriteTe
 
 const useStyles = makeStyles(() => ({
   wrapper: {
-    '& div': {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    width: '100%',
+    height: '100%',
+    '& > div, & > div > div': {
       position: 'absolute',
       left: 0,
       top: 0,

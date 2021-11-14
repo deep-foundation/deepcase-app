@@ -145,7 +145,7 @@ const defaultGraphiqlHeight = 300;
 
 export function PageContent() {
   const auth = useAuth();
-  const theme = useTheme();
+  const theme: any = useTheme();
   const [windowSize, setWindowSize] = useState({ width: 800, height: 500 });
   const [graphiqlHeight, setGraphiqlHeight] = useState(defaultGraphiqlHeight);
   const [flyPanel, setFlyPanel] = useState<any>();
@@ -211,6 +211,7 @@ export function PageContent() {
 
       for (let l = 0; l < ml.links.length; l++) {
         const link = ml.links[l];
+        const plainLink = { id: link.id, type_id: link.type_id, from_id: link.from_id, to_id: link.to_id, value: link.value };
         const isTransparent = link.type_id === GLOBAL_ID_CONTAIN && link?.from?.type_id === GLOBAL_ID_PACKAGE && !containerVisible;
 
         if (!promises && [GLOBAL_ID_PROMISE, GLOBAL_ID_THEN, GLOBAL_ID_RESOLVED, GLOBAL_ID_REJECTED].includes(link.type_id)) {
@@ -225,25 +226,26 @@ export function PageContent() {
           if (labelsConfig?.types) if (link?.type?.value?.value) label.push(`type:${link?.type?.value?.value}`);
         }
 
-        nodes.push({ ...prevNodes?.[link.id], id: link.id, link, label });
+        nodes.push({ ...prevNodes?.[link.id], id: link.id, link: plainLink, label });
 
-        if (showTypes && link.type_id) links.push({ id: `type--${link.id}`, source: link.id, target: link.type_id, link, type: 'type', color: isTransparent ? 'transparent' : '#ffffff' });
+        if (showTypes && link.type_id) links.push({ id: `type--${link.id}`, source: link.id, target: link.type_id, link: plainLink, type: 'type', color: isTransparent ? 'transparent' : '#ffffff' });
 
         if (showMP) for (let i = 0; i < link._by_item.length; i++) {
           const pos = link._by_item[i];
-          links.push({ id: `by-item--${pos.id}`, source: link.id, target: pos.path_item_id, link, pos, type: 'by-item', color: isTransparent ? 'transparent' : '#ffffff' });
+          links.push({ id: `by-item--${pos.id}`, source: link.id, target: pos.path_item_id, link: plainLink, pos, type: 'by-item', color: isTransparent ? 'transparent' : '#ffffff' });
         }
       }
       for (let l = 0; l < ml.links.length; l++) {
         const link = ml.links[l];
+        const plainLink = { id: link.id, type_id: link.type_id, from_id: link.from_id, to_id: link.to_id, value: link.value };
         const isTransparent = link.type_id === GLOBAL_ID_CONTAIN && link?.from?.type_id === GLOBAL_ID_PACKAGE && !containerVisible;
 
         if (!promises && [GLOBAL_ID_PROMISE, GLOBAL_ID_THEN, GLOBAL_ID_RESOLVED, GLOBAL_ID_REJECTED].includes(link.type_id)) {
           continue;
         }
 
-        if (link.from) links.push({ id: `from--${link.id}`, source: link.id, target: link.from_id || link.id, link, type: 'from', color: isTransparent ? 'transparent' : '#a83232' });
-        if (link.to) links.push({ id: `to--${link.id}`, source: link.id, target: link.to_id || link.id, link, type: 'to', color: isTransparent ? 'transparent' : '#32a848' });
+        if (link.from) links.push({ id: `from--${link.id}`, source: link.id, target: link.from_id || link.id, link: plainLink, type: 'from', color: isTransparent ? 'transparent' : '#a83232' });
+        if (link.to) links.push({ id: `to--${link.id}`, source: link.id, target: link.to_id || link.id, link: plainLink, type: 'to', color: isTransparent ? 'transparent' : '#32a848' });
       }
 
       return { nodes, links };

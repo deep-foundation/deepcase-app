@@ -1,9 +1,8 @@
-import Cors from 'cors';
+import { generateQuery, generateQueryData } from '@deep-foundation/deeplinks/imports/gql';
+import { HasuraApi } from '@deep-foundation/hasura/api';
 import { generateApolloClient } from '@deep-foundation/hasura/client';
 import { corsMiddleware } from '@deep-foundation/hasura/cors-middleware';
-import { HasuraApi } from '@deep-foundation/hasura/api';
-import { generateQuery, generateQueryData } from '@deep-foundation/deeplinks/imports/gql'
-import { DeleteReserved, deleteLinks } from '../../../imports/gql';
+import Cors from 'cors';
 
 const SCHEMA = 'public';
 
@@ -26,7 +25,6 @@ export default async (req, res) => {
   await corsMiddleware(req, res, cors);
   try {
     const body = req?.body;
-    console.log(body);
     const result = await client.query(generateQuery({
       queries: [
         generateQueryData({ tableName: 'reserved', returning: `reserved_ids`, variables: { where: {
@@ -37,7 +35,6 @@ export default async (req, res) => {
       ],
       name: 'CRON_RESERVED',
     }));
-    console.log(result.data['q0']);
 
     return res.json({ cleaned: [] });
   } catch(error) {
