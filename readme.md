@@ -12,6 +12,8 @@ export NEXT_PUBLIC_DEEPLINKS_SERVER=http://localhost:3007;
 export NEXT_PUBLIC_HASURA_PATH=localhost:8080;
 export NEXT_PUBLIC_HASURA_PATH=localhost:8080;
 export NEXT_PUBLIC_HASURA_SSL=0;
+
+export JWT_SECRET=<?>;
 ```
 
 ## dev server

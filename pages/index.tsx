@@ -133,7 +133,6 @@ export const AuthPanel = React.memo<any>(function AuthPanel() {
       <Button color={operation === 'auth' ? 'primary' : 'default'} onClick={() => setOperation(operation === 'auth' ? '' : 'auth')}>login</Button>
       <Button onClick={() => auth.setLinkId(0)}>logout</Button>
     </ButtonGroup>
-    {/* <Button disabled>in this example logout = guest = admin</Button> */}
   </>;
 });
 

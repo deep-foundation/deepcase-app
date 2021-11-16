@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
-
-import gql from 'graphql-tag';
+// import { jwt } from '@deep-foundation/deeplinks/imports/jwt';
 import { generateRemoteSchema } from '@deep-foundation/hasura/remote-schema';
+import gql from 'graphql-tag';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -11,27 +11,25 @@ const typeDefs = gql`
   }
   input JWTInput {
     linkId: Int
-    role: String
   }
   type JWTOutput {
     token: String
     linkId: Int
-    role: String
   }
 `;
 
 const resolvers = {
   Query: {
     jwt: async (source, args, context, info) => {
-      const { linkId, role } = args.input;
+      const { linkId } = args.input;
       const token = jwt.sign({
         "https://hasura.io/jwt/claims": {
-          "x-hasura-allowed-roles": [role],
-          "x-hasura-default-role": role,
-          "x-hasura-user-id": linkId.toString(),
+          "x-hasura-allowed-roles": ['guest'],
+          "x-hasura-default-role": 'guest',
+          "x-hasura-user-id": 'guest',
         }
       }, JWT_SECRET);
-      return { token, linkId, role: role };
+      return { token, linkId };
     },
   }
 };
