@@ -20,7 +20,7 @@ import ReactResizeDetector from 'react-resize-detector';
 import { useAuth } from '../imports/auth';
 import { useClickEmitter } from '../imports/click-emitter';
 import { EnginePanel, EngineWindow, useEngineConnected } from '../imports/engine';
-import { deleteLink, insertLink, LINKS_string } from '../imports/gql';
+import { deleteLink, GUEST, insertLink, JWT, LINKS_string } from '../imports/gql';
 import { ForceGraph, ForceGraph2D, ForceGraph3D, ForceGraphVR, SpriteText, Three } from '../imports/graph';
 import { LinkCard } from '../imports/link-card/index';
 import { Provider } from '../imports/provider';
@@ -129,8 +129,9 @@ export const AuthPanel = React.memo<any>(function AuthPanel() {
 
   return <>
     <ButtonGroup variant="outlined">
-      <Button disabled>{auth.linkId || 'admin'}</Button>
+      <Button disabled>{auth.linkId}</Button>
       <Button color={operation === 'auth' ? 'primary' : 'default'} onClick={() => setOperation(operation === 'auth' ? '' : 'auth')}>login</Button>
+      <Button onClick={() => auth.guest()}>guest</Button>
       <Button onClick={() => auth.setLinkId(0)}>logout</Button>
     </ButtonGroup>
   </>;

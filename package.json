@@ -14,7 +14,7 @@
     "@apollo/client": "^3.3.19",
     "@capacitor-community/electron": "^4.0.3",
     "@capacitor/core": "^3.2.3",
-    "@deep-foundation/deeplinks": "0.0.2",
+    "@deep-foundation/deeplinks": "0.0.5",
     "@deep-foundation/hasura": "0.0.3",
     "@deep-foundation/materialized-path": "0.0.3",
     "@deep-foundation/store": "^0.0.3",

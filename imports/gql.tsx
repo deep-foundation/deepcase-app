@@ -4,10 +4,16 @@ import { useCallback } from 'react';
 import { generateMutation, generateSerial, ISerialOptions } from '@deep-foundation/deeplinks/imports/gql';
 
 export const JWT = gql`query JWT($linkId: Int) {
-  jwt(input: {role: "link", linkId: $linkId}) {
+  jwt(input: {linkId: $linkId}) {
     linkId
     token
-    role
+  }
+}`;
+
+export const GUEST = gql`query GUEST {
+  guest {
+    linkId
+    token
   }
 }`;
 

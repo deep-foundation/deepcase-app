@@ -1,13 +1,15 @@
-import { useQuery } from '@apollo/client';
+import { useQuery, useApolloClient } from '@apollo/client';
 import { useTokenController } from '@deep-foundation/deeplinks/imports/react-token';
-import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client';
 import { useLocalStore } from '@deep-foundation/store/local';
 import { useEffect } from 'react';
-import { JWT } from './gql';
+import { GUEST, JWT } from './gql';
 
 export function useAuthNode() {
-  return useLocalStore('use_auth_link_id', '');
+  return useLocalStore('use_auth_link_id', 0);
 }
+
+export const adminId = 39;
+export const adminToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwczovL2hhc3VyYS5pby9qd3QvY2xhaW1zIjp7IngtaGFzdXJhLWFsbG93ZWQtcm9sZXMiOlsibGluayJdLCJ4LWhhc3VyYS1kZWZhdWx0LXJvbGUiOiJsaW5rIiwieC1oYXN1cmEtdXNlci1pZCI6IjM5In0sImlhdCI6MTYzNzAzMjQwNn0.EtYolslSV66xKe7Bx4x3MkS-dQL5hPqaUqE0eStH3KE`;
 
 export function AuthProvider({
   children,
@@ -24,21 +26,30 @@ export function useAuth() {
   const [linkId, setLinkId] = useAuthNode();
   const [token, setToken] = useTokenController();
   const gql = useQuery(JWT, { variables: {}, skip: true });
+  const client = useApolloClient();
 
   return {
     token,
     linkId,
     setLinkId: async (linkId) => {
       if (!+linkId) {
-        setLinkId(linkId);
-        setToken('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwczovL2hhc3VyYS5pby9qd3QvY2xhaW1zIjp7IngtaGFzdXJhLWFsbG93ZWQtcm9sZXMiOlsiZ3Vlc3QiXSwieC1oYXN1cmEtZGVmYXVsdC1yb2xlIjoiZ3Vlc3QiLCJ4LWhhc3VyYS11c2VyLWlkIjoiZ3Vlc3QifSwiaWF0IjoxNjIxMzg2MDk2fQ.jwukXmInG4-w_4nObzqvMJZRCd4a1AXnW4cHrNF2xKY');
+        setLinkId(adminId);
+        setToken(adminToken);
         return;
       }
       const result = await gql.refetch({ linkId });
-      console.log({ linkId, result, gql });
-      if (result?.data?.jwt?.token) {
+      const { linkId: lid, token } = result?.data?.jwt;
+      if (token && linkId) {
+        setLinkId(lid);
+        setToken(token);
+      }
+    },
+    guest: async () => {
+      const result = await client.query({ query: GUEST });
+      const { linkId, token } = result?.data?.guest;
+      if (token && linkId) {
         setLinkId(linkId);
-        setToken(result?.data?.jwt?.token);
+        setToken(token);
       }
     },
   };

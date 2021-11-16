@@ -5,6 +5,9 @@ import { generateRemoteSchema } from '@deep-foundation/hasura/remote-schema';
 import gql from 'graphql-tag';
 import { insertLink } from '../../imports/gql';
 
+const JWT_SECRET = process.env.JWT_SECRET;
+const jwt_secret = JSON.parse(JWT_SECRET);
+
 const typeDefs = gql`
   type Query {
     guest: GuestOutput
@@ -25,8 +28,11 @@ const resolvers = {
   Query: {
     guest: async (source, args, context, info) => {
       const result = await client.mutate(insertLink({ type_id: GLOBAL_ID_USER }));
-      const linkId = result?.data?.m0?.[0]?.id;
-      const token = jwt({ linkId });
+      const linkId = result?.data?.m0?.returning?.[0]?.id;
+      const token = jwt({
+        secret: jwt_secret.key,
+        linkId,
+      });
       return { token, linkId };
     },
   }

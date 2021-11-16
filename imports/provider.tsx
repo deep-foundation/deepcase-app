@@ -5,7 +5,7 @@ import { LocalStoreProvider } from '@deep-foundation/store/local';
 import { QueryStoreProvider } from '@deep-foundation/store/query';
 import { colors, createTheme, ThemeProvider } from './ui';
 import React, { useEffect } from 'react';
-import { AuthProvider } from './auth';
+import { adminToken, AuthProvider } from './auth';
 import { Analitics } from './analitics';
 
 const temp = createTheme({});
@@ -66,7 +66,7 @@ export function ProviderConnected({
   const client = useApolloClient();
   useEffect(() => {
     setTimeout(() => {
-      if (!token) setToken('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwczovL2hhc3VyYS5pby9qd3QvY2xhaW1zIjp7IngtaGFzdXJhLWFsbG93ZWQtcm9sZXMiOlsiZ3Vlc3QiXSwieC1oYXN1cmEtZGVmYXVsdC1yb2xlIjoiZ3Vlc3QiLCJ4LWhhc3VyYS11c2VyLWlkIjoiZ3Vlc3QifSwiaWF0IjoxNjIxMzg2MDk2fQ.jwukXmInG4-w_4nObzqvMJZRCd4a1AXnW4cHrNF2xKY');
+      if (!token) setToken(adminToken);
     }, 0);
   }, [token]);
 
