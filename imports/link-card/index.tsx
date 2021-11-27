@@ -88,9 +88,7 @@ export function LinkCard({
                   variant="outlined" size="small" fullWidth
                   defaultValue={link?.value?.[column?.value?.value || 'value'] || ''}
                   onChange={async (e) => {
-                    console.log(1);
                     if (!link?.value) return;
-                    console.log(2);
                     await client.mutate(generateSerial({
                       actions: [
                         generateMutation({

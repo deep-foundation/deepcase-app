@@ -10,7 +10,7 @@ import { gql } from 'apollo-boost';
 import vm from 'vm';
 
 import { generatePermissionWhere, permissions } from '@deep-foundation/deeplinks/imports/permission';
-import { GLOBAL_ID_TABLE_VALUE, GLOBAL_ID_TABLE_COLUMN, DENIED_IDS, ALLOWED_IDS } from '@deep-foundation/deeplinks/imports/global-ids';
+import { GLOBAL_ID_TABLE_VALUE, GLOBAL_ID_TABLE_COLUMN, DENIED_IDS, ALLOWED_IDS, GLOBAL_ID_STRING, GLOBAL_ID_JSON, GLOBAL_ID_NUMBER } from '@deep-foundation/deeplinks/imports/global-ids';
 import { reject, resolve } from '@deep-foundation/deeplinks/imports/promise';
 
 const SCHEMA = 'public';
@@ -29,6 +29,12 @@ const client = generateApolloClient({
   secret: process.env.MIGRATIONS_HASURA_SECRET,
 });
 
+export const ColumnTypeToSQLColumnType = {
+  [GLOBAL_ID_STRING]: 'TEXT',
+  [GLOBAL_ID_NUMBER]: 'float8',
+  [GLOBAL_ID_JSON]: 'jsonb',
+};
+
 const cors = Cors({ methods: ['GET', 'HEAD', 'POST'] });
 export default async (req, res) => {
   await corsMiddleware(req, res, cors);
@@ -40,6 +46,7 @@ export default async (req, res) => {
       const newRow = event?.data?.new;
       const current = operation === 'DELETE' ? oldRow : newRow;
       const typeId = current.type_id;
+      console.log(current);
 
       try {
         // type |== type: handle ==> INSERT symbol (ONLY)
@@ -65,7 +72,7 @@ export default async (req, res) => {
         // }
 
         // tables
-        if (typeId === 6) {
+        if (typeId === GLOBAL_ID_TABLE_VALUE) {
           const results = await client.query({ query: gql`query SELECT_TABLE_STRUCTURE($tableId: bigint) {
             links(where: {id: {_eq: $tableId}}) {
               id
@@ -84,7 +91,7 @@ export default async (req, res) => {
           const table = results?.data?.links?.[0];
           const tableName = 'table'+table?.id;
           const valuesCount = table?.values?.aggregate?.count;
-          const columns = (table?.columns || []).map(c => ({ name: `${c?.value?.value || 'value'}`, type: 'TEXT' }));
+          const columns = (table?.columns || []).map(c => ({ name: `${c?.value?.value || 'value'}`, type: ColumnTypeToSQLColumnType?.[c?.to_id] || 'TEXT' }));
 
           debug('table', { tableName, columns, valuesCount });
 

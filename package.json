@@ -29,6 +29,7 @@
     "cross-env": "^7.0.3",
     "dotenv": "^8.2.0",
     "dotenv-load": "^2.0.0",
+    "gists": "^2.0.0",
     "graphiql": "^1.4.2",
     "jsonwebtoken": "^8.5.1",
     "next": "^10.2.3",

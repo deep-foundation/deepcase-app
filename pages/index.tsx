@@ -504,7 +504,7 @@ export function PageContent() {
                         if (container) await insertLinkD({
                           from_id: container,
                           to_id: r?.data?.m0?.returning?.[0]?.id,
-                          type_id: 13,
+                          type_id: GLOBAL_ID_CONTAIN,
                         });
                       }}
                     ><Add/></Button>
