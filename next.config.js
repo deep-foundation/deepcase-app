@@ -11,6 +11,7 @@ module.exports = withNextEnv({
   future: { webpack5: true },
   webpack: (config) => {
     config.resolve.fallback = {
+      "os": false,
       "fs": false,
       "tls": false,
       "net": false,
