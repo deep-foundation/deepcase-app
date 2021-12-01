@@ -15,6 +15,7 @@
     "@capacitor-community/electron": "^4.0.3",
     "@capacitor/core": "^3.2.3",
     "@deep-foundation/deeplinks": "0.0.13",
+    "@deep-foundation/hasura": "0.0.7",
     "@deep-foundation/materialized-path": "0.0.8",
     "@deep-foundation/store": "^0.0.3",
     "@graphiql/toolkit": "^0.2.2",
@@ -46,7 +47,8 @@
     "three-bmfont-text": "^3.0.1",
     "three-spritetext": "^1.6.2",
     "typescript": "^4.4.4",
-    "use-debounce": "^6.0.1"
+    "use-debounce": "^6.0.1",
+    "ws": "^7.5.6"
   },
   "engines": {
     "node": "^14.15.0"

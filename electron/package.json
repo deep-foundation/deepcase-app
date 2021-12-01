@@ -21,9 +21,9 @@
   },
   "dependencies": {
     "@capacitor-community/electron": "^4.0.1",
-    "@deep-foundation/deeplinks": "0.0.11",
-    "@deep-foundation/hasura": "0.0.5",
-    "@deep-foundation/materialized-path": "0.0.6",
+    "@deep-foundation/deeplinks": "0.0.13",
+    "@deep-foundation/hasura": "0.0.7",
+    "@deep-foundation/materialized-path": "0.0.8",
     "chokidar": "~3.5.2",
     "electron-is-dev": "~2.0.0",
     "electron-serve": "~1.1.0",
