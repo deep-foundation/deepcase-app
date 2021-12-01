@@ -41,7 +41,8 @@ export function useEngine() {
   };
 }
 
-const isMac = process.platform === 'darwin';
+// const isMac = process.platform === 'darwin';
+const isMac = true;
 
 export const EngineWindow = React.memo<any>(function EngineWindow({
 }: {
