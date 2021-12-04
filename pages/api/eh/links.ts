@@ -10,7 +10,18 @@ import { gql } from 'apollo-boost';
 import vm from 'vm';
 
 import { generatePermissionWhere, permissions } from '@deep-foundation/deeplinks/imports/permission';
-import { GLOBAL_ID_TABLE_VALUE, GLOBAL_ID_TABLE_COLUMN, DENIED_IDS, ALLOWED_IDS, GLOBAL_ID_STRING, GLOBAL_ID_JSON, GLOBAL_ID_NUMBER } from '@deep-foundation/deeplinks/imports/global-ids';
+import { 
+  GLOBAL_ID_TABLE_VALUE,
+  GLOBAL_ID_TABLE_COLUMN,
+  DENIED_IDS, ALLOWED_IDS,
+  GLOBAL_ID_STRING,
+  GLOBAL_ID_JSON,
+  GLOBAL_ID_NUMBER,
+  GLOBAL_ID_SYNC_TEXT_FILE,
+  GLOBAL_ID_HANDLER,
+  GLOBAL_ID_JS_EXECUTION_PROVIDER,
+  GLOBAL_ID_HANDLE_INSERT,
+} from '@deep-foundation/deeplinks/imports/global-ids';
 import { reject, resolve } from '@deep-foundation/deeplinks/imports/promise';
 
 const SCHEMA = 'public';
@@ -70,6 +81,40 @@ export default async (req, res) => {
         //     debug(error);
         //   }
         // }
+
+        const handleStringResult = await client.query({ query: gql`query SELECT_CODE($typeId: bigint) { links(where: {
+          type_id: { _eq: ${GLOBAL_ID_SYNC_TEXT_FILE} },
+          # to_id: { _eq: 16 },
+          # from_id: { _eq:  }
+          in: {
+            from_id: { _eq: ${GLOBAL_ID_JS_EXECUTION_PROVIDER} },
+            type_id: { _eq: ${GLOBAL_ID_HANDLER} },
+            in: {
+              from: {
+                type_id: { _eq: $typeId },
+              },
+              type_id: { _eq: ${GLOBAL_ID_HANDLE_INSERT} },
+            }
+          }
+        }) {
+          id
+          value
+        } }`, variables: {
+          typeId,
+        }});
+        
+        // console.log(handleStringResult);
+        console.log(JSON.stringify(handleStringResult, null, 2));
+        console.log(handleStringResult?.data?.links?.[0]?.value);
+
+        const code = handleStringResult?.data?.links?.[0]?.value?.value;
+        if (code) {
+          try { 
+            vm.runInNewContext(code, { console, Error, oldRow, newRow });
+          } catch(error) {
+            debug(error);
+          }
+        }
 
         // tables
         if (typeId === GLOBAL_ID_TABLE_VALUE) {
