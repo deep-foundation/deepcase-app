@@ -42,7 +42,8 @@ export function useEngine() {
 }
 
 // const isMac = process.platform === 'darwin';
-const isMac = typeof window !== 'undefined' ? navigator.platform.toUpperCase().indexOf("MAC") >= 0 : false;
+const isGitpod = !!process.env['GITPOD_GIT_USER_EMAIL'] && !!process.env['GITPOD_TASKS'];
+const isMac = typeof window !== 'undefined' ? navigator.platform.toUpperCase().indexOf("MAC") >= 0 && !isGitpod : false;
 
 export const EngineWindow = React.memo<any>(function EngineWindow({
 }: {
