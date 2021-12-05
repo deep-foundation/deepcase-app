@@ -42,7 +42,7 @@ export function useEngine() {
 }
 
 // const isMac = process.platform === 'darwin';
-const isMac = true;
+const isMac = typeof window !== 'undefined' ? navigator.platform.toUpperCase().indexOf("MAC") >= 0 : false;
 
 export const EngineWindow = React.memo<any>(function EngineWindow({
 }: {
