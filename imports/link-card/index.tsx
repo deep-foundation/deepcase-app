@@ -14,6 +14,7 @@ import { LinkCardPackage } from './types/package';
 import { Packager } from '@deep-foundation/deeplinks/imports/packager';
 import { generateMutation, generateSerial } from '@deep-foundation/deeplinks/imports/gql';
 import { GLOBAL_ID_TABLE, GLOBAL_ID_TABLE_COLUMN, GLOBAL_ID_TABLE_VALUE } from '@deep-foundation/deeplinks/imports/global-ids';
+import { DeepClient } from '@deep-foundation/deeplinks/imports/client';
 
 export function LinkCard({
   link,
@@ -50,7 +51,7 @@ export function LinkCard({
   useEffect(() => {
     if (process.browser) {
       // @ts-ignore
-      window.packager = new Packager(client);
+      window.packager = new Packager(new DeepClient({ apolloClient: client }));
       // @ts-ignore
       console.log(window.packager);
     }
