@@ -39,3 +39,7 @@ cross-env ASSET_PREFIX='.' npm run build;
 npm run export;
 npx cap copy electron; npx cap open electron;
 ```
+
+## setting icons for electron
+
+put files in public dir and if need change package.json / electron-build ... electron-packager --icon parametr. Use this [manual](https://electron.github.io/electron-packager/main/interfaces/electronpackager.options.html#icon)
