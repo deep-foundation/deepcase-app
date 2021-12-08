@@ -13,6 +13,8 @@ export NEXT_PUBLIC_HASURA_PATH=localhost:8080;
 export NEXT_PUBLIC_HASURA_PATH=localhost:8080;
 export NEXT_PUBLIC_HASURA_SSL=0;
 
+export NEXT_PUBLIC_ENGINES=1;
+
 export JWT_SECRET=<?>;
 ```
 

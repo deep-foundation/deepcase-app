@@ -12,9 +12,21 @@ import { PaperPanel } from '../pages';
 
 const _call = (options: IOptions) => axios.post(`${process.env.NEXT_PUBLIC_DEEPLINKS_SERVER}/api/deeplinks`, options).then(console.log, console.log);
 
-export function useEngineConnected() {
-  return useLocalStore('dc-connected', false);
+export const NEXT_PUBLIC_ENGINES = !!+process.env.NEXT_PUBLIC_ENGINES;
+
+let _useEngineConnected;
+
+if (NEXT_PUBLIC_ENGINES) {
+  _useEngineConnected = function useEngineConnected() {
+    return useLocalStore('dc-connected', false);
+  }
+} else {
+  _useEngineConnected = function useEngineConnected() {
+    const s = useState(true);
+    return [true, s[1]];
+  }
 }
+export const useEngineConnected = _useEngineConnected;
 
 export function useEnginePath() {
   return useLocalStore('dc-path', '');
