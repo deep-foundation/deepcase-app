@@ -129,11 +129,13 @@ export const EnginePanel = React.memo<any>(function EnginePanel({
   const { regenerate } = useApolloClientRegenerator();
 
   return <>
-    <ButtonGroup variant="outlined">
-      <Button onClick={async () => {
-        await call({ operation: 'sleep', envs: { PATH: path } });
-        regenerate();
-      }}>sleep</Button>
-    </ButtonGroup>
+    {NEXT_PUBLIC_ENGINES && <>
+      <ButtonGroup variant="outlined">
+        <Button onClick={async () => {
+          await call({ operation: 'sleep', envs: { PATH: path } });
+          regenerate();
+        }}>sleep</Button>
+      </ButtonGroup>
+    </>}
   </>;
 });
