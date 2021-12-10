@@ -54,8 +54,8 @@ export function useEngine() {
 }
 
 // const isMac = process.platform === 'darwin';
-const isGitpod = process.env['NEXT_PUBLIC_PLATFORM'] === 'gitpod';
-const isMac = typeof window !== 'undefined' ? navigator.platform.toUpperCase().indexOf("MAC") >= 0 && !isGitpod : false;
+const hidePath = process.env['NEXT_PUBLIC_HIDEPATH'] === '1';
+const isMac = typeof window !== 'undefined' ? navigator.platform.toUpperCase().indexOf("MAC") >= 0 && !hidePath : false;
 
 export const EngineWindow = React.memo<any>(function EngineWindow({
 }: {
