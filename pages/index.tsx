@@ -1,6 +1,5 @@
 import { useSubscription } from '@apollo/client';
 import { Capacitor } from '@capacitor/core';
-import { GLOBAL_ID_CONTAIN, GLOBAL_ID_PACKAGE, GLOBAL_ID_PROMISE, GLOBAL_ID_THEN, GLOBAL_ID_RESOLVED, GLOBAL_ID_REJECTED } from '@deep-foundation/deeplinks/imports/global-ids';
 import { minilinks } from '@deep-foundation/deeplinks/imports/minilinks';
 import { useTokenController } from '@deep-foundation/deeplinks/imports/react-token';
 import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client';
@@ -25,6 +24,7 @@ import { ForceGraph, ForceGraph2D, ForceGraph3D, ForceGraphVR, SpriteText, Three
 import { LinkCard } from '../imports/link-card/index';
 import { Provider } from '../imports/provider';
 import { Backdrop, Button, ButtonGroup, Grid, IconButton, makeStyles, Paper, Popover, TextField, Typography } from '../imports/ui';
+import { GLOBAL_ID_CONTAIN, GLOBAL_ID_PACKAGE, GLOBAL_ID_PROMISE,  GLOBAL_ID_RESOLVED, GLOBAL_ID_REJECTED, GLOBAL_ID_THEN } from '@deep-foundation/deeplinks/imports/client';
 
 import pckg from '../package.json';
 
