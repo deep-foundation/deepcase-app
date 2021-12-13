@@ -15,15 +15,6 @@ export function LinkCardPackage({
 
   return <>
     <Grid container spacing={1}>
-      <Grid item xs={12}><Button
-        size="small" variant="outlined" fullWidth
-        onClick={() => {
-          // @ts-ignore
-          packager.export({ packageLinkId: link.id }).then(console.log, console.log);
-        }}
-      >
-        export
-      </Button></Grid>
     </Grid>
   </>;
 }

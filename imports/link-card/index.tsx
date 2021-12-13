@@ -46,18 +46,6 @@ export function LinkCard({
         {link?.id === 1 && <Grid item xs={12}>
           <LinkCardType link={link}/>
         </Grid>}
-        {link?.type_id === 14 && <Grid item xs={12}>
-          <LinkCardSubject link={link}/>
-        </Grid>}
-        {link?.type_id === 9 && <Grid item xs={12}>
-          <LinkCardRule link={link}/>
-        </Grid>}
-        {link?.type?.value?.value === 'Package' && <Grid item xs={12}>
-          <LinkCardPackage link={link}/>
-        </Grid>}
-        <Grid item xs={12}>
-          <Divider/>
-        </Grid>
         {!!link?.string && <Grid item xs={12}>
           <TextField fullWidth variant="outlined" size="small" defaultValue={link?.string?.value} onChange={(e) => update({ id: { _eq: link?.string?.id } }, { value: e.target.value}, { table: 'strings' })}/>
         </Grid>}
