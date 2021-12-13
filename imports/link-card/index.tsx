@@ -1,8 +1,11 @@
-import { DeepClient } from '@deep-foundation/deeplinks/imports/client';
+import { DeepClient, useDeep } from '@deep-foundation/deeplinks/imports/client';
 import { Packager } from '@deep-foundation/deeplinks/imports/packager';
 import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client';
+import { TextField } from '@material-ui/core';
+import { useDebounceCallback } from '@react-hook/debounce';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
+import { useDeepGraph } from '../../pages';
 import { deleteBoolExp, insertBoolExp, updateBoolExp } from '../gql';
 import { Card, CardActions, CardContent, Divider, Grid, Typography } from '../ui';
 import { LinkCardPackage } from './types/package';
@@ -17,17 +20,8 @@ export function LinkCard({
   link: any;
 }) {
   const client = useApolloClient();
-  const insertBoolExpD = useCallback(async () => (
-    await client.mutate(insertBoolExp(link.id, ''))
-  ), [link]);
-  const updateBoolExpD = useDebouncedCallback(async (value) => (
-    await client.mutate(updateBoolExp(link.bool_exp.id, value))
-  ), 1000);
-  const deleteBoolExpD = useCallback(async () => (
-    await client.mutate(deleteBoolExp(link.bool_exp.id))
-  ), [link?.bool_exp?.id]);
-
-  const [valueInserted, setValueInserted] = useState(false);
+  const deep = useDeep();
+  const update = useDebounceCallback((...args: any[]) => deep.update.call(deep, ...args), 1000);
 
   useEffect(() => {
     if (process.browser) {
@@ -38,11 +32,14 @@ export function LinkCard({
     }
   }, []);
 
+  const { focusLink } = useDeepGraph();
+
   // NeedPackerTypeNaming
 
   return <Card>
     <CardContent>
-      <Typography>{link?.id} {link?.type?.string?.value}</Typography>
+      <Typography style={{ cursor: 'pointer' }} onClick={() => focusLink(link.id)}>id: {link?.id}: {link?.value?.value}</Typography>
+      <Typography style={{ cursor: 'pointer' }} onClick={() => focusLink(link.type_id)} variant="caption">type_id: {link?.type_id}: {link?.type?.string?.value}</Typography>
     </CardContent>
     <CardActions>
       <Grid container spacing={1}>
@@ -61,6 +58,12 @@ export function LinkCard({
         <Grid item xs={12}>
           <Divider/>
         </Grid>
+        {!!link?.string && <Grid item xs={12}>
+          <TextField fullWidth variant="outlined" size="small" defaultValue={link?.string?.value} onChange={(e) => update({ id: { _eq: link?.string?.id } }, { value: e.target.value}, { table: 'strings' })}/>
+        </Grid>}
+        {!!link?.number && <Grid item xs={12}>
+          <TextField fullWidth variant="outlined" size="small" defaultValue={link?.number?.value} onChange={(e) => update({ id: { _eq: link?.number?.id } }, { value: e.target.value}, { table: 'numbers' })} type="number"/>
+        </Grid>}
       </Grid>
     </CardActions>
   </Card>;

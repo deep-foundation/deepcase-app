@@ -33,6 +33,7 @@ if (_.get(process, 'browser')) {
 
   ForceGraph = (props: any) => {
     const fgRef = useRef<any>();
+    const activeRef = props?.fgRef || fgRef;
     const [last, setLast] = useState(0);
     const Component = props.Component || ForceGraph3D;
     const classes = useStyles();
@@ -44,7 +45,7 @@ if (_.get(process, 'browser')) {
       if (res < 600) {
         const distance = 300;
         const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
-        fgRef.current.cameraPosition(
+        activeRef.current.cameraPosition(
           // new position
           { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio },
           node, // lookAt ({ x, y, z })
@@ -52,11 +53,11 @@ if (_.get(process, 'browser')) {
         );
       }
       props.onNodeClick && props.onNodeClick(node);
-    }, [fgRef, last]);
+    }, [activeRef, last]);
 
     return <div className={classes.wrapper}><Component
-      ref={fgRef}
       {...props}
+      ref={activeRef}
       // TODO arrows without slow fps
       // linkDirectionalArrowLength={10}
       // linkDirectionalArrowRelPos={0.9}

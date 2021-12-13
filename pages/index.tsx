@@ -13,7 +13,7 @@ import cn from 'classnames';
 import gql from 'graphql-tag';
 import { random } from 'lodash';
 import dynamic from 'next/dynamic';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Draggable from 'react-draggable';
 import ReactResizeDetector from 'react-resize-detector';
 import { useAuth } from '../imports/auth';
@@ -143,6 +143,17 @@ export function useSelectedLinks() {
 
 const defaultGraphiqlHeight = 300;
 
+type IFocusLink = (id: number) => any;
+export const DeepGraphContext = createContext<{ focusLink: IFocusLink }>({ focusLink: (id: number) => {} });
+export function DeepGraphProvider({ children, focusLink }: { children: any; focusLink: IFocusLink }) {
+  return <DeepGraphContext.Provider value={{ focusLink }}>
+    {children}
+  </DeepGraphContext.Provider>;
+}
+export function useDeepGraph() {
+  return useContext(DeepGraphContext);
+}
+
 export function PageContent() {
   const auth = useAuth();
   const theme: any = useTheme();
@@ -228,7 +239,7 @@ export function PageContent() {
 
         nodes.push({ ...prevNodes?.[link.id], id: link.id, link: plainLink, label });
 
-        if (showTypes && link.type_id) links.push({ id: `type--${link.id}`, source: link.id, target: link.type_id, link: plainLink, type: 'type', color: isTransparent ? 'transparent' : '#ffffff' });
+        if ((showTypes || !!selectedLinks.find(i => i === link.id)) && link.type_id) links.push({ id: `type--${link.id}`, source: link.id, target: link.type_id, link: plainLink, type: 'type', color: isTransparent ? 'transparent' : '#ffffff' });
 
         if (showMP) for (let i = 0; i < link._by_item.length; i++) {
           const pos = link._by_item[i];
@@ -251,7 +262,7 @@ export function PageContent() {
       return { nodes, links };
     }
     return prevD.current;
-  }, [s, containerVisible, container, labelsConfig]);
+  }, [s, containerVisible, container, labelsConfig, selectedLinks]);
   prevD.current = outD;
   
   const mouseMove = useRef<any>();
@@ -295,346 +306,375 @@ export function PageContent() {
 
   const rootRef = useRef<any>();
 
-  return <div
-    ref={rootRef}
-    className={classes.root}
-    onMouseMove={(e) => {
-      mouseMove.current = { clientX: e.clientX, clientY: e.clientY };
-    }}
-  >
-    <ReactResizeDetector
-      handleWidth handleHeight
-      onResize={(width, height) => setWindowSize({ width, height })}
-    />
-    <Popover
-      open={!!flyPanel}
-      anchorReference="anchorPosition"
-      anchorPosition={flyPanel}
-      onClose={() => setFlyPanel(null)}
-      anchorOrigin={{
-        vertical: 'top',
-        horizontal: 'left',
-      }}
-      transformOrigin={{
-        vertical: 'top',
-        horizontal: 'left',
+  const fgRef = useRef<any>();
+  const focusLink = useCallback((id: number) => {
+    const node = (outD.nodes || [])?.find(n => n.id === id);
+
+    const distance = 40;
+    const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
+
+    var dx = node.dx,
+      dy = node.dy,
+      x = node.x,
+      y = node.y,
+      scale = Math.max(1, Math.min(8, 0.9 / Math.max(dx / rootRef?.current.outerWidth, dy / rootRef?.current.outerHeight))),
+      translate = [rootRef?.current.outerWidth / 2 - scale * x, rootRef?.current.outerHeight / 2 - scale * y];
+
+    try {
+      fgRef.current.centerAt(x, y)
+    } catch(error) {}
+    try {
+      fgRef?.current?.cameraPosition(
+        { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
+        node, // lookAt ({ x, y, z })
+        3000  // ms transition duration
+      );
+    } catch(error) {}
+  }, [outD]);
+
+  return <DeepGraphProvider focusLink={focusLink}>
+    <div
+      ref={rootRef}
+      className={classes.root}
+      onMouseMove={(e) => {
+        mouseMove.current = { clientX: e.clientX, clientY: e.clientY };
       }}
     >
-      {!!flyPanel && <div style={{ position: 'relative' }}>
-        <LinkCard link={flyPanel.link}/>
-        <IconButton
-          size="small" style={{ position: 'absolute', top: 6, right: 6 }}
-          onClick={() => {
-            setSelectedLinks([ ...selectedLinks, flyPanel.link.id ]);
-            setFlyPanel(null);
-          }}
-        ><Add/></IconButton>
-      </div>}
-    </Popover>
-    {[<ForceGraph
-      key={''+windowSize.width+windowSize.height}
-      Component={forceGraph}
-      graphData={outD}
-      backgroundColor={theme?.palette?.background?.default}
-      linkAutoColorBy={(l) => l.color || '#fff'}
-      linkOpacity={1}
-      linkWidth={0.5}
-      linkDirectionalArrowLength={3.5}
-      linkDirectionalArrowRelPos={1}
-      linkLabel={l => (
-        l.type === 'by-item'
-        ? `${l?.pos?.item_id}/${l?.pos?.path_item_id}/${l?.pos?.path_item_depth}(${l?.pos?.root_id})`
-        : ''
-      )}
-      linkCurvature={l => (
-        l.type === 'from'
-        ? 0.25
-        : l.type === 'to'
-        ? -0.25
-        : 0
-      )}
-      linkLineDash={l => (
-        l.type === 'by-item'
-        ? [5, 5]
-        : false
-      )}
-      nodeCanvasObject={(node, ctx, globalScale) => {
-        const _l = node.label || [];
+      <ReactResizeDetector
+        handleWidth handleHeight
+        onResize={(width, height) => setWindowSize({ width, height })}
+      />
+      <Popover
+        open={!!flyPanel}
+        anchorReference="anchorPosition"
+        anchorPosition={flyPanel}
+        onClose={() => setFlyPanel(null)}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+      >
+        {!!flyPanel && <div style={{ position: 'relative' }}>
+          <LinkCard link={flyPanel.link}/>
+          <IconButton
+            size="small" style={{ position: 'absolute', top: 6, right: 6 }}
+            onClick={() => {
+              setSelectedLinks([ ...selectedLinks, flyPanel.link.id ]);
+              setFlyPanel(null);
+            }}
+          ><Add/></IconButton>
+        </div>}
+      </Popover>
+      {[<ForceGraph
+        fgRef={fgRef}
+        key={''+windowSize.width+windowSize.height}
+        Component={forceGraph}
+        graphData={outD}
+        backgroundColor={theme?.palette?.background?.default}
+        linkAutoColorBy={(l) => l.color || '#fff'}
+        linkOpacity={1}
+        linkWidth={0.5}
+        linkDirectionalArrowLength={3.5}
+        linkDirectionalArrowRelPos={1}
+        linkLabel={l => (
+          l.type === 'by-item'
+          ? `${l?.pos?.item_id}/${l?.pos?.path_item_id}/${l?.pos?.path_item_depth}(${l?.pos?.root_id})`
+          : ''
+        )}
+        linkCurvature={l => (
+          l.type === 'from'
+          ? 0.25
+          : l.type === 'to'
+          ? -0.25
+          : 0
+        )}
+        linkLineDash={l => (
+          l.type === 'by-item'
+          ? [5, 5]
+          : false
+        )}
+        nodeCanvasObject={(node, ctx, globalScale) => {
+          const _l = node.label || [];
 
-        const isSelected = screenFind ? (
-          node?.link?.id.toString() === screenFind || !!(_l?.join(' ')?.includes(screenFind))
-        ) : selectedLinks?.find(id => id === node?.link?.id);
+          const isSelected = screenFind ? (
+            node?.link?.id.toString() === screenFind || !!(_l?.join(' ')?.includes(screenFind))
+          ) : selectedLinks?.find(id => id === node?.link?.id);
 
-        const fontSize = 12/globalScale;
-        ctx.font = `${fontSize}px Sans-Serif`;
-        let textWidth = 0;
-        for (var i = 0; i < _l.length; i++)
-          textWidth = ctx.measureText(node.label).width > textWidth ? ctx.measureText(node.label).width : textWidth;
-        const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
+          const fontSize = 12/globalScale;
+          ctx.font = `${fontSize}px Sans-Serif`;
+          let textWidth = 0;
+          for (var i = 0; i < _l.length; i++)
+            textWidth = ctx.measureText(node.label).width > textWidth ? ctx.measureText(node.label).width : textWidth;
+          const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
 
-        ctx.fillStyle = 'rgba(0,0,0, 0)';
-        ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, textWidth, fontSize * _l.length);
+          ctx.fillStyle = 'rgba(0,0,0, 0)';
+          ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, textWidth, fontSize * _l.length);
 
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle = isSelected ? '#fff' : '#707070';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = isSelected ? '#fff' : '#707070';
 
-        for (var i = 0; i < _l.length; i++)
-          ctx.fillText(_l[i], node.x, node.y + (i * 12/globalScale) );
-      }}
-      // nodeThreeObject={node => {
-      //   return new Three.Mesh(
-      //     [
-      //       new Three.BoxGeometry(Math.random() * 20, Math.random() * 20, Math.random() * 20),
-      //       new Three.ConeGeometry(Math.random() * 10, Math.random() * 20),
-      //       new Three.CylinderGeometry(Math.random() * 10, Math.random() * 10, Math.random() * 20),
-      //       new Three.DodecahedronGeometry(Math.random() * 10),
-      //       new Three.SphereGeometry(Math.random() * 10),
-      //       new Three.TorusGeometry(Math.random() * 10, Math.random() * 2),
-      //       new Three.TorusKnotGeometry(Math.random() * 10, Math.random() * 2)
-      //     ][node.id%7],
-      //     new Three.MeshLambertMaterial({
-      //       color: Math.round(Math.random() * Math.pow(2, 24)),
-      //       transparent: true,
-      //       opacity: 0.75
-      //     })
-      //   );
-      // }}
-      // nodeThreeObject={node => {
-      //   const _l = node.label || [];
+          for (var i = 0; i < _l.length; i++)
+            ctx.fillText(_l[i], node.x, node.y + (i * 12/globalScale) );
+        }}
+        // nodeThreeObject={node => {
+        //   return new Three.Mesh(
+        //     [
+        //       new Three.BoxGeometry(Math.random() * 20, Math.random() * 20, Math.random() * 20),
+        //       new Three.ConeGeometry(Math.random() * 10, Math.random() * 20),
+        //       new Three.CylinderGeometry(Math.random() * 10, Math.random() * 10, Math.random() * 20),
+        //       new Three.DodecahedronGeometry(Math.random() * 10),
+        //       new Three.SphereGeometry(Math.random() * 10),
+        //       new Three.TorusGeometry(Math.random() * 10, Math.random() * 2),
+        //       new Three.TorusKnotGeometry(Math.random() * 10, Math.random() * 2)
+        //     ][node.id%7],
+        //     new Three.MeshLambertMaterial({
+        //       color: Math.round(Math.random() * Math.pow(2, 24)),
+        //       transparent: true,
+        //       opacity: 0.75
+        //     })
+        //   );
+        // }}
+        // nodeThreeObject={node => {
+        //   const _l = node.label || [];
 
-      //   const isSelected = screenFind ? (
-      //     node?.link?.id.toString() === screenFind || !!(_l?.join(' ')?.includes(screenFind))
-      //   ) : selectedLinks?.find(id => id === node?.link?.id);
+        //   const isSelected = screenFind ? (
+        //     node?.link?.id.toString() === screenFind || !!(_l?.join(' ')?.includes(screenFind))
+        //   ) : selectedLinks?.find(id => id === node?.link?.id);
 
-      //   const sprite = new SpriteText(_l.join(' '));
-      //   sprite.color = isSelected ? '#fff' : '#707070';
-      //   sprite.textHeight = 8;
-      //   return new Three.Mesh(sprite);
-      // }}
-      onNodeDragEnd={node => {
-        if (node.fx) delete node.fx;
-        else node.fx = node.x;
-        if (node.fy) delete node.fy;
-        else node.fy = node.y;
-        if (node.fz) delete node.fz;
-        else node.fz = node.z;
-      }}
-      onNodeClick={(node) => {
-        onNodeClickRef.current(node);
-      }}
-      onNodeHover={(node) => {
-        
-      }}
-    />]}
-    <div className={classes.overlay}>
-      <div className={classes.top}>
-        <PaperPanel className={cn(classes.topPaper, classes.transitionHoverScale)}>
-          <Grid container justify="space-between" spacing={1}>
-            <Grid item>
-              <Grid container spacing={1}>
-                <Grid item>
-                  <ButtonGroup variant="outlined">
-                    <Button color={showTypes ? 'primary' : 'default'} onClick={() => setShowTypes(!showTypes)}>types</Button>
-                    <Button color={showMP ? 'primary' : 'default'} onClick={() => setShowMP(!showMP)}>mp</Button>
-                    <Button color={clickSelect ? 'primary' : 'default'} onClick={() => setClickSelect(!clickSelect)}>select</Button>
-                  </ButtonGroup>
-                </Grid>
-                <Grid item>
-                  <ButtonGroup variant="outlined">
-                    <Button color={promises ? 'primary' : 'default'} onClick={() => setPromises(!promises)}>promises</Button>
-                  </ButtonGroup>
-                </Grid>
-                <Grid item>
-                  <ButtonGroup variant="outlined">
-                    <Button color={labelsConfig.types ? 'primary' : 'default'} onClick={() => setLabelsConfig({ ...labelsConfig, types: !labelsConfig.types })}>types</Button>
-                    <Button color={labelsConfig.values ? 'primary' : 'default'} onClick={() => setLabelsConfig({ ...labelsConfig, values: !labelsConfig.values })}>values</Button>
-                    <Button color={labelsConfig.contains ? 'primary' : 'default'} onClick={() => setLabelsConfig({ ...labelsConfig, contains: !labelsConfig.contains })}>contains</Button>
-                  </ButtonGroup>
-                </Grid>
-                <Grid item>
-                  <ButtonGroup variant="outlined">
-                    <Button color={forceGraph == ForceGraph2D ? 'primary' : 'default'} onClick={() => setForceGraph(ForceGraph2D)}>2d</Button>
-                    <Button color={forceGraph == ForceGraph3D ? 'primary' : 'default'} onClick={() => setForceGraph(ForceGraph3D)}>3d</Button>
-                    <Button color={forceGraph == ForceGraphVR ? 'primary' : 'default'} onClick={() => setForceGraph(ForceGraphVR)}>vr</Button>
-                  </ButtonGroup>
-                </Grid>
-                <Grid item>
-                  <ButtonGroup variant="outlined">
-                    <Button
-                      color={operation === 'container' ? 'primary' : 'default'}
-                      onClick={() => setOperation(operation === 'container' ? '' : 'container')}
-                    >
-                      container: {container}
-                    </Button>
-                    <Button
-                      onClick={() => setContainer(0)}
-                    ><Clear/></Button>
-                    <Button
-                      color={containerVisible ? 'primary' : 'default'}
-                      onClick={() => setContainerVisible((containerVisible) => !containerVisible)}
-                    >
-                      {containerVisible ? <VisibilityOn/> : <VisibilityOff/>}
-                    </Button>
-                  </ButtonGroup>
-                </Grid>
-                <Grid item>
-                  <ButtonGroup variant="outlined">
-                    <Button
-                      color={graphiql ? 'primary' : 'default'}
-                      onClick={() => setGraphiql(!graphiql)}
-                    >
-                      GQL
-                    </Button>
-                  </ButtonGroup>
-                </Grid>
-                <Grid item>
-                  <ButtonGroup variant="outlined">
-                    <Button
-                      color={operation === 'pipette' ? 'primary' : 'default'}
-                      onClick={() => setOperation(operation === 'pipette' ? '' : 'pipette')}
-                    ><Colorize/></Button>
-                    <Button
-                      onClick={async () => {
-                        const r = await insertLinkD({
-                          from_id: inserting.from || 0,
-                          to_id: inserting.to || 0,
-                          type_id: inserting.type || 0,
-                        });
-                        if (container) await insertLinkD({
-                          from_id: container,
-                          to_id: r?.data?.m0?.returning?.[0]?.id,
-                          type_id: GLOBAL_ID_CONTAIN,
-                        });
-                      }}
-                    ><Add/></Button>
-                    <Button
-                      style={{ color: '#a83232' }}
-                      color={operation === 'from' ? 'primary' : 'default'}
-                      onClick={() => setOperation(operation === 'from' ? '' : 'from')}
+        //   const sprite = new SpriteText(_l.join(' '));
+        //   sprite.color = isSelected ? '#fff' : '#707070';
+        //   sprite.textHeight = 8;
+        //   return new Three.Mesh(sprite);
+        // }}
+        onNodeDragEnd={node => {
+          if (node.fx) delete node.fx;
+          else node.fx = node.x;
+          if (node.fy) delete node.fy;
+          else node.fy = node.y;
+          if (node.fz) delete node.fz;
+          else node.fz = node.z;
+        }}
+        onNodeClick={(node) => {
+          onNodeClickRef.current(node);
+        }}
+        onNodeHover={(node) => {
+          
+        }}
+      />]}
+      <div className={classes.overlay}>
+        <div className={classes.top}>
+          <PaperPanel className={cn(classes.topPaper, classes.transitionHoverScale)}>
+            <Grid container justify="space-between" spacing={1}>
+              <Grid item>
+                <Grid container spacing={1}>
+                  <Grid item>
+                    <ButtonGroup variant="outlined">
+                      <Button color={showTypes ? 'primary' : 'default'} onClick={() => setShowTypes(!showTypes)}>types</Button>
+                      <Button color={showMP ? 'primary' : 'default'} onClick={() => setShowMP(!showMP)}>mp</Button>
+                      <Button color={clickSelect ? 'primary' : 'default'} onClick={() => setClickSelect(!clickSelect)}>select</Button>
+                    </ButtonGroup>
+                  </Grid>
+                  <Grid item>
+                    <ButtonGroup variant="outlined">
+                      <Button color={promises ? 'primary' : 'default'} onClick={() => setPromises(!promises)}>promises</Button>
+                    </ButtonGroup>
+                  </Grid>
+                  <Grid item>
+                    <ButtonGroup variant="outlined">
+                      <Button color={labelsConfig.types ? 'primary' : 'default'} onClick={() => setLabelsConfig({ ...labelsConfig, types: !labelsConfig.types })}>types</Button>
+                      <Button color={labelsConfig.values ? 'primary' : 'default'} onClick={() => setLabelsConfig({ ...labelsConfig, values: !labelsConfig.values })}>values</Button>
+                      <Button color={labelsConfig.contains ? 'primary' : 'default'} onClick={() => setLabelsConfig({ ...labelsConfig, contains: !labelsConfig.contains })}>contains</Button>
+                    </ButtonGroup>
+                  </Grid>
+                  <Grid item>
+                    <ButtonGroup variant="outlined">
+                      <Button color={forceGraph == ForceGraph2D ? 'primary' : 'default'} onClick={() => setForceGraph(ForceGraph2D)}>2d</Button>
+                      <Button color={forceGraph == ForceGraph3D ? 'primary' : 'default'} onClick={() => setForceGraph(ForceGraph3D)}>3d</Button>
+                      <Button color={forceGraph == ForceGraphVR ? 'primary' : 'default'} onClick={() => setForceGraph(ForceGraphVR)}>vr</Button>
+                    </ButtonGroup>
+                  </Grid>
+                  <Grid item>
+                    <ButtonGroup variant="outlined">
+                      <Button
+                        color={operation === 'container' ? 'primary' : 'default'}
+                        onClick={() => setOperation(operation === 'container' ? '' : 'container')}
                       >
-                      from: {inserting?.from}
-                    </Button>
-                    <Button
-                      style={{ color: '#32a848' }}
-                      color={operation === 'to' ? 'primary' : 'default'}
-                      onClick={() => setOperation(operation === 'to' ? '' : 'to')}
-                    >
-                      to: {inserting?.to}
-                    </Button>
-                    <Button
-                      color={operation === 'type' ? 'primary' : 'default'}
-                      onClick={() => setOperation(operation === 'type' ? '' : 'type')}
-                    >
-                      type: {inserting?.type}
-                    </Button>
-                    <Button onClick={() => setInserting({})}><Clear/></Button>
-                  </ButtonGroup>
+                        container: {container}
+                      </Button>
+                      <Button
+                        onClick={() => setContainer(0)}
+                      ><Clear/></Button>
+                      <Button
+                        color={containerVisible ? 'primary' : 'default'}
+                        onClick={() => setContainerVisible((containerVisible) => !containerVisible)}
+                      >
+                        {containerVisible ? <VisibilityOn/> : <VisibilityOff/>}
+                      </Button>
+                    </ButtonGroup>
+                  </Grid>
+                  <Grid item>
+                    <ButtonGroup variant="outlined">
+                      <Button
+                        color={graphiql ? 'primary' : 'default'}
+                        onClick={() => setGraphiql(!graphiql)}
+                      >
+                        GQL
+                      </Button>
+                    </ButtonGroup>
+                  </Grid>
+                  <Grid item>
+                    <ButtonGroup variant="outlined">
+                      <Button
+                        color={operation === 'pipette' ? 'primary' : 'default'}
+                        onClick={() => setOperation(operation === 'pipette' ? '' : 'pipette')}
+                      ><Colorize/></Button>
+                      <Button
+                        onClick={async () => {
+                          const r = await insertLinkD({
+                            from_id: inserting.from || 0,
+                            to_id: inserting.to || 0,
+                            type_id: inserting.type || 0,
+                          });
+                          if (container) await insertLinkD({
+                            from_id: container,
+                            to_id: r?.data?.m0?.returning?.[0]?.id,
+                            type_id: GLOBAL_ID_CONTAIN,
+                          });
+                        }}
+                      ><Add/></Button>
+                      <Button
+                        style={{ color: '#a83232' }}
+                        color={operation === 'from' ? 'primary' : 'default'}
+                        onClick={() => setOperation(operation === 'from' ? '' : 'from')}
+                        >
+                        from: {inserting?.from}
+                      </Button>
+                      <Button
+                        style={{ color: '#32a848' }}
+                        color={operation === 'to' ? 'primary' : 'default'}
+                        onClick={() => setOperation(operation === 'to' ? '' : 'to')}
+                      >
+                        to: {inserting?.to}
+                      </Button>
+                      <Button
+                        color={operation === 'type' ? 'primary' : 'default'}
+                        onClick={() => setOperation(operation === 'type' ? '' : 'type')}
+                      >
+                        type: {inserting?.type}
+                      </Button>
+                      <Button onClick={() => setInserting({})}><Clear/></Button>
+                    </ButtonGroup>
+                  </Grid>
+                  <Grid item>
+                    <ButtonGroup variant="outlined">
+                      <Button
+                        color={operation === 'delete' ? 'primary' : 'default'}
+                        onClick={() => setOperation(operation === 'delete' ? '' : 'delete')}
+                      >delete</Button>
+                    </ButtonGroup>
+                  </Grid>
+                  <Grid item>
+                    <AuthPanel/>
+                  </Grid>
                 </Grid>
-                <Grid item>
-                  <ButtonGroup variant="outlined">
-                    <Button
-                      color={operation === 'delete' ? 'primary' : 'default'}
-                      onClick={() => setOperation(operation === 'delete' ? '' : 'delete')}
-                    >delete</Button>
-                  </ButtonGroup>
-                </Grid>
-                <Grid item>
-                  <AuthPanel/>
+              </Grid>
+              <Grid item>
+                <Grid container spacing={1}>
+                  <Grid item>
+                    <TextField variant="outlined" size="small"
+                      value={screenFind}
+                      onChange={e => setScreenFind(e.target.value)}
+                      placeholder="find..."
+                    />
+                  </Grid>
+                  <Grid item>
+                    <Button disabled>{pckg.version}</Button>
+                  </Grid>
+                  <Grid item>
+                    <EnginePanel/>
+                  </Grid>
                 </Grid>
               </Grid>
             </Grid>
-            <Grid item>
-              <Grid container spacing={1}>
-                <Grid item>
-                  <TextField variant="outlined" size="small"
-                    value={screenFind}
-                    onChange={e => setScreenFind(e.target.value)}
-                    placeholder="find..."
-                  />
-                </Grid>
-                <Grid item>
-                  <Button disabled>{pckg.version}</Button>
-                </Grid>
-                <Grid item>
-                  <EnginePanel/>
-                </Grid>
+          </PaperPanel>
+        </div>
+        <div className={classes.right}>
+          <PaperPanel className={cn(classes.rightPaper, classes.transitionHoverScale)}>
+            <Grid container spacing={1}>
+              <Grid item xs={12}>
+                <Button variant="outlined" fullWidth onClick={() => setSelectedLinks([])}>
+                  clear
+                </Button>
               </Grid>
+              <Grid item xs={12}><LinkCard link={{ id: 1, type: 1 }}/></Grid>
+              {selectedLinks.map((id) => {
+                const link = ml.byId[id];
+                return <Grid key={id} item xs={12} style={{ position: 'relative' }}>
+                  <LinkCard link={link}/>
+                  <IconButton
+                    size="small" style={{ position: 'absolute', top: 6, right: 6 }}
+                    onClick={() => setSelectedLinks(selectedLinks.filter(link => link !== id))}
+                  ><Clear/></IconButton>
+                </Grid>;
+              })}
             </Grid>
-          </Grid>
-        </PaperPanel>
-      </div>
-      <div className={classes.right}>
-        <PaperPanel className={cn(classes.rightPaper, classes.transitionHoverScale)}>
-          <Grid container spacing={1}>
-            <Grid item xs={12}>
-              <Button variant="outlined" fullWidth onClick={() => setSelectedLinks([])}>
-                clear
-              </Button>
-            </Grid>
-            <Grid item xs={12}><LinkCard link={{ id: 1, type: 1 }}/></Grid>
-            {selectedLinks.map((id) => {
-              const link = ml.byId[id];
-              return <Grid key={id} item xs={12} style={{ position: 'relative' }}>
-                <LinkCard link={link}/>
-                <IconButton
-                  size="small" style={{ position: 'absolute', top: 6, right: 6 }}
-                  onClick={() => setSelectedLinks(selectedLinks.filter(link => link !== id))}
-                ><Clear/></IconButton>
-              </Grid>;
-            })}
-          </Grid>
-        </PaperPanel>
-      </div>
-      <div className={classes.bottom} style={{ height: graphiql ? graphiqlHeight : 0 }}>
-        <PaperPanel className={classes.bottomPaper} elevation={1}>
-          {/* @ts-ignore */}
-          <Graphiql defaultQuery={LINKS_string} onVisualize={(query: string, variables: any) => {
-            setQuery(gql`
-              #${random(0, 9999)}
-              ${query}
-            `);
-            setVariables(variables);
-          }}/>
-        </PaperPanel>
-      </div>
-    </div>
-    {!!connected && graphiql && <Draggable
-      axis="y"
-      handle=".handle"
-      defaultPosition={{x: 0, y: 0}}
-      position={null}
-      scale={1}
-      onStart={(data) => {
-      }}
-      onDrag={(data) => {
-      }}
-      onStop={(data: any) => {
-        setGraphiqlHeight((window.innerHeight - data?.pageY) - 10);
-      }}
-    >
-      <div style={{
-        position: 'fixed', zIndex: 10, bottom: defaultGraphiqlHeight, left: 0,
-        width: '100%', height: 10,
-        userSelect: 'none',
-      }}>
-        <div className="handle" style={{
-          height: '100%', width: '100%', position: 'relative',
-        }}>
-          <div style={{
-            position: 'absolute', left: 'calc(50% - 30px)', top: 'calc(50% - 3px)', 
-            width: 60, height: 6, backgroundColor: 'grey', borderRadius: 7,
-          }}></div>
+          </PaperPanel>
+        </div>
+        <div className={classes.bottom} style={{ height: graphiql ? graphiqlHeight : 0 }}>
+          <PaperPanel className={classes.bottomPaper} elevation={1}>
+            {/* @ts-ignore */}
+            <Graphiql defaultQuery={LINKS_string} onVisualize={(query: string, variables: any) => {
+              setQuery(gql`
+                #${random(0, 9999)}
+                ${query}
+              `);
+              setVariables(variables);
+            }}/>
+          </PaperPanel>
         </div>
       </div>
-    </Draggable>}
-    <Backdrop className={classes.backdrop} open={!connected}>
-      <PaperPanel flying>
-        <EngineWindow/>
-        <Typography align='center'><Button disabled>{pckg.version}</Button></Typography>
-      </PaperPanel>
-    </Backdrop>
-  </div>
+      {!!connected && graphiql && <Draggable
+        axis="y"
+        handle=".handle"
+        defaultPosition={{x: 0, y: 0}}
+        position={null}
+        scale={1}
+        onStart={(data) => {
+        }}
+        onDrag={(data) => {
+        }}
+        onStop={(data: any) => {
+          setGraphiqlHeight((window.innerHeight - data?.pageY) - 10);
+        }}
+      >
+        <div style={{
+          position: 'fixed', zIndex: 10, bottom: defaultGraphiqlHeight, left: 0,
+          width: '100%', height: 10,
+          userSelect: 'none',
+        }}>
+          <div className="handle" style={{
+            height: '100%', width: '100%', position: 'relative',
+          }}>
+            <div style={{
+              position: 'absolute', left: 'calc(50% - 30px)', top: 'calc(50% - 3px)', 
+              width: 60, height: 6, backgroundColor: 'grey', borderRadius: 7,
+            }}></div>
+          </div>
+        </div>
+      </Draggable>}
+      <Backdrop className={classes.backdrop} open={!connected}>
+        <PaperPanel flying>
+          <EngineWindow/>
+          <Typography align='center'><Button disabled>{pckg.version}</Button></Typography>
+        </PaperPanel>
+      </Backdrop>
+    </div>
+  </DeepGraphProvider>;
 }
 
 export function PageConnected() {
