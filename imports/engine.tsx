@@ -8,7 +8,7 @@ import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client
 import { useApolloClientRegenerator } from '@deep-foundation/react-hasura/apollo-client-regenerator';
 import { useTheme } from '@material-ui/styles';
 import Link from 'next/link';
-import { PaperPanel } from '../pages';
+import { PaperPanel } from './gui';
 
 const _call = (options: IOptions) => axios.post(`${process.env.NEXT_PUBLIC_DEEPLINKS_SERVER}/api/deeplinks`, options).then(console.log, console.log);
 

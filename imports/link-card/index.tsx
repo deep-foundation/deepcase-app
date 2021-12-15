@@ -12,7 +12,7 @@ import { LinkCardPackage } from './types/package';
 import { LinkCardRule } from './types/rule';
 import { LinkCardSubject } from './types/subject';
 import { LinkCardType } from './types/type';
-
+import json5 from 'json5';
 
 export function LinkCard({
   link,
@@ -38,8 +38,8 @@ export function LinkCard({
 
   return <Card>
     <CardContent>
-      <Typography style={{ cursor: 'pointer' }} onClick={() => focusLink(link.id)}>id: {link?.id}: {link?.value?.value}</Typography>
-      <Typography style={{ cursor: 'pointer' }} onClick={() => focusLink(link.type_id)} variant="caption">type_id: {link?.type_id}: {link?.type?.string?.value}</Typography>
+      <Typography style={{ cursor: 'pointer' }} onClick={() => focusLink(link.id)}>id: {link?.id}: {deep.stringify(link?.value?.value)}</Typography>
+      <Typography style={{ cursor: 'pointer' }} onClick={() => focusLink(link.type_id)} variant="caption">type_id: {link?.type_id}: {deep.stringify(link?.type?.value?.value)}</Typography>
     </CardContent>
     <CardActions>
       <Grid container spacing={1}>
@@ -51,6 +51,13 @@ export function LinkCard({
         </Grid>}
         {!!link?.number && <Grid item xs={12}>
           <TextField fullWidth variant="outlined" size="small" defaultValue={link?.number?.value} onChange={(e) => update({ id: { _eq: link?.number?.id } }, { value: e.target.value}, { table: 'numbers' })} type="number"/>
+        </Grid>}
+        {!!link?.object && <Grid item xs={12}>
+          <TextField fullWidth variant="outlined" size="small" defaultValue={JSON.stringify(link?.object?.value)} onChange={(e) => {
+            let json = {};
+            try { json = json5.parse(e.target.value); } catch(error) {}
+            update(link?.object?.id, { value: json }, { table: 'objects' });
+          }}/>
         </Grid>}
       </Grid>
     </CardActions>

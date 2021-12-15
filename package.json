@@ -1,6 +1,6 @@
 {
   "name": "@deep-foundation/deepcase",
-  "version": "0.0.23",
+  "version": "0.0.24",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -14,7 +14,7 @@
     "@apollo/client": "^3.5.5",
     "@capacitor-community/electron": "^4.0.3",
     "@capacitor/core": "^3.2.3",
-    "@deep-foundation/deeplinks": "0.0.19",
+    "@deep-foundation/deeplinks": "0.0.20",
     "@deep-foundation/hasura": "0.0.7",
     "@deep-foundation/materialized-path": "0.0.8",
     "@deep-foundation/store": "^0.0.3",
@@ -32,6 +32,7 @@
     "fkill": "^8.0.0",
     "gists": "^2.0.0",
     "graphiql": "^1.4.2",
+    "json5": "^2.2.0",
     "jsonwebtoken": "^8.5.1",
     "next": "^10.2.3",
     "next-env": "^1.1.1",

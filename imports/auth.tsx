@@ -1,4 +1,5 @@
 import { useQuery, useApolloClient } from '@apollo/client';
+import { useDeep } from '@deep-foundation/deeplinks/imports/client';
 import { useTokenController } from '@deep-foundation/deeplinks/imports/react-token';
 import { useLocalStore } from '@deep-foundation/store/local';
 import { useEffect } from 'react';
@@ -8,7 +9,6 @@ export function useAuthNode() {
   return useLocalStore('use_auth_link_id', 0);
 }
 
-export const adminId = 39;
 export const adminToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwczovL2hhc3VyYS5pby9qd3QvY2xhaW1zIjp7IngtaGFzdXJhLWFsbG93ZWQtcm9sZXMiOlsibGluayJdLCJ4LWhhc3VyYS1kZWZhdWx0LXJvbGUiOiJsaW5rIiwieC1oYXN1cmEtdXNlci1pZCI6IjM5In0sImlhdCI6MTYzNzAzMjQwNn0.EtYolslSV66xKe7Bx4x3MkS-dQL5hPqaUqE0eStH3KE`;
 
 export function AuthProvider({
@@ -27,13 +27,14 @@ export function useAuth() {
   const [token, setToken] = useTokenController();
   const gql = useQuery(JWT, { variables: {}, skip: true });
   const client = useApolloClient();
+  const deep = useDeep();
 
   return {
     token,
     linkId,
     setLinkId: async (linkId) => {
       if (!+linkId) {
-        setLinkId(adminId);
+        setLinkId(await deep.id('@deep-foundation/core', 'admin'));
         setToken(adminToken);
         return;
       }
