@@ -191,6 +191,7 @@ export function PageContent() {
         const label: (string|number)[] = [];
         if (!isTransparent) {
           label.push(link?.id);
+          if (labelsConfig?.contains) (link?.inByType?.[GLOBAL_ID_CONTAIN] || []).forEach(link => link?.value?.value && label.push(`${link?.value?.value}`));
           if (labelsConfig?.values && link?.value?.value) {
             let json;
             try { json = json5.stringify(link?.value.value); } catch(error) {}
@@ -199,7 +200,6 @@ export function PageContent() {
               ? json : link?.value.value
             }`);
           }
-          if (labelsConfig?.contains) (link?.inByType?.[GLOBAL_ID_CONTAIN] || []).forEach(link => label.push(`name:${link?.value?.value}`));
           if (labelsConfig?.types) if (link?.type?.value?.value) label.push(`type:${link?.type?.value?.value}`);
         }
 

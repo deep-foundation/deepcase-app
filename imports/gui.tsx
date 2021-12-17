@@ -305,11 +305,15 @@ export function GUI({ ml }: { ml: MinilinksResult<any> }) {
                       const { data: [{ id: newSpaceId }] } = await deep.insert({
                         type_id: await deep.id('@deep-foundation/core', 'Space'),
                       });
-                      await deep.insert({
+                      const { data: [{ id: newContainId }] } = await deep.insert({
                         from_id: spaceId,
                         to_id: newSpaceId,
                         type_id: await deep.id('@deep-foundation/core', 'Contain'),
                       });
+                      await deep.insert({
+                        link_id: newContainId,
+                        value: '',
+                      }, { table: 'strings' });
                       setSpaceId(newSpaceId);
                     }}><Add/> space</Button>
                     <Button disabled={spaceId === auth.linkId} onClick={async () => {
