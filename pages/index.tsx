@@ -384,7 +384,7 @@ export function PageContent() {
           : ForceGraphVR
         }
         graphData={outD}
-        backgroundColor={'transparent'}
+        backgroundColor={bgTransparent ? 'transparent' : theme?.palette?.background?.default}
         linkAutoColorBy={(l) => l.color || '#fff'}
         linkOpacity={1}
         linkWidth={0.5}
