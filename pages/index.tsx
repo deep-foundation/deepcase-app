@@ -17,7 +17,7 @@ import { useAuth } from '../imports/auth';
 import { useClickEmitter } from '../imports/click-emitter';
 import { EngineWindow, useEngineConnected } from '../imports/engine';
 import { ForceGraph, ForceGraph2D, ForceGraph3D, ForceGraphVR, SpriteText } from '../imports/graph';
-import { GUI, PaperPanel, useBaseTypes, useClickSelect, useContainer, useContainerVisible, useForceGraph, useGraphiqlHeight, useInserting, useLabelsConfig, usePromises, useScreenFind, useShowMP, useShowTypes, useSpaceId, useWindowSize } from '../imports/gui';
+import { GUI, PaperPanel, useBackgroundTransparent, useBaseTypes, useClickSelect, useContainer, useContainerVisible, useForceGraph, useGraphiqlHeight, useInserting, useLabelsConfig, usePromises, useScreenFind, useShowMP, useShowTypes, useSpaceId, useWindowSize } from '../imports/gui';
 import { LinkCard } from '../imports/link-card/index';
 import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
@@ -37,20 +37,20 @@ const connectedPosition = (style: any) => ({
 
 const useStyles = makeStyles((theme) => ({
   "@global": {
-    body: {
-      backgroundColor: theme?.palette?.background?.default,
-    },
+    body: ({ bgTransparent }: any) => ({
+      backgroundColor: bgTransparent ? 'transparent' : theme?.palette?.background?.default,
+    }),
   },
-  root: {
+  root: ({ bgTransparent }: any) => ({
     position: 'absolute',
     top: 0,
     left: 0,
     width: '100%',
     height: '100%',
-    backgroundColor: theme?.palette?.background?.default,
+    backgroundColor: bgTransparent ? 'transparent' : theme?.palette?.background?.default,
     overflow: 'hidden',
     animation: '5s $deeplinksBackground ease'
-  },
+  }),
   backdrop: {
     zIndex: theme.zIndex.drawer + 1,
   },
@@ -117,6 +117,7 @@ export function PageContent() {
   const [operation, setOperation] = useOperation();
   const [connected, setConnected] = useEngineConnected();
   const [baseTypes, setBaseTypes] = useBaseTypes();
+  const [bgTransparent] = useBackgroundTransparent();
 
   useEffect(() => {(async () => {
     setBaseTypes({
@@ -128,7 +129,7 @@ export function PageContent() {
     });
   })()}, []);
   
-  const classes = useStyles({ connected });
+  const classes = useStyles({ connected, bgTransparent });
   const deep = useDeep();
 
   useEffect(() => {
@@ -383,7 +384,7 @@ export function PageContent() {
           : ForceGraphVR
         }
         graphData={outD}
-        backgroundColor={theme?.palette?.background?.default}
+        backgroundColor={'transparent'}
         linkAutoColorBy={(l) => l.color || '#fff'}
         linkOpacity={1}
         linkWidth={0.5}

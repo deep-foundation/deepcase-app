@@ -131,6 +131,9 @@ export function useGraphiqlHeight() {
 export function useBaseTypes() {
   return useLocalStore<any>('base-types', {});
 };
+export function useBackgroundTransparent() {
+  return useQueryStore<any>('bg-transparent', false);
+};
 
 export function GUI({ ml }: { ml: MinilinksResult<any> }) {
   const auth = useAuth();
