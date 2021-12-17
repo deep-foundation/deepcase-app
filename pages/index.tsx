@@ -434,7 +434,7 @@ export function PageContent() {
           for (var i = 0; i < _l.length; i++)
             ctx.fillText(_l[i], node.x, node.y + (i * 12/globalScale) );
         }}
-        nodeThreeObject={node => {
+        nodeThreeObject={forceGraph != 'vr' ? node => {
           const _l = [...(node.label || [])];
           _l[0] = node._focusId ? `[${_l[0]}]` : _l[0];
 
@@ -448,7 +448,7 @@ export function PageContent() {
           sprite.color = isSelected ? '#fff' : (node?.textColor || '#707070');
           sprite.textHeight = 4;
           return sprite;
-        }}
+        } : undefined}
         // nodeThreeObject={node => {
         //   return new Three.Mesh(
         //     [
