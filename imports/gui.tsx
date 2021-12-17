@@ -117,7 +117,8 @@ export function useScreenFind() {
   return useQueryStore<any>('screen-find', '');
 }
 export function useSpaceId() {
-  return useQueryStore<any>('space-id', 0);
+  const auth = useAuth();
+  return useQueryStore<any>('space-id', auth.linkId);
 }
 export function useLabelsConfig() {
   return useQueryStore('labels-config', { types: true, contains: false, values: true, focuses: false });
@@ -312,11 +313,12 @@ export function GUI({ ml }: { ml: MinilinksResult<any> }) {
                         from_id: spaceId,
                         to_id: newSpaceId,
                         type_id: await deep.id('@deep-foundation/core', 'Contain'),
+                        string: { data: { value: '' } },
                       });
-                      await deep.insert({
-                        link_id: newContainId,
-                        value: '',
-                      }, { table: 'strings' });
+                      // await deep.insert({
+                      //   link_id: newContainId,
+                      //   value: '',
+                      // }, { table: 'strings' });
                       setSpaceId(newSpaceId);
                     }}><Add/> space</Button>
                     <Button disabled={spaceId === auth.linkId} onClick={async () => {
