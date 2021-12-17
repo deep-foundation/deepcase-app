@@ -205,7 +205,33 @@ export function PageContent() {
 
         const focus = link?.inByType[baseTypes.Focus]?.find(f => f.from_id === spaceId);
 
-        if (isVisible) nodes.push({ ...prevNodes?.[link?.id], id: link?.id, link: plainLink, label, textColor: [spaceId, auth.linkId].includes(link?.id) || [baseTypes.Space, baseTypes.User].includes(link?.type_id) ? theme?.palette?.primary?.main : undefined, _focusId: focus?.id, fx: focus?.value?.value?.x, fy: focus?.value?.value?.y, fz: focus?.value?.value?.z });
+        if (isVisible) {
+          let optional;
+          if (prevNodes?.[link?.id]?._dragged) {
+            optional = { _dragged: false };
+           } else {
+            optional = {
+              fx: focus?.value?.value?.x,
+              fy: focus?.value?.value?.y,
+              fz: focus?.value?.value?.z,
+              x: focus?.value?.value?.x,
+              y: focus?.value?.value?.y,
+              z: focus?.value?.value?.z,
+            };
+          }
+          nodes.push({
+            ...prevNodes?.[link?.id],
+            id: link?.id,
+            link: plainLink,
+            label,
+            textColor: (
+              [spaceId, auth.linkId].includes(link?.id) ||
+              [baseTypes.Space, baseTypes.User].includes(link?.type_id) ? theme?.palette?.primary?.main : undefined
+            ),
+            _focusId: focus?.id,
+            ...optional,
+          });
+        }
 
         if ((showTypes) && (link?.type_id && link?.type)) links.push({ id: `type--${link?.id}`, source: link?.id, target: link?.type_id, link: plainLink, type: 'type', color: isTransparent ? 'transparent' : '#ffffff' });
 
@@ -455,20 +481,24 @@ export function PageContent() {
         onNodeDrag={(node) => {
           clearTimeout(holdRef.current.timeout);
           const { id, x, y, z, fx, fy, fz } = node;
+          const focus = ml.byId[id].inByType[baseTypes.Focus]?.find(f => f.from_id === spaceId);
           if (spaceId) {
             holdRef.current = {
               node,
               id, x, y, z, fx, fy, fz,
+              fix: holdRef.current.id === id ? holdRef.current.fix : !!focus,
               needrehold: false,
               timeout: setTimeout(async () => {
                 holdRef.current.needrehold = true;
                 const focus = ml.byId[id].inByType[baseTypes.Focus]?.find(f => f.from_id === spaceId);
                 if (focus) {
+                  holdRef.current.fix = false;
                   console.log('unfocus', { id, x, y, z, fx, fy, fz });
                   const where = { type_id: await deep.id('@deep-foundation/core', 'Focus'), from_id: spaceId, to_id: node.id };
                   await deep.delete(where);
                   console.log('unfocused');
                 } else {
+                  holdRef.current.fix = true;
                   console.log('focus');
                   const q = await deep.select({
                     type_id: await deep.id('@deep-foundation/core', 'Focus'),
@@ -496,10 +526,23 @@ export function PageContent() {
         onNodeDragEnd={async (node) => {
           clearTimeout(holdRef.current.timeout);
           const { id, x, y, z, fx, fy, fz } = node;
-          if (!holdRef?.current?.needrehold) {
-            if (node._focusId) {
-              await deep.update({ link_id: node._focusId }, { value: { x, y, z } }, { table: 'objects' });
+          if (spaceId) {
+            holdRef.current.needrehold = false;
+            const focus = ml.byId[id].inByType[baseTypes.Focus]?.find(f => f.from_id === spaceId);
+            console.log('fix', holdRef?.current?.fix, 'focus', !!focus);
+            if (focus || holdRef?.current?.fix) {
+              node.fx = x;
+              node.fy = y;
+              node.fz = z;
+            } else {
+              delete node.fx;
+              delete node.fy;
+              delete node.fz;
             }
+          }
+          if (!holdRef?.current?.needrehold && node._focusId) {
+            node._dragged = true;
+            await deep.update({ link_id: node._focusId }, { value: { x, y, z } }, { table: 'objects' });
           }
 
           holdRef.current = {};

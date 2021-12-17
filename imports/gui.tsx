@@ -302,15 +302,15 @@ export function GUI({ ml }: { ml: MinilinksResult<any> }) {
                 <Grid item>
                   <ButtonGroup variant="outlined" size="small">
                     <Button onClick={async () => {
-                      const { data: [{ id: spaceId }] } = await deep.insert({
+                      const { data: [{ id: newSpaceId }] } = await deep.insert({
                         type_id: await deep.id('@deep-foundation/core', 'Space'),
                       });
                       await deep.insert({
-                        from_id: container,
-                        to_id: auth.linkId,
+                        from_id: spaceId,
+                        to_id: newSpaceId,
                         type_id: await deep.id('@deep-foundation/core', 'Contain'),
                       });
-                      setSpaceId(spaceId);
+                      setSpaceId(newSpaceId);
                     }}><Add/> space</Button>
                     <Button disabled={spaceId === auth.linkId} onClick={async () => {
                       setSpaceId(auth.linkId);
