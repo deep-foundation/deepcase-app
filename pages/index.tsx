@@ -203,7 +203,7 @@ export function PageContent() {
           if (labelsConfig?.types) if (link?.type?.value?.value) label.push(`type:${link?.type?.value?.value}`);
         }
 
-        const focus = link?.inByType[baseTypes.Focus]?.[0];
+        const focus = link?.inByType[baseTypes.Focus]?.find(f => f.from_id === spaceId);
 
         if (isVisible) nodes.push({ ...prevNodes?.[link?.id], id: link?.id, link: plainLink, label, textColor: [spaceId, auth.linkId].includes(link?.id) || [baseTypes.Space, baseTypes.User].includes(link?.type_id) ? theme?.palette?.primary?.main : undefined, _focusId: focus?.id, fx: focus?.value?.value?.x, fy: focus?.value?.value?.y, fz: focus?.value?.value?.z });
 
@@ -454,56 +454,52 @@ export function PageContent() {
         // }}
         onNodeDrag={(node) => {
           clearTimeout(holdRef.current.timeout);
-          const { id, x, y, fx, fy } = node;
+          const { id, x, y, z, fx, fy, fz } = node;
           if (spaceId) {
             holdRef.current = {
               node,
-              id, x, y, fx, fy,
+              id, x, y, z, fx, fy, fz,
               needrehold: false,
-              timeout: setTimeout(() => {
+              timeout: setTimeout(async () => {
                 holdRef.current.needrehold = true;
+                const focus = ml.byId[id].inByType[baseTypes.Focus]?.find(f => f.from_id === spaceId);
+                if (focus) {
+                  console.log('unfocus', { id, x, y, z, fx, fy, fz });
+                  const where = { type_id: await deep.id('@deep-foundation/core', 'Focus'), from_id: spaceId, to_id: node.id };
+                  await deep.delete(where);
+                  console.log('unfocused');
+                } else {
+                  console.log('focus');
+                  const q = await deep.select({
+                    type_id: await deep.id('@deep-foundation/core', 'Focus'),
+                    from_id: spaceId,
+                    to_id: node.id,
+                  });
+                  const oldFocusId = q?.data?.[0]?.id;
+                  let focusId = oldFocusId;
+                  if (!focusId) {
+                    const { data: [{ id: newFocusId }] } = await deep.insert({
+                      type_id: await deep.id('@deep-foundation/core', 'Focus'),
+                      from_id: spaceId,
+                      to_id: node.id,
+                    });
+                    focusId = newFocusId;
+                  }
+                  node._focusId = focusId;
+                  await deep.insert({ link_id: focusId, value: { x, y, z } }, { table: 'objects', variables: { on_conflict: { constraint: 'objects_pkey', update_columns: 'value' } } });
+                  console.log('focused');
+                }
               }, 500),
             };
           }
         }}
         onNodeDragEnd={async (node) => {
           clearTimeout(holdRef.current.timeout);
-          const { x, y, z, fx, fy, fz } = node;
-          if (holdRef?.current?.needrehold && spaceId) {
-            if (node.fx || node.fy || node.fz) {
-              delete node.fx;
-              delete node.fy;
-              delete node.fz;
-
-              const where = { type_id: await deep.id('@deep-foundation/core', 'Focus'), from_id: spaceId, to_id: node.id };
-              await deep.delete(where);
-            } else {
-              node.fx = x;
-              node.fy = y;
-              node.fz = z;
-
-              const q = await deep.select({
-                type_id: await deep.id('@deep-foundation/core', 'Focus'),
-                from_id: spaceId,
-                to_id: node.id,
-              });
-              const oldFocusId = q?.data?.[0]?.id;
-              let focusId = oldFocusId;
-              if (!focusId) {
-                const { data: [{ id: newFocusId }] } = await deep.insert({
-                  type_id: await deep.id('@deep-foundation/core', 'Focus'),
-                  from_id: spaceId,
-                  to_id: node.id,
-                });
-                focusId = newFocusId;
-              }
-              node._focusId = focusId;
-              await deep.insert({ link_id: focusId, value: { x, y, z } }, { table: 'objects', variables: { on_conflict: { constraint: 'objects_pkey', update_columns: 'value' } } });
+          const { id, x, y, z, fx, fy, fz } = node;
+          if (!holdRef?.current?.needrehold) {
+            if (node._focusId) {
+              await deep.update({ link_id: node._focusId }, { value: { x, y, z } }, { table: 'objects' });
             }
-          }
-
-          if (node._focusId) {
-            await deep.update({ link_id: node._focusId }, { value: { x, y, z } }, { table: 'objects' });
           }
 
           holdRef.current = {};
