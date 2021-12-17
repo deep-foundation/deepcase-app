@@ -38,8 +38,10 @@ export function LinkCard({
 
   return <Card>
     <CardContent>
-      <Typography style={{ cursor: 'pointer' }} onClick={() => focusLink(link.id)}>id: {link?.id}: {deep.stringify(link?.value?.value)}</Typography>
-      <Typography style={{ cursor: 'pointer' }} onClick={() => focusLink(link.type_id)} variant="caption">type_id: {link?.type_id}: {deep.stringify(link?.type?.value?.value)}</Typography>
+      <Typography style={{ display: 'block', cursor: 'pointer' }} onClick={() => focusLink(link.id)}>id: {link?.id || 0}: {deep.stringify(link?.value?.value)}</Typography>
+      <Typography style={{ display: 'block', cursor: 'pointer' }} onClick={() => focusLink(link.type_id)} variant="caption">type_id: {link?.type_id || 0}: {deep.stringify(link?.type?.value?.value)}</Typography>
+      <Typography style={{ display: 'block', cursor: 'pointer' }} onClick={() => focusLink(link.from_id)} variant="caption">from_id: {link?.from_id || 0}</Typography>
+      <Typography style={{ display: 'block', cursor: 'pointer' }} onClick={() => focusLink(link.to_id)} variant="caption">to_id: {link?.to_id || 0}</Typography>
     </CardContent>
     <CardActions>
       <Grid container spacing={1}>

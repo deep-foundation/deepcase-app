@@ -1,37 +1,29 @@
-import { useSubscription } from '@apollo/client';
 import { Capacitor } from '@capacitor/core';
+import { GLOBAL_ID_CONTAIN, GLOBAL_ID_PACKAGE, GLOBAL_ID_PROMISE, GLOBAL_ID_REJECTED, GLOBAL_ID_RESOLVED, GLOBAL_ID_THEN, useDeep } from '@deep-foundation/deeplinks/imports/client';
 import { minilinks } from '@deep-foundation/deeplinks/imports/minilinks';
 import { useTokenController } from '@deep-foundation/deeplinks/imports/react-token';
 import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client';
 import { useLocalStore } from '@deep-foundation/store/local';
 import { useQueryStore } from '@deep-foundation/store/query';
-import { Add, Clear, Colorize, LaptopChromebook, Visibility as VisibilityOn , VisibilityOff } from '@material-ui/icons';
 import { useTheme } from '@material-ui/core/styles';
+import { Add } from '@material-ui/icons';
 import { useDebounceCallback } from '@react-hook/debounce';
 import axios from 'axios';
-import cn from 'classnames';
-import gql from 'graphql-tag';
-import { random } from 'lodash';
+import json5 from 'json5';
 import dynamic from 'next/dynamic';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import Draggable from 'react-draggable';
 import ReactResizeDetector from 'react-resize-detector';
 import { useAuth } from '../imports/auth';
 import { useClickEmitter } from '../imports/click-emitter';
-import { EnginePanel, EngineWindow, useEngineConnected } from '../imports/engine';
-import { deleteLink, GUEST, insertLink, JWT, LINKS_string } from '../imports/gql';
-import { ForceGraph, ForceGraph2D, ForceGraph3D, ForceGraphVR, SpriteText, Three } from '../imports/graph';
+import { EngineWindow, useEngineConnected } from '../imports/engine';
+import { ForceGraph, ForceGraph2D, ForceGraph3D, ForceGraphVR, SpriteText } from '../imports/graph';
+import { GUI, PaperPanel, useBaseTypes, useClickSelect, useContainer, useContainerVisible, useForceGraph, useGraphiqlHeight, useInserting, useLabelsConfig, usePromises, useScreenFind, useShowMP, useShowTypes, useSpaceId, useWindowSize } from '../imports/gui';
 import { LinkCard } from '../imports/link-card/index';
-import { Provider } from '../imports/provider';
-import { Backdrop, Button, ButtonGroup, Grid, IconButton, makeStyles, Paper, Popover, TextField, Typography } from '../imports/ui';
-import { GLOBAL_ID_CONTAIN, GLOBAL_ID_PACKAGE, GLOBAL_ID_PROMISE,  GLOBAL_ID_RESOLVED, GLOBAL_ID_REJECTED, GLOBAL_ID_THEN, useDeep } from '@deep-foundation/deeplinks/imports/client';
-import { flatten } from 'lodash';
-import json5 from 'json5';
-
-import pckg from '../package.json';
-import { GUI, PaperPanel, useShowTypes, usePromises, useGraphiql, useShowMP, useClickSelect, useContainer, useContainerVisible, useForceGraph, useInserting, useScreenFind, useLabelsConfig, useWindowSize, useGraphiqlHeight, useBaseTypes } from '../imports/gui';
-import { generateQuery, generateQueryData } from '@deep-foundation/deeplinks/imports/gql';
 import { DeepLoader } from '../imports/loader';
+import { Provider } from '../imports/provider';
+import { Backdrop, Button, ButtonGroup, IconButton, makeStyles, Popover, Typography } from '../imports/ui';
+import pckg from '../package.json';
+
 
 // @ts-ignore
 const Graphiql = dynamic(() => import('../imports/graphiql').then(m => m.Graphiql), { ssr: false });
@@ -107,12 +99,10 @@ export function PageContent() {
   const auth = useAuth();
   const theme: any = useTheme();
   const [windowSize, setWindowSize] = useWindowSize();
-  const [graphiqlHeight, setGraphiqlHeight] = useGraphiqlHeight();
   const [flyPanel, setFlyPanel] = useFlyPanel();
 
   const [showTypes, setShowTypes] = useShowTypes();
   const [promises, setPromises] = usePromises();
-  const [graphiql, setGraphiql] = useGraphiql();
   const [showMP, setShowMP] = useShowMP();
   const [clickSelect, setClickSelect] = useClickSelect();
   const [container, setContainer] = useContainer();
@@ -121,6 +111,7 @@ export function PageContent() {
   const [inserting, setInserting] = useInserting();
   const [screenFind, setScreenFind] = useScreenFind();
   const [labelsConfig, setLabelsConfig] = useLabelsConfig();
+  const [spaceId, setSpaceId] = useSpaceId();
 
   const [selectedLinks, setSelectedLinks] = useSelectedLinks();
   const [operation, setOperation] = useOperation();
@@ -129,8 +120,11 @@ export function PageContent() {
 
   useEffect(() => {(async () => {
     setBaseTypes({
+      Contain: await deep.id('@deep-foundation/core', 'Contain'),
       Focus: await deep.id('@deep-foundation/core', 'Focus'),
       Query: await deep.id('@deep-foundation/core', 'Query'),
+      Space: await deep.id('@deep-foundation/core', 'Space'),
+      User: await deep.id('@deep-foundation/core', 'User'),
     });
   })()}, []);
   
@@ -183,7 +177,12 @@ export function PageContent() {
       for (let l = 0; l < ml.links.length; l++) {
         const link = ml.links[l];
         const plainLink = { id: link.id, type_id: link.type_id, from_id: link.from_id, to_id: link.to_id, value: link.value };
-        const isTransparent = link.type_id === GLOBAL_ID_CONTAIN && link?.from?.type_id === GLOBAL_ID_PACKAGE && !containerVisible;
+        const isTransparent = (
+          (link.type_id === GLOBAL_ID_CONTAIN && link?.from?.type_id === GLOBAL_ID_PACKAGE && !containerVisible)
+        );
+        const isHidden = (
+          (!labelsConfig.focuses && link.type_id === baseTypes.Focus)
+        );
 
         if (!promises && [GLOBAL_ID_PROMISE, GLOBAL_ID_THEN, GLOBAL_ID_RESOLVED, GLOBAL_ID_REJECTED].includes(link.type_id)) {
           continue;
@@ -204,7 +203,8 @@ export function PageContent() {
           if (labelsConfig?.types) if (link?.type?.value?.value) label.push(`type:${link?.type?.value?.value}`);
         }
 
-        nodes.push({ ...prevNodes?.[link.id], id: link.id, link: plainLink, label, textColor: baseTypes.Query === link.type_id ? '#03a9f4' : undefined });
+        const focus = link.inByType[baseTypes.Focus]?.[0];
+        if (!isHidden) nodes.push({ ...prevNodes?.[link.id], id: link.id, link: plainLink, label, textColor: [spaceId, auth.linkId].includes(link.id) ? theme?.palette?.primary?.main : undefined, _focusId: focus?.id, fx: focus?.value?.value?.x, fy: focus?.value?.value?.y, fz: focus?.value?.value?.z });
 
         if ((showTypes) && (link.type_id && link.type)) links.push({ id: `type--${link.id}`, source: link.id, target: link.type_id, link: plainLink, type: 'type', color: isTransparent ? 'transparent' : '#ffffff' });
 
@@ -221,19 +221,25 @@ export function PageContent() {
         const link = ml.links[l];
         const plainLink = { id: link.id, type_id: link.type_id, from_id: link.from_id, to_id: link.to_id, value: link.value };
         const isTransparent = link.type_id === GLOBAL_ID_CONTAIN && link?.from?.type_id === GLOBAL_ID_PACKAGE && !containerVisible;
+        
+        const isHidden = (
+          (!labelsConfig.focuses && link.type_id === baseTypes.Focus)
+        );
 
         if (!promises && [GLOBAL_ID_PROMISE, GLOBAL_ID_THEN, GLOBAL_ID_RESOLVED, GLOBAL_ID_REJECTED].includes(link.type_id)) {
           continue;
         }
 
-        if (link.from) links.push({ id: `from--${link.id}`, source: link.id, target: link.from_id || link.id, link: plainLink, type: 'from', color: isTransparent ? 'transparent' : '#a83232' });
-        if (link.to) links.push({ id: `to--${link.id}`, source: link.id, target: link.to_id || link.id, link: plainLink, type: 'to', color: isTransparent ? 'transparent' : '#32a848' });
+        if (!isHidden) {
+          if (link.from) links.push({ id: `from--${link.id}`, source: link.id, target: link.from_id || link.id, link: plainLink, type: 'from', color: isTransparent ? 'transparent' : '#a83232' });
+          if (link.to) links.push({ id: `to--${link.id}`, source: link.id, target: link.to_id || link.id, link: plainLink, type: 'to', color: isTransparent ? 'transparent' : '#32a848' });
+        }
       }
 
       return { nodes, links };
     }
     return prevD.current;
-  }, [containerVisible, container, labelsConfig, selectedLinks, results ]);
+  }, [containerVisible, container, labelsConfig, selectedLinks, results, spaceId]);
   prevD.current = outD;
   
   const mouseMove = useRef<any>();
@@ -303,14 +309,14 @@ export function PageContent() {
     } catch(error) {}
   }, [outD]);
 
+  const holdRef = useRef<any>({});
+
   return <DeepGraphProvider focusLink={focusLink}>
-    <DeepLoader onChange={results => setResults(results)}/>
+    {[<DeepLoader key={spaceId} spaceId={spaceId} onChange={results => setResults(results)}/>]}
     <div
       ref={rootRef}
       className={classes.root}
-      onMouseMove={(e) => {
-        mouseMove.current = { clientX: e.clientX, clientY: e.clientY };
-      }}
+      onMouseUp={(e) => clearTimeout(holdRef.current)}
     >
       <ReactResizeDetector
         handleWidth handleHeight
@@ -344,7 +350,13 @@ export function PageContent() {
       {[<ForceGraph
         fgRef={fgRef}
         key={''+windowSize.width+windowSize.height}
-        Component={forceGraph}
+        Component={
+          forceGraph == '2d'
+          ? ForceGraph2D
+          : forceGraph == '3d'
+          ? ForceGraph3D
+          : ForceGraphVR
+        }
         graphData={outD}
         backgroundColor={theme?.palette?.background?.default}
         linkAutoColorBy={(l) => l.color || '#fff'}
@@ -370,12 +382,15 @@ export function PageContent() {
           : false
         )}
         nodeCanvasObject={(node, ctx, globalScale) => {
-          const _l = node.label || [];
+          const _l = [...(node.label || [])];
+          _l[0] = node._focusId ? `[${_l[0]}]` : _l[0];
 
+          // <isSelected>
           const isSelected = screenFind ? (
             node?.link?.id.toString() === screenFind || !!(_l?.join(' ')?.includes(screenFind))
-          ) : selectedLinks?.find(id => id === node?.link?.id);
-
+            ) : selectedLinks?.find(id => id === node?.link?.id);
+          // </isSelected>
+            
           const fontSize = 12/globalScale;
           ctx.font = `${fontSize}px Sans-Serif`;
           let textWidth = 0;
@@ -383,7 +398,7 @@ export function PageContent() {
             textWidth = ctx.measureText(node.label).width > textWidth ? ctx.measureText(node.label).width : textWidth;
           const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
 
-          ctx.fillStyle = 'rgba(0,0,0, 0)';
+          ctx.fillStyle = 'rgba(0,0,0,0)';
           ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, textWidth, fontSize * _l.length);
 
           ctx.textAlign = 'center';
@@ -392,6 +407,21 @@ export function PageContent() {
 
           for (var i = 0; i < _l.length; i++)
             ctx.fillText(_l[i], node.x, node.y + (i * 12/globalScale) );
+        }}
+        nodeThreeObject={node => {
+          const _l = [...(node.label || [])];
+          _l[0] = node._focusId ? `[${_l[0]}]` : _l[0];
+
+          // <isSelected>
+          const isSelected = screenFind ? (
+            node?.link?.id.toString() === screenFind || !!(_l?.join(' ')?.includes(screenFind))
+            ) : selectedLinks?.find(id => id === node?.link?.id);
+          // </isSelected>
+
+          const sprite = new SpriteText(_l.join('\n'));
+          sprite.color = isSelected ? '#fff' : (node?.textColor || '#707070');
+          sprite.textHeight = 4;
+          return sprite;
         }}
         // nodeThreeObject={node => {
         //   return new Three.Mesh(
@@ -423,51 +453,74 @@ export function PageContent() {
         //   sprite.textHeight = 8;
         //   return new Three.Mesh(sprite);
         // }}
-        onNodeDragEnd={node => {
-          if (node.fx) delete node.fx;
-          else node.fx = node.x;
-          if (node.fy) delete node.fy;
-          else node.fy = node.y;
-          if (node.fz) delete node.fz;
-          else node.fz = node.z;
+        onNodeDrag={(node) => {
+          clearTimeout(holdRef.current.timeout);
+          const { id, x, y, fx, fy } = node;
+          if (spaceId) {
+            holdRef.current = {
+              node,
+              id, x, y, fx, fy,
+              needrehold: false,
+              timeout: setTimeout(() => {
+                holdRef.current.needrehold = true;
+              }, 500),
+            };
+          }
+        }}
+        onNodeDragEnd={async (node) => {
+          clearTimeout(holdRef.current.timeout);
+          const { x, y, z, fx, fy, fz } = node;
+          if (holdRef?.current?.needrehold && spaceId) {
+            if (node.fx || node.fy || node.fz) {
+              delete node.fx;
+              delete node.fy;
+              delete node.fz;
+
+              const where = { type_id: await deep.id('@deep-foundation/core', 'Focus'), from_id: spaceId, to_id: node.id };
+              await deep.delete(where);
+            } else {
+              node.fx = x;
+              node.fy = y;
+              node.fz = z;
+
+              const q = await deep.select({
+                type_id: await deep.id('@deep-foundation/core', 'Focus'),
+                from_id: spaceId,
+                to_id: node.id,
+              });
+              const oldFocusId = q?.data?.[0]?.id;
+              let focusId = oldFocusId;
+              if (!focusId) {
+                const { data: [{ id: newFocusId }] } = await deep.insert({
+                  type_id: await deep.id('@deep-foundation/core', 'Focus'),
+                  from_id: spaceId,
+                  to_id: node.id,
+                });
+                focusId = newFocusId;
+              }
+              node._focusId = focusId;
+              await deep.insert({ link_id: focusId, value: { x, y, z } }, { table: 'objects', variables: { on_conflict: { constraint: 'objects_pkey', update_columns: 'value' } } });
+            }
+          }
+
+          if (node._focusId) {
+            await deep.update({ link_id: node._focusId }, { value: { x, y, z } }, { table: 'objects' });
+          }
+
+          holdRef.current = {};
         }}
         onNodeClick={(node) => {
           onNodeClickRef.current(node);
+        }}
+        onNodeRightClick={(node) => {
+          console.log(node, baseTypes);
+          if (node?.link?.type_id === baseTypes.Space) setSpaceId(node.id);
         }}
         onNodeHover={(node) => {
           
         }}
       />]}
       <GUI ml={ml}/>
-      {!!connected && graphiql && <Draggable
-        axis="y"
-        handle=".handle"
-        defaultPosition={{x: 0, y: 0}}
-        position={null}
-        scale={1}
-        onStart={(data) => {
-        }}
-        onDrag={(data) => {
-        }}
-        onStop={(data: any) => {
-          setGraphiqlHeight((window.innerHeight - data?.pageY) - 10);
-        }}
-      >
-        <div style={{
-          position: 'fixed', zIndex: 10, bottom: defaultGraphiqlHeight, left: 0,
-          width: '100%', height: 10,
-          userSelect: 'none',
-        }}>
-          <div className="handle" style={{
-            height: '100%', width: '100%', position: 'relative',
-          }}>
-            <div style={{
-              position: 'absolute', left: 'calc(50% - 30px)', top: 'calc(50% - 3px)', 
-              width: 60, height: 6, backgroundColor: 'grey', borderRadius: 7,
-            }}></div>
-          </div>
-        </div>
-      </Draggable>}
       <Backdrop className={classes.backdrop} open={!connected}>
         <PaperPanel flying>
           <EngineWindow/>

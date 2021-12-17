@@ -4,6 +4,7 @@ import { generateQuery, generateQueryData } from "@deep-foundation/deeplinks/imp
 import { Link, LinkRelations } from "@deep-foundation/deeplinks/imports/minilinks";
 import { useLocalStore } from "@deep-foundation/store/local";
 import { useEffect, useMemo, useState } from "react";
+import { useAuth } from "./auth";
 import { useBaseTypes } from "./gui";
 
 export function DeepLoaderFocus({
@@ -18,7 +19,6 @@ export function DeepLoaderFocus({
   const query = useMemo(() => {
     const v = (focus?.value?.value);
     const variables = deep.serializeQuery(v);
-    console.log(v, variables);
     return generateQuery({
       operation: 'subscription',
       queries: [generateQueryData({
@@ -36,20 +36,34 @@ export function DeepLoaderFocus({
     if (s?.data?.q0) onChange(s?.data?.q0);
   }, [s]);
 
-  console.log(s);
-
   return <></>;
 }
 
 export function DeepLoader({
-  onChange
+  onChange,
+  spaceId,
 }: {
   onChange: (results: { [key: string]: any[] }) => any;
+  spaceId?: number;
 }) {
   const deep = useDeep();
+  const { linkId } = useAuth();
 
   const [baseTypes, setBaseTypes] = useBaseTypes();
   const focusesCriteria = useMemo(() => {
+    const spaceSelector = spaceId ? [
+      { type_id: { _in: [baseTypes.Focus, baseTypes.Contain] }, from_id: { _eq: spaceId } },
+      { in: { type_id: { _in: [baseTypes.Focus, baseTypes.Contain] }, from_id: { _eq: spaceId } } },
+      { typed: { in: { type_id: { _in: [baseTypes.Focus, baseTypes.Contain] }, from_id: { _eq: spaceId } } } },
+    ] : [];
+    const whereTypes = {
+      _or: [
+        { type_id: { _eq: baseTypes.Space } },
+        { id: { _eq: linkId } },
+        ...spaceSelector,
+        { id: { _in: [baseTypes.Query, baseTypes.Focus, baseTypes.Space, baseTypes.User, baseTypes.Contain] } },
+      ],
+    };
     return generateQuery({
       operation: 'subscription',
       queries: [
@@ -59,10 +73,8 @@ export function DeepLoader({
           variables: {
             where: {
               _or: [
-                { in: { type_id: { _eq: baseTypes.Focus } } },
-                { typed: { in: { type_id: { _eq: baseTypes.Focus } } } },
-                { type_id: { _eq: baseTypes.Query } },
-                { id: { _in: [baseTypes.Query, baseTypes.Focus] } },
+                whereTypes,
+                { type_id: { _eq: baseTypes.Contain }, to: whereTypes },
               ],
             },
             limit: baseTypes?.Focus ? 999999 : 0,

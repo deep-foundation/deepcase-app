@@ -95,9 +95,6 @@ export function useShowTypes() {
 export function usePromises() {
   return useQueryStore('promises', false);
 }
-export function useGraphiql() {
-  return useQueryStore('graphiql', false);
-}
 export function useShowMP() {
   return useQueryStore('show-mp', false);
 }
@@ -111,7 +108,7 @@ export function useContainerVisible() {
   return useLocalStore('container-visible', true);
 }
 export function useForceGraph() {
-  return useState(ForceGraph2D);
+  return useQueryStore('force-graph-type', '2d');
 }
 export function useInserting() {
   return useQueryStore<any>('dc-dg-ins', {});
@@ -119,8 +116,11 @@ export function useInserting() {
 export function useScreenFind() {
   return useQueryStore<any>('screen-find', '');
 }
+export function useSpaceId() {
+  return useQueryStore<any>('space-id', 0);
+}
 export function useLabelsConfig() {
-  return useQueryStore('labels-config', { types: true, contains: false, values: true });
+  return useQueryStore('labels-config', { types: true, contains: false, values: true, focuses: false });
 };
 export function useWindowSize() {
   return useLocalStore('window-size', { width: 800, height: 500 });
@@ -140,7 +140,6 @@ export function GUI({ ml }: { ml: MinilinksResult<any> }) {
 
   const [showTypes, setShowTypes] = useShowTypes();
   const [promises, setPromises] = usePromises();
-  const [graphiql, setGraphiql] = useGraphiql();
   const [showMP, setShowMP] = useShowMP();
   const [clickSelect, setClickSelect] = useClickSelect();
   const [container, setContainer] = useContainer();
@@ -149,6 +148,7 @@ export function GUI({ ml }: { ml: MinilinksResult<any> }) {
   const [inserting, setInserting] = useInserting();
   const [screenFind, setScreenFind] = useScreenFind();
   const [labelsConfig, setLabelsConfig] = useLabelsConfig();
+  const [spaceId, setSpaceId] = useSpaceId();
 
   const [selectedLinks, setSelectedLinks] = useSelectedLinks();
   const [operation, setOperation] = useOperation();
@@ -181,13 +181,14 @@ export function GUI({ ml }: { ml: MinilinksResult<any> }) {
                     <Button color={labelsConfig.types ? 'primary' : 'default'} onClick={() => setLabelsConfig({ ...labelsConfig, types: !labelsConfig.types })}>types</Button>
                     <Button color={labelsConfig.values ? 'primary' : 'default'} onClick={() => setLabelsConfig({ ...labelsConfig, values: !labelsConfig.values })}>values</Button>
                     <Button color={labelsConfig.contains ? 'primary' : 'default'} onClick={() => setLabelsConfig({ ...labelsConfig, contains: !labelsConfig.contains })}>contains</Button>
+                    <Button color={labelsConfig.focuses ? 'primary' : 'default'} onClick={() => setLabelsConfig({ ...labelsConfig, focuses: !labelsConfig.focuses })}>focuses</Button>
                   </ButtonGroup>
                 </Grid>
                 <Grid item>
                   <ButtonGroup variant="outlined">
-                    <Button color={forceGraph == ForceGraph2D ? 'primary' : 'default'} onClick={() => setForceGraph(ForceGraph2D)}>2d</Button>
-                    <Button color={forceGraph == ForceGraph3D ? 'primary' : 'default'} onClick={() => setForceGraph(ForceGraph3D)}>3d</Button>
-                    <Button color={forceGraph == ForceGraphVR ? 'primary' : 'default'} onClick={() => setForceGraph(ForceGraphVR)}>vr</Button>
+                    <Button color={forceGraph == '2d' ? 'primary' : 'default'} onClick={() => setForceGraph('2d')}>2d</Button>
+                    <Button color={forceGraph == '3d' ? 'primary' : 'default'} onClick={() => setForceGraph('3d')}>3d</Button>
+                    <Button color={forceGraph == 'vr' ? 'primary' : 'default'} onClick={() => setForceGraph('vr')}>vr</Button>
                   </ButtonGroup>
                 </Grid>
                 <Grid item>
@@ -206,16 +207,6 @@ export function GUI({ ml }: { ml: MinilinksResult<any> }) {
                       onClick={() => setContainerVisible(!containerVisible)}
                     >
                       {containerVisible ? <VisibilityOn/> : <VisibilityOff/>}
-                    </Button>
-                  </ButtonGroup>
-                </Grid>
-                <Grid item>
-                  <ButtonGroup variant="outlined">
-                    <Button
-                      color={graphiql ? 'primary' : 'default'}
-                      onClick={() => setGraphiql(!graphiql)}
-                    >
-                      GQL
                     </Button>
                   </ButtonGroup>
                 </Grid>
@@ -288,29 +279,43 @@ export function GUI({ ml }: { ml: MinilinksResult<any> }) {
                   <Button disabled>{pckg.version}</Button>
                 </Grid>
                 <Grid item>
-                  <Button variant="outlined" size="small" onClick={async () => {
+                  <Button variant="outlined" size="small" disabled={!spaceId} onClick={async () => {
                     const { data: [{ id: queryId }] } = await deep.insert({
                       type_id: await deep.id('@deep-foundation/core', 'Query'),
                     });
                     await deep.insert({
                       link_id: queryId,
-                      value: { limit: 5 },
+                      value: { limit: 0 },
                     }, { table: 'objects' });
-                    const { data: [{ id: focusId }] } = await deep.insert({
-                      type_id: await deep.id('@deep-foundation/core', 'Focus'),
-                      from_id: auth.linkId,
+                    await deep.insert([{
+                      from_id: spaceId,
                       to_id: queryId,
-                    });
+                      type_id: await deep.id('@deep-foundation/core', 'Contain'),
+                    }])
                     if (container) await deep.insert([{
                       from_id: container,
                       to_id: queryId,
                       type_id: await deep.id('@deep-foundation/core', 'Contain'),
-                    }, {
-                      from_id: container,
-                      to_id: focusId,
-                      type_id: await deep.id('@deep-foundation/core', 'Contain'),
                     }]);
                   }}><Add/> query</Button>
+                </Grid>
+                <Grid item>
+                  <ButtonGroup variant="outlined" size="small">
+                    <Button onClick={async () => {
+                      const { data: [{ id: spaceId }] } = await deep.insert({
+                        type_id: await deep.id('@deep-foundation/core', 'Space'),
+                      });
+                      await deep.insert({
+                        from_id: container,
+                        to_id: auth.linkId,
+                        type_id: await deep.id('@deep-foundation/core', 'Contain'),
+                      });
+                      setSpaceId(spaceId);
+                    }}><Add/> space</Button>
+                    <Button disabled={spaceId === auth.linkId} onClick={async () => {
+                      setSpaceId(auth.linkId);
+                    }}>exit</Button>
+                  </ButtonGroup>
                 </Grid>
                 <Grid item>
                   <EnginePanel/>
