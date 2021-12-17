@@ -283,7 +283,7 @@ export function GUI({ ml }: { ml: MinilinksResult<any> }) {
                   <Button disabled>{pckg.version}</Button>
                 </Grid>
                 <Grid item>
-                  <Button variant="outlined" size="small" disabled={!spaceId} onClick={async () => {
+                  <Button variant="outlined" disabled={!spaceId} onClick={async () => {
                     const { data: [{ id: queryId }] } = await deep.insert({
                       type_id: await deep.id('@deep-foundation/core', 'Query'),
                     });
@@ -304,7 +304,7 @@ export function GUI({ ml }: { ml: MinilinksResult<any> }) {
                   }}><Add/> query</Button>
                 </Grid>
                 <Grid item>
-                  <ButtonGroup variant="outlined" size="small">
+                  <ButtonGroup variant="outlined">
                     <Button onClick={async () => {
                       const { data: [{ id: newSpaceId }] } = await deep.insert({
                         type_id: await deep.id('@deep-foundation/core', 'Space'),
@@ -348,7 +348,7 @@ export function GUI({ ml }: { ml: MinilinksResult<any> }) {
               return <Grid key={id} item xs={12} style={{ position: 'relative' }}>
                 <LinkCard link={link}/>
                 <IconButton
-                  size="small" style={{ position: 'absolute', top: 6, right: 6 }}
+                 style={{ position: 'absolute', top: 6, right: 6 }}
                   onClick={() => setSelectedLinks(selectedLinks.filter(link => link !== id))}
                 ><Clear/></IconButton>
               </Grid>;
