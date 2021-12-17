@@ -148,20 +148,18 @@ export function PageContent() {
 
   const [results, setResults] = useState({});
   const prevD = useRef<any>({ nodes: [], links: [] });
-  const { ml, focuses } = useMemo(() => {
+  const { ml } = useMemo(() => {
     const newResults = {};
-    const focuses = [];
     const fks = Object.keys(results);
     for (let f = 0; f < fks.length; f++) {
       const fk = fks[f];
       for (let i = 0; i < results[fk].length; i++) {
         const link = results[fk][i];
-        focuses.push({ from_id: +fk, to_id: +link.id });
         newResults[link.id] = link;
       }
     }
     const ml = minilinks(Object.values(newResults));
-    return { ml, focuses };
+    return { ml };
   }, [results]);
   const outD = useMemo(() => {
     if (results) {
@@ -180,8 +178,10 @@ export function PageContent() {
         const isTransparent = (
           (link.type_id === GLOBAL_ID_CONTAIN && link?.from?.type_id === GLOBAL_ID_PACKAGE && !containerVisible)
         );
-        const isHidden = (
-          (!labelsConfig.focuses && link.type_id === baseTypes.Focus)
+        
+        const isVisible = (
+          (link.type_id === baseTypes.Focus && (labelsConfig.focuses)) ||
+          (link.type_id !== baseTypes.Focus)
         );
 
         if (!promises && [GLOBAL_ID_PROMISE, GLOBAL_ID_THEN, GLOBAL_ID_RESOLVED, GLOBAL_ID_REJECTED].includes(link.type_id)) {
@@ -204,7 +204,8 @@ export function PageContent() {
         }
 
         const focus = link.inByType[baseTypes.Focus]?.[0];
-        if (!isHidden) nodes.push({ ...prevNodes?.[link.id], id: link.id, link: plainLink, label, textColor: [spaceId, auth.linkId].includes(link.id) ? theme?.palette?.primary?.main : undefined, _focusId: focus?.id, fx: focus?.value?.value?.x, fy: focus?.value?.value?.y, fz: focus?.value?.value?.z });
+
+        if (isVisible) nodes.push({ ...prevNodes?.[link.id], id: link.id, link: plainLink, label, textColor: [spaceId, auth.linkId].includes(link.id) || [baseTypes.Space, baseTypes.User].includes(link.type_id) ? theme?.palette?.primary?.main : undefined, _focusId: focus?.id, fx: focus?.value?.value?.x, fy: focus?.value?.value?.y, fz: focus?.value?.value?.z });
 
         if ((showTypes) && (link.type_id && link.type)) links.push({ id: `type--${link.id}`, source: link.id, target: link.type_id, link: plainLink, type: 'type', color: isTransparent ? 'transparent' : '#ffffff' });
 
@@ -213,24 +214,22 @@ export function PageContent() {
           links.push({ id: `by-item--${pos.id}`, source: link.id, target: pos.path_item_id, link: plainLink, pos, type: 'by-item', color: isTransparent ? 'transparent' : '#ffffff' });
         }
       }
-      for (let f = 0; f < focuses.length; f++) {
-        const focus = focuses[f];
-        if (ml.byId[focus.from_id] && ml.byId[focus.to_id]) links.push({ id: `focus--${f}`, source: focus.from_id, target: focus.to_id, type: 'focus', color: 'transparent' });
-      }
+
       for (let l = 0; l < ml.links.length; l++) {
         const link = ml.links[l];
         const plainLink = { id: link.id, type_id: link.type_id, from_id: link.from_id, to_id: link.to_id, value: link.value };
         const isTransparent = link.type_id === GLOBAL_ID_CONTAIN && link?.from?.type_id === GLOBAL_ID_PACKAGE && !containerVisible;
         
-        const isHidden = (
-          (!labelsConfig.focuses && link.type_id === baseTypes.Focus)
+        const isVisible = (
+          (link.type_id === baseTypes.Focus && (labelsConfig.focuses)) ||
+          (link.type_id !== baseTypes.Focus)
         );
 
         if (!promises && [GLOBAL_ID_PROMISE, GLOBAL_ID_THEN, GLOBAL_ID_RESOLVED, GLOBAL_ID_REJECTED].includes(link.type_id)) {
           continue;
         }
 
-        if (!isHidden) {
+        if (isVisible) {
           if (link.from) links.push({ id: `from--${link.id}`, source: link.id, target: link.from_id || link.id, link: plainLink, type: 'from', color: isTransparent ? 'transparent' : '#a83232' });
           if (link.to) links.push({ id: `to--${link.id}`, source: link.id, target: link.to_id || link.id, link: plainLink, type: 'to', color: isTransparent ? 'transparent' : '#32a848' });
         }
@@ -337,7 +336,7 @@ export function PageContent() {
         }}
       >
         {!!flyPanel && <div style={{ position: 'relative' }}>
-          <LinkCard link={flyPanel.link}/>
+          <LinkCard link={flyPanel.link} ml={ml}/>
           <IconButton
             size="small" style={{ position: 'absolute', top: 6, right: 6 }}
             onClick={() => {
@@ -513,7 +512,6 @@ export function PageContent() {
           onNodeClickRef.current(node);
         }}
         onNodeRightClick={(node) => {
-          console.log(node, baseTypes);
           if (node?.link?.type_id === baseTypes.Space) setSpaceId(node.id);
         }}
         onNodeHover={(node) => {
@@ -534,8 +532,9 @@ export function PageContent() {
 export function PageConnected() {
   const [token, setToken] = useTokenController();
   const client = useApolloClient();
+  const [spaceId, setSpaceId] = useSpaceId();
   return <>
-    {!!token && !!client.jwt_token && [<PageContent key={token}/>]}
+    {!!token && !!client.jwt_token && [<PageContent key={`${token}-${spaceId}`}/>]}
   </>
 }
 

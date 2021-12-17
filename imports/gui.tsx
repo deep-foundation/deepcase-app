@@ -314,7 +314,7 @@ export function GUI({ ml }: { ml: MinilinksResult<any> }) {
                     }}><Add/> space</Button>
                     <Button disabled={spaceId === auth.linkId} onClick={async () => {
                       setSpaceId(auth.linkId);
-                    }}>exit</Button>
+                    }}>{spaceId} exit</Button>
                   </ButtonGroup>
                 </Grid>
                 <Grid item>

@@ -13,10 +13,13 @@ import { LinkCardRule } from './types/rule';
 import { LinkCardSubject } from './types/subject';
 import { LinkCardType } from './types/type';
 import json5 from 'json5';
+import { MinilinksResult } from '@deep-foundation/deeplinks/imports/minilinks';
 
 export function LinkCard({
+  ml,
   link,
 }: {
+  ml?: MinilinksResult<any>,
   link: any;
 }) {
   const client = useApolloClient();
@@ -38,10 +41,10 @@ export function LinkCard({
 
   return <Card>
     <CardContent>
-      <Typography style={{ display: 'block', cursor: 'pointer' }} onClick={() => focusLink(link.id)}>id: {link?.id || 0}: {deep.stringify(link?.value?.value)}</Typography>
-      <Typography style={{ display: 'block', cursor: 'pointer' }} onClick={() => focusLink(link.type_id)} variant="caption">type_id: {link?.type_id || 0}: {deep.stringify(link?.type?.value?.value)}</Typography>
-      <Typography style={{ display: 'block', cursor: 'pointer' }} onClick={() => focusLink(link.from_id)} variant="caption">from_id: {link?.from_id || 0}</Typography>
-      <Typography style={{ display: 'block', cursor: 'pointer' }} onClick={() => focusLink(link.to_id)} variant="caption">to_id: {link?.to_id || 0}</Typography>
+      <Typography style={{ display: 'block', cursor: 'pointer' }} onClick={() => ml.byId[link.id] && focusLink(link.id)}>id: {link?.id || 0}: {deep.stringify(link?.value?.value)}</Typography>
+      <Typography style={{ display: 'block', cursor: 'pointer' }} onClick={() => ml.byId[link.type_id] && focusLink(link.type_id)} variant="caption">type_id: {link?.type_id || 0}: {deep.stringify(link?.type?.value?.value)}</Typography>
+      <Typography style={{ display: 'block', cursor: 'pointer' }} onClick={() => ml.byId[link.from_id] && focusLink(link.from_id)} variant="caption">from_id: {link?.from_id || 0}</Typography>
+      <Typography style={{ display: 'block', cursor: 'pointer' }} onClick={() => ml.byId[link.to_id] && focusLink(link.to_id)} variant="caption">to_id: {link?.to_id || 0}</Typography>
     </CardContent>
     <CardActions>
       <Grid container spacing={1}>
