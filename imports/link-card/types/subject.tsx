@@ -3,33 +3,33 @@ import { useApolloClient } from '@apollo/client';
 import { generateSerial, insertMutation } from '@deep-foundation/deeplinks/imports/gql';
 import { Grid } from '../../ui';
 import React from 'react';
-import { useAuth } from '../../auth';
 import { Button } from '../../ui';
 import { useSelectedLinks } from '../../../pages';
+import { useDeep } from '@deep-foundation/deeplinks/imports/client';
 
 export function LinkCardSubject({
   link,
 }: {
   link: any;
 }) {
-  const auth = useAuth();
+  const deep = useDeep();
   const client = useApolloClient();
   const [selectedLinks, setSelectedLinks] = useSelectedLinks();
 
   return <>
     <Grid container spacing={1}>
-      {auth?.linkId === link?.id && <Grid item xs={12}><Button
+      {deep?.linkId === link?.id && <Grid item xs={12}><Button
         size="small" variant="outlined" fullWidth
-        onClick={async () => {
-          auth.setLinkId(0);
+        onClick={() => {
+          deep.logout();
         }}
       >
         logout
       </Button></Grid>}
-      {auth?.linkId !== link?.id && <Grid item xs={12}><Button
+      {deep?.linkId !== link?.id && <Grid item xs={12}><Button
         size="small" variant="outlined" fullWidth
-        onClick={async () => {
-          auth.setLinkId(link?.id);
+        onClick={() => {
+          deep.login({ linkId: link?.id });
         }}
       >
         login

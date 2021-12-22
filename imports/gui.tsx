@@ -8,7 +8,6 @@ import gql from 'graphql-tag';
 import { random } from 'lodash';
 import React, { useState } from 'react';
 import { AuthPanel, useOperation, useSelectedLinks } from '../pages';
-import { useAuth } from './auth';
 import { EnginePanel, useEngineConnected } from './engine';
 import { LINKS_string } from './gql';
 import { ForceGraph2D, ForceGraph3D, ForceGraphVR } from './graph';
@@ -117,8 +116,8 @@ export function useScreenFind() {
   return useQueryStore<any>('screen-find', '');
 }
 export function useSpaceId() {
-  const auth = useAuth();
-  return useQueryStore<any>('space-id', auth.linkId);
+  const deep = useDeep();
+  return useQueryStore<any>('space-id', deep.linkId);
 }
 export function useLabelsConfig() {
   return useQueryStore('labels-config', { types: true, contains: false, values: true, focuses: false });
@@ -137,7 +136,6 @@ export function useBackgroundTransparent() {
 };
 
 export function GUI({ ml }: { ml: MinilinksResult<any> }) {
-  const auth = useAuth();
   const theme: any = useTheme();
   const [windowSize, setWindowSize] = useWindowSize();
   const [graphiqlHeight, setGraphiqlHeight] = useGraphiqlHeight();
@@ -321,8 +319,8 @@ export function GUI({ ml }: { ml: MinilinksResult<any> }) {
                       // }, { table: 'strings' });
                       setSpaceId(newSpaceId);
                     }}><Add/> space</Button>
-                    <Button disabled={spaceId === auth.linkId} onClick={async () => {
-                      setSpaceId(auth.linkId);
+                    <Button disabled={spaceId === deep.linkId} onClick={async () => {
+                      setSpaceId(deep.linkId);
                     }}>{spaceId} exit</Button>
                   </ButtonGroup>
                 </Grid>

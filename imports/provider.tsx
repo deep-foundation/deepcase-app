@@ -1,12 +1,12 @@
 import { TokenProvider, useTokenController } from '@deep-foundation/deeplinks/imports/react-token';
 import { ApolloClientTokenizedProvider } from '@deep-foundation/react-hasura/apollo-client-tokenized-provider';
-import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client';
 import { LocalStoreProvider } from '@deep-foundation/store/local';
 import { QueryStoreProvider } from '@deep-foundation/store/query';
 import { colors, createTheme, ThemeProvider } from './ui';
 import React, { useEffect } from 'react';
-import { adminToken, AuthProvider } from './auth';
 import { Analitics } from './analitics';
+
+export const adminToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwczovL2hhc3VyYS5pby9qd3QvY2xhaW1zIjp7IngtaGFzdXJhLWFsbG93ZWQtcm9sZXMiOlsibGluayJdLCJ4LWhhc3VyYS1kZWZhdWx0LXJvbGUiOiJsaW5rIiwieC1oYXN1cmEtdXNlci1pZCI6IjM5In0sImlhdCI6MTYzNzAzMjQwNn0.EtYolslSV66xKe7Bx4x3MkS-dQL5hPqaUqE0eStH3KE`;
 
 const temp = createTheme({});
 const { breakpoints } = temp;
@@ -63,14 +63,13 @@ export function ProviderConnected({
   children: JSX.Element;
 }) {
   const [token, setToken] = useTokenController();
-  const client = useApolloClient();
   useEffect(() => {
     setTimeout(() => {
       if (!token) setToken(adminToken);
     }, 0);
   }, [token]);
 
-  return <AuthProvider>{children}</AuthProvider>;
+  return <>{children}</>;
 }
 
 export const GRAPHQL_PATH = `${process.env.NEXT_PUBLIC_HASURA_PATH}/v1/graphql`;

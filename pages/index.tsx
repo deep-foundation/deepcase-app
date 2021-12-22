@@ -13,7 +13,6 @@ import json5 from 'json5';
 import dynamic from 'next/dynamic';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import ReactResizeDetector from 'react-resize-detector';
-import { useAuth } from '../imports/auth';
 import { useClickEmitter } from '../imports/click-emitter';
 import { EngineWindow, useEngineConnected } from '../imports/engine';
 import { ForceGraph, ForceGraph2D, ForceGraph3D, ForceGraphVR, SpriteText } from '../imports/graph';
@@ -61,15 +60,15 @@ export function useOperation() {
 }
 
 export const AuthPanel = React.memo<any>(function AuthPanel() {
-  const auth = useAuth();
+  const deep = useDeep();
   const [operation, setOperation] = useOperation();
 
   return <>
     <ButtonGroup variant="outlined">
-      <Button disabled>{auth.linkId}</Button>
+      <Button disabled>{deep.linkId}</Button>
       <Button color={operation === 'auth' ? 'primary' : 'default'} onClick={() => setOperation(operation === 'auth' ? '' : 'auth')}>login</Button>
-      <Button onClick={() => auth.guest()}>guest</Button>
-      <Button onClick={() => auth.setLinkId(0)}>logout</Button>
+      <Button onClick={() => deep.guest({})}>guest</Button>
+      <Button onClick={() => deep.logout()}>logout</Button>
     </ButtonGroup>
   </>;
 });
@@ -96,7 +95,6 @@ export function useFlyPanel() {
 };
 
 export function PageContent() {
-  const auth = useAuth();
   const theme: any = useTheme();
   const [windowSize, setWindowSize] = useWindowSize();
   const [flyPanel, setFlyPanel] = useFlyPanel();
@@ -172,10 +170,11 @@ export function PageContent() {
 
       const nodes = [];
       const links = [];
+      const _tempHash = {};
 
       for (let l = 0; l < ml.links.length; l++) {
         const link = ml.links[l];
-        const plainLink = { id: link?.id, type_id: link?.type_id, from_id: link?.from_id, to_id: link?.to_id, value: link?.value };
+        // const link = { id: link?.id, type_id: link?.type_id, from_id: link?.from_id, to_id: link?.to_id, value: link?.value };
         const isTransparent = (
           (link?.type_id === GLOBAL_ID_CONTAIN && link?.from?.type_id === GLOBAL_ID_PACKAGE && !containerVisible)
         );
@@ -220,13 +219,14 @@ export function PageContent() {
               z: focus?.value?.value?.z,
             };
           }
+          _tempHash[link?.id] = true;
           nodes.push({
             ...prevNodes?.[link?.id],
             id: link?.id,
-            link: plainLink,
+            link: link,
             label,
             textColor: (
-              [spaceId, auth.linkId].includes(link?.id) ||
+              [spaceId, deep.linkId].includes(link?.id) ||
               [baseTypes.Space, baseTypes.User].includes(link?.type_id) ? theme?.palette?.primary?.main : undefined
             ),
             _focusId: focus?.id,
@@ -234,17 +234,17 @@ export function PageContent() {
           });
         }
 
-        if ((showTypes) && (link?.type_id && link?.type)) links.push({ id: `type--${link?.id}`, source: link?.id, target: link?.type_id, link: plainLink, type: 'type', color: isTransparent ? 'transparent' : '#ffffff' });
+        if ((showTypes) && (link?.type_id && link?.type)) links.push({ id: `type--${link?.id}`, source: link?.id, target: link?.type_id, link: link, type: 'type', color: isTransparent ? 'transparent' : '#ffffff' });
 
         if (showMP) for (let i = 0; i < link?._by_item?.length; i++) {
           const pos = link?._by_item?.[i];
-          links.push({ id: `by-item--${pos.id}`, source: link?.id, target: pos.path_item_id, link: plainLink, pos, type: 'by-item', color: isTransparent ? 'transparent' : '#ffffff' });
+          if (_tempHash[pos.path_item_id]) links.push({ id: `by-item--${pos.id}`, source: link?.id, target: pos.path_item_id, link: link, pos, type: 'by-item', color: isTransparent ? 'transparent' : '#ffffff' });
         }
       }
 
       for (let l = 0; l < ml.links.length; l++) {
         const link = ml.links[l];
-        const plainLink = { id: link?.id, type_id: link?.type_id, from_id: link?.from_id, to_id: link?.to_id, value: link?.value };
+        // const link = { id: link?.id, type_id: link?.type_id, from_id: link?.from_id, to_id: link?.to_id, value: link?.value };
         const isTransparent = link?.type_id === GLOBAL_ID_CONTAIN && link?.from?.type_id === GLOBAL_ID_PACKAGE && !containerVisible;
         
         const isVisible = (
@@ -257,8 +257,8 @@ export function PageContent() {
         }
 
         if (isVisible) {
-          if (link?.from) links.push({ id: `from--${link?.id}`, source: link?.id, target: link?.from_id || link?.id, link: plainLink, type: 'from', color: isTransparent ? 'transparent' : '#a83232' });
-          if (link?.to) links.push({ id: `to--${link?.id}`, source: link?.id, target: link?.to_id || link?.id, link: plainLink, type: 'to', color: isTransparent ? 'transparent' : '#32a848' });
+          if (link?.from) links.push({ id: `from--${link?.id}`, source: link?.id, target: link?.from_id || link?.id, link: link, type: 'from', color: isTransparent ? 'transparent' : '#a83232' });
+          if (link?.to) links.push({ id: `to--${link?.id}`, source: link?.id, target: link?.to_id || link?.id, link: link, type: 'to', color: isTransparent ? 'transparent' : '#32a848' });
         }
       }
 
@@ -273,7 +273,8 @@ export function PageContent() {
   const clickEventEmitter = useClickEmitter();
   const onNodeClick = useDebounceCallback((node) => {
     if (operation === 'auth') {
-      auth.setLinkId(+node.link?.id);
+      console.log({ linkId: +node.link?.id })
+      deep.login({ linkId: +node.link?.id });
       setOperation('');
     } else if (operation === 'delete') {
       deep.delete(node.link?.id);
@@ -400,6 +401,8 @@ export function PageContent() {
           ? 0.25
           : l.type === 'to'
           ? -0.25
+          : l.type === 'by-item'
+          ? 0.1
           : 0
         )}
         linkLineDash={l => (
@@ -570,11 +573,10 @@ export function PageContent() {
 }
 
 export function PageConnected() {
-  const [token, setToken] = useTokenController();
-  const client = useApolloClient();
   const [spaceId, setSpaceId] = useSpaceId();
+  const deep = useDeep();
   return <>
-    {!!token && !!client.jwt_token && [<PageContent key={`${token}-${spaceId}`}/>]}
+    {!!deep.token && [<PageContent key={`${deep?.token || ''}-${spaceId}`}/>]}
   </>
 }
 

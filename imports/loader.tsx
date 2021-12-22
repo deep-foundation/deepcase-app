@@ -4,7 +4,6 @@ import { generateQuery, generateQueryData } from "@deep-foundation/deeplinks/imp
 import { Link, LinkRelations } from "@deep-foundation/deeplinks/imports/minilinks";
 import { useLocalStore } from "@deep-foundation/store/local";
 import { useEffect, useMemo, useState } from "react";
-import { useAuth } from "./auth";
 import { useBaseTypes } from "./gui";
 
 export function DeepLoaderFocus({
@@ -23,7 +22,36 @@ export function DeepLoaderFocus({
       operation: 'subscription',
       queries: [generateQueryData({
         tableName: 'links',
-        returning: 'id type_id from_id to_id value string { id value } number { id value } object { id value }',
+        returning: `
+          id type_id from_id to_id value
+          string { id value }
+          number { id value }
+          object { id value } 
+          _by_root {
+            id
+            item_id
+            path_item_depth
+            path_item_id
+            position_id
+            root_id
+          }
+          _by_path_item {
+            id
+            item_id
+            path_item_depth
+            path_item_id
+            position_id
+            root_id
+          }
+          _by_item {
+            id
+            item_id
+            path_item_depth
+            path_item_id
+            position_id
+            root_id
+          }
+        `,
         variables: v
         ? { ...variables, where: { _or: [variables.where, { typed: variables.where }] } }
         : { where: {}, limit: 0 },
@@ -47,7 +75,7 @@ export function DeepLoader({
   spaceId?: number;
 }) {
   const deep = useDeep();
-  const { linkId } = useAuth();
+  const { linkId } = useDeep();
 
   const [baseTypes, setBaseTypes] = useBaseTypes();
   const focusesCriteria = useMemo(() => {
@@ -69,7 +97,36 @@ export function DeepLoader({
       queries: [
         generateQueryData({
           tableName: 'links',
-          returning: 'id type_id from_id to_id value string { id value } number { id value }  object { id value }',
+          returning: `
+            id type_id from_id to_id value
+            string { id value }
+            number { id value }
+            object { id value } 
+            _by_root {
+              id
+              item_id
+              path_item_depth
+              path_item_id
+              position_id
+              root_id
+            }
+            _by_path_item {
+              id
+              item_id
+              path_item_depth
+              path_item_id
+              position_id
+              root_id
+            }
+            _by_item {
+              id
+              item_id
+              path_item_depth
+              path_item_id
+              position_id
+              root_id
+            }
+          `,
           variables: {
             where: {
               _or: [
