@@ -6,7 +6,7 @@ import { colors, createTheme, ThemeProvider } from './ui';
 import React, { useEffect } from 'react';
 import { Analitics } from './analitics';
 
-export const adminToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwczovL2hhc3VyYS5pby9qd3QvY2xhaW1zIjp7IngtaGFzdXJhLWFsbG93ZWQtcm9sZXMiOlsibGluayJdLCJ4LWhhc3VyYS1kZWZhdWx0LXJvbGUiOiJsaW5rIiwieC1oYXN1cmEtdXNlci1pZCI6IjM5In0sImlhdCI6MTYzNzAzMjQwNn0.EtYolslSV66xKe7Bx4x3MkS-dQL5hPqaUqE0eStH3KE`;
+export const adminToken = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwczovL2hhc3VyYS5pby9qd3QvY2xhaW1zIjp7IngtaGFzdXJhLWFsbG93ZWQtcm9sZXMiOlsibGluayJdLCJ4LWhhc3VyYS1kZWZhdWx0LXJvbGUiOiJsaW5rIiwieC1oYXN1cmEtdXNlci1pZCI6IjI0In0sImlhdCI6MTY0MDM5MDY1N30.l8BHkbl0ne3yshcF73rgPVR-Sskr0hHECr_ZsJyCdxA`;
 
 const temp = createTheme({});
 const { breakpoints } = temp;
@@ -63,11 +63,6 @@ export function ProviderConnected({
   children: JSX.Element;
 }) {
   const [token, setToken] = useTokenController();
-  useEffect(() => {
-    setTimeout(() => {
-      if (!token) setToken(adminToken);
-    }, 0);
-  }, [token]);
 
   return <>{children}</>;
 }

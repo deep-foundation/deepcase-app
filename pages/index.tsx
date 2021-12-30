@@ -67,7 +67,10 @@ export const AuthPanel = React.memo<any>(function AuthPanel() {
     <ButtonGroup variant="outlined">
       <Button disabled>{deep.linkId}</Button>
       <Button color={operation === 'auth' ? 'primary' : 'default'} onClick={() => setOperation(operation === 'auth' ? '' : 'auth')}>login</Button>
-      <Button onClick={() => deep.guest({})}>guest</Button>
+      <Button onClick={async () => {
+        const g = await deep.guest({});
+        console.log('gg', g);
+      }}>guest</Button>
       <Button onClick={() => deep.logout()}>logout</Button>
     </ButtonGroup>
   </>;
@@ -575,8 +578,14 @@ export function PageContent() {
 export function PageConnected() {
   const [spaceId, setSpaceId] = useSpaceId();
   const deep = useDeep();
+  useEffect(() => {(async () => {
+    if (!deep.token) {
+      const { token, linkId } = await deep.guest({});
+      setSpaceId(linkId);
+    }
+  })()}, [deep?.token]);
   return <>
-    {!!deep.token && [<PageContent key={`${deep?.token || ''}-${spaceId}`}/>]}
+    {!!deep.token && [<PageContent key={`${deep?.token || ''}-${deep?.linkId || ''}-${spaceId}`}/>]}
   </>
 }
 

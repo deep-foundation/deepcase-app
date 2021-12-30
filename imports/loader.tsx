@@ -1,5 +1,5 @@
 import { useSubscription } from "@apollo/client";
-import { useDeep } from "@deep-foundation/deeplinks/imports/client";
+import { GLOBAL_ID_ADMIN, useDeep } from "@deep-foundation/deeplinks/imports/client";
 import { generateQuery, generateQueryData } from "@deep-foundation/deeplinks/imports/gql";
 import { Link, LinkRelations } from "@deep-foundation/deeplinks/imports/minilinks";
 import { useLocalStore } from "@deep-foundation/store/local";
@@ -80,6 +80,7 @@ export function DeepLoader({
   const [baseTypes, setBaseTypes] = useBaseTypes();
   const focusesCriteria = useMemo(() => {
     const spaceSelector = spaceId ? [
+      { id: { _eq: GLOBAL_ID_ADMIN } },
       { type_id: { _in: [baseTypes.Focus, baseTypes.Contain] }, from_id: { _eq: spaceId } },
       { in: { type_id: { _in: [baseTypes.Focus, baseTypes.Contain] }, from_id: { _eq: spaceId } } },
       { typed: { in: { type_id: { _in: [baseTypes.Focus, baseTypes.Contain] }, from_id: { _eq: spaceId } } } },

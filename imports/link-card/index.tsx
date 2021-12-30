@@ -1,9 +1,9 @@
-import { DeepClient, useDeep } from '@deep-foundation/deeplinks/imports/client';
+import { DeepClient, GLOBAL_ID_NUMBER, GLOBAL_ID_OBJECT, GLOBAL_ID_STRING, useDeep, useDeepQuery } from '@deep-foundation/deeplinks/imports/client';
 import { Packager } from '@deep-foundation/deeplinks/imports/packager';
 import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client';
-import { TextField } from '@material-ui/core';
+import { Button, TextField } from '@material-ui/core';
 import { useDebounceCallback } from '@react-hook/debounce';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { useDeepGraph } from '../../pages';
 import { deleteBoolExp, insertBoolExp, updateBoolExp } from '../gql';
@@ -36,6 +36,14 @@ export function LinkCard({
   }, []);
 
   const { focusLink } = useDeepGraph();
+  // const wq = useDeepQuery(useMemo(() => ({
+  //   in: {
+  //     type: ['@deep-foundation/core', 'Value'],
+  //     from_id: link?.type_id
+  //   },
+  // }), []));
+
+  // console.log(wq);
 
   // NeedPackerTypeNaming
 
@@ -63,6 +71,35 @@ export function LinkCard({
             try { json = json5.parse(e.target.value); } catch(error) {}
             update(link?.object?.id, { value: json }, { table: 'objects' });
           }}/>
+        </Grid>}
+        {!link?.value && <Grid item xs={12}>
+          <Button
+            fullWidth variant="outlined"
+            onClick={async () => {
+              const { data: [{ id }] } = await deep.select({
+                in: {
+                  type: ['@deep-foundation/core', 'Value'],
+                  from_id: link?.type_id
+                },
+              });
+              const table = (
+                GLOBAL_ID_STRING === id
+                ? 'strings'
+                : GLOBAL_ID_NUMBER === id
+                ? 'numbers'
+                : GLOBAL_ID_OBJECT === id
+                ? 'objects'
+                : ''
+              );
+              if (table) {
+                await deep.insert({
+                  link_id: link?.id
+                }, {
+                  table
+                });
+              }
+            }}
+          >+value</Button>
         </Grid>}
       </Grid>
     </CardActions>

@@ -155,7 +155,7 @@ export function GUI({ ml }: { ml: MinilinksResult<any> }) {
   const [selectedLinks, setSelectedLinks] = useSelectedLinks();
   const [operation, setOperation] = useOperation();
   const [connected, setConnected] = useEngineConnected();
-  
+
   const classes = useStyles({ connected });
 
   const deep = useDeep();
@@ -285,20 +285,22 @@ export function GUI({ ml }: { ml: MinilinksResult<any> }) {
                     const { data: [{ id: queryId }] } = await deep.insert({
                       type_id: await deep.id('@deep-foundation/core', 'Query'),
                     });
-                    await deep.insert({
+                    console.log({ queryId });
+                    console.log(await deep.insert({
                       link_id: queryId,
                       value: { limit: 0 },
-                    }, { table: 'objects' });
-                    await deep.insert([{
+                    }, { table: 'objects' }));
+                    console.log(await deep.insert([{
                       from_id: spaceId,
                       to_id: queryId,
                       type_id: await deep.id('@deep-foundation/core', 'Contain'),
-                    }])
-                    if (container) await deep.insert([{
+                    }]));
+                    if (container) console.log(await deep.insert([{
                       from_id: container,
                       to_id: queryId,
                       type_id: await deep.id('@deep-foundation/core', 'Contain'),
-                    }]);
+                    }]));
+                    setSelectedLinks([...selectedLinks, queryId]);
                   }}><Add/> query</Button>
                 </Grid>
                 <Grid item>
@@ -317,6 +319,7 @@ export function GUI({ ml }: { ml: MinilinksResult<any> }) {
                       //   link_id: newContainId,
                       //   value: '',
                       // }, { table: 'strings' });
+                      setSelectedLinks([...selectedLinks, newSpaceId]);
                       setSpaceId(newSpaceId);
                     }}><Add/> space</Button>
                     <Button disabled={spaceId === deep.linkId} onClick={async () => {
