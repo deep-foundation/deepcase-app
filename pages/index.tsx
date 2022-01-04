@@ -163,6 +163,7 @@ export function PageContent() {
     return { ml };
   }, [results]);
   const outD = useMemo(() => {
+    const isPromiseDeniedLink = (id) => !promises && [GLOBAL_ID_PROMISE, GLOBAL_ID_THEN, GLOBAL_ID_RESOLVED, GLOBAL_ID_REJECTED].includes(id);
     if (results) {
       const prev = prevD.current;
       var prevNodes = prev?.nodes?.reduce(function(map, node) {
@@ -182,11 +183,13 @@ export function PageContent() {
         );
         
         const isVisible = (
-          (link?.type_id === baseTypes.Focus && (labelsConfig.focuses)) ||
-          (link?.type_id !== baseTypes.Focus)
+          (
+            (link?.type_id === baseTypes.Focus && (labelsConfig.focuses)) ||
+            (link?.type_id !== baseTypes.Focus)
+          )
         );
 
-        if (!promises && [GLOBAL_ID_PROMISE, GLOBAL_ID_THEN, GLOBAL_ID_RESOLVED, GLOBAL_ID_REJECTED].includes(link?.type_id)) {
+        if (isPromiseDeniedLink(link?.type_id)) {
           continue;
         }
 
@@ -250,17 +253,19 @@ export function PageContent() {
         const isTransparent = link?.type_id === GLOBAL_ID_CONTAIN && link?.from?.type_id === GLOBAL_ID_PACKAGE && !containerVisible;
         
         const isVisible = (
-          (link?.type_id === baseTypes.Focus && (labelsConfig.focuses)) ||
-          (link?.type_id !== baseTypes.Focus)
+          (
+            (link?.type_id === baseTypes.Focus && (labelsConfig.focuses)) ||
+            (link?.type_id !== baseTypes.Focus)
+          )
         );
 
-        if (!promises && [GLOBAL_ID_PROMISE, GLOBAL_ID_THEN, GLOBAL_ID_RESOLVED, GLOBAL_ID_REJECTED].includes(link?.type_id)) {
+        if (isPromiseDeniedLink(link?.type_id)) {
           continue;
         }
 
         if (isVisible) {
-          if (link?.from) links.push({ id: `from--${link?.id}`, source: link?.id, target: link?.from_id || link?.id, link: link, type: 'from', color: isTransparent ? 'transparent' : '#a83232' });
-          if (link?.to) links.push({ id: `to--${link?.id}`, source: link?.id, target: link?.to_id || link?.id, link: link, type: 'to', color: isTransparent ? 'transparent' : '#32a848' });
+          if (link?.from && !isPromiseDeniedLink(link?.from?.type_id)) links.push({ id: `from--${link?.id}`, source: link?.id, target: link?.from_id || link?.id, link: link, type: 'from', color: isTransparent ? 'transparent' : '#a83232' });
+          if (link?.to && !isPromiseDeniedLink(link?.to?.type_id)) links.push({ id: `to--${link?.id}`, source: link?.id, target: link?.to_id || link?.id, link: link, type: 'to', color: isTransparent ? 'transparent' : '#32a848' });
         }
       }
 
