@@ -418,7 +418,7 @@ export function PageContent() {
           : false
         )}
         nodeCanvasObject={(node, ctx, globalScale) => {
-          const _l = [...(node.label || [])];
+          const _l = [...(node.label || [])].map((s: string) => (s.length > 30 ? `${s.slice(0, 30).trim()}...` : s));
           _l[0] = node._focusId ? `[${_l[0]}]` : _l[0];
 
           // <isSelected>
@@ -445,7 +445,7 @@ export function PageContent() {
             ctx.fillText(_l[i], node.x, node.y + (i * 12/globalScale) );
         }}
         nodeThreeObject={forceGraph != 'vr' ? node => {
-          const _l = [...(node.label || [])];
+          const _l = [...(node.label || [])].map((s: string) => (s.length > 30 ? `${s.slice(0, 30).trim()}...` : s));
           _l[0] = node._focusId ? `[${_l[0]}]` : _l[0];
 
           // <isSelected>
