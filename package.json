@@ -14,7 +14,7 @@
     "@apollo/client": "^3.5.5",
     "@capacitor-community/electron": "^4.0.3",
     "@capacitor/core": "^3.2.3",
-    "@deep-foundation/deeplinks": "0.0.28",
+    "@deep-foundation/deeplinks": "0.0.29",
     "@deep-foundation/hasura": "0.0.7",
     "@deep-foundation/materialized-path": "0.0.8",
     "@deep-foundation/store": "0.0.4",
@@ -27,6 +27,7 @@
     "axios": "^0.21.4",
     "classnames": "^2.3.1",
     "cross-env": "^7.0.3",
+    "deep-diff": "^1.0.2",
     "dotenv": "^8.2.0",
     "dotenv-load": "^2.0.0",
     "fkill": "^8.0.0",
@@ -50,6 +51,7 @@
     "three-spritetext": "^1.6.2",
     "typescript": "^4.4.4",
     "use-debounce": "^6.0.1",
+    "usehooks-ts": "^2.2.0",
     "ws": "^7.5.6"
   },
   "engines": {

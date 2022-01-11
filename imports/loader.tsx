@@ -3,6 +3,7 @@ import { useDeep } from "@deep-foundation/deeplinks/imports/client";
 import { generateQuery, generateQueryData } from "@deep-foundation/deeplinks/imports/gql";
 import { Link, LinkRelations } from "@deep-foundation/deeplinks/imports/minilinks";
 import { useLocalStore } from "@deep-foundation/store/local";
+import { useDebounceCallback } from "@react-hook/debounce";
 import { useEffect, useMemo, useState } from "react";
 import { useBaseTypes } from "./gui";
 
@@ -59,7 +60,7 @@ export function DeepLoaderFocus({
       name: 'DEEPCASE',
     });
   }, [focus, focus?.value?.value]);
-  const s = useSubscription(query.query, { variables: query.variables });
+  const s = useSubscription(query.query, { variables: query.variables, fetchPolicy: 'no-cache' });
   useEffect(() => {
     if (s?.data?.q0) onChange(s?.data?.q0);
   }, [s]);
@@ -80,6 +81,7 @@ export function DeepLoader({
   const [baseTypes, setBaseTypes] = useBaseTypes();
   const focusesCriteria = useMemo(() => {
     const spaceSelector = spaceId ? [
+      { type_id: { _in: [baseTypes.User] } },
       { type_id: { _in: [baseTypes.Focus, baseTypes.Contain] }, from_id: { _eq: spaceId } },
       { in: { type_id: { _in: [baseTypes.Focus, baseTypes.Contain] }, from_id: { _eq: spaceId } } },
       { typed: { in: { type_id: { _in: [baseTypes.Focus, baseTypes.Contain] }, from_id: { _eq: spaceId } } } },
@@ -140,7 +142,7 @@ export function DeepLoader({
       name: 'FOCUSES',
     });
   }, [baseTypes]);
-  const focusesQ = useSubscription(focusesCriteria.query, { variables: focusesCriteria.variables });
+  const focusesQ = useSubscription(focusesCriteria.query, { variables: focusesCriteria.variables, fetchPolicy: 'no-cache' });
   const focuses = (focusesQ?.data?.q0 || []);
   const onlyFocusLinks = useMemo(() => focuses?.filter(f => f.type_id === baseTypes?.Query), [focuses]);
 
@@ -150,7 +152,7 @@ export function DeepLoader({
     setResults((results) => {
       if (focuses.length) {
         const newResults = {
-          ...results,
+          // ...results,
           focuses,
         };
         onChange(newResults);
@@ -160,12 +162,16 @@ export function DeepLoader({
     });
   }, [focuses]);
 
+  const setResultsDebounced = useDebounceCallback((value) => {
+    setResults(value);
+  }, 1000);
+
   return <>
     {onlyFocusLinks?.map((f, i) => (<DeepLoaderFocus
       key={f.id}
       focus={f}
       onChange={(r) => {
-        setResults((results) => {
+        setResultsDebounced((results) => {
           const newResults = {
             ...results,
             [f.id]: r,

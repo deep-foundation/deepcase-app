@@ -22,7 +22,9 @@ import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
 import { Backdrop, Button, ButtonGroup, IconButton, makeStyles, Popover, Typography } from '../imports/ui';
 import pckg from '../package.json';
-
+import { useInterval } from 'usehooks-ts';
+import isEqual from 'lodash/isEqual';
+import isEqualWith from 'lodash/isEqualWith';
 
 // @ts-ignore
 const Graphiql = dynamic(() => import('../imports/graphiql').then(m => m.Graphiql), { ssr: false });
@@ -148,7 +150,7 @@ export function PageContent() {
   }, []);
 
   const [results, setResults] = useState({});
-  const prevD = useRef<any>({ nodes: [], links: [] });
+  const prevD = useRef<any>({});
   const { ml } = useMemo(() => {
     const newResults = {};
     const fks = Object.keys(results);
@@ -214,7 +216,7 @@ export function PageContent() {
           let optional;
           if (prevNodes?.[link?.id]?._dragged) {
             optional = { _dragged: false };
-           } else {
+           } else if (focus?.value?.value) {
             optional = {
               fx: focus?.value?.value?.x,
               fy: focus?.value?.value?.y,
@@ -251,7 +253,7 @@ export function PageContent() {
         const link = ml.links[l];
         // const link = { id: link?.id, type_id: link?.type_id, from_id: link?.from_id, to_id: link?.to_id, value: link?.value };
         const isTransparent = link?.type_id === GLOBAL_ID_CONTAIN && link?.from?.type_id === GLOBAL_ID_PACKAGE && !containerVisible;
-        
+
         const isVisible = (
           (
             (link?.type_id === baseTypes.Focus && (labelsConfig.focuses)) ||
@@ -269,18 +271,25 @@ export function PageContent() {
         }
       }
 
+      prevD.current.nodes = nodes;
+      prevD.current.links = links;
       return { nodes, links };
     }
     return prevD.current;
   }, [containerVisible, container, labelsConfig, selectedLinks, results, spaceId]);
   prevD.current = outD;
-  
+  // useInterval(() => {
+  //   for (let i = 0; i < outD.nodes.length; i++) {
+  //     const node = outD.nodes[i];
+  //     if (node?.x) prevD.current[node.link?.id] = node;
+  //   }
+  // }, 1000);
+
   const mouseMove = useRef<any>();
   const onNodeClickRef = useRef<any>();
   const clickEventEmitter = useClickEmitter();
   const onNodeClick = useDebounceCallback((node) => {
     if (operation === 'auth') {
-      console.log({ linkId: +node.link?.id })
       deep.login({ linkId: +node.link?.id });
       setOperation('');
     } else if (operation === 'delete') {
@@ -296,7 +305,7 @@ export function PageContent() {
       setInserting({ ...inserting, type: node.link?.id });
       setOperation('');
     } else if (operation === 'pipette') {
-      setInserting({ ...inserting, from: node.link?.from_id, to: node.link?.to_id, type: node.link?.type_id });
+      setInserting({ ...inserting, from: node?.link?.from_id, to: node?.link?.to_id, type: node?.link?.type_id });
       setOperation('');
     } else if (operation === 'container') {
       setContainer(node.link?.id);
@@ -305,10 +314,10 @@ export function PageContent() {
       setFlyPanel({
         top: (mouseMove?.current?.clientY),
         left: (mouseMove?.current?.clientX),
-        link: node.link,
+        link: node?.link,
       });
     } else if (operation) {
-      clickEventEmitter.emit(operation, node.link);
+      clickEventEmitter.emit(operation, node?.link);
     } else {
       if (!selectedLinks.find(i => i === node.link?.id)) setSelectedLinks([ ...selectedLinks, node.link?.id ]);
     }
@@ -326,8 +335,10 @@ export function PageContent() {
 
     var dx = node.dx,
       dy = node.dy,
+      dz = node.dz,
       x = node.x,
       y = node.y,
+      z = node.z,
       scale = Math.max(1, Math.min(8, 0.9 / Math.max(dx / rootRef?.current.outerWidth, dy / rootRef?.current.outerHeight))),
       translate = [rootRef?.current.outerWidth / 2 - scale * x, rootRef?.current.outerHeight / 2 - scale * y];
 
@@ -344,6 +355,144 @@ export function PageContent() {
   }, [outD]);
 
   const holdRef = useRef<any>({});
+
+  const forceGraph_linkAutoColorBy = useCallback((l) => l.color || '#fff', []);
+  const forceGraph_linkLabel = useCallback(l => (
+    l.type === 'by-item'
+    ? `${l?.pos?.item_id}/${l?.pos?.path_item_id}/${l?.pos?.path_item_depth}(${l?.pos?.root_id})`
+    : ''
+  ), []);
+  const forceGraph_linkCurvature = useCallback(l => (
+    l.type === 'from'
+    ? 0.25
+    : l.type === 'to'
+    ? -0.25
+    : l.type === 'by-item'
+    ? 0.1
+    : 0
+    ), []);
+  const forceGraph_linkLineDash = useCallback(l => (
+    l.type === 'by-item'
+    ? [5, 5]
+    : false
+  ), []);
+  const forceGraph_nodeCanvasObject = useCallback((node, ctx, globalScale) => {
+    const _l = [...(node.label || [])].map((s: string) => (s.length > 30 ? `${s.slice(0, 30).trim()}...` : s));
+    _l[0] = node._focusId ? `[${_l[0]}]` : _l[0];
+
+    // <isSelected>
+    const isSelected = screenFind ? (
+      node?.linkId.toString() === screenFind || !!(_l?.join(' ')?.includes(screenFind))
+      ) : selectedLinks?.find(id => id === node?.linkId);
+    // </isSelected>
+      
+    const fontSize = 12/globalScale;
+    ctx.font = `${fontSize}px Sans-Serif`;
+    let textWidth = 0;
+    for (var i = 0; i < _l.length; i++)
+      textWidth = ctx.measureText(node.label).width > textWidth ? ctx.measureText(node.label).width : textWidth;
+    const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
+
+    ctx.fillStyle = 'rgba(0,0,0,0)';
+    ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, textWidth, fontSize * _l.length);
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = isSelected ? '#fff' : (node?.textColor || '#707070');
+
+    for (var i = 0; i < _l.length; i++)
+      ctx.fillText(_l[i], node.x, node.y + (i * 12/globalScale) );
+  }, []);
+  const forceGraph_nodeThreeObject = useCallback(node => {
+    const _l = [...(node.label || [])].map((s: string) => (s.length > 30 ? `${s.slice(0, 30).trim()}...` : s));
+    _l[0] = node._focusId ? `[${_l[0]}]` : _l[0];
+
+    // <isSelected>
+    const isSelected = screenFind ? (
+      node?.linkId.toString() === screenFind || !!(_l?.join(' ')?.includes(screenFind))
+      ) : selectedLinks?.find(id => id === node?.linkId);
+    // </isSelected>
+
+    const sprite = new SpriteText(_l.join('\n'));
+    sprite.color = isSelected ? '#fff' : (node?.textColor || '#707070');
+    sprite.textHeight = 4;
+    return sprite;
+  } , []);
+  const forceGraph_onNodeDrag = useCallback((node) => {
+    clearTimeout(holdRef.current.timeout);
+    const { id, x, y, z, fx, fy, fz } = node;
+    const focus = ml?.byId?.[id]?.inByType[baseTypes.Focus]?.find(f => f.from_id === spaceId);
+    if (spaceId) {
+      holdRef.current = {
+        node,
+        id, x, y, z, fx, fy, fz,
+        fix: holdRef.current.id === id ? holdRef.current.fix : !!focus,
+        needrehold: false,
+        timeout: setTimeout(async () => {
+          holdRef.current.needrehold = true;
+          const focus = ml?.byId?.[id]?.inByType[baseTypes.Focus]?.find(f => f.from_id === spaceId);
+          if (focus) {
+            holdRef.current.fix = false;
+            console.log('unfocus', { id, x, y, z, fx, fy, fz });
+            const where = { type_id: await deep.id('@deep-foundation/core', 'Focus'), from_id: spaceId, to_id: node.link?.id };
+            await deep.delete(where);
+            console.log('unfocused');
+          } else {
+            holdRef.current.fix = true;
+            console.log('focus');
+            const q = await deep.select({
+              type_id: await deep.id('@deep-foundation/core', 'Focus'),
+              from_id: spaceId,
+              to_id: node.link?.id,
+            });
+            const oldFocusId = q?.data?.[0]?.id;
+            let focusId = oldFocusId;
+            if (!focusId) {
+              const { data: [{ id: newFocusId }] } = await deep.insert({
+                type_id: await deep.id('@deep-foundation/core', 'Focus'),
+                from_id: spaceId,
+                to_id: node.link?.id,
+              });
+              focusId = newFocusId;
+            }
+            node._focusId = focusId;
+            await deep.insert({ link_id: focusId, value: { x, y, z } }, { table: 'objects', variables: { on_conflict: { constraint: 'objects_pkey', update_columns: 'value' } } });
+            console.log('focused');
+          }
+        }, 500),
+      };
+    }
+  }, []);
+  const forceGraph_onNodeDragEnd = useCallback(async (node) => {
+    clearTimeout(holdRef.current.timeout);
+    const { id, x, y, z, fx, fy, fz } = node;
+    if (spaceId) {
+      holdRef.current.needrehold = false;
+      const focus = ml?.byId?.[id]?.inByType[baseTypes.Focus]?.find(f => f.from_id === spaceId);
+      console.log('fix', holdRef?.current?.fix, 'focus', !!focus);
+      if (focus || holdRef?.current?.fix) {
+        node.fx = x;
+        node.fy = y;
+        node.fz = z;
+      } else {
+        delete node.fx;
+        delete node.fy;
+        delete node.fz;
+      }
+    }
+    if (!holdRef?.current?.needrehold && node._focusId) {
+      node._dragged = true;
+      await deep.update({ link_id: node._focusId }, { value: { x, y, z } }, { table: 'objects' });
+    }
+
+    holdRef.current = {};
+  }, []);
+  const forceGraph_onNodeClick = useCallback((node) => {
+    onNodeClickRef.current(node);
+  }, []);
+  const forceGraph_onNodeRightClick = useCallback((node) => {
+    if (node?.link?.type_id === baseTypes.Space) setSpaceId(node.link?.id);
+  }, []);
 
   return <DeepGraphProvider focusLink={focusLink}>
     {[<DeepLoader key={spaceId} spaceId={spaceId} onChange={results => setResults(results)}/>]}
@@ -393,72 +542,16 @@ export function PageContent() {
         }
         graphData={outD}
         backgroundColor={bgTransparent ? 'transparent' : theme?.palette?.background?.default}
-        linkAutoColorBy={(l) => l.color || '#fff'}
+        // linkAutoColorBy={forceGraph_linkAutoColorBy}
         linkOpacity={1}
         linkWidth={0.5}
         linkDirectionalArrowLength={3.5}
         linkDirectionalArrowRelPos={1}
-        linkLabel={l => (
-          l.type === 'by-item'
-          ? `${l?.pos?.item_id}/${l?.pos?.path_item_id}/${l?.pos?.path_item_depth}(${l?.pos?.root_id})`
-          : ''
-        )}
-        linkCurvature={l => (
-          l.type === 'from'
-          ? 0.25
-          : l.type === 'to'
-          ? -0.25
-          : l.type === 'by-item'
-          ? 0.1
-          : 0
-        )}
-        linkLineDash={l => (
-          l.type === 'by-item'
-          ? [5, 5]
-          : false
-        )}
-        nodeCanvasObject={(node, ctx, globalScale) => {
-          const _l = [...(node.label || [])].map((s: string) => (s.length > 30 ? `${s.slice(0, 30).trim()}...` : s));
-          _l[0] = node._focusId ? `[${_l[0]}]` : _l[0];
-
-          // <isSelected>
-          const isSelected = screenFind ? (
-            node?.link?.id.toString() === screenFind || !!(_l?.join(' ')?.includes(screenFind))
-            ) : selectedLinks?.find(id => id === node?.link?.id);
-          // </isSelected>
-            
-          const fontSize = 12/globalScale;
-          ctx.font = `${fontSize}px Sans-Serif`;
-          let textWidth = 0;
-          for (var i = 0; i < _l.length; i++)
-            textWidth = ctx.measureText(node.label).width > textWidth ? ctx.measureText(node.label).width : textWidth;
-          const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
-
-          ctx.fillStyle = 'rgba(0,0,0,0)';
-          ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, textWidth, fontSize * _l.length);
-
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillStyle = isSelected ? '#fff' : (node?.textColor || '#707070');
-
-          for (var i = 0; i < _l.length; i++)
-            ctx.fillText(_l[i], node.x, node.y + (i * 12/globalScale) );
-        }}
-        nodeThreeObject={forceGraph != 'vr' ? node => {
-          const _l = [...(node.label || [])].map((s: string) => (s.length > 30 ? `${s.slice(0, 30).trim()}...` : s));
-          _l[0] = node._focusId ? `[${_l[0]}]` : _l[0];
-
-          // <isSelected>
-          const isSelected = screenFind ? (
-            node?.link?.id.toString() === screenFind || !!(_l?.join(' ')?.includes(screenFind))
-            ) : selectedLinks?.find(id => id === node?.link?.id);
-          // </isSelected>
-
-          const sprite = new SpriteText(_l.join('\n'));
-          sprite.color = isSelected ? '#fff' : (node?.textColor || '#707070');
-          sprite.textHeight = 4;
-          return sprite;
-        } : undefined}
+        linkLabel={forceGraph_linkLabel}
+        linkCurvature={forceGraph_linkCurvature}
+        linkLineDash={forceGraph_linkLineDash}
+        nodeCanvasObject={forceGraph_nodeCanvasObject}
+        nodeThreeObject={forceGraph != 'vr' ? forceGraph_nodeThreeObject : undefined}
         // nodeThreeObject={node => {
         //   return new Three.Mesh(
         //     [
@@ -469,7 +562,7 @@ export function PageContent() {
         //       new Three.SphereGeometry(Math.random() * 10),
         //       new Three.TorusGeometry(Math.random() * 10, Math.random() * 2),
         //       new Three.TorusKnotGeometry(Math.random() * 10, Math.random() * 2)
-        //     ][node.id%7],
+        //     ][node.link?.id%7],
         //     new Three.MeshLambertMaterial({
         //       color: Math.round(Math.random() * Math.pow(2, 24)),
         //       transparent: true,
@@ -481,92 +574,18 @@ export function PageContent() {
         //   const _l = node.label || [];
 
         //   const isSelected = screenFind ? (
-        //     node?.link?.id.toString() === screenFind || !!(_l?.join(' ')?.includes(screenFind))
-        //   ) : selectedLinks?.find(id => id === node?.link?.id);
+        //     node?.linkId.toString() === screenFind || !!(_l?.join(' ')?.includes(screenFind))
+        //   ) : selectedLinks?.find(id => id === node?.linkId);
 
         //   const sprite = new SpriteText(_l.join(' '));
         //   sprite.color = isSelected ? '#fff' : '#707070';
         //   sprite.textHeight = 8;
         //   return new Three.Mesh(sprite);
         // }}
-        onNodeDrag={(node) => {
-          clearTimeout(holdRef.current.timeout);
-          const { id, x, y, z, fx, fy, fz } = node;
-          const focus = ml.byId[id].inByType[baseTypes.Focus]?.find(f => f.from_id === spaceId);
-          if (spaceId) {
-            holdRef.current = {
-              node,
-              id, x, y, z, fx, fy, fz,
-              fix: holdRef.current.id === id ? holdRef.current.fix : !!focus,
-              needrehold: false,
-              timeout: setTimeout(async () => {
-                holdRef.current.needrehold = true;
-                const focus = ml.byId[id].inByType[baseTypes.Focus]?.find(f => f.from_id === spaceId);
-                if (focus) {
-                  holdRef.current.fix = false;
-                  console.log('unfocus', { id, x, y, z, fx, fy, fz });
-                  const where = { type_id: await deep.id('@deep-foundation/core', 'Focus'), from_id: spaceId, to_id: node.id };
-                  await deep.delete(where);
-                  console.log('unfocused');
-                } else {
-                  holdRef.current.fix = true;
-                  console.log('focus');
-                  const q = await deep.select({
-                    type_id: await deep.id('@deep-foundation/core', 'Focus'),
-                    from_id: spaceId,
-                    to_id: node.id,
-                  });
-                  const oldFocusId = q?.data?.[0]?.id;
-                  let focusId = oldFocusId;
-                  if (!focusId) {
-                    const { data: [{ id: newFocusId }] } = await deep.insert({
-                      type_id: await deep.id('@deep-foundation/core', 'Focus'),
-                      from_id: spaceId,
-                      to_id: node.id,
-                    });
-                    focusId = newFocusId;
-                  }
-                  node._focusId = focusId;
-                  await deep.insert({ link_id: focusId, value: { x, y, z } }, { table: 'objects', variables: { on_conflict: { constraint: 'objects_pkey', update_columns: 'value' } } });
-                  console.log('focused');
-                }
-              }, 500),
-            };
-          }
-        }}
-        onNodeDragEnd={async (node) => {
-          clearTimeout(holdRef.current.timeout);
-          const { id, x, y, z, fx, fy, fz } = node;
-          if (spaceId) {
-            holdRef.current.needrehold = false;
-            const focus = ml.byId[id].inByType[baseTypes.Focus]?.find(f => f.from_id === spaceId);
-            console.log('fix', holdRef?.current?.fix, 'focus', !!focus);
-            if (focus || holdRef?.current?.fix) {
-              node.fx = x;
-              node.fy = y;
-              node.fz = z;
-            } else {
-              delete node.fx;
-              delete node.fy;
-              delete node.fz;
-            }
-          }
-          if (!holdRef?.current?.needrehold && node._focusId) {
-            node._dragged = true;
-            await deep.update({ link_id: node._focusId }, { value: { x, y, z } }, { table: 'objects' });
-          }
-
-          holdRef.current = {};
-        }}
-        onNodeClick={(node) => {
-          onNodeClickRef.current(node);
-        }}
-        onNodeRightClick={(node) => {
-          if (node?.link?.type_id === baseTypes.Space) setSpaceId(node.id);
-        }}
-        onNodeHover={(node) => {
-          
-        }}
+        onNodeDrag={forceGraph_onNodeDrag}
+        onNodeDragEnd={forceGraph_onNodeDragEnd}
+        onNodeClick={forceGraph_onNodeClick}
+        onNodeRightClick={forceGraph_onNodeRightClick}
       />]}
       <GUI ml={ml}/>
       <Backdrop className={classes.backdrop} open={!connected}>
@@ -587,8 +606,8 @@ export function PageConnected() {
     if (!deep.token && !requestedRef.current) {
       requestedRef.current = true;
       const { token, linkId } = await deep.guest({});
-      setSpaceId(linkId);
     }
+    setSpaceId(deep?.linkId);
   })()}, [deep?.token]);
   return <>
     {!!deep.token && [<PageContent key={`${deep?.token || ''}-${deep?.linkId || ''}-${spaceId}`}/>]}

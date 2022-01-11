@@ -1,9 +1,11 @@
 // @flow
 import { makeStyles } from '@material-ui/core';
 import _ from 'lodash';
-import React, { Component, useState, useCallback, useRef } from 'react';
+import React, { Component, useState, useCallback, useRef, useEffect } from 'react';
 
 let ForceGraph3D, ForceGraph2D, ForceGraphAR, ForceGraphVR, ForceGraph, SpriteText, Three;
+
+import diff from 'deep-diff';
 
 const useStyles = makeStyles(() => ({
   wrapper: {
@@ -31,7 +33,7 @@ if (_.get(process, 'browser')) {
   ForceGraphAR = require('react-force-graph').ForceGraphAR;
   ForceGraphVR = require('react-force-graph').ForceGraphVR;
 
-  ForceGraph = (props: any) => {
+  ForceGraph = React.memo((props: any) => {
     const fgRef = useRef<any>();
     const activeRef = props?.fgRef || fgRef;
     const [last, setLast] = useState(0);
@@ -62,12 +64,9 @@ if (_.get(process, 'browser')) {
       // linkDirectionalArrowLength={10}
       // linkDirectionalArrowRelPos={0.9}
       // linkCurvature={0.25}
-      onNodeClick={(node) => {
-        onNodeClick(node);
-        props.onNodeClick && props.onNodeClick(node);
-      }}
+      onNodeClick={onNodeClick}
     /></div>;
-  };
+  });
 } else {
   SpriteText = (...args: any): any => null;
   
