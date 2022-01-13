@@ -15,6 +15,7 @@ import { LinkCard } from './link-card/index';
 import { Button, ButtonGroup, Grid, IconButton, TextField, makeStyles, Paper } from './ui';
 import pckg from '../package.json';
 import { MinilinksResult } from '@deep-foundation/deeplinks/imports/minilinks';
+import { useMediaQuery } from '@material-ui/core';
 
 type StyleProps = { connected: boolean; };
 const connectedPosition = (style: any) => ({
@@ -160,10 +161,12 @@ export function GUI({ ml }: { ml: MinilinksResult<any> }) {
 
   const deep = useDeep();
 
+  const isSM = useMediaQuery(theme.breakpoints.down('sm'));
+
   return <div className={classes.overlay}>
       <div className={classes.top}>
-        <PaperPanel className={cn(classes.topPaper, classes.transitionHoverScale)}>
-          <Grid container justify="space-between" spacing={1}>
+        <PaperPanel className={cn(classes.topPaper, classes.transitionHoverScale)} style={isSM ? { overflowX: 'scroll' } : {}}>
+          <Grid container justify="space-between" spacing={1} style={isSM ? { width: '300%' } : {}}>
             <Grid item>
               <Grid container spacing={1}>
                 <Grid item>

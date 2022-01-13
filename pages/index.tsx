@@ -533,6 +533,8 @@ export function PageContent() {
       {[<ForceGraph
         fgRef={fgRef}
         key={''+windowSize.width+windowSize.height}
+        width={windowSize.width}
+        height={windowSize.height}
         Component={
           forceGraph == '2d'
           ? ForceGraph2D
