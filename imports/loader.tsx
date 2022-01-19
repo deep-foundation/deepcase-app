@@ -1,4 +1,4 @@
-import { useSubscription } from "@apollo/client";
+import { useQuery, useSubscription } from "@apollo/client";
 import { useDeep } from "@deep-foundation/deeplinks/imports/client";
 import { generateQuery, generateQueryData } from "@deep-foundation/deeplinks/imports/gql";
 import { Link, LinkRelations } from "@deep-foundation/deeplinks/imports/minilinks";
@@ -20,7 +20,7 @@ export function DeepLoaderFocus({
     const v = (focus?.value?.value);
     const variables = deep.serializeQuery(v);
     return generateQuery({
-      operation: 'subscription',
+      operation: 'query',
       queries: [generateQueryData({
         tableName: 'links',
         returning: `
@@ -60,7 +60,10 @@ export function DeepLoaderFocus({
       name: 'DEEPCASE',
     });
   }, [focus, focus?.value?.value]);
-  const s = useSubscription(query.query, { variables: query.variables, fetchPolicy: 'no-cache' });
+  const s = useQuery(query.query, { variables: query.variables, fetchPolicy: 'no-cache', pollInterval: 1000 });
+
+  console.log('s', s);
+
   useEffect(() => {
     if (s?.data?.q0) onChange(s?.data?.q0);
   }, [s]);
@@ -95,7 +98,7 @@ export function DeepLoader({
       ],
     };
     return generateQuery({
-      operation: 'subscription',
+      operation: 'query',
       queries: [
         generateQueryData({
           tableName: 'links',
@@ -142,9 +145,11 @@ export function DeepLoader({
       name: 'FOCUSES',
     });
   }, [baseTypes]);
-  const focusesQ = useSubscription(focusesCriteria.query, { variables: focusesCriteria.variables, fetchPolicy: 'no-cache' });
+  const focusesQ = useQuery(focusesCriteria.query, { variables: focusesCriteria.variables, fetchPolicy: 'no-cache', pollInterval: 1000 });
   const focuses = (focusesQ?.data?.q0 || []);
   const onlyFocusLinks = useMemo(() => focuses?.filter(f => f.type_id === baseTypes?.Query), [focuses]);
+
+  console.log('focusesQ', focusesQ);
 
   const [results, setResults] = useState<any>({});
 
@@ -152,7 +157,7 @@ export function DeepLoader({
     setResults((results) => {
       if (focuses.length) {
         const newResults = {
-          // ...results,
+          ...results,
           focuses,
         };
         onChange(newResults);

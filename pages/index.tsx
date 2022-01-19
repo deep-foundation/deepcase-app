@@ -25,6 +25,7 @@ import pckg from '../package.json';
 import { useInterval } from 'usehooks-ts';
 import isEqual from 'lodash/isEqual';
 import isEqualWith from 'lodash/isEqualWith';
+import copy from 'copy-to-clipboard';
 
 // @ts-ignore
 const Graphiql = dynamic(() => import('../imports/graphiql').then(m => m.Graphiql), { ssr: false });
@@ -68,6 +69,9 @@ export const AuthPanel = React.memo<any>(function AuthPanel() {
   return <>
     <ButtonGroup variant="outlined">
       <Button disabled>{deep.linkId}</Button>
+      <Button onClick={() => {
+        copy(deep.token);
+      }}>copy token</Button>
       <Button color={operation === 'auth' ? 'primary' : 'default'} onClick={() => setOperation(operation === 'auth' ? '' : 'auth')}>login</Button>
       <Button onClick={async () => {
         const g = await deep.guest({});
@@ -122,6 +126,7 @@ export function PageContent() {
   const [bgTransparent] = useBackgroundTransparent();
 
   useEffect(() => {(async () => {
+    console.log(deep.token, deep.linkId);
     setBaseTypes({
       Contain: await deep.id('@deep-foundation/core', 'Contain'),
       Focus: await deep.id('@deep-foundation/core', 'Focus'),
@@ -605,9 +610,11 @@ export function PageConnected() {
   const deep = useDeep();
   const requestedRef = useRef(false);
   useEffect(() => {(async () => {
+    let _linkId = deep?.linkId;
     if (!deep.token && !requestedRef.current) {
       requestedRef.current = true;
       const { token, linkId } = await deep.guest({});
+      _linkId = linkId;
     }
     setSpaceId(deep?.linkId);
   })()}, [deep?.token]);
