@@ -25,25 +25,6 @@ export function DeepLoaderFocus({
         tableName: 'links',
         returning: `
           id type_id from_id to_id value
-          string { id value }
-          number { id value }
-          object { id value } 
-          _by_root {
-            id
-            item_id
-            path_item_depth
-            path_item_id
-            position_id
-            root_id
-          }
-          _by_path_item {
-            id
-            item_id
-            path_item_depth
-            path_item_id
-            position_id
-            root_id
-          }
           _by_item {
             id
             item_id
@@ -54,7 +35,7 @@ export function DeepLoaderFocus({
           }
         `,
         variables: v
-        ? { ...variables, where: { _or: [variables.where, { typed: variables.where }] } }
+        ? { ...variables, where: { _or: [variables.where] } }
         : { where: {}, limit: 0 },
       })],
       name: 'DEEPCASE',
@@ -62,7 +43,7 @@ export function DeepLoaderFocus({
   }, [focus, focus?.value?.value]);
   const s = useQuery(query.query, { variables: query.variables, fetchPolicy: 'no-cache', pollInterval: 1000 });
 
-  console.log('s', s);
+  // console.log('s', s);
 
   useEffect(() => {
     if (s?.data?.q0) onChange(s?.data?.q0);
@@ -83,18 +64,10 @@ export function DeepLoader({
 
   const [baseTypes, setBaseTypes] = useBaseTypes();
   const focusesCriteria = useMemo(() => {
-    const spaceSelector = spaceId ? [
-      { type_id: { _in: [baseTypes.User] } },
-      { type_id: { _in: [baseTypes.Focus, baseTypes.Contain] }, from_id: { _eq: spaceId } },
-      { in: { type_id: { _in: [baseTypes.Focus, baseTypes.Contain] }, from_id: { _eq: spaceId } } },
-      { typed: { in: { type_id: { _in: [baseTypes.Focus, baseTypes.Contain] }, from_id: { _eq: spaceId } } } },
-    ] : [];
     const whereTypes = {
       _or: [
-        { type_id: { _eq: baseTypes.Space } },
-        { id: { _eq: linkId } },
-        ...spaceSelector,
-        { id: { _in: [baseTypes.Query, baseTypes.Focus, baseTypes.Space, baseTypes.User, baseTypes.Contain] } },
+        { type_id: { _in: [baseTypes.Focus, baseTypes.Contain] }, from_id: { _eq: spaceId } },
+        { in: { type_id: { _in: [baseTypes.Focus, baseTypes.Contain] }, from_id: { _eq: spaceId } } },
       ],
     };
     return generateQuery({
@@ -104,25 +77,6 @@ export function DeepLoader({
           tableName: 'links',
           returning: `
             id type_id from_id to_id value
-            string { id value }
-            number { id value }
-            object { id value } 
-            _by_root {
-              id
-              item_id
-              path_item_depth
-              path_item_id
-              position_id
-              root_id
-            }
-            _by_path_item {
-              id
-              item_id
-              path_item_depth
-              path_item_id
-              position_id
-              root_id
-            }
             _by_item {
               id
               item_id
@@ -133,13 +87,8 @@ export function DeepLoader({
             }
           `,
           variables: {
-            where: {
-              _or: [
-                whereTypes,
-                { type_id: { _eq: baseTypes.Contain }, to: whereTypes },
-              ],
-            },
-            limit: baseTypes?.Focus ? 999999 : 0,
+            where: whereTypes,
+            // limit: baseTypes?.Focus ? 100 : 0,
           } }),
       ],
       name: 'FOCUSES',
@@ -149,7 +98,7 @@ export function DeepLoader({
   const focuses = (focusesQ?.data?.q0 || []);
   const onlyFocusLinks = useMemo(() => focuses?.filter(f => f.type_id === baseTypes?.Query), [focuses]);
 
-  console.log('focusesQ', focusesQ);
+  // console.log('focusesQ', focusesQ);
 
   const [results, setResults] = useState<any>({});
 

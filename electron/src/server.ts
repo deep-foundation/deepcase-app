@@ -39,7 +39,7 @@ const envsObj = {
   app.post('/eval', async (req, res) => {
     res.json({ eval: eval(req.body.eval) });
   });
-  await fkill(':3007', { silent: true });
+  await fkill(':3007', { force: true, silent: true });
   app.listen(3007, () => {
     console.log(`Example app listening at http://localhost:3007`)
   });

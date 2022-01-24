@@ -126,7 +126,6 @@ export function PageContent() {
   const [bgTransparent] = useBackgroundTransparent();
 
   useEffect(() => {(async () => {
-    console.log(deep.token, deep.linkId);
     setBaseTypes({
       Contain: await deep.id('@deep-foundation/core', 'Contain'),
       Focus: await deep.id('@deep-foundation/core', 'Focus'),
@@ -424,9 +423,11 @@ export function PageContent() {
     return sprite;
   } , []);
   const forceGraph_onNodeDrag = useCallback((node) => {
+    console.log('onNodeDrag');
     clearTimeout(holdRef.current.timeout);
     const { id, x, y, z, fx, fy, fz } = node;
     const focus = ml?.byId?.[id]?.inByType[baseTypes.Focus]?.find(f => f.from_id === spaceId);
+    console.log('findFocus', focus, id, baseTypes, ml);
     if (spaceId) {
       holdRef.current = {
         node,
@@ -434,6 +435,7 @@ export function PageContent() {
         fix: holdRef.current.id === id ? holdRef.current.fix : !!focus,
         needrehold: false,
         timeout: setTimeout(async () => {
+          console.log('onNodeDrag timeout');
           holdRef.current.needrehold = true;
           const focus = ml?.byId?.[id]?.inByType[baseTypes.Focus]?.find(f => f.from_id === spaceId);
           if (focus) {
@@ -467,8 +469,9 @@ export function PageContent() {
         }, 500),
       };
     }
-  }, []);
+  }, [ml]);
   const forceGraph_onNodeDragEnd = useCallback(async (node) => {
+    console.log('onNodeDragEnd');
     clearTimeout(holdRef.current.timeout);
     const { id, x, y, z, fx, fy, fz } = node;
     if (spaceId) {
@@ -489,9 +492,9 @@ export function PageContent() {
       node._dragged = true;
       await deep.update({ link_id: node._focusId }, { value: { x, y, z } }, { table: 'objects' });
     }
-
+    
     holdRef.current = {};
-  }, []);
+  }, [ml]);
   const forceGraph_onNodeClick = useCallback((node) => {
     onNodeClickRef.current(node);
   }, []);
