@@ -27,7 +27,7 @@
     "target": [
       "mas"
     ],
-    "icon": "assets/appIcon.png"
+    "icon": "assets/appIcon.icns"
   },
   "mas": {
     "type": "distribution",
@@ -40,9 +40,12 @@
   },
   "linux": {
     "target": [
-      "deb"
+      "appImage",
+      "deb",
+      "apk"
     ],
-    "category": "Utility"
+    "category": "Utility",
+    "icon": "assets/appIcon.png"
   },
   "forceCodeSigning": false,
   "removePackageScripts": false,
