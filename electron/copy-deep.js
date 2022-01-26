@@ -9,11 +9,11 @@ exports.default = async function(context) {
     if (fs.existsSync(unpackagedPath)) {
       fs.rmSync(`${unpackagedPath}/hasura`, { recursive: true });
       shell(`mkdir -p ${unpackagedPath}/hasura`);
-      shell(`cp -r ${originalPath}/hasura* ${unpackagedPath}/hasura`);
+      shell(`cp -r ${originalPath}/hasura/ ${unpackagedPath}`);
 
       fs.rmSync(`${unpackagedPath}/deeplinks`, { recursive: true });
       shell(`mkdir -p ${unpackagedPath}/deeplinks`);
-      shell(`cp -r ${originalPath}/deeplinks/* ${unpackagedPath}/deeplinks`);
+      shell(`cp -r ${originalPath}/deeplinks/ ${unpackagedPath}`);
     }
   } catch(err) {
     console.error(err);
