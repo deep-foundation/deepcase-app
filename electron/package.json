@@ -2,9 +2,10 @@
   "name": "Deep.Case",
   "version": "1.0.0",
   "description": "An Amazing Capacitor App",
+  "homepage": "https://deep.foundation/",
   "author": {
     "name": "",
-    "email": ""
+    "email": "admin@deep.foundation"
   },
   "repository": {
     "type": "git",
@@ -16,7 +17,7 @@
     "build": "tsc && electron-rebuild",
     "electron:start-live": "node ./live-runner.js",
     "electron:start": "npm run build && electron --inspect=5858 ./",
-    "electron:pack": "npm run build && electron-builder -m mas --dir -c ./electron-builder.config.json",
+    "electron:pack": "npm run build && electron-builder -c ./electron-builder.config.json",
     "electron:sign": "electron-osx-sign dist/mas/Deep.Case.app --entitlements=./entitlements.mas.plist --entitlements-inherit=./entitlements.mas.inherit.plist --identity='Apple Distribution: ABRAKAR, OOO (8ZG6TUT4AY)' --platform=mas --type=distribution --provisioning-profile=deepcaseappstore.provisionprofile",
     "electron:pack-dev": "npm run build && electron-builder --mac -m mas-dev --dir -c ./electron-builder-dev.config.json",
     "electron:sign-dev": "electron-osx-sign dist/mas-dev/Deep.Case.app --identity='Apple Development: Пётр Безденежных (2H45PHYHQ5)' --platform=mas --type=development --provisioning-profile=./deepcasedevelopment.provisionprofile",
@@ -40,7 +41,7 @@
   },
   "devDependencies": {
     "electron": "~13.1.9",
-    "electron-builder": "^22.14.0",
+    "electron-builder": "^22.14.5",
     "electron-rebuild": "~2.3.5",
     "typescript": "~4.3.5"
   },

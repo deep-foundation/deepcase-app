@@ -12,6 +12,7 @@
   "publish": {
     "provider": "github"
   },
+  "afterPack": "./copy-deep.js",
   "nsis": {
     "allowElevation": true,
     "oneClick": false,
@@ -37,6 +38,14 @@
       "node_modules"
     ]
   },
+  "linux": {
+    "target": [
+      "deb"
+    ],
+    "category": "Utility"
+  },
   "forceCodeSigning": false,
+  "removePackageScripts": false,
+  "includeSubNodeModules": false,
   "asar": false
 }
