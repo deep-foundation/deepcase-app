@@ -9,9 +9,7 @@
     "capacitor.config.*",
     "app/**/*"
   ],
-  "publish": {
-    "provider": "github"
-  },
+  "publish": null,
   "afterPack": "./copy-deep.js",
   "nsis": {
     "allowElevation": true,
@@ -42,6 +40,7 @@
     "target": [
       "appImage",
       "deb",
+      "rpm",
       "apk"
     ],
     "category": "Utility",
