@@ -1,6 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { GLOBAL_ID_CONTAIN, GLOBAL_ID_PACKAGE, GLOBAL_ID_PROMISE, GLOBAL_ID_REJECTED, GLOBAL_ID_RESOLVED, GLOBAL_ID_THEN, useDeep } from '@deep-foundation/deeplinks/imports/client';
-import { minilinks } from '@deep-foundation/deeplinks/imports/minilinks';
+import { minilinks, MinilinkCollection, MinilinksGeneratorOptionsDefault, useMinilinks } from '@deep-foundation/deeplinks/imports/minilinks';
 import { useTokenController } from '@deep-foundation/deeplinks/imports/react-token';
 import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client';
 import { useLocalStore } from '@deep-foundation/store/local';
@@ -24,6 +24,7 @@ import { Backdrop, Button, ButtonGroup, IconButton, makeStyles, Popover, Typogra
 import pckg from '../package.json';
 import { useInterval } from 'usehooks-ts';
 import isEqual from 'lodash/isEqual';
+import remove from 'lodash/remove';
 import isEqualWith from 'lodash/isEqualWith';
 import copy from 'copy-to-clipboard';
 
@@ -127,6 +128,7 @@ export function PageContent() {
 
   useEffect(() => {(async () => {
     setBaseTypes({
+      containTree: await deep.id('@deep-foundation/core', 'containTree'),
       Contain: await deep.id('@deep-foundation/core', 'Contain'),
       Focus: await deep.id('@deep-foundation/core', 'Focus'),
       Query: await deep.id('@deep-foundation/core', 'Query'),
@@ -143,151 +145,105 @@ export function PageContent() {
     global.axios = axios;
     const pl = Capacitor.getPlatform();
     if (pl === 'web') {
-      console.log(`platform is web, connection to server to ${process.env.NEXT_PUBLIC_DEEPLINKS_SERVER}/api/deeplinks`);
+      // console.log(`platform is web, connection to server to ${process.env.NEXT_PUBLIC_DEEPLINKS_SERVER}/api/deeplinks`);
       axios.post(`${process.env.NEXT_PUBLIC_DEEPLINKS_SERVER}/api/deeplinks`, { abc: 123 }).then(console.log, console.log);
     } else if (pl === 'electron') {
-      console.log(`platform is electron, connection to server to ${process.env.NEXT_PUBLIC_DEEPLINKS_SERVER}/api/deeplinks`);
+      // console.log(`platform is electron, connection to server to ${process.env.NEXT_PUBLIC_DEEPLINKS_SERVER}/api/deeplinks`);
       axios.post(`${process.env.NEXT_PUBLIC_DEEPLINKS_SERVER}/api/deeplinks`, { def: 234 }).then(console.log, console.log);
     } else {
-      console.log(`platform is not detected, connection to server lost`);
+      // console.log(`platform is not detected, connection to server lost`);
     }
   }, []);
 
-  const [results, setResults] = useState({});
   const prevD = useRef<any>({});
-  const { ml } = useMemo(() => {
-    const newResults = {};
-    const fks = Object.keys(results);
-    for (let f = 0; f < fks.length; f++) {
-      const fk = fks[f];
-      for (let i = 0; i < results[fk].length; i++) {
-        const link = results[fk][i];
-        newResults[link?.id] = link;
-      }
-    }
-    const ml = minilinks(Object.values(newResults));
-    return { ml };
-  }, [results]);
-  const outD = useMemo(() => {
-    const isPromiseDeniedLink = (id) => !promises && [GLOBAL_ID_PROMISE, GLOBAL_ID_THEN, GLOBAL_ID_RESOLVED, GLOBAL_ID_REJECTED].includes(id);
-    if (results) {
-      const prev = prevD.current;
-      var prevNodes = prev?.nodes?.reduce(function(map, node) {
-        map[node.id] = node;
-        return map;
-      }, {});
+  
+  const minilinks = useMinilinks();
+  global.minilinks = minilinks;
+  const { ref: mlRef, ml } = minilinks;
 
-      const nodes = [];
-      const links = [];
-      const _tempHash = {};
-
-      for (let l = 0; l < ml.links.length; l++) {
-        const link = ml.links[l];
-        // const link = { id: link?.id, type_id: link?.type_id, from_id: link?.from_id, to_id: link?.to_id, value: link?.value };
-        const isTransparent = (
-          (link?.type_id === GLOBAL_ID_CONTAIN && link?.from?.type_id === GLOBAL_ID_PACKAGE && !containerVisible)
-        );
-        
-        const isVisible = (
-          (
-            (link?.type_id === baseTypes.Focus && (labelsConfig.focuses)) ||
-            (link?.type_id !== baseTypes.Focus)
-          )
-        );
-
-        if (isPromiseDeniedLink(link?.type_id)) {
-          continue;
+  const isPromiseDeniedLink = useCallback((id) => !promises && [GLOBAL_ID_PROMISE, GLOBAL_ID_THEN, GLOBAL_ID_RESOLVED, GLOBAL_ID_REJECTED].includes(id), [promises]);
+  const [graphData, setGraphData] = useState({ nodes: [], links: [] });
+  useEffect(() => {
+    const addedListener = (nl) => {
+      // console.log('added', nl);
+      setGraphData((graphData) => {
+        const focus = nl?.inByType[baseTypes.Focus]?.find(f => f.from_id === spaceId);
+        let optional = {};
+        if (focus?.value?.value) {
+          optional = {
+            fx: focus?.value?.value?.x,
+            fy: focus?.value?.value?.y,
+            fz: focus?.value?.value?.z,
+            x: focus?.value?.value?.x,
+            y: focus?.value?.value?.y,
+            z: focus?.value?.value?.z,
+          };
         }
 
         const label: (string|number)[] = [];
-        if (!isTransparent) {
-          label.push(link?.id);
-          if (labelsConfig?.contains) (link?.inByType?.[GLOBAL_ID_CONTAIN] || []).forEach(link => link?.value?.value && label.push(`${link?.value?.value}`));
-          if (labelsConfig?.values && link?.value?.value) {
-            let json;
-            try { json = json5.stringify(link?.value.value); } catch(error) {}
-            label.push(`value:${
-              typeof(link?.value.value) === 'object' && json
-              ? json : link?.value.value
-            }`);
-          }
-          if (labelsConfig?.types) if (link?.type?.value?.value) label.push(`type:${link?.type?.value?.value}`);
+        label.push(focus ? `[${nl?.id}]` : nl?.id);
+        if (labelsConfig?.contains) (nl?.inByType?.[GLOBAL_ID_CONTAIN] || []).forEach(link => link?.value?.value && label.push(`${link?.value?.value}`));
+        if (labelsConfig?.values && nl?.value?.value) {
+          let json;
+          try { json = json5.stringify(nl?.value.value); } catch(error) {}
+          label.push(`value:${
+            typeof(nl?.value.value) === 'object' && json
+            ? json : nl?.value.value
+          }`);
         }
+        if (labelsConfig?.types) if (nl?.type?.value?.value) label.push(`type:${nl?.type?.value?.value}`);
 
-        const focus = link?.inByType[baseTypes.Focus]?.find(f => f.from_id === spaceId);
+        const labelArray = label.map((s: string) => (s.length > 30 ? `${s.slice(0, 30).trim()}...` : s));
+        const labelString = labelArray.join('\n');
 
-        if (isVisible) {
-          let optional;
-          if (prevNodes?.[link?.id]?._dragged) {
-            optional = { _dragged: false };
-           } else if (focus?.value?.value) {
-            optional = {
-              fx: focus?.value?.value?.x,
-              fy: focus?.value?.value?.y,
-              fz: focus?.value?.value?.z,
-              x: focus?.value?.value?.x,
-              y: focus?.value?.value?.y,
-              z: focus?.value?.value?.z,
-            };
-          }
-          _tempHash[link?.id] = true;
-          nodes.push({
-            ...prevNodes?.[link?.id],
-            id: link?.id,
-            link: link,
-            label,
-            textColor: (
-              [spaceId, deep.linkId].includes(link?.id) ||
-              [baseTypes.Space, baseTypes.User].includes(link?.type_id) ? theme?.palette?.primary?.main : undefined
-            ),
-            _focusId: focus?.id,
-            ...optional,
-          });
-        }
+        // <isSelected>
+        const isSelected = screenFind ? (
+          nl?.linkId.toString() === screenFind || !!(labelString?.includes(screenFind))
+          ) : selectedLinks?.find(id => id === nl?.linkId);
+        // </isSelected>
 
-        if ((showTypes) && (link?.type_id && link?.type)) links.push({ id: `type--${link?.id}`, source: link?.id, target: link?.type_id, link: link, type: 'type', color: isTransparent ? 'transparent' : '#ffffff' });
+        graphData.nodes.push({
+          id: nl?.id,
+          link: nl,
+          labelArray,
+          labelString,
+          textColor: focus ? '#03a9f4': isSelected ? '#ffffff' : '#757575',
+          ...optional,
+        });
 
-        if (showMP) for (let i = 0; i < link?._by_item?.length; i++) {
-          const pos = link?._by_item?.[i];
-          if (_tempHash[pos.path_item_id]) links.push({ id: `by-item--${pos.id}`, source: link?.id, target: pos.path_item_id, link: link, pos, type: 'by-item', color: isTransparent ? 'transparent' : '#ffffff' });
-        }
-      }
-
-      for (let l = 0; l < ml.links.length; l++) {
-        const link = ml.links[l];
-        // const link = { id: link?.id, type_id: link?.type_id, from_id: link?.from_id, to_id: link?.to_id, value: link?.value };
-        const isTransparent = link?.type_id === GLOBAL_ID_CONTAIN && link?.from?.type_id === GLOBAL_ID_PACKAGE && !containerVisible;
-
-        const isVisible = (
-          (
-            (link?.type_id === baseTypes.Focus && (labelsConfig.focuses)) ||
-            (link?.type_id !== baseTypes.Focus)
-          )
+        const isTransparent = (
+          (nl?.type_id === GLOBAL_ID_CONTAIN && nl?.from?.type_id === GLOBAL_ID_PACKAGE && !containerVisible)
         );
 
-        if (isPromiseDeniedLink(link?.type_id)) {
-          continue;
-        }
-
-        if (isVisible) {
-          if (link?.from && !isPromiseDeniedLink(link?.from?.type_id)) links.push({ id: `from--${link?.id}`, source: link?.id, target: link?.from_id || link?.id, link: link, type: 'from', color: isTransparent ? 'transparent' : '#a83232' });
-          if (link?.to && !isPromiseDeniedLink(link?.to?.type_id)) links.push({ id: `to--${link?.id}`, source: link?.id, target: link?.to_id || link?.id, link: link, type: 'to', color: isTransparent ? 'transparent' : '#32a848' });
-        }
-      }
-
-      prevD.current.nodes = nodes;
-      prevD.current.links = links;
-      return { nodes, links };
-    }
-    return prevD.current;
-  }, [containerVisible, container, labelsConfig, selectedLinks, results, spaceId]);
-  prevD.current = outD;
-  // useInterval(() => {
-  //   for (let i = 0; i < outD.nodes.length; i++) {
-  //     const node = outD.nodes[i];
-  //     if (node?.x) prevD.current[node.link?.id] = node;
-  //   }
-  // }, 1000);
+        if (nl?.from && !isPromiseDeniedLink(nl?.from?.type_id)) graphData.links.push({ id: `from--${nl?.id}`, source: nl?.id, target: nl?.from_id || nl?.id, link: nl, type: 'from', color: isTransparent ? 'transparent' : '#a83232' });
+        if (nl?.to && !isPromiseDeniedLink(nl?.to?.type_id)) graphData.links.push({ id: `to--${nl?.id}`, source: nl?.id, target: nl?.to_id || nl?.id, link: nl, type: 'to', color: isTransparent ? 'transparent' : '#32a848' });
+        return { nodes: graphData.nodes, links: graphData.links };
+      });
+    };
+    const updatedListener = (ol, nl) => {
+      // console.log('updated', ol, nl);
+    };
+    const removedListener = (olId) => {
+      // console.log('removed', olId);
+      setGraphData((graphData) => {
+        remove(graphData.nodes, n => n.id === olId);
+        remove(graphData.links, n => (
+          n.id === olId ||
+          n.id === `from--${olId}` ||
+          n.id === `to--${olId}`
+        ));
+        return { nodes: graphData.nodes, links: graphData.links };
+      });
+    };
+    ml.emitter.on('added', addedListener);
+    ml.emitter.on('updated', updatedListener);
+    ml.emitter.on('removed', removedListener);
+    return () => {
+      ml.emitter.removeListener('added', addedListener);
+      ml.emitter.removeListener('updated', updatedListener);
+      ml.emitter.removeListener('removed', removedListener);
+    };
+  }, []);
 
   const mouseMove = useRef<any>();
   const onNodeClickRef = useRef<any>();
@@ -332,31 +288,31 @@ export function PageContent() {
 
   const fgRef = useRef<any>();
   const focusLink = useCallback((id: number) => {
-    const node = (outD.nodes || [])?.find(n => n.id === id);
+    // const node = (graphData.nodes || [])?.find(n => n.id === id);
 
-    const distance = 40;
-    const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
+    // const distance = 40;
+    // const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
 
-    var dx = node.dx,
-      dy = node.dy,
-      dz = node.dz,
-      x = node.x,
-      y = node.y,
-      z = node.z,
-      scale = Math.max(1, Math.min(8, 0.9 / Math.max(dx / rootRef?.current.outerWidth, dy / rootRef?.current.outerHeight))),
-      translate = [rootRef?.current.outerWidth / 2 - scale * x, rootRef?.current.outerHeight / 2 - scale * y];
+    // var dx = node.dx,
+    //   dy = node.dy,
+    //   dz = node.dz,
+    //   x = node.x,
+    //   y = node.y,
+    //   z = node.z,
+    //   scale = Math.max(1, Math.min(8, 0.9 / Math.max(dx / rootRef?.current.outerWidth, dy / rootRef?.current.outerHeight))),
+    //   translate = [rootRef?.current.outerWidth / 2 - scale * x, rootRef?.current.outerHeight / 2 - scale * y];
 
-    try {
-      fgRef.current.centerAt(x, y)
-    } catch(error) {}
-    try {
-      fgRef?.current?.cameraPosition(
-        { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
-        node, // lookAt ({ x, y, z })
-        3000  // ms transition duration
-      );
-    } catch(error) {}
-  }, [outD]);
+    // try {
+    //   fgRef.current.centerAt(x, y)
+    // } catch(error) {}
+    // try {
+    //   fgRef?.current?.cameraPosition(
+    //     { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
+    //     node, // lookAt ({ x, y, z })
+    //     3000  // ms transition duration
+    //   );
+    // } catch(error) {}
+  }, [/*graphData*/]);
 
   const holdRef = useRef<any>({});
 
@@ -381,53 +337,28 @@ export function PageContent() {
     : false
   ), []);
   const forceGraph_nodeCanvasObject = useCallback((node, ctx, globalScale) => {
-    const _l = [...(node.label || [])].map((s: string) => (s.length > 30 ? `${s.slice(0, 30).trim()}...` : s));
-    _l[0] = node._focusId ? `[${_l[0]}]` : _l[0];
-
-    // <isSelected>
-    const isSelected = screenFind ? (
-      node?.linkId.toString() === screenFind || !!(_l?.join(' ')?.includes(screenFind))
-      ) : selectedLinks?.find(id => id === node?.linkId);
-    // </isSelected>
-      
     const fontSize = 12/globalScale;
     ctx.font = `${fontSize}px Sans-Serif`;
-    let textWidth = 0;
-    for (var i = 0; i < _l.length; i++)
-      textWidth = ctx.measureText(node.label).width > textWidth ? ctx.measureText(node.label).width : textWidth;
-    const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); // some padding
-
-    ctx.fillStyle = 'rgba(0,0,0,0)';
-    ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, textWidth, fontSize * _l.length);
 
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = isSelected ? '#fff' : (node?.textColor || '#707070');
+    ctx.fillStyle = (node?.textColor || '#707070');
 
-    for (var i = 0; i < _l.length; i++)
-      ctx.fillText(_l[i], node.x, node.y + (i * 12/globalScale) );
+    for (var i = 0; i < node.labelArray.length; i++)
+      ctx.fillText(node.labelArray[i], node.x, node.y + (i * 12/globalScale) );
   }, []);
   const forceGraph_nodeThreeObject = useCallback(node => {
-    const _l = [...(node.label || [])].map((s: string) => (s.length > 30 ? `${s.slice(0, 30).trim()}...` : s));
-    _l[0] = node._focusId ? `[${_l[0]}]` : _l[0];
-
-    // <isSelected>
-    const isSelected = screenFind ? (
-      node?.linkId.toString() === screenFind || !!(_l?.join(' ')?.includes(screenFind))
-      ) : selectedLinks?.find(id => id === node?.linkId);
-    // </isSelected>
-
-    const sprite = new SpriteText(_l.join('\n'));
-    sprite.color = isSelected ? '#fff' : (node?.textColor || '#707070');
+    const sprite = new SpriteText(node.labelString);
+    sprite.color = (node?.textColor || '#707070');
     sprite.textHeight = 4;
     return sprite;
   } , []);
   const forceGraph_onNodeDrag = useCallback((node) => {
-    console.log('onNodeDrag');
+    // console.log('onNodeDrag');
     clearTimeout(holdRef.current.timeout);
     const { id, x, y, z, fx, fy, fz } = node;
     const focus = ml?.byId?.[id]?.inByType[baseTypes.Focus]?.find(f => f.from_id === spaceId);
-    console.log('findFocus', focus, id, baseTypes, ml);
+    // console.log('findFocus', focus, id, baseTypes, ml);
     if (spaceId) {
       holdRef.current = {
         node,
@@ -435,18 +366,18 @@ export function PageContent() {
         fix: holdRef.current.id === id ? holdRef.current.fix : !!focus,
         needrehold: false,
         timeout: setTimeout(async () => {
-          console.log('onNodeDrag timeout');
+          // console.log('onNodeDrag timeout');
           holdRef.current.needrehold = true;
           const focus = ml?.byId?.[id]?.inByType[baseTypes.Focus]?.find(f => f.from_id === spaceId);
           if (focus) {
             holdRef.current.fix = false;
-            console.log('unfocus', { id, x, y, z, fx, fy, fz });
+            // console.log('unfocus', { id, x, y, z, fx, fy, fz });
             const where = { type_id: await deep.id('@deep-foundation/core', 'Focus'), from_id: spaceId, to_id: node.link?.id };
             await deep.delete(where);
-            console.log('unfocused');
+            // console.log('unfocused');
           } else {
             holdRef.current.fix = true;
-            console.log('focus');
+            // console.log('focus');
             const q = await deep.select({
               type_id: await deep.id('@deep-foundation/core', 'Focus'),
               from_id: spaceId,
@@ -464,20 +395,20 @@ export function PageContent() {
             }
             node._focusId = focusId;
             await deep.insert({ link_id: focusId, value: { x, y, z } }, { table: 'objects', variables: { on_conflict: { constraint: 'objects_pkey', update_columns: 'value' } } });
-            console.log('focused');
+            // console.log('focused');
           }
         }, 500),
       };
     }
   }, [ml]);
   const forceGraph_onNodeDragEnd = useCallback(async (node) => {
-    console.log('onNodeDragEnd');
+    // console.log('onNodeDragEnd');
     clearTimeout(holdRef.current.timeout);
     const { id, x, y, z, fx, fy, fz } = node;
     if (spaceId) {
       holdRef.current.needrehold = false;
       const focus = ml?.byId?.[id]?.inByType[baseTypes.Focus]?.find(f => f.from_id === spaceId);
-      console.log('fix', holdRef?.current?.fix, 'focus', !!focus);
+      // console.log('fix', holdRef?.current?.fix, 'focus', !!focus);
       if (focus || holdRef?.current?.fix) {
         node.fx = x;
         node.fy = y;
@@ -487,12 +418,12 @@ export function PageContent() {
         delete node.fy;
         delete node.fz;
       }
+      if (!holdRef?.current?.needrehold && focus) {
+        node._dragged = true;
+        await deep.update({ link_id: focus?.id }, { value: { x, y, z } }, { table: 'objects' });
+      }
     }
-    if (!holdRef?.current?.needrehold && node._focusId) {
-      node._dragged = true;
-      await deep.update({ link_id: node._focusId }, { value: { x, y, z } }, { table: 'objects' });
-    }
-    
+
     holdRef.current = {};
   }, [ml]);
   const forceGraph_onNodeClick = useCallback((node) => {
@@ -503,7 +434,17 @@ export function PageContent() {
   }, []);
 
   return <DeepGraphProvider focusLink={focusLink}>
-    {[<DeepLoader key={spaceId} spaceId={spaceId} onChange={results => setResults(results)}/>]}
+    {[<DeepLoader
+      key={spaceId}
+      spaceId={spaceId}
+      onChange={(results) => {
+        // console.log('onChangeResults', results);
+      }}
+
+      minilinks={minilinks}
+
+      // onUpdateScreenQuery={query => console.log('updateScreenQuery', query)}
+    />]}
     <div
       ref={rootRef}
       className={classes.root}
@@ -550,7 +491,7 @@ export function PageContent() {
           ? ForceGraph3D
           : ForceGraphVR
         }
-        graphData={outD}
+        graphData={graphData}
         backgroundColor={bgTransparent ? 'transparent' : theme?.palette?.background?.default}
         // linkAutoColorBy={forceGraph_linkAutoColorBy}
         linkOpacity={1}
