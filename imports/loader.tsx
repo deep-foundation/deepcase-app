@@ -38,7 +38,7 @@ export function DeepLoaderFocus({
 
   useInterval(() => {
     s.refetch(subQuery).then((r) => {
-      console.log('subQuery setR', r?.data?.q0);
+      // console.log('subQuery setR', r?.data?.q0);
       setR(r);
     });
   }, 1000);
@@ -103,7 +103,7 @@ export function DeepLoader({
 
   useInterval(() => {
     screenResults.refetch(screenQuery).then((r) => {
-      console.log('query setR', r?.data?.q0);
+      // console.log('query setR', r?.data?.q0);
       setR(r);
     });
   }, 1000)
@@ -127,7 +127,7 @@ export function DeepLoader({
           all[link?.id] = link;
         }
       }
-      console.log('minilinks.ml.apply', Object.values(all));
+      // console.log('minilinks.ml.apply', Object.values(all));
       minilinks.ml.apply(Object.values(all));
 
       onChange(newResults);
@@ -160,7 +160,7 @@ export function DeepLoader({
               all[link?.id] = link;
             }
           }
-          console.log('minilinks.ml.apply', Object.values(all));
+          // console.log('minilinks.ml.apply', Object.values(all));
           minilinks.ml.apply(Object.values(all));
     
           onChange(newResults);
