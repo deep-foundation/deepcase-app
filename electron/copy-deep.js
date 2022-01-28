@@ -2,18 +2,28 @@ const fs = require('fs');
 const shell = require('child_process').execSync;
 
 const originalPath = 'node_modules/@deep-foundation';
-const unpackagedPath = 'dist/linux-unpacked/resources/app/node_modules/@deep-foundation';
+const unpackagedPathLinux = 'dist/linux-unpacked/resources/app/node_modules/@deep-foundation';
+const unpackagedPathWindows = 'dist\\win-unpacked\\resources\\app\\node_modules\\@deep-foundation';
 
 exports.default = async function(context) {
   try {
-    if (fs.existsSync(unpackagedPath)) {
-      fs.rmSync(`${unpackagedPath}/hasura`, { recursive: true });
-      shell(`mkdir -p ${unpackagedPath}/hasura`);
-      shell(`cp -r ${originalPath}/hasura/ ${unpackagedPath}`);
+    if (fs.existsSync(unpackagedPathLinux)) {
+      fs.rmSync(`${unpackagedPathLinux}/hasura`, { recursive: true });
+      shell(`mkdir ${unpackagedPathLinux}/hasura`);
+      shell(`cp -r ${originalPath}/hasura/ ${unpackagedPathLinux}`);
 
-      fs.rmSync(`${unpackagedPath}/deeplinks`, { recursive: true });
-      shell(`mkdir -p ${unpackagedPath}/deeplinks`);
-      shell(`cp -r ${originalPath}/deeplinks/ ${unpackagedPath}`);
+      fs.rmSync(`${unpackagedPathLinux}/deeplinks`, { recursive: true });
+      shell(`mkdir ${unpackagedPathLinux}/deeplinks`);
+      shell(`cp -r ${originalPath}/deeplinks/ ${unpackagedPathLinux}`);
+    }
+    if (fs.existsSync(unpackagedPathWindows)) {
+      fs.rmSync(`${unpackagedPathWindows}\\hasura`, { recursive: true });
+      shell(`mkdir ${unpackagedPathWindows}\\hasura`);
+      shell(`cp -r ${originalPath}\\hasura\\ ${unpackagedPathWindows}`);
+
+      fs.rmSync(`${unpackagedPathWindows}\\deeplinks`, { recursive: true });
+      shell(`mkdir ${unpackagedPathWindows}\\deeplinks`);
+      shell(`cp -r ${originalPath}\\deeplinks\\ ${unpackagedPathWindows}`);
     }
   } catch(err) {
     console.error(err);
