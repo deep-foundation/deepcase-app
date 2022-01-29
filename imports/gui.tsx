@@ -88,9 +88,6 @@ const defaultGraphiqlHeight = 300;
 export function useShowTypes() {
   return useQueryStore('show-types', false);
 }
-export function usePromises() {
-  return useQueryStore('promises', false);
-}
 export function useShowMP() {
   return useQueryStore('show-mp', false);
 }
@@ -138,7 +135,6 @@ export function GUI({ ml }: { ml: MinilinksResult<any> }) {
   const [graphiqlHeight, setGraphiqlHeight] = useGraphiqlHeight();
 
   const [showTypes, setShowTypes] = useShowTypes();
-  const [promises, setPromises] = usePromises();
   const [showMP, setShowMP] = useShowMP();
   const [clickSelect, setClickSelect] = useClickSelect();
   const [container, setContainer] = useContainer();
@@ -170,11 +166,6 @@ export function GUI({ ml }: { ml: MinilinksResult<any> }) {
                     <Button color={showTypes ? 'primary' : 'default'} onClick={() => setShowTypes(!showTypes)}>types</Button>
                     <Button color={showMP ? 'primary' : 'default'} onClick={() => setShowMP(!showMP)}>mp</Button>
                     <Button color={clickSelect ? 'primary' : 'default'} onClick={() => setClickSelect(!clickSelect)}>select</Button>
-                  </ButtonGroup>
-                </Grid>
-                <Grid item>
-                  <ButtonGroup variant="outlined">
-                    <Button color={promises ? 'primary' : 'default'} onClick={() => setPromises(!promises)}>promises</Button>
                   </ButtonGroup>
                 </Grid>
                 <Grid item>

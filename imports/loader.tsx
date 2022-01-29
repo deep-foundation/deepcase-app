@@ -7,6 +7,8 @@ import { useDebounceCallback } from "@react-hook/debounce";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useBaseTypes } from "./gui";
 import { useInterval } from 'usehooks-ts';
+import { useDelayedInterval } from "./use-delayed-interval";
+import { useCallback } from "react";
 
 export function DeepLoaderFocus({
   focus,
@@ -27,26 +29,26 @@ export function DeepLoaderFocus({
           id type_id from_id to_id value
         `,
         variables: v
-        ? { ...variables, where: { _or: [variables.where, { typed: variables.where }] } }
+        ? { ...variables, where: variables.where }
         : { where: {}, limit: 0 },
       })],
       name: 'DEEPCASE',
     });
   }, [focus, focus?.value?.value]);
-  const s = useQuery(subQuery.query, { variables: subQuery.variables });
-  const [r, setR] = useState<any>(s);
-
-  useInterval(() => {
-    s.refetch(subQuery).then((r) => {
-      // console.log('subQuery setR', r?.data?.q0);
-      setR(r);
+  const subQueryResults = useQuery(subQuery.query, { variables: subQuery.variables });
+  const [sintSubQueryResults, setSintSubQueryResults] = useState<any>(subQueryResults);
+  const subQueryPrimary = sintSubQueryResults || subQueryResults;
+  
+  useDelayedInterval(() => new Promise((res) => {
+    subQueryResults.refetch(subQuery).then((r) => {
+      setSintSubQueryResults(r);
+      res(undefined);
     });
-  }, 1000);
+  }));
 
   useEffect(() => {
-    if (r?.data?.q0) onChange(r?.data?.q0);
-    else if (s?.data?.q0) onChange(s?.data?.q0);
-  }, [s, r]);
+    if (subQueryPrimary?.data?.q0) onChange(subQueryPrimary?.data?.q0);
+  }, [subQueryPrimary]);
 
   return <></>;
 }
@@ -72,11 +74,7 @@ export function DeepLoader({
   const [baseTypes, setBaseTypes] = useBaseTypes();
   const screenQuery = useMemo(() => {
     const whereTypes = {
-      _or: [
-        { type_id: { _in: [baseTypes.User] } },
-        { type_id: { _in: [baseTypes.Focus, baseTypes.Contain] }, from_id: { _eq: spaceId } },
-        { in: { type_id: { _in: [baseTypes.Focus, baseTypes.Contain] }, from_id: { _eq: spaceId } } },
-      ],
+      id: { _in: [spaceId] },
     };
     const query = generateQuery({
       operation: 'query',
@@ -98,47 +96,51 @@ export function DeepLoader({
   }, [JSON.stringify(baseTypes)]);
   const screenResults = useQuery(screenQuery.query, { variables: screenQuery.variables });
   const [r, setR] = useState<any>();
-  const screenLinks = (screenResults?.data?.q0 || r?.data?.q0 || []);
-  const onlyFocusLinks = screenLinks?.filter(f => f.type_id === baseTypes?.Query);
+  const screenLinks = (r?.data?.q0 || screenResults?.data?.q0);
+  const onlyFocusLinks = useMemo(() => {
+    console.log(minilinks.ml);
+    return minilinks.ml.byId?.[spaceId]?.out?.filter(out => out.type_id === baseTypes.Focus && out?.to?.type_id === baseTypes.Query && out?.to)?.map(l => l?.to) || [];
+  }, [screenLinks, spaceId]);
 
-  useInterval(() => {
+  console.log({ screenLinks, screenResults, r, onlyFocusLinks, Query: baseTypes?.Query });
+  
+  useDelayedInterval(() => new Promise((res) => {
     screenResults.refetch(screenQuery).then((r) => {
-      // console.log('query setR', r?.data?.q0);
       setR(r);
+      res(undefined);
     });
-  }, 1000)
+  }));
 
   const [results, setResults] = useState<any>({});
+  console.log('results', results);
+
+  const applyChanges = useCallback((newResults) => {
+    const all = {};
+    const fks = Object.keys(newResults || {});
+    for (let f = 0; f < fks.length; f++) {
+      const fk = fks[f];
+      for (let i = 0; i < newResults?.[fk]?.length; i++) {
+        const link = newResults?.[fk]?.[i];
+        all[link?.id] = link;
+      }
+    }
+    minilinks.ml.apply(Object.values(all));
+  }, []);
 
   useEffect(() => {
-    setResults((results) => {
-      let newResults;
-      newResults = {
-        ...results,
-        focuses: screenLinks,
-      };
-
-      const all = {};
-      const fks = Object.keys(newResults || {});
-      for (let f = 0; f < fks.length; f++) {
-        const fk = fks[f];
-        for (let i = 0; i < newResults[fk].length; i++) {
-          const link = newResults[fk][i];
-          all[link?.id] = link;
-        }
-      }
-      // console.log('minilinks.ml.apply', Object.values(all));
-      minilinks.ml.apply(Object.values(all));
-
-      onChange(newResults);
-
-      return newResults;
-    });
+    if (screenLinks?.length) {
+      setResults((results) => {
+        let newResults;
+        newResults = {
+          ...results,
+          focuses: screenLinks,
+        };
+        applyChanges(newResults);
+        onChange(newResults);
+        return newResults;
+      });
+    }
   }, [screenLinks]);
-
-  // const setResultsDebounced = useDebounceCallback((value) => {
-  //   setResults(value);
-  // }, 1000);
 
   return <>
     {onlyFocusLinks?.map((f, i) => (<DeepLoaderFocus
@@ -150,24 +152,32 @@ export function DeepLoader({
             ...results,
             [f.id]: r,
           };
-
-          const all = {};
-          const fks = Object.keys(newResults || {});
-          for (let f = 0; f < fks.length; f++) {
-            const fk = fks[f];
-            for (let i = 0; i < newResults[fk].length; i++) {
-              const link = newResults[fk][i];
-              all[link?.id] = link;
-            }
-          }
-          // console.log('minilinks.ml.apply', Object.values(all));
-          minilinks.ml.apply(Object.values(all));
-    
+          applyChanges(newResults);
           onChange(newResults);
-
           return newResults;
         });
       }}
     />))}
+    <DeepLoaderFocus
+      focus={useMemo(() => ({
+        value: {
+          value: { _by_item: {
+            group_id: { _eq: baseTypes.containTree },
+            path_item_id: { _eq: spaceId },
+          } },
+        },
+      }), [baseTypes, spaceId])}
+      onChange={(r) => {
+        setResults((results) => {
+          const newResults = {
+            ...results,
+            packages: r,
+          };
+          applyChanges(newResults);
+          onChange(newResults);
+          return newResults;
+        });
+      }}
+    />
   </>;
 }

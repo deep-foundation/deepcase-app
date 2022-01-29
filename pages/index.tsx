@@ -16,7 +16,7 @@ import ReactResizeDetector from 'react-resize-detector';
 import { useClickEmitter } from '../imports/click-emitter';
 import { EngineWindow, useEngineConnected } from '../imports/engine';
 import { ForceGraph, ForceGraph2D, ForceGraph3D, ForceGraphVR, SpriteText } from '../imports/graph';
-import { GUI, PaperPanel, useBackgroundTransparent, useBaseTypes, useClickSelect, useContainer, useContainerVisible, useForceGraph, useGraphiqlHeight, useInserting, useLabelsConfig, usePromises, useScreenFind, useShowMP, useShowTypes, useSpaceId, useWindowSize } from '../imports/gui';
+import { GUI, PaperPanel, useBackgroundTransparent, useBaseTypes, useClickSelect, useContainer, useContainerVisible, useForceGraph, useGraphiqlHeight, useInserting, useLabelsConfig, useScreenFind, useShowMP, useShowTypes, useSpaceId, useWindowSize } from '../imports/gui';
 import { LinkCard } from '../imports/link-card/index';
 import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
@@ -27,6 +27,7 @@ import isEqual from 'lodash/isEqual';
 import remove from 'lodash/remove';
 import isEqualWith from 'lodash/isEqualWith';
 import copy from 'copy-to-clipboard';
+import { useCheckAuth } from '../imports/use-check-auth';
 
 // @ts-ignore
 const Graphiql = dynamic(() => import('../imports/graphiql').then(m => m.Graphiql), { ssr: false });
@@ -109,7 +110,6 @@ export function PageContent() {
   const [flyPanel, setFlyPanel] = useFlyPanel();
 
   const [showTypes, setShowTypes] = useShowTypes();
-  const [promises, setPromises] = usePromises();
   const [showMP, setShowMP] = useShowMP();
   const [clickSelect, setClickSelect] = useClickSelect();
   const [container, setContainer] = useContainer();
@@ -128,6 +128,7 @@ export function PageContent() {
 
   useEffect(() => {(async () => {
     setBaseTypes({
+      Package: await deep.id('@deep-foundation/core', 'Package'),
       containTree: await deep.id('@deep-foundation/core', 'containTree'),
       Contain: await deep.id('@deep-foundation/core', 'Contain'),
       Focus: await deep.id('@deep-foundation/core', 'Focus'),
@@ -158,16 +159,33 @@ export function PageContent() {
   const prevD = useRef<any>({});
   
   const minilinks = useMinilinks();
-  global.minilinks = minilinks;
   const { ref: mlRef, ml } = minilinks;
 
-  const isPromiseDeniedLink = useCallback((id) => !promises && [GLOBAL_ID_PROMISE, GLOBAL_ID_THEN, GLOBAL_ID_RESOLVED, GLOBAL_ID_REJECTED].includes(id), [promises]);
-  const [graphData, setGraphData] = useState({ nodes: [], links: [] });
+  const [graphData, setGraphData] = useState({ nodes: [], links: [], _links: {}, _nodes: {}, });
+
+  const checkEdgesAroundLink = useCallback((gd, nl) => {
+    // console.log('checkEdgesAroundLink', nl);
+    const isTransparent = (
+      (nl?.type_id === GLOBAL_ID_CONTAIN && nl?.from?.type_id === GLOBAL_ID_PACKAGE && !containerVisible)
+    );
+
+    if (gd._nodes[nl?.from_id] && !gd?._links?.[`from--${nl?.id}`]) {
+      // gd.links.push({ id: `from--${nl?.id}`, source: gd._nodes[nl?.id], target: gd._nodes[nl?.from_id], link: nl, type: 'from', color: isTransparent ? 'transparent' : '#a83232' });
+      gd.links.push({ id: `from--${nl?.id}`, source: nl?.id, target: nl?.from_id, link: nl, type: 'from', color: isTransparent ? 'transparent' : '#a83232' });
+      gd._links[`from--${nl?.id}`] = true;
+    }
+    if (gd._nodes[nl?.to_id] && !gd?._links?.[`to--${nl?.id}`]) {
+      // gd.links.push({ id: `to--${nl?.id}`, source: gd._nodes[nl?.id], target: gd._nodes[nl?.to_id], link: nl, type: 'to', color: isTransparent ? 'transparent' : '#32a848' });
+      gd.links.push({ id: `to--${nl?.id}`, source: nl?.id, target: nl?.to_id, link: nl, type: 'to', color: isTransparent ? 'transparent' : '#32a848' });
+      gd._links[`to--${nl?.id}`] = true;
+    }
+  }, [containerVisible]);
+
   useEffect(() => {
     const addedListener = (nl) => {
       // console.log('added', nl);
       setGraphData((graphData) => {
-        const focus = nl?.inByType[baseTypes.Focus]?.find(f => f.from_id === spaceId);
+        const focus = nl?.inByType?.[baseTypes.Focus]?.find(f => f.from_id === spaceId);
         let optional = {};
         if (focus?.value?.value) {
           optional = {
@@ -202,37 +220,45 @@ export function PageContent() {
           ) : selectedLinks?.find(id => id === nl?.linkId);
         // </isSelected>
 
-        graphData.nodes.push({
+        graphData._nodes[nl?.id] = {
           id: nl?.id,
           link: nl,
           labelArray,
           labelString,
           textColor: focus ? '#03a9f4': isSelected ? '#ffffff' : '#757575',
           ...optional,
-        });
+        };
+        graphData.nodes.push(graphData._nodes[nl?.id]);
 
-        const isTransparent = (
-          (nl?.type_id === GLOBAL_ID_CONTAIN && nl?.from?.type_id === GLOBAL_ID_PACKAGE && !containerVisible)
-        );
+        checkEdgesAroundLink(graphData, nl);
+        nl.in.forEach(inl => checkEdgesAroundLink(graphData, inl));
+        nl.out.forEach(outl => checkEdgesAroundLink(graphData, outl));
 
-        if (nl?.from && !isPromiseDeniedLink(nl?.from?.type_id)) graphData.links.push({ id: `from--${nl?.id}`, source: nl?.id, target: nl?.from_id || nl?.id, link: nl, type: 'from', color: isTransparent ? 'transparent' : '#a83232' });
-        if (nl?.to && !isPromiseDeniedLink(nl?.to?.type_id)) graphData.links.push({ id: `to--${nl?.id}`, source: nl?.id, target: nl?.to_id || nl?.id, link: nl, type: 'to', color: isTransparent ? 'transparent' : '#32a848' });
-        return { nodes: graphData.nodes, links: graphData.links };
+        return { ...graphData };
       });
     };
     const updatedListener = (ol, nl) => {
-      // console.log('updated', ol, nl);
+      // console.log('updated', nl);
+      removedListener(ol.id);
+      addedListener(nl);
     };
     const removedListener = (olId) => {
       // console.log('removed', olId);
       setGraphData((graphData) => {
         remove(graphData.nodes, n => n.id === olId);
-        remove(graphData.links, n => (
-          n.id === olId ||
-          n.id === `from--${olId}` ||
-          n.id === `to--${olId}`
+        delete graphData._nodes[olId];
+        const removed = remove(graphData.links, n => (
+          n?.id === olId ||
+          n?.target === olId || n?.target?.id === olId ||
+          n?.source === olId || n?.source?.id === olId ||
+          n?.id === `from--${olId}` ||
+          n?.id === `to--${olId}`
         ));
-        return { nodes: graphData.nodes, links: graphData.links };
+        // console.log({ removed })
+        removed.forEach((rl) => {
+          delete graphData._links[rl.id];
+        })
+        return { ...graphData };
       });
     };
     ml.emitter.on('added', addedListener);
@@ -372,14 +398,14 @@ export function PageContent() {
           if (focus) {
             holdRef.current.fix = false;
             // console.log('unfocus', { id, x, y, z, fx, fy, fz });
-            const where = { type_id: await deep.id('@deep-foundation/core', 'Focus'), from_id: spaceId, to_id: node.link?.id };
-            await deep.delete(where);
+            const where = { type_id: baseTypes.Focus, from_id: spaceId, to_id: node.link?.id };
+            // console.log(await deep.delete(where));
             // console.log('unfocused');
           } else {
             holdRef.current.fix = true;
             // console.log('focus');
             const q = await deep.select({
-              type_id: await deep.id('@deep-foundation/core', 'Focus'),
+              type_id: baseTypes.Focus,
               from_id: spaceId,
               to_id: node.link?.id,
             });
@@ -387,14 +413,21 @@ export function PageContent() {
             let focusId = oldFocusId;
             if (!focusId) {
               const { data: [{ id: newFocusId }] } = await deep.insert({
-                type_id: await deep.id('@deep-foundation/core', 'Focus'),
+                type_id: baseTypes.Focus,
                 from_id: spaceId,
                 to_id: node.link?.id,
+                object: { data: { value: { x, y, z } } },
+                in: { data: {
+                  type_id: baseTypes.Contain,
+                  from_id: spaceId
+                } },
               });
               focusId = newFocusId;
             }
             node._focusId = focusId;
-            await deep.insert({ link_id: focusId, value: { x, y, z } }, { table: 'objects', variables: { on_conflict: { constraint: 'objects_pkey', update_columns: 'value' } } });
+            await deep.insert({
+              link_id: focusId, value: { x, y, z }
+            }, { table: 'objects', variables: { on_conflict: { constraint: 'objects_pkey', update_columns: 'value' } } });
             // console.log('focused');
           }
         }, 500),
@@ -443,7 +476,7 @@ export function PageContent() {
 
       minilinks={minilinks}
 
-      // onUpdateScreenQuery={query => console.log('updateScreenQuery', query)}
+      onUpdateScreenQuery={query => console.log('updateScreenQuery', query)}
     />]}
     <div
       ref={rootRef}
@@ -552,16 +585,8 @@ export function PageContent() {
 export function PageConnected() {
   const [spaceId, setSpaceId] = useSpaceId();
   const deep = useDeep();
+  useCheckAuth();
   const requestedRef = useRef(false);
-  useEffect(() => {(async () => {
-    let _linkId = deep?.linkId;
-    if (!deep.token && !requestedRef.current) {
-      requestedRef.current = true;
-      const { token, linkId } = await deep.guest({});
-      _linkId = linkId;
-    }
-    setSpaceId(deep?.linkId);
-  })()}, [deep?.token]);
   return <>
     {!!deep.token && [<PageContent key={`${deep?.token || ''}-${deep?.linkId || ''}-${spaceId}`}/>]}
   </>
