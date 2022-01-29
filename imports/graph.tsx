@@ -1,9 +1,11 @@
 // @flow
 import { makeStyles } from '@material-ui/core';
 import _ from 'lodash';
-import React, { Component, useState, useCallback, useRef } from 'react';
+import React, { Component, useState, useCallback, useRef, useEffect } from 'react';
 
 let ForceGraph3D, ForceGraph2D, ForceGraphAR, ForceGraphVR, ForceGraph, SpriteText, Three;
+
+import diff from 'deep-diff';
 
 const useStyles = makeStyles(() => ({
   wrapper: {
@@ -31,8 +33,9 @@ if (_.get(process, 'browser')) {
   ForceGraphAR = require('react-force-graph').ForceGraphAR;
   ForceGraphVR = require('react-force-graph').ForceGraphVR;
 
-  ForceGraph = (props: any) => {
+  ForceGraph = React.memo((props: any) => {
     const fgRef = useRef<any>();
+    const activeRef = props?.fgRef || fgRef;
     const [last, setLast] = useState(0);
     const Component = props.Component || ForceGraph3D;
     const classes = useStyles();
@@ -44,7 +47,7 @@ if (_.get(process, 'browser')) {
       if (res < 600) {
         const distance = 300;
         const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
-        fgRef.current.cameraPosition(
+        activeRef.current.cameraPosition(
           // new position
           { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio },
           node, // lookAt ({ x, y, z })
@@ -52,21 +55,18 @@ if (_.get(process, 'browser')) {
         );
       }
       props.onNodeClick && props.onNodeClick(node);
-    }, [fgRef, last]);
+    }, [activeRef, last]);
 
     return <div className={classes.wrapper}><Component
-      ref={fgRef}
       {...props}
+      ref={activeRef}
       // TODO arrows without slow fps
       // linkDirectionalArrowLength={10}
       // linkDirectionalArrowRelPos={0.9}
       // linkCurvature={0.25}
-      onNodeClick={(node) => {
-        onNodeClick(node);
-        props.onNodeClick && props.onNodeClick(node);
-      }}
+      onNodeClick={onNodeClick}
     /></div>;
-  };
+  });
 } else {
   SpriteText = (...args: any): any => null;
   

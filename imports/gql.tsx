@@ -23,10 +23,9 @@ type_id
 from_id
 to_id
 value
-bool_exp {
-  id
-  gql
-}
+string { id value }
+number { id value }
+object { id value }
 _by_root {
   id
   item_id

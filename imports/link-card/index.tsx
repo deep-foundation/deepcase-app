@@ -1,33 +1,30 @@
-import { DeepClient } from '@deep-foundation/deeplinks/imports/client';
+import { DeepClient, GLOBAL_ID_NUMBER, GLOBAL_ID_OBJECT, GLOBAL_ID_STRING, useDeep, useDeepQuery } from '@deep-foundation/deeplinks/imports/client';
 import { Packager } from '@deep-foundation/deeplinks/imports/packager';
 import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client';
-import React, { useCallback, useEffect, useState } from 'react';
+import { Button, TextField } from '@material-ui/core';
+import { useDebounceCallback } from '@react-hook/debounce';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
+import { useDeepGraph } from '../../pages';
 import { deleteBoolExp, insertBoolExp, updateBoolExp } from '../gql';
 import { Card, CardActions, CardContent, Divider, Grid, Typography } from '../ui';
 import { LinkCardPackage } from './types/package';
 import { LinkCardRule } from './types/rule';
 import { LinkCardSubject } from './types/subject';
 import { LinkCardType } from './types/type';
-
+import json5 from 'json5';
+import { MinilinksResult } from '@deep-foundation/deeplinks/imports/minilinks';
 
 export function LinkCard({
+  ml,
   link,
 }: {
+  ml?: MinilinksResult<any>,
   link: any;
 }) {
   const client = useApolloClient();
-  const insertBoolExpD = useCallback(async () => (
-    await client.mutate(insertBoolExp(link.id, ''))
-  ), [link]);
-  const updateBoolExpD = useDebouncedCallback(async (value) => (
-    await client.mutate(updateBoolExp(link.bool_exp.id, value))
-  ), 1000);
-  const deleteBoolExpD = useCallback(async () => (
-    await client.mutate(deleteBoolExp(link.bool_exp.id))
-  ), [link?.bool_exp?.id]);
-
-  const [valueInserted, setValueInserted] = useState(false);
+  const deep = useDeep();
+  const update = useDebounceCallback((...args: any[]) => deep.update.call(deep, ...args), 1000);
 
   useEffect(() => {
     if (process.browser) {
@@ -38,29 +35,72 @@ export function LinkCard({
     }
   }, []);
 
+  const { focusLink } = useDeepGraph();
+  // const wq = useDeepQuery(useMemo(() => ({
+  //   in: {
+  //     type: ['@deep-foundation/core', 'Value'],
+  //     from_id: link?.type_id
+  //   },
+  // }), []));
+
+  // console.log(wq);
+
   // NeedPackerTypeNaming
 
   return <Card>
     <CardContent>
-      <Typography>{link?.id} {link?.type?.string?.value}</Typography>
+      <Typography style={{ display: 'block', cursor: 'pointer' }} onClick={() => ml.byId[link.id] && focusLink(link.id)}>id: {link?.id || 0}: {deep.stringify(link?.value?.value)}</Typography>
+      <Typography style={{ display: 'block', cursor: 'pointer' }} onClick={() => ml.byId[link.type_id] && focusLink(link.type_id)} variant="caption">type_id: {link?.type_id || 0}: {deep.stringify(link?.type?.value?.value)}</Typography>
+      <Typography style={{ display: 'block', cursor: 'pointer' }} onClick={() => ml.byId[link.from_id] && focusLink(link.from_id)} variant="caption">from_id: {link?.from_id || 0}</Typography>
+      <Typography style={{ display: 'block', cursor: 'pointer' }} onClick={() => ml.byId[link.to_id] && focusLink(link.to_id)} variant="caption">to_id: {link?.to_id || 0}</Typography>
     </CardContent>
     <CardActions>
       <Grid container spacing={1}>
         {link?.id === 1 && <Grid item xs={12}>
           <LinkCardType link={link}/>
         </Grid>}
-        {link?.type_id === 14 && <Grid item xs={12}>
-          <LinkCardSubject link={link}/>
+        {!!link?.string && <Grid item xs={12}>
+          <TextField fullWidth variant="outlined" size="small" defaultValue={link?.string?.value} onChange={(e) => update({ id: { _eq: link?.string?.id } }, { value: e.target.value}, { table: 'strings' })}/>
         </Grid>}
-        {link?.type_id === 9 && <Grid item xs={12}>
-          <LinkCardRule link={link}/>
+        {!!link?.number && <Grid item xs={12}>
+          <TextField fullWidth variant="outlined" size="small" defaultValue={link?.number?.value} onChange={(e) => update({ id: { _eq: link?.number?.id } }, { value: e.target.value}, { table: 'numbers' })} type="number"/>
         </Grid>}
-        {link?.type?.value?.value === 'Package' && <Grid item xs={12}>
-          <LinkCardPackage link={link}/>
+        {!!link?.object && <Grid item xs={12}>
+          <TextField fullWidth variant="outlined" size="small" defaultValue={JSON.stringify(link?.object?.value)} onChange={(e) => {
+            let json = {};
+            try { json = json5.parse(e.target.value); } catch(error) {}
+            update(link?.object?.id, { value: json }, { table: 'objects' });
+          }}/>
         </Grid>}
-        <Grid item xs={12}>
-          <Divider/>
-        </Grid>
+        {!link?.value && <Grid item xs={12}>
+          <Button
+            fullWidth variant="outlined"
+            onClick={async () => {
+              const { data: [{ id }] } = await deep.select({
+                in: {
+                  type: ['@deep-foundation/core', 'Value'],
+                  from_id: link?.type_id
+                },
+              });
+              const table = (
+                GLOBAL_ID_STRING === id
+                ? 'strings'
+                : GLOBAL_ID_NUMBER === id
+                ? 'numbers'
+                : GLOBAL_ID_OBJECT === id
+                ? 'objects'
+                : ''
+              );
+              if (table) {
+                await deep.insert({
+                  link_id: link?.id
+                }, {
+                  table
+                });
+              }
+            }}
+          >+value</Button>
+        </Grid>}
       </Grid>
     </CardActions>
   </Card>;
