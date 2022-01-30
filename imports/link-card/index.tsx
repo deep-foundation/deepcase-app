@@ -14,6 +14,7 @@ import { LinkCardSubject } from './types/subject';
 import { LinkCardType } from './types/type';
 import json5 from 'json5';
 import { MinilinksResult } from '@deep-foundation/deeplinks/imports/minilinks';
+import { isString, isNumber, isObject } from 'lodash';
 
 export function LinkCard({
   ml,
@@ -59,17 +60,17 @@ export function LinkCard({
         {link?.id === 1 && <Grid item xs={12}>
           <LinkCardType link={link}/>
         </Grid>}
-        {!!link?.string && <Grid item xs={12}>
-          <TextField fullWidth variant="outlined" size="small" defaultValue={link?.string?.value} onChange={(e) => update({ id: { _eq: link?.string?.id } }, { value: e.target.value}, { table: 'strings' })}/>
+        {!!isString(link?.value?.value) && <Grid item xs={12}>
+          <TextField fullWidth variant="outlined" size="small" defaultValue={link?.value?.value} onChange={(e) => update({ id: { _eq: link?.value?.id } }, { value: e.target.value}, { table: 'strings' })}/>
         </Grid>}
-        {!!link?.number && <Grid item xs={12}>
-          <TextField fullWidth variant="outlined" size="small" defaultValue={link?.number?.value} onChange={(e) => update({ id: { _eq: link?.number?.id } }, { value: e.target.value}, { table: 'numbers' })} type="number"/>
+        {!!isNumber(link?.value?.value) && <Grid item xs={12}>
+          <TextField fullWidth variant="outlined" size="small" defaultValue={link?.value?.value} onChange={(e) => update({ id: { _eq: link?.value?.id } }, { value: e.target.value}, { table: 'numbers' })} type="number"/>
         </Grid>}
-        {!!link?.object && <Grid item xs={12}>
-          <TextField fullWidth variant="outlined" size="small" defaultValue={JSON.stringify(link?.object?.value)} onChange={(e) => {
+        {!!isObject(link?.value?.value) && <Grid item xs={12}>
+          <TextField fullWidth variant="outlined" size="small" defaultValue={JSON.stringify(link?.value?.value)} onChange={(e) => {
             let json = {};
             try { json = json5.parse(e.target.value); } catch(error) {}
-            update(link?.object?.id, { value: json }, { table: 'objects' });
+            update(link?.value?.id, { value: json }, { table: 'objects' });
           }}/>
         </Grid>}
         {!link?.value && <Grid item xs={12}>

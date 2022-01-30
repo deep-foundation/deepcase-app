@@ -18,46 +18,16 @@ export const GUEST = gql`query GUEST {
 }`;
 
 export const LINKS_BODY_string = `
-id
-type_id
-from_id
-to_id
-value
-string { id value }
-number { id value }
-object { id value }
-_by_root {
-  id
-  item_id
-  path_item_depth
-  path_item_id
-  position_id
-  root_id
-}
-_by_path_item {
-  id
-  item_id
-  path_item_depth
-  path_item_id
-  position_id
-  root_id
-}
-_by_item {
-  id
-  item_id
-  path_item_depth
-  path_item_id
-  position_id
-  root_id
-}
-in { from_id id to_id type_id } out { from_id id to_id type_id }`;
-
-export const LINKS_string = `{
-  links {
-    ${LINKS_BODY_string}
+  id type_id from_id to_id value
+  _by_item {
+    id
+    item_id
+    path_item_depth
+    path_item_id
+    position_id
+    root_id
   }
-}`;
-export const LINKS = gql`${LINKS_string}`;
+`;
 
 export const LINKS_WHERE_string = `subscription ($where: links_bool_exp){
   links(where: $where) {

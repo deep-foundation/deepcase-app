@@ -1,21 +1,17 @@
-import { GLOBAL_ID_CONTAIN, useDeep } from '@deep-foundation/deeplinks/imports/client';
+import { useDeep } from '@deep-foundation/deeplinks/imports/client';
+import { MinilinksResult } from '@deep-foundation/deeplinks/imports/minilinks';
 import { useLocalStore } from '@deep-foundation/store/local';
 import { useQueryStore } from '@deep-foundation/store/query';
+import { useMediaQuery } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
 import { Add, Clear, Colorize, Visibility as VisibilityOn, VisibilityOff } from '@material-ui/icons';
 import cn from 'classnames';
-import gql from 'graphql-tag';
-import { random } from 'lodash';
 import React, { useState } from 'react';
+import pckg from '../package.json';
 import { AuthPanel, useOperation, useSelectedLinks } from '../pages';
 import { EnginePanel, useEngineConnected } from './engine';
-import { LINKS_string } from './gql';
-import { ForceGraph2D, ForceGraph3D, ForceGraphVR } from './graph';
 import { LinkCard } from './link-card/index';
-import { Button, ButtonGroup, Grid, IconButton, TextField, makeStyles, Paper } from './ui';
-import pckg from '../package.json';
-import { MinilinksResult } from '@deep-foundation/deeplinks/imports/minilinks';
-import { useMediaQuery } from '@material-ui/core';
+import { Button, ButtonGroup, Grid, IconButton, makeStyles, Paper, TextField } from './ui';
 
 type StyleProps = { connected: boolean; };
 const connectedPosition = (style: any) => ({
@@ -92,9 +88,6 @@ const defaultGraphiqlHeight = 300;
 export function useShowTypes() {
   return useQueryStore('show-types', false);
 }
-export function usePromises() {
-  return useQueryStore('promises', false);
-}
 export function useShowMP() {
   return useQueryStore('show-mp', false);
 }
@@ -142,7 +135,6 @@ export function GUI({ ml }: { ml: MinilinksResult<any> }) {
   const [graphiqlHeight, setGraphiqlHeight] = useGraphiqlHeight();
 
   const [showTypes, setShowTypes] = useShowTypes();
-  const [promises, setPromises] = usePromises();
   const [showMP, setShowMP] = useShowMP();
   const [clickSelect, setClickSelect] = useClickSelect();
   const [container, setContainer] = useContainer();
@@ -174,11 +166,6 @@ export function GUI({ ml }: { ml: MinilinksResult<any> }) {
                     <Button color={showTypes ? 'primary' : 'default'} onClick={() => setShowTypes(!showTypes)}>types</Button>
                     <Button color={showMP ? 'primary' : 'default'} onClick={() => setShowMP(!showMP)}>mp</Button>
                     <Button color={clickSelect ? 'primary' : 'default'} onClick={() => setClickSelect(!clickSelect)}>select</Button>
-                  </ButtonGroup>
-                </Grid>
-                <Grid item>
-                  <ButtonGroup variant="outlined">
-                    <Button color={promises ? 'primary' : 'default'} onClick={() => setPromises(!promises)}>promises</Button>
                   </ButtonGroup>
                 </Grid>
                 <Grid item>
