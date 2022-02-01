@@ -183,12 +183,12 @@ export function PageContent() {
 
   useEffect(() => {
     const notfyDependencies = (link) => {
-      if (link.type_id === baseTypes.Focus) {
-        if (link.to) updatedListener(link.to, link.to);
-      }
+      // if (link.type_id === baseTypes.Focus) {
+      //   if (link.to) updatedListener(link.to, link.to);
+      // }
     };
     const addedListener = (nl) => {
-      // console.log('added', nl);
+      console.log('added', nl);
       setGraphData((graphData) => {
         const focus = nl?.inByType?.[baseTypes.Focus]?.find(f => f.from_id === spaceId);
         let optional = {};
@@ -247,13 +247,13 @@ export function PageContent() {
       });
     };
     const updatedListener = (ol, nl) => {
-      // console.log('updated', nl);
-      removedListener(ol.id);
+      console.log('updated', nl);
+      removedListener(ol);
       addedListener(nl);
       notfyDependencies(nl);
     };
     const removedListener = (ol) => {
-      // console.log('removed', ol.id);
+      console.log('removed', ol.id);
       setGraphData((graphData) => {
         remove(graphData.nodes, n => n.id === ol.id);
         delete graphData._nodes[ol.id];
