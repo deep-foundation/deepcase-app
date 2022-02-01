@@ -183,9 +183,9 @@ export function PageContent() {
 
   useEffect(() => {
     const notfyDependencies = (link) => {
-      // if (link.type_id === baseTypes.Focus) {
-      //   if (link.to) updatedListener(link.to, link.to);
-      // }
+      if (link.type_id === baseTypes.Focus) {
+        if (link.to) updatedListener(link.to, link.to);
+      }
     };
     const addedListener = (nl) => {
       console.log('added', nl);
