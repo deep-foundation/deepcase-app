@@ -182,6 +182,11 @@ export function PageContent() {
   }, [containerVisible]);
 
   useEffect(() => {
+    const notfyDependencies = (link) => {
+      if (link.type_id === baseTypes.Focus) {
+        if (link.to) updatedListener(link.to, link.to);
+      }
+    };
     const addedListener = (nl) => {
       // console.log('added', nl);
       setGraphData((graphData) => {
@@ -220,6 +225,8 @@ export function PageContent() {
           ) : selectedLinks?.find(id => id === nl?.linkId);
         // </isSelected>
 
+        console.log('id', nl?.id, 'focus', focus, 'isSelected', isSelected, nl?.inByType);
+
         graphData._nodes[nl?.id] = {
           id: nl?.id,
           link: nl,
@@ -234,6 +241,8 @@ export function PageContent() {
         nl.in.forEach(inl => checkEdgesAroundLink(graphData, inl));
         nl.out.forEach(outl => checkEdgesAroundLink(graphData, outl));
 
+        notfyDependencies(nl);
+
         return { ...graphData };
       });
     };
@@ -241,18 +250,19 @@ export function PageContent() {
       // console.log('updated', nl);
       removedListener(ol.id);
       addedListener(nl);
+      notfyDependencies(nl);
     };
-    const removedListener = (olId) => {
-      // console.log('removed', olId);
+    const removedListener = (ol) => {
+      // console.log('removed', ol.id);
       setGraphData((graphData) => {
-        remove(graphData.nodes, n => n.id === olId);
-        delete graphData._nodes[olId];
+        remove(graphData.nodes, n => n.id === ol.id);
+        delete graphData._nodes[ol.id];
         const removed = remove(graphData.links, n => (
-          n?.id === olId ||
-          n?.target === olId || n?.target?.id === olId ||
-          n?.source === olId || n?.source?.id === olId ||
-          n?.id === `from--${olId}` ||
-          n?.id === `to--${olId}`
+          n?.id === ol.id ||
+          n?.target === ol.id || n?.target?.id === ol.id ||
+          n?.source === ol.id || n?.source?.id === ol.id ||
+          n?.id === `from--${ol.id}` ||
+          n?.id === `to--${ol.id}`
         ));
         // console.log({ removed })
         removed.forEach((rl) => {
@@ -260,6 +270,7 @@ export function PageContent() {
         })
         return { ...graphData };
       });
+      notfyDependencies(ol);
     };
     ml.emitter.on('added', addedListener);
     ml.emitter.on('updated', updatedListener);
@@ -399,7 +410,7 @@ export function PageContent() {
             holdRef.current.fix = false;
             // console.log('unfocus', { id, x, y, z, fx, fy, fz });
             const where = { type_id: baseTypes.Focus, from_id: spaceId, to_id: node.link?.id };
-            // console.log(await deep.delete(where));
+            console.log('deleted', await deep.delete(where));
             // console.log('unfocused');
           } else {
             holdRef.current.fix = true;
@@ -425,9 +436,9 @@ export function PageContent() {
               focusId = newFocusId;
             }
             node._focusId = focusId;
-            await deep.insert({
+            console.log('upserted', await deep.insert({
               link_id: focusId, value: { x, y, z }
-            }, { table: 'objects', variables: { on_conflict: { constraint: 'objects_pkey', update_columns: 'value' } } });
+            }, { table: 'objects', variables: { on_conflict: { constraint: 'objects_pkey', update_columns: 'value' } } }));
             // console.log('focused');
           }
         }, 500),
@@ -452,8 +463,8 @@ export function PageContent() {
         delete node.fz;
       }
       if (!holdRef?.current?.needrehold && focus) {
-        node._dragged = true;
-        await deep.update({ link_id: focus?.id }, { value: { x, y, z } }, { table: 'objects' });
+        // node._dragged = true;
+        console.log('updated', await deep.update({ link_id: focus?.id }, { value: { x, y, z } }, { table: 'objects' }));
       }
     }
 

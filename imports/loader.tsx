@@ -102,7 +102,7 @@ export function DeepLoader({
     return minilinks.ml.byId?.[spaceId]?.out?.filter(out => out.type_id === baseTypes.Focus && out?.to?.type_id === baseTypes.Query && out?.to)?.map(l => l?.to) || [];
   }, [screenLinks, spaceId]);
 
-  console.log({ screenLinks, screenResults, r, onlyFocusLinks, Query: baseTypes?.Query });
+  // console.log({ screenLinks, screenResults, r, onlyFocusLinks, Query: baseTypes?.Query });
   
   useDelayedInterval(() => new Promise((res) => {
     screenResults.refetch(screenQuery).then((r) => {
@@ -112,7 +112,7 @@ export function DeepLoader({
   }));
 
   const [results, setResults] = useState<any>({});
-  console.log('results', results);
+  // console.log('results', results);
 
   const applyChanges = useCallback((newResults) => {
     const all = {};
