@@ -28,6 +28,9 @@ import remove from 'lodash/remove';
 import isEqualWith from 'lodash/isEqualWith';
 import copy from 'copy-to-clipboard';
 import { useCheckAuth } from '../imports/use-check-auth';
+import Debug from 'debug';
+
+const debug = Debug('deepcase:index');
 
 // @ts-ignore
 const Graphiql = dynamic(() => import('../imports/graphiql').then(m => m.Graphiql), { ssr: false });
@@ -164,6 +167,8 @@ export function PageContent() {
   const [graphData, setGraphData] = useState({ nodes: [], links: [], _links: {}, _nodes: {}, });
 
   const checkEdgesAroundLink = useCallback((gd, nl) => {
+    debug('checkEdgesAroundLink', nl);
+
     // console.log('checkEdgesAroundLink', nl);
     const isTransparent = (
       (nl?.type_id === GLOBAL_ID_CONTAIN && nl?.from?.type_id === GLOBAL_ID_PACKAGE && !containerVisible)
@@ -188,7 +193,7 @@ export function PageContent() {
       }
     };
     const addedListener = (nl) => {
-      console.log('added', nl);
+      debug('added', nl);
       setGraphData((graphData) => {
         const focus = nl?.inByType?.[baseTypes.Focus]?.find(f => f.from_id === spaceId);
         let optional = {};
@@ -225,8 +230,6 @@ export function PageContent() {
           ) : selectedLinks?.find(id => id === nl?.linkId);
         // </isSelected>
 
-        console.log('id', nl?.id, 'focus', focus, 'isSelected', isSelected, nl?.inByType);
-
         graphData._nodes[nl?.id] = {
           id: nl?.id,
           link: nl,
@@ -238,8 +241,14 @@ export function PageContent() {
         graphData.nodes.push(graphData._nodes[nl?.id]);
 
         checkEdgesAroundLink(graphData, nl);
-        nl.in.forEach(inl => checkEdgesAroundLink(graphData, inl));
-        nl.out.forEach(outl => checkEdgesAroundLink(graphData, outl));
+        debug('around in', nl);
+        nl.in.forEach(inl => {
+          checkEdgesAroundLink(graphData, inl);
+        });
+        debug('around out', nl);
+        nl.out.forEach(outl => {
+          checkEdgesAroundLink(graphData, outl);
+        });
 
         notfyDependencies(nl);
 
@@ -247,13 +256,13 @@ export function PageContent() {
       });
     };
     const updatedListener = (ol, nl) => {
-      console.log('updated', nl);
+      debug('updated', nl);
       removedListener(ol);
       addedListener(nl);
       notfyDependencies(nl);
     };
     const removedListener = (ol) => {
-      console.log('removed', ol.id);
+      debug('removed', ol.id);
       setGraphData((graphData) => {
         remove(graphData.nodes, n => n.id === ol.id);
         delete graphData._nodes[ol.id];
