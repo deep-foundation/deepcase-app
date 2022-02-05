@@ -18,8 +18,8 @@
     "electron:start-live": "node ./live-runner.js",
     "electron:start": "npm run build && electron --inspect=5858 ./",
     "electron:pack": "npm run build && electron-builder -c ./electron-builder.config.json",
-    "electron:sign": "electron-osx-sign dist/mas/Deep.Case.app --entitlements=./entitlements.mas.plist --entitlements-inherit=./entitlements.mas.inherit.plist --identity='Apple Distribution: ABRAKAR, OOO (8ZG6TUT4AY)' --platform=mas --type=distribution --provisioning-profile=deepcaseappstore.provisionprofile",
-    "electron:pack-dev": "npm run build && electron-builder --mac -m mas-dev --dir -c ./electron-builder-dev.config.json",
+    "electron:sign": "npm run electron:sign-prod && npm run electron:sign-dev",
+    "electron:sign-prod": "electron-osx-sign dist/mas/Deep.Case.app --entitlements=./entitlements.mas.plist --entitlements-inherit=./entitlements.mas.inherit.plist --identity='Apple Distribution: ABRAKAR, OOO (8ZG6TUT4AY)' --platform=mas --type=distribution --provisioning-profile=deepcaseappstore.provisionprofile",
     "electron:sign-dev": "electron-osx-sign dist/mas-dev/Deep.Case.app --identity='Apple Development: Пётр Безденежных (2H45PHYHQ5)' --platform=mas --type=development --provisioning-profile=./deepcasedevelopment.provisionprofile",
     "electron:make": "npm run build && electron-builder build -c ./electron-builder.config.json -p always"
   },
