@@ -55,7 +55,7 @@ export function useEngine() {
 
 // const isMac = process.platform === 'darwin';
 const hidePath = process.env['NEXT_PUBLIC_HIDEPATH'] === '1';
-const isMac = typeof window !== 'undefined' ? navigator.platform.toUpperCase().indexOf("MAC") >= 0 && !hidePath : false;
+const isMacOrLinux = typeof window !== 'undefined' ? (navigator.platform.toUpperCase().indexOf("MAC") >= 0 || navigator.platform.toUpperCase().indexOf("LINUX") >= 0 ) && !hidePath : false;
 
 export const EngineWindow = React.memo<any>(function EngineWindow({
 }: {
@@ -66,7 +66,7 @@ export const EngineWindow = React.memo<any>(function EngineWindow({
   const [path, setPath] = useEnginePath();
   const { regenerate } = useApolloClientRegenerator();
 
-  const pathReady = !!path || !isMac;
+  const pathReady = !!path || !isMacOrLinux;
 
   return <>
     <Grid container spacing={1} style={{ padding: theme.spacing(3), width: 400 }}>
@@ -82,7 +82,7 @@ export const EngineWindow = React.memo<any>(function EngineWindow({
       <Grid item xs={12} component={Typography} align="center" variant="caption">
         Some of the functionality has not yet been translated by our programmers from deep space of wet dreams.
       </Grid>
-      {!!isMac && <Grid item xs={12}>
+      {!!isMacOrLinux && <Grid item xs={12}>
         <PaperPanel style={{ padding: theme.spacing(1) }}>
           <TextField
             fullWidth
