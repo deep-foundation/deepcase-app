@@ -129,6 +129,7 @@ export function DeepLoader({
         all[link?.id] = link;
       }
     }
+    console.log(newResults);
     minilinks.ml.apply(Object.values(all));
   }, []);
 
@@ -153,6 +154,7 @@ export function DeepLoader({
       focus={f}
       onChange={(r) => {
         setResults((results) => {
+          console.log('DeepLoaderFocus onChange', r, results);
           const newResults = {
             ...results,
             [f.id]: r,
