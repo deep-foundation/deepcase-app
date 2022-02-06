@@ -40,7 +40,7 @@ export function DeepLoaderFocus({
   const subQueryPrimary = sintSubQueryResults || subQueryResults;
   
   useDelayedInterval(() => new Promise((res) => {
-    subQueryResults.refetch(subQuery).then((r) => {
+    subQueryResults.refetch(subQuery.variables).then((r) => {
       setSintSubQueryResults(r);
       res(undefined);
     });
@@ -98,14 +98,14 @@ export function DeepLoader({
   const [r, setR] = useState<any>();
   const screenLinks = (r?.data?.q0 || screenResults?.data?.q0);
   const onlyFocusLinks = useMemo(() => {
-    console.log(minilinks.ml);
+    // console.log(minilinks.ml);
     return minilinks.ml.byId?.[spaceId]?.out?.filter(out => out.type_id === baseTypes.Focus && out?.to?.type_id === baseTypes.Query && out?.to)?.map(l => l?.to) || [];
   }, [screenLinks, spaceId]);
 
   // console.log({ screenLinks, screenResults, r, onlyFocusLinks, Query: baseTypes?.Query });
   
   useDelayedInterval(() => new Promise((res) => {
-    screenResults.refetch(screenQuery).then((r) => {
+    screenResults.refetch(screenQuery.variables).then((r) => {
       setR(r);
       res(undefined);
     });

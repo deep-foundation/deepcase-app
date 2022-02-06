@@ -17,6 +17,7 @@ export function useCheckAuth() {
     // validate
     if (isAuth) (async () => {
       const result = await deep.select({ id: deep.linkId });
+      filledRef.current = true;
       if (!result?.data?.length) {
         debug(`user ${deep.linkId} invalid`);
         deep.logout();

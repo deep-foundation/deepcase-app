@@ -1,5 +1,5 @@
 import { Capacitor } from '@capacitor/core';
-import { GLOBAL_ID_CONTAIN, GLOBAL_ID_PACKAGE, GLOBAL_ID_PROMISE, GLOBAL_ID_REJECTED, GLOBAL_ID_RESOLVED, GLOBAL_ID_THEN, useDeep } from '@deep-foundation/deeplinks/imports/client';
+import { GLOBAL_ID_CONTAIN, GLOBAL_ID_PACKAGE, GLOBAL_ID_PROMISE, GLOBAL_ID_REJECTED, GLOBAL_ID_RESOLVED, GLOBAL_ID_THEN, useAuthNode, useDeep } from '@deep-foundation/deeplinks/imports/client';
 import { minilinks, MinilinkCollection, MinilinksGeneratorOptionsDefault, useMinilinks } from '@deep-foundation/deeplinks/imports/minilinks';
 import { useTokenController } from '@deep-foundation/deeplinks/imports/react-token';
 import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client';
@@ -16,7 +16,7 @@ import ReactResizeDetector from 'react-resize-detector';
 import { useClickEmitter } from '../imports/click-emitter';
 import { EngineWindow, useEngineConnected } from '../imports/engine';
 import { ForceGraph, ForceGraph2D, ForceGraph3D, ForceGraphVR, SpriteText } from '../imports/graph';
-import { GUI, PaperPanel, useBackgroundTransparent, useBaseTypes, useClickSelect, useContainer, useContainerVisible, useForceGraph, useGraphiqlHeight, useInserting, useLabelsConfig, useScreenFind, useShowMP, useShowTypes, useSpaceId, useWindowSize } from '../imports/gui';
+import { GUI, PaperPanel, useBackgroundTransparent, useBaseTypes, useClickSelect, useContainer, useContainerVisible, useFocusMethods, useForceGraph, useGraphiqlHeight, useInserting, useLabelsConfig, useScreenFind, useShowMP, useShowTypes, useSpaceId, useWindowSize } from '../imports/gui';
 import { LinkCard } from '../imports/link-card/index';
 import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
@@ -31,6 +31,7 @@ import { useCheckAuth } from '../imports/use-check-auth';
 import Debug from 'debug';
 
 const debug = Debug('deepcase:index');
+if (typeof(window) === 'object') localStorage.debug = 'deepcase:*';
 
 // @ts-ignore
 const Graphiql = dynamic(() => import('../imports/graphiql').then(m => m.Graphiql), { ssr: false });
@@ -71,12 +72,20 @@ export const AuthPanel = React.memo<any>(function AuthPanel() {
   const deep = useDeep();
   const [operation, setOperation] = useOperation();
 
+  const [pastError, setPastError] = useState(false);
+
   return <>
     <ButtonGroup variant="outlined">
       <Button disabled>{deep.linkId}</Button>
       <Button onClick={() => {
         copy(deep.token);
       }}>copy token</Button>
+      <Button color={pastError ? 'secondary' : 'default'} onClick={async () => {
+        setPastError(false);
+        const token: string = await navigator?.clipboard?.readText();
+        const { error } = await deep.login({ token });
+        if (error) setPastError(true);
+      }}>past token</Button>
       <Button color={operation === 'auth' ? 'primary' : 'default'} onClick={() => setOperation(operation === 'auth' ? '' : 'auth')}>login</Button>
       <Button onClick={async () => {
         const g = await deep.guest({});
@@ -149,7 +158,6 @@ export function PageContent() {
     global.axios = axios;
     const pl = Capacitor.getPlatform();
     if (pl === 'web') {
-      // console.log(`platform is web, connection to server to ${process.env.NEXT_PUBLIC_DEEPLINKS_SERVER}/api/deeplinks`);
       axios.post(`${process.env.NEXT_PUBLIC_DEEPLINKS_SERVER}/api/deeplinks`, { abc: 123 }).then(console.log, console.log);
     } else if (pl === 'electron') {
       // console.log(`platform is electron, connection to server to ${process.env.NEXT_PUBLIC_DEEPLINKS_SERVER}/api/deeplinks`);
@@ -165,21 +173,21 @@ export function PageContent() {
   const { ref: mlRef, ml } = minilinks;
 
   const [graphData, setGraphData] = useState({ nodes: [], links: [], _links: {}, _nodes: {}, });
+  const graphDataRef = useRef(graphData);
+  graphDataRef.current = graphData;
 
   const checkEdgesAroundLink = useCallback((gd, nl) => {
-    debug('checkEdgesAroundLink', nl);
-
-    // console.log('checkEdgesAroundLink', nl);
     const isTransparent = (
       (nl?.type_id === GLOBAL_ID_CONTAIN && nl?.from?.type_id === GLOBAL_ID_PACKAGE && !containerVisible)
     );
 
-    if (gd._nodes[nl?.from_id] && !gd?._links?.[`from--${nl?.id}`]) {
+    
+    if (gd._nodes[nl?.from_id] && gd._nodes[nl?.id] && !gd?._links?.[`from--${nl?.id}`]) {
       // gd.links.push({ id: `from--${nl?.id}`, source: gd._nodes[nl?.id], target: gd._nodes[nl?.from_id], link: nl, type: 'from', color: isTransparent ? 'transparent' : '#a83232' });
       gd.links.push({ id: `from--${nl?.id}`, source: nl?.id, target: nl?.from_id, link: nl, type: 'from', color: isTransparent ? 'transparent' : '#a83232' });
       gd._links[`from--${nl?.id}`] = true;
     }
-    if (gd._nodes[nl?.to_id] && !gd?._links?.[`to--${nl?.id}`]) {
+    if (gd._nodes[nl?.to_id] && gd._nodes[nl?.id] && !gd?._links?.[`to--${nl?.id}`]) {
       // gd.links.push({ id: `to--${nl?.id}`, source: gd._nodes[nl?.id], target: gd._nodes[nl?.to_id], link: nl, type: 'to', color: isTransparent ? 'transparent' : '#32a848' });
       gd.links.push({ id: `to--${nl?.id}`, source: nl?.id, target: nl?.to_id, link: nl, type: 'to', color: isTransparent ? 'transparent' : '#32a848' });
       gd._links[`to--${nl?.id}`] = true;
@@ -189,13 +197,15 @@ export function PageContent() {
   useEffect(() => {
     const notfyDependencies = (link) => {
       if (link.type_id === baseTypes.Focus) {
+        debug('this is focus, need to update focus.to visualization');
         if (link.to) updatedListener(link.to, link.to);
       }
     };
-    const addedListener = (nl) => {
-      debug('added', nl);
+    const addedListener = (nl, needNotify = true) => {
       setGraphData((graphData) => {
+        debug('added', nl);
         const focus = nl?.inByType?.[baseTypes.Focus]?.find(f => f.from_id === spaceId);
+        debug('focus', focus);
         let optional = {};
         if (focus?.value?.value) {
           optional = {
@@ -239,47 +249,55 @@ export function PageContent() {
           ...optional,
         };
         graphData.nodes.push(graphData._nodes[nl?.id]);
+        debug('node', graphData._nodes[nl?.id]);
 
+        debug('around', nl);
         checkEdgesAroundLink(graphData, nl);
         debug('around in', nl);
         nl.in.forEach(inl => {
+          debug('around in', inl);
           checkEdgesAroundLink(graphData, inl);
         });
         debug('around out', nl);
         nl.out.forEach(outl => {
+          debug('around out', outl);
           checkEdgesAroundLink(graphData, outl);
         });
 
-        notfyDependencies(nl);
+        debug('notify', nl);
+        if (needNotify) notfyDependencies(nl);
 
-        return { ...graphData };
+        return { _nodes: graphData._nodes, _links: graphData._links, nodes: [...graphData.nodes], links: [...graphData.links], };
       });
     };
     const updatedListener = (ol, nl) => {
       debug('updated', nl);
       removedListener(ol);
       addedListener(nl);
+      debug('notify', nl);
       notfyDependencies(nl);
     };
-    const removedListener = (ol) => {
-      debug('removed', ol.id);
+    const removedListener = (ol, needNotify = true) => {
       setGraphData((graphData) => {
-        remove(graphData.nodes, n => n.id === ol.id);
-        delete graphData._nodes[ol.id];
-        const removed = remove(graphData.links, n => (
-          n?.id === ol.id ||
-          n?.target === ol.id || n?.target?.id === ol.id ||
-          n?.source === ol.id || n?.source?.id === ol.id ||
-          n?.id === `from--${ol.id}` ||
-          n?.id === `to--${ol.id}`
-        ));
-        // console.log({ removed })
-        removed.forEach((rl) => {
+        debug('removed', ol.id, graphData.links);
+        const removedLinks = remove(graphData.links, n => {
+          return n?.id == ol.id ||
+          n?.target == ol.id || n?.target?.id == ol.id ||
+          n?.source == ol.id || n?.source?.id == ol.id ||
+          n?.id == `from--${ol.id}` ||
+          n?.id == `to--${ol.id}` ||
+          n?.id == `type--${ol.id}`
+        });
+        removedLinks.forEach((rl) => {
           delete graphData._links[rl.id];
         })
+        const removedNodes = remove(graphData.nodes, n => n.id === ol.id);
+        delete graphData._nodes[ol.id];
+        console.log('removing', { removedLinks, removedNodes, link: graphData.links, nodes: graphData.nodes, _nodes: graphData._nodes, _links: graphData._links });
         return { ...graphData };
       });
-      notfyDependencies(ol);
+      debug('notify', ol);
+      if (needNotify) notfyDependencies(ol);
     };
     ml.emitter.on('added', addedListener);
     ml.emitter.on('updated', updatedListener);
@@ -399,12 +417,12 @@ export function PageContent() {
     sprite.textHeight = 4;
     return sprite;
   } , []);
+
+  const focusMethods = useFocusMethods();
   const forceGraph_onNodeDrag = useCallback((node) => {
-    // console.log('onNodeDrag');
     clearTimeout(holdRef.current.timeout);
     const { id, x, y, z, fx, fy, fz } = node;
     const focus = ml?.byId?.[id]?.inByType[baseTypes.Focus]?.find(f => f.from_id === spaceId);
-    // console.log('findFocus', focus, id, baseTypes, ml);
     if (spaceId) {
       holdRef.current = {
         node,
@@ -412,57 +430,26 @@ export function PageContent() {
         fix: holdRef.current.id === id ? holdRef.current.fix : !!focus,
         needrehold: false,
         timeout: setTimeout(async () => {
-          // console.log('onNodeDrag timeout');
           holdRef.current.needrehold = true;
           const focus = ml?.byId?.[id]?.inByType[baseTypes.Focus]?.find(f => f.from_id === spaceId);
           if (focus) {
             holdRef.current.fix = false;
-            // console.log('unfocus', { id, x, y, z, fx, fy, fz });
-            const where = { type_id: baseTypes.Focus, from_id: spaceId, to_id: node.link?.id };
-            console.log('deleted', await deep.delete(where));
-            // console.log('unfocused');
+            focusMethods.unfocus(node?.link?.id);
           } else {
             holdRef.current.fix = true;
-            // console.log('focus');
-            const q = await deep.select({
-              type_id: baseTypes.Focus,
-              from_id: spaceId,
-              to_id: node.link?.id,
-            });
-            const oldFocusId = q?.data?.[0]?.id;
-            let focusId = oldFocusId;
-            if (!focusId) {
-              const { data: [{ id: newFocusId }] } = await deep.insert({
-                type_id: baseTypes.Focus,
-                from_id: spaceId,
-                to_id: node.link?.id,
-                object: { data: { value: { x, y, z } } },
-                in: { data: {
-                  type_id: baseTypes.Contain,
-                  from_id: spaceId
-                } },
-              });
-              focusId = newFocusId;
-            }
-            node._focusId = focusId;
-            console.log('upserted', await deep.insert({
-              link_id: focusId, value: { x, y, z }
-            }, { table: 'objects', variables: { on_conflict: { constraint: 'objects_pkey', update_columns: 'value' } } }));
-            // console.log('focused');
+            focusMethods.focus(node?.link?.id, { x, y, z });
           }
         }, 500),
       };
     }
   }, [ml]);
   const forceGraph_onNodeDragEnd = useCallback(async (node) => {
-    // console.log('onNodeDragEnd');
     clearTimeout(holdRef.current.timeout);
     const { id, x, y, z, fx, fy, fz } = node;
     if (spaceId) {
       holdRef.current.needrehold = false;
       const focus = ml?.byId?.[id]?.inByType[baseTypes.Focus]?.find(f => f.from_id === spaceId);
-      // console.log('fix', holdRef?.current?.fix, 'focus', !!focus);
-      if (focus || holdRef?.current?.fix) {
+      if (focus) {
         node.fx = x;
         node.fy = y;
         node.fz = z;
@@ -472,8 +459,7 @@ export function PageContent() {
         delete node.fz;
       }
       if (!holdRef?.current?.needrehold && focus) {
-        // node._dragged = true;
-        console.log('updated', await deep.update({ link_id: focus?.id }, { value: { x, y, z } }, { table: 'objects' }));
+        focusMethods.focus(node?.link?.id, { x, y, z });
       }
     }
 
@@ -522,7 +508,7 @@ export function PageContent() {
         }}
       >
         {!!flyPanel && <div style={{ position: 'relative' }}>
-          <LinkCard link={flyPanel.link} ml={ml}/>
+          <LinkCard link={flyPanel.link} ml={ml} graphDataRef={graphDataRef}/>
           <IconButton
             size="small" style={{ position: 'absolute', top: 6, right: 6 }}
             onClick={() => {
@@ -537,6 +523,9 @@ export function PageContent() {
         key={''+windowSize.width+windowSize.height}
         width={windowSize.width}
         height={windowSize.height}
+
+        d3Force={'charge'}
+
         Component={
           forceGraph == '2d'
           ? ForceGraph2D
@@ -591,7 +580,7 @@ export function PageContent() {
         onNodeClick={forceGraph_onNodeClick}
         onNodeRightClick={forceGraph_onNodeRightClick}
       />]}
-      <GUI ml={ml}/>
+      <GUI ml={ml} graphDataRef={graphDataRef}/>
       <Backdrop className={classes.backdrop} open={!connected}>
         <PaperPanel flying>
           <EngineWindow/>
@@ -599,16 +588,24 @@ export function PageContent() {
         </PaperPanel>
       </Backdrop>
     </div>
+    <div style={{
+      position: 'fixed',
+      bottom: 4,
+      left: 6,
+    }}>
+      <Typography variant="caption" color="primary">{pckg.version}</Typography>
+    </div>
   </DeepGraphProvider>;
 }
 
 export function PageConnected() {
   const [spaceId, setSpaceId] = useSpaceId();
   const deep = useDeep();
+  const [token] = useTokenController();
+  const [linkId, setLinkId] = useAuthNode();
   useCheckAuth();
-  const requestedRef = useRef(false);
   return <>
-    {!!deep.token && [<PageContent key={`${deep?.token || ''}-${deep?.linkId || ''}-${spaceId}`}/>]}
+    {!!token && [<PageContent key={`${linkId}`}/>]}
   </>
 }
 

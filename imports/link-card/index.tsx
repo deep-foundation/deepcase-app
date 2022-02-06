@@ -1,11 +1,12 @@
 import { DeepClient, GLOBAL_ID_NUMBER, GLOBAL_ID_OBJECT, GLOBAL_ID_STRING, useDeep, useDeepQuery } from '@deep-foundation/deeplinks/imports/client';
 import { Packager } from '@deep-foundation/deeplinks/imports/packager';
 import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client';
-import { Button, TextField } from '@material-ui/core';
+import { Clear, LocationOnOutlined as Unfocused, LocationOn as Focused } from '@material-ui/icons';
+import { Button, IconButton, TextField } from '@material-ui/core';
 import { useDebounceCallback } from '@react-hook/debounce';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
-import { useDeepGraph } from '../../pages';
+import { useDeepGraph, useSelectedLinks } from '../../pages';
 import { deleteBoolExp, insertBoolExp, updateBoolExp } from '../gql';
 import { Card, CardActions, CardContent, Divider, Grid, Typography } from '../ui';
 import { LinkCardPackage } from './types/package';
@@ -15,13 +16,18 @@ import { LinkCardType } from './types/type';
 import json5 from 'json5';
 import { MinilinksResult } from '@deep-foundation/deeplinks/imports/minilinks';
 import { isString, isNumber, isObject } from 'lodash';
+import { useBaseTypes, useFocusMethods } from '../gui';
 
 export function LinkCard({
   ml,
   link,
+  closable = true,
+  graphDataRef,
 }: {
   ml?: MinilinksResult<any>,
   link: any;
+  closable?: boolean;
+  graphDataRef: any;
 }) {
   const client = useApolloClient();
   const deep = useDeep();
@@ -37,6 +43,10 @@ export function LinkCard({
   }, []);
 
   const { focusLink } = useDeepGraph();
+  const [selectedLinks, setSelectedLinks] = useSelectedLinks();
+  const [baseTypes] = useBaseTypes();
+  const focusMethods = useFocusMethods();
+  // const focusLinks = useMinilinksFilter(ml, useCallback((ol, nl) => !!(nl.type_id === baseTypes.Focus && nl.to_id === link.id), [baseTypes]));
   // const wq = useDeepQuery(useMemo(() => ({
   //   in: {
   //     type: ['@deep-foundation/core', 'Value'],
@@ -49,6 +59,26 @@ export function LinkCard({
   // NeedPackerTypeNaming
 
   return <Card>
+    {!!closable && <>
+      {/* <IconButton
+      style={{ position: 'absolute', top: 6, right: 36 }}
+        onClick={() => {
+          // if (focusLinks.length) {
+          //   for (let i = 0; i < focusLinks.length; i++) {
+          //     const focusLink = focusLinks[i];
+          //     focusMethods.unfocus(focusLink.id);
+          //   }
+          // } else {
+          //   const { x, y, z } = graphDataRef?.current?._nodes[link.id] || {};
+          //   focusMethods.focus(link.id, { x, y, z });
+          // }
+        }}
+      ><Focused/></IconButton> */}
+      <IconButton
+        style={{ position: 'absolute', top: 6, right: 6 }}
+        onClick={() => setSelectedLinks(selectedLinks.filter(id => id !== link.id))}
+      ><Clear/></IconButton>
+    </>}
     <CardContent>
       <Typography style={{ display: 'block', cursor: 'pointer' }} onClick={() => ml.byId[link.id] && focusLink(link.id)}>id: {link?.id || 0}: {deep.stringify(link?.value?.value)}</Typography>
       <Typography style={{ display: 'block', cursor: 'pointer' }} onClick={() => ml.byId[link.type_id] && focusLink(link.type_id)} variant="caption">type_id: {link?.type_id || 0}: {deep.stringify(link?.type?.value?.value)}</Typography>

@@ -4,9 +4,10 @@ import { useLocalStore } from '@deep-foundation/store/local';
 import { useQueryStore } from '@deep-foundation/store/query';
 import { useMediaQuery } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
-import { Add, Clear, Colorize, Visibility as VisibilityOn, VisibilityOff } from '@material-ui/icons';
+import { Add, Clear, Colorize, Visibility as VisibilityOn, VisibilityOff, LocationOnOutlined as Unfocused, LocationOn as Focused } from '@material-ui/icons';
 import cn from 'classnames';
 import React, { useState } from 'react';
+import { useMemo } from 'react';
 import pckg from '../package.json';
 import { AuthPanel, useOperation, useSelectedLinks } from '../pages';
 import { EnginePanel, useEngineConnected } from './engine';
@@ -128,8 +129,53 @@ export function useBaseTypes() {
 export function useBackgroundTransparent() {
   return useQueryStore<any>('bg-transparent', false);
 };
+export function useFocusMethods() {
+  const [baseTypes] = useBaseTypes();
+  const [spaceId] = useSpaceId();
+  const deep = useDeep();
+  return useMemo(() => {
+    return {
+      unfocus: async (id) => {
+        const where = { type_id: baseTypes.Focus, from_id: spaceId, to_id: id };
+        await deep.delete(where);
+      },
+      focus: async (id, value: { x: number; y: number; z: number; }) => {
+        const q = await deep.select({
+          type_id: baseTypes.Focus,
+          from_id: spaceId,
+          to_id: id,
+        });
+        const focus = q?.data?.[0];
+        let focusId = focus?.id;
+        if (!focusId) {
+          const { data: [{ id: newFocusId }] } = await deep.insert({
+            type_id: baseTypes.Focus,
+            from_id: spaceId,
+            to_id: id,
+            object: { data: { value } },
+            in: { data: {
+              type_id: baseTypes.Contain,
+              from_id: spaceId
+            } },
+          });
+          focusId = newFocusId;
+        } else {
+          if (focus.value) {
+            await deep.update({
+              link_id: { _eq: focusId },
+            }, { value }, { table: 'objects' });
+          } else {
+            await deep.insert({
+              link_id: focusId, value,
+            }, { table: 'objects' });
+          }
+        }
+      }
+    };
+  }, []);
+};
 
-export function GUI({ ml }: { ml: MinilinksResult<any> }) {
+export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataRef: any }) {
   const theme: any = useTheme();
   const [windowSize, setWindowSize] = useWindowSize();
   const [graphiqlHeight, setGraphiqlHeight] = useGraphiqlHeight();
@@ -333,15 +379,11 @@ export function GUI({ ml }: { ml: MinilinksResult<any> }) {
                 clear
               </Button>
             </Grid>
-            <Grid item xs={12}><LinkCard link={{ id: 1, type: 1 }}/></Grid>
+            <Grid item xs={12}><LinkCard link={{ id: 1, type: 1 }} ml={ml} closable={false} graphDataRef={graphDataRef}/></Grid>
             {selectedLinks.map((id) => {
               const link = ml.byId[id];
               return <Grid key={id} item xs={12} style={{ position: 'relative' }}>
-                <LinkCard link={link}/>
-                <IconButton
-                 style={{ position: 'absolute', top: 6, right: 6 }}
-                  onClick={() => setSelectedLinks(selectedLinks.filter(link => link !== id))}
-                ><Clear/></IconButton>
+                <LinkCard link={link} ml={ml} graphDataRef={graphDataRef}/>
               </Grid>;
             })}
           </Grid>

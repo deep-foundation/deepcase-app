@@ -1,6 +1,6 @@
 {
   "name": "@deep-foundation/deepcase",
-  "version": "0.0.24",
+  "version": "0.1.0-alpha",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
