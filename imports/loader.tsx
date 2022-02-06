@@ -49,6 +49,11 @@ export function DeepLoaderFocus({
   useEffect(() => {
     if (subQueryPrimary?.data?.q0) onChange(subQueryPrimary?.data?.q0);
   }, [subQueryPrimary]);
+  useEffect(() => {
+    return () => {
+      onChange([]);
+    }
+  }, []);
 
   return <></>;
 }
@@ -100,7 +105,7 @@ export function DeepLoader({
   const onlyFocusLinks = useMemo(() => {
     // console.log(minilinks.ml);
     return minilinks.ml.byId?.[spaceId]?.out?.filter(out => out.type_id === baseTypes.Focus && out?.to?.type_id === baseTypes.Query && out?.to)?.map(l => l?.to) || [];
-  }, [screenLinks, spaceId]);
+  }, [r, screenLinks, spaceId]);
 
   // console.log({ screenLinks, screenResults, r, onlyFocusLinks, Query: baseTypes?.Query });
   
