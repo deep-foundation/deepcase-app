@@ -126,3 +126,4 @@ projects/app/electron/app
 /electron/out
 /electron/Deep.Case*
 /electron/node_modules
+/electron/*.provisionprofile
