@@ -102,10 +102,11 @@ export function DeepLoader({
   const screenResults = useQuery(screenQuery.query, { variables: screenQuery.variables });
   const [r, setR] = useState<any>();
   const screenLinks = (r?.data?.q0 || screenResults?.data?.q0);
+  const [results, setResults] = useState<any>({});
   const onlyFocusLinks = useMemo(() => {
-    // console.log(minilinks.ml);
+    console.log('onlyFocusLinks', minilinks.ml.byId?.[spaceId]?.out?.filter(out => out.type_id === baseTypes.Focus && out?.to?.type_id === baseTypes.Query && out?.to));
     return minilinks.ml.byId?.[spaceId]?.out?.filter(out => out.type_id === baseTypes.Focus && out?.to?.type_id === baseTypes.Query && out?.to)?.map(l => l?.to) || [];
-  }, [r, screenLinks, spaceId]);
+  }, [results, r, screenLinks, spaceId]);
 
   // console.log({ screenLinks, screenResults, r, onlyFocusLinks, Query: baseTypes?.Query });
   
@@ -115,8 +116,6 @@ export function DeepLoader({
       res(undefined);
     });
   }));
-
-  const [results, setResults] = useState<any>({});
   // console.log('results', results);
 
   const applyChanges = useCallback((newResults) => {
@@ -129,9 +128,9 @@ export function DeepLoader({
         all[link?.id] = link;
       }
     }
-    console.log(newResults);
+    // console.log(newResults);
     minilinks.ml.apply(Object.values(all));
-  }, []);
+  }, []);   
 
   useEffect(() => {
     if (screenLinks?.length) {
@@ -154,7 +153,7 @@ export function DeepLoader({
       focus={f}
       onChange={(r) => {
         setResults((results) => {
-          console.log('DeepLoaderFocus onChange', r, results);
+          console.log('DeepLoaderFocus onChange', f.id, r, results);
           const newResults = {
             ...results,
             [f.id]: r,

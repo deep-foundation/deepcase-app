@@ -31,7 +31,7 @@ import { useCheckAuth } from '../imports/use-check-auth';
 import Debug from 'debug';
 
 const debug = Debug('deepcase:index');
-if (typeof(window) === 'object') localStorage.debug = 'deepcase:*';
+if (typeof(window) === 'object') localStorage.debug = 'deepcase:*,deeplinks:minilinks';
 
 // @ts-ignore
 const Graphiql = dynamic(() => import('../imports/graphiql').then(m => m.Graphiql), { ssr: false });
@@ -171,6 +171,7 @@ export function PageContent() {
   
   const minilinks = useMinilinks();
   const { ref: mlRef, ml } = minilinks;
+  if (typeof(window) === 'object') window.ml = ml;
 
   const [graphData, setGraphData] = useState({ nodes: [], links: [], _links: {}, _nodes: {}, });
   const graphDataRef = useRef(graphData);
@@ -203,9 +204,9 @@ export function PageContent() {
     };
     const addedListener = (nl, needNotify = true) => {
       setGraphData((graphData) => {
-        debug('added', nl);
+        debug('added', nl.id, nl);
         const focus = nl?.inByType?.[baseTypes.Focus]?.find(f => f.from_id === spaceId);
-        debug('focus', focus);
+        debug('focus', focus?.id, focus);
         let optional = {};
         if (focus?.value?.value) {
           optional = {
@@ -271,10 +272,10 @@ export function PageContent() {
       });
     };
     const updatedListener = (ol, nl) => {
-      debug('updated', nl);
+      debug('updated', nl.id, nl);
       removedListener(ol);
       addedListener(nl);
-      debug('notify', nl);
+      debug('notify', nl.id, nl);
       notfyDependencies(nl);
     };
     const removedListener = (ol, needNotify = true) => {
@@ -291,7 +292,7 @@ export function PageContent() {
         removedLinks.forEach((rl) => {
           delete graphData._links[rl.id];
         })
-        const removedNodes = remove(graphData.nodes, n => n.id === ol.id);
+        const removedNodes = remove(graphData.nodes, n => +n.id === +ol.id);
         delete graphData._nodes[ol.id];
         console.log('removing', { removedLinks, removedNodes, link: graphData.links, nodes: graphData.nodes, _nodes: graphData._nodes, _links: graphData._links });
         return { ...graphData };
