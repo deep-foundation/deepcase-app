@@ -306,7 +306,6 @@ export function PageContent() {
         })
         const removedNodes = remove(graphData.nodes, n => +n.id === +ol.id);
         delete graphData._nodes[ol.id];
-        console.log('removing', { removedLinks, removedNodes, link: graphData.links, nodes: graphData.nodes, _nodes: graphData._nodes, _links: graphData._links });
         return { ...graphData };
       });
       debug('notify', ol);
@@ -495,7 +494,7 @@ export function PageContent() {
 
       minilinks={minilinks}
 
-      onUpdateScreenQuery={query => console.log('updateScreenQuery', query)}
+      // onUpdateScreenQuery={query => console.log('updateScreenQuery', query)}
     />]}
     <div
       ref={rootRef}

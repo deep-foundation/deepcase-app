@@ -40,7 +40,7 @@ export function DeepLoaderFocus({
   const subQueryPrimary = sintSubQueryResults || subQueryResults;
 
   useDelayedInterval(useCallback(() => new Promise((res) => {
-    console.log('subQuery.variables', subQuery.variables);
+    // console.log('subQuery.variables', subQuery.variables);
     subQueryResults.refetch(subQuery.variables).then((r) => {
       setSintSubQueryResults(r);
       res(undefined);
