@@ -16,7 +16,10 @@ import ReactResizeDetector from 'react-resize-detector';
 import { useClickEmitter } from '../imports/click-emitter';
 import { EngineWindow, useEngineConnected } from '../imports/engine';
 import { ForceGraph, ForceGraph2D, ForceGraph3D, ForceGraphVR, SpriteText } from '../imports/graph';
-import { GUI, PaperPanel, useBackgroundTransparent, useBaseTypes, useClickSelect, useContainer, useContainerVisible, useFocusMethods, useForceGraph, useGraphiqlHeight, useInserting, useLabelsConfig, useScreenFind, useShowMP, useShowTypes, useSpaceId, useWindowSize } from '../imports/gui';
+import { 
+  GUI, PaperPanel, useBackgroundTransparent, useBaseTypes, useClickSelect, useContainer, useFocusMethods, useForceGraph, useGraphiqlHeight, useInserting, useScreenFind, useSpaceId, useWindowSize,
+  // useShowMP, useShowTypes, useContainerVisible, useLabelsConfig
+} from '../imports/gui';
 import { LinkCard } from '../imports/link-card/index';
 import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
@@ -121,15 +124,15 @@ export function PageContent() {
   const [windowSize, setWindowSize] = useWindowSize();
   const [flyPanel, setFlyPanel] = useFlyPanel();
 
-  const [showTypes, setShowTypes] = useShowTypes();
-  const [showMP, setShowMP] = useShowMP();
+  // const [showTypes, setShowTypes] = useShowTypes();
+  // const [showMP, setShowMP] = useShowMP();
   const [clickSelect, setClickSelect] = useClickSelect();
   const [container, setContainer] = useContainer();
-  const [containerVisible, setContainerVisible] = useContainerVisible();
+  // const [containerVisible, setContainerVisible] = useContainerVisible();
   const [forceGraph, setForceGraph] = useForceGraph();
   const [inserting, setInserting] = useInserting();
   const [screenFind, setScreenFind] = useScreenFind();
-  const [labelsConfig, setLabelsConfig] = useLabelsConfig();
+  // const [labelsConfig, setLabelsConfig] = useLabelsConfig();
   const [spaceId, setSpaceId] = useSpaceId();
 
   const [selectedLinks, setSelectedLinks] = useSelectedLinks();
@@ -172,14 +175,15 @@ export function PageContent() {
   const minilinks = useMinilinks();
   const { ref: mlRef, ml } = minilinks;
 
-  const [graphData, setGraphData] = useState({ nodes: [], links: [], _links: {}, _nodes: {}, });
+  const [graphData, setGraphData] = useState({ spaceId, nodes: [], links: [], _links: {}, _nodes: {}, });
   const graphDataRef = useRef(graphData);
   graphDataRef.current = graphData;
 
   const checkEdgesAroundLink = useCallback((gd, nl) => {
-    const isTransparent = (
-      (nl?.type_id === GLOBAL_ID_CONTAIN && nl?.from?.type_id === GLOBAL_ID_PACKAGE && !containerVisible)
-    );
+    // const isTransparent = (
+    //   nl?.type_id === GLOBAL_ID_CONTAIN && nl?.from?.type_id === GLOBAL_ID_PACKAGE
+    // );
+    const isTransparent = false;
 
     
     if (gd._nodes[nl?.from_id] && gd._nodes[nl?.id] && !gd?._links?.[`from--${nl?.id}`]) {
@@ -192,13 +196,21 @@ export function PageContent() {
       gd.links.push({ id: `to--${nl?.id}`, source: nl?.id, target: nl?.to_id, link: nl, type: 'to', color: isTransparent ? 'transparent' : '#32a848' });
       gd._links[`to--${nl?.id}`] = true;
     }
-  }, [containerVisible]);
+  }, []);
 
   useEffect(() => {
+    setGraphData({ spaceId, nodes: [], links: [], _links: {}, _nodes: {}, });
     const notfyDependencies = (link) => {
       if (link.type_id === baseTypes.Focus) {
         debug('this is focus, need to update focus.to visualization');
         if (link.to) updatedListener(link.to, link.to);
+      }
+      if (link?.typed?.length) {
+        debug('this is focus, need to update focus.to visualization');
+        for (let i = 0; i < link.typed.length; i++) {
+          const instance = link.typed[i];
+          if (instance.id != link.id) updatedListener(instance, instance);
+        }
       }
     };
     const addedListener = (nl, needNotify = true) => {
@@ -220,8 +232,8 @@ export function PageContent() {
 
         const label: (string|number)[] = [];
         label.push(focus ? `[${nl?.id}]` : nl?.id);
-        if (labelsConfig?.contains) (nl?.inByType?.[GLOBAL_ID_CONTAIN] || []).forEach(link => link?.value?.value && label.push(`${link?.value?.value}`));
-        if (labelsConfig?.values && nl?.value?.value) {
+        // if (labelsConfig?.contains) (nl?.inByType?.[GLOBAL_ID_CONTAIN] || []).forEach(link => link?.value?.value && label.push(`${link?.value?.value}`));
+        if (/*labelsConfig?.values && */nl?.value?.value) {
           let json;
           try { json = json5.stringify(nl?.value.value); } catch(error) {}
           label.push(`value:${
@@ -229,7 +241,8 @@ export function PageContent() {
             ? json : nl?.value.value
           }`);
         }
-        if (labelsConfig?.types) if (nl?.type?.value?.value) label.push(`type:${nl?.type?.value?.value}`);
+        // if (labelsConfig?.types)
+        if (nl?.type?.value?.value) label.push(`type:${nl?.type?.value?.value}`);
 
         const labelArray = label.map((s: string) => (s.length > 30 ? `${s.slice(0, 30).trim()}...` : s));
         const labelString = labelArray.join('\n');
@@ -267,7 +280,7 @@ export function PageContent() {
         debug('notify', nl);
         if (needNotify) notfyDependencies(nl);
 
-        return { _nodes: graphData._nodes, _links: graphData._links, nodes: [...graphData.nodes], links: [...graphData.links], };
+        return { spaceId, _nodes: graphData._nodes, _links: graphData._links, nodes: [...graphData.nodes], links: [...graphData.links], };
       });
     };
     const updatedListener = (ol, nl) => {
@@ -307,7 +320,7 @@ export function PageContent() {
       ml.emitter.removeListener('updated', updatedListener);
       ml.emitter.removeListener('removed', removedListener);
     };
-  }, []);
+  }, [spaceId]);
 
   const mouseMove = useRef<any>();
   const onNodeClickRef = useRef<any>();
@@ -520,11 +533,12 @@ export function PageContent() {
       </Popover>
       {[<ForceGraph
         fgRef={fgRef}
-        key={''+windowSize.width+windowSize.height}
+        key={`${windowSize.width}+${windowSize.height}+${spaceId}`}
         width={windowSize.width}
         height={windowSize.height}
 
         d3Force={'charge'}
+        onDagError={() => {}}
 
         Component={
           forceGraph == '2d'
@@ -533,7 +547,7 @@ export function PageContent() {
           ? ForceGraph3D
           : ForceGraphVR
         }
-        graphData={graphData}
+        graphData={spaceId === graphData?.spaceId ? graphData : { nodes: [], links: [] }}
         backgroundColor={bgTransparent ? 'transparent' : theme?.palette?.background?.default}
         // linkAutoColorBy={forceGraph_linkAutoColorBy}
         linkOpacity={1}

@@ -38,13 +38,14 @@ export function DeepLoaderFocus({
   const subQueryResults = useQuery(subQuery.query, { variables: subQuery.variables });
   const [sintSubQueryResults, setSintSubQueryResults] = useState<any>(subQueryResults);
   const subQueryPrimary = sintSubQueryResults || subQueryResults;
-  
-  useDelayedInterval(() => new Promise((res) => {
+
+  useDelayedInterval(useCallback(() => new Promise((res) => {
+    console.log('subQuery.variables', subQuery.variables);
     subQueryResults.refetch(subQuery.variables).then((r) => {
       setSintSubQueryResults(r);
       res(undefined);
     });
-  }));
+  }), [focus, focus?.value?.value]));
 
   useEffect(() => {
     if (subQueryPrimary?.data?.q0) onChange(subQueryPrimary?.data?.q0);
@@ -104,9 +105,31 @@ export function DeepLoader({
   const screenLinks = (r?.data?.q0 || screenResults?.data?.q0);
   const [results, setResults] = useState<any>({});
   const onlyFocusLinks = useMemo(() => {
-    console.log('onlyFocusLinks', minilinks.ml.byId?.[spaceId]?.out?.filter(out => out.type_id === baseTypes.Focus && out?.to?.type_id === baseTypes.Query && out?.to));
     return minilinks.ml.byId?.[spaceId]?.out?.filter(out => out.type_id === baseTypes.Focus && out?.to?.type_id === baseTypes.Query && out?.to)?.map(l => l?.to) || [];
   }, [results, r, screenLinks, spaceId]);
+  const types = useMemo(() => {
+    const all = {};
+    const typesObject = {};
+    const typesArray = [];
+    const fks = Object.keys(results || {});
+    for (let f = 0; f < fks.length; f++) {
+      const fk = fks[f];
+      for (let i = 0; i < results?.[fk]?.length; i++) {
+        const link = results?.[fk]?.[i];
+        all[link?.id] = link;
+        if (fk !== 'types') {
+          if (!typesObject[link.type_id]) {
+            typesObject[link.type_id] = true;
+            typesArray.push(link.type_id);
+          }
+        }
+      }
+    }
+    const arr = Object.values(all);
+    minilinks.ml.apply(Object.values(arr));
+
+    return typesArray;
+  }, [results]);
 
   // console.log({ screenLinks, screenResults, r, onlyFocusLinks, Query: baseTypes?.Query });
   
@@ -118,20 +141,6 @@ export function DeepLoader({
   }));
   // console.log('results', results);
 
-  const applyChanges = useCallback((newResults) => {
-    const all = {};
-    const fks = Object.keys(newResults || {});
-    for (let f = 0; f < fks.length; f++) {
-      const fk = fks[f];
-      for (let i = 0; i < newResults?.[fk]?.length; i++) {
-        const link = newResults?.[fk]?.[i];
-        all[link?.id] = link;
-      }
-    }
-    // console.log(newResults);
-    minilinks.ml.apply(Object.values(all));
-  }, []);   
-
   useEffect(() => {
     if (screenLinks?.length) {
       setResults((results) => {
@@ -140,11 +149,14 @@ export function DeepLoader({
           ...results,
           focuses: screenLinks,
         };
-        applyChanges(newResults);
+        // applyChanges(newResults);
         onChange(newResults);
         return newResults;
       });
     }
+    return () => {
+      minilinks.ml.apply([]);
+    };
   }, [screenLinks]);
 
   return <>
@@ -153,12 +165,11 @@ export function DeepLoader({
       focus={f}
       onChange={(r) => {
         setResults((results) => {
-          console.log('DeepLoaderFocus onChange', f.id, r, results);
           const newResults = {
             ...results,
             [f.id]: r,
           };
-          applyChanges(newResults);
+          // applyChanges(newResults);
           onChange(newResults);
           return newResults;
         });
@@ -179,7 +190,25 @@ export function DeepLoader({
             ...results,
             packages: r,
           };
-          applyChanges(newResults);
+          // applyChanges(newResults);
+          onChange(newResults);
+          return newResults;
+        });
+      }}
+    />
+    <DeepLoaderFocus
+      focus={useMemo(() => ({
+        value: { value: {
+          id: { _in: types },
+        } },
+      }), [types])}
+      onChange={(r) => {
+        setResults((results) => {
+          const newResults = {
+            ...results,
+            types: r,
+          };
+          // applyChanges(newResults);
           onChange(newResults);
           return newResults;
         });

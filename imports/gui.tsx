@@ -1,4 +1,4 @@
-import { useDeep } from '@deep-foundation/deeplinks/imports/client';
+import { useAuthNode, useDeep } from '@deep-foundation/deeplinks/imports/client';
 import { MinilinksResult } from '@deep-foundation/deeplinks/imports/minilinks';
 import { useLocalStore } from '@deep-foundation/store/local';
 import { useQueryStore } from '@deep-foundation/store/query';
@@ -86,21 +86,23 @@ export function PaperPanel(props: any) {
 
 const defaultGraphiqlHeight = 300;
 
-export function useShowTypes() {
-  return useQueryStore('show-types', false);
-}
-export function useShowMP() {
-  return useQueryStore('show-mp', false);
-}
+// export function useShowTypes() {
+//   return useQueryStore('show-types', false);
+// }
+// export function useShowMP() {
+//   return useQueryStore('show-mp', false);
+// }
 export function useClickSelect() {
   return useLocalStore('click-select', false);
 }
 export function useContainer() {
-  return useQueryStore('container', 0);
+  const [spaceId] = useSpaceId();
+  const store = useQueryStore('container', 0);
+  return useMemo(() => [store[0] || spaceId, store[1]], [spaceId, store[0]]);
 }
-export function useContainerVisible() {
-  return useLocalStore('container-visible', true);
-}
+// export function useContainerVisible() {
+//   return useLocalStore('container-visible', true);
+// }
 export function useForceGraph() {
   return useQueryStore('force-graph-type', '2d');
 }
@@ -111,12 +113,13 @@ export function useScreenFind() {
   return useQueryStore<any>('screen-find', '');
 }
 export function useSpaceId() {
-  const deep = useDeep();
-  return useQueryStore<any>('space-id', deep.linkId);
+  const [linkId] = useAuthNode();
+  const store = useQueryStore<any>('space-id', linkId);
+  return useMemo(() => [store[0] || linkId, store[1]], [linkId, store[0]]);
 }
-export function useLabelsConfig() {
-  return useQueryStore('labels-config', { types: true, contains: false, values: true, focuses: false });
-};
+// export function useLabelsConfig() {
+//   return useQueryStore('labels-config', { types: true, contains: false, values: true, focuses: false });
+// };
 export function useWindowSize() {
   return useLocalStore('window-size', { width: 800, height: 500 });
 };
@@ -180,15 +183,15 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
   const [windowSize, setWindowSize] = useWindowSize();
   const [graphiqlHeight, setGraphiqlHeight] = useGraphiqlHeight();
 
-  const [showTypes, setShowTypes] = useShowTypes();
-  const [showMP, setShowMP] = useShowMP();
+  // const [showTypes, setShowTypes] = useShowTypes();
+  // const [showMP, setShowMP] = useShowMP();
   const [clickSelect, setClickSelect] = useClickSelect();
   const [container, setContainer] = useContainer();
-  const [containerVisible, setContainerVisible] = useContainerVisible();
+  // const [containerVisible, setContainerVisible] = useContainerVisible();
   const [forceGraph, setForceGraph] = useForceGraph();
   const [inserting, setInserting] = useInserting();
   const [screenFind, setScreenFind] = useScreenFind();
-  const [labelsConfig, setLabelsConfig] = useLabelsConfig();
+  // const [labelsConfig, setLabelsConfig] = useLabelsConfig();
   const [spaceId, setSpaceId] = useSpaceId();
 
   const [selectedLinks, setSelectedLinks] = useSelectedLinks();
@@ -209,19 +212,19 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
               <Grid container spacing={1}>
                 <Grid item>
                   <ButtonGroup variant="outlined">
-                    <Button color={showTypes ? 'primary' : 'default'} onClick={() => setShowTypes(!showTypes)}>types</Button>
-                    <Button color={showMP ? 'primary' : 'default'} onClick={() => setShowMP(!showMP)}>mp</Button>
+                    {/* <Button color={showTypes ? 'primary' : 'default'} onClick={() => setShowTypes(!showTypes)}>types</Button>
+                    <Button color={showMP ? 'primary' : 'default'} onClick={() => setShowMP(!showMP)}>mp</Button> */}
                     <Button color={clickSelect ? 'primary' : 'default'} onClick={() => setClickSelect(!clickSelect)}>select</Button>
                   </ButtonGroup>
                 </Grid>
-                <Grid item>
+                {/* <Grid item>
                   <ButtonGroup variant="outlined">
                     <Button color={labelsConfig.types ? 'primary' : 'default'} onClick={() => setLabelsConfig({ ...labelsConfig, types: !labelsConfig.types })}>types</Button>
                     <Button color={labelsConfig.values ? 'primary' : 'default'} onClick={() => setLabelsConfig({ ...labelsConfig, values: !labelsConfig.values })}>values</Button>
                     <Button color={labelsConfig.contains ? 'primary' : 'default'} onClick={() => setLabelsConfig({ ...labelsConfig, contains: !labelsConfig.contains })}>contains</Button>
                     <Button color={labelsConfig.focuses ? 'primary' : 'default'} onClick={() => setLabelsConfig({ ...labelsConfig, focuses: !labelsConfig.focuses })}>focuses</Button>
                   </ButtonGroup>
-                </Grid>
+                </Grid> */}
                 <Grid item>
                   <ButtonGroup variant="outlined">
                     <Button color={forceGraph == '2d' ? 'primary' : 'default'} onClick={() => setForceGraph('2d')}>2d</Button>
@@ -229,7 +232,7 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
                     <Button color={forceGraph == 'vr' ? 'primary' : 'default'} onClick={() => setForceGraph('vr')}>vr</Button>
                   </ButtonGroup>
                 </Grid>
-                <Grid item>
+                {/* <Grid item>
                   <ButtonGroup variant="outlined">
                     <Button
                       color={operation === 'container' ? 'primary' : 'default'}
@@ -247,7 +250,7 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
                       {containerVisible ? <VisibilityOn/> : <VisibilityOff/>}
                     </Button>
                   </ButtonGroup>
-                </Grid>
+                </Grid> */}
                 <Grid item>
                   <ButtonGroup variant="outlined">
                     <Button
@@ -320,22 +323,13 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
                   <Button variant="outlined" disabled={!spaceId} onClick={async () => {
                     const { data: [{ id: queryId }] } = await deep.insert({
                       type_id: await deep.id('@deep-foundation/core', 'Query'),
+                      object: { data: { value: {limit:0} } },
                     });
-                    console.log({ queryId });
-                    console.log(await deep.insert({
-                      link_id: queryId,
-                      value: { limit: 0 },
-                    }, { table: 'objects' }));
-                    console.log(await deep.insert([{
-                      from_id: spaceId,
-                      to_id: queryId,
-                      type_id: await deep.id('@deep-foundation/core', 'Contain'),
-                    }]));
-                    if (container) console.log(await deep.insert([{
+                    if (container) await deep.insert([{
                       from_id: container,
                       to_id: queryId,
                       type_id: await deep.id('@deep-foundation/core', 'Contain'),
-                    }]));
+                    }]);
                     setSelectedLinks([...selectedLinks, queryId]);
                   }}><Add/> query</Button>
                 </Grid>
@@ -351,10 +345,6 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
                         type_id: await deep.id('@deep-foundation/core', 'Contain'),
                         string: { data: { value: '' } },
                       });
-                      // await deep.insert({
-                      //   link_id: newContainId,
-                      //   value: '',
-                      // }, { table: 'strings' });
                       setSelectedLinks([...selectedLinks, newSpaceId]);
                       setSpaceId(newSpaceId);
                     }}><Add/> space</Button>

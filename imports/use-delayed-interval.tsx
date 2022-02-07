@@ -25,5 +25,5 @@ export function useDelayedInterval(callback: () => Promise<any>, delay: number =
       clearTimeout(timeout);
       clearInterval(interval);
     };
-  }, []);
+  }, [callback]);
 }
