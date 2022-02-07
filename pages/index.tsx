@@ -31,7 +31,7 @@ import { useCheckAuth } from '../imports/use-check-auth';
 import Debug from 'debug';
 
 const debug = Debug('deepcase:index');
-if (typeof(window) === 'object') localStorage.debug = 'deepcase:*,deeplinks:minilinks';
+// if (typeof(window) === 'object') localStorage.debug = 'deepcase:*,deeplinks:minilinks';
 
 // @ts-ignore
 const Graphiql = dynamic(() => import('../imports/graphiql').then(m => m.Graphiql), { ssr: false });
@@ -171,7 +171,6 @@ export function PageContent() {
   
   const minilinks = useMinilinks();
   const { ref: mlRef, ml } = minilinks;
-  if (typeof(window) === 'object') window.ml = ml;
 
   const [graphData, setGraphData] = useState({ nodes: [], links: [], _links: {}, _nodes: {}, });
   const graphDataRef = useRef(graphData);
