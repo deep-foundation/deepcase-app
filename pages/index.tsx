@@ -114,10 +114,10 @@ export function useSelectedLinksMethods() {
       scrollTo: function(column: number, id: number) {
         setTimeout(() => jquery(`.lineto-${column}-${id}`)?.[0]?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }), 200);
       },
-      remove: function(column: number, id: number) {
-        setSelectedLinks(selectedLinks.map((sl, index) => {
+      remove: function(column: number, id?: number, selectedLinkIndex?: number) {
+        setSelectedLinks(selectedRef.current.map((sl, index) => {
           return column === index
-          ? sl.filter(l => l !== id)
+          ? sl.filter((l, i) => l !== id && selectedLinkIndex !== i)
           : sl;
         }).filter(col => col.length > 0));
       },
@@ -588,7 +588,7 @@ export function PageContent() {
         }}
       >
         {!!flyPanel && <div style={{ position: 'relative' }}>
-          <LinkCard link={flyPanel.link} ml={ml} graphDataRef={graphDataRef} selectedColumnIndex={0}/>
+          <LinkCard link={flyPanel.link} ml={ml} graphDataRef={graphDataRef} selectedColumnIndex={0} selectedLinkIndex={undefined}/>
           <IconButton
             size="small" style={{ position: 'absolute', top: 6, right: 6 }}
             onClick={() => {

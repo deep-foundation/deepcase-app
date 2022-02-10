@@ -437,9 +437,9 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
                     <Button style={{ position: 'sticky', top: 0 }} disabled fullWidth size="small">
                       {index}
                     </Button>
-                    {column.map(id => {
+                    {column.map((id, linkIndex) => {
                       const link = ml.byId[id];
-                      return <LinkCard id={id} link={link} ml={ml} graphDataRef={graphDataRef} selectedColumnIndex={index}/>;
+                      return <LinkCard id={id} link={link} ml={ml} graphDataRef={graphDataRef} selectedColumnIndex={index} selectedLinkIndex={linkIndex}/>;
                     })}
                   </PaperPanel>
                 </td>;

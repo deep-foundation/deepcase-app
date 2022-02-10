@@ -27,6 +27,7 @@ export function LinkCard({
   id,
   link,
   graphDataRef,
+  selectedLinkIndex,
   selectedColumnIndex,
 
   linetoPrefix = '',
@@ -35,6 +36,8 @@ export function LinkCard({
   id?: number,
   link: any;
   graphDataRef: any;
+
+  selectedLinkIndex: number;
   selectedColumnIndex: number;
 
   linetoPrefix?: string;
@@ -104,7 +107,7 @@ export function LinkCard({
             </Grid>
             <Grid item>
               <Button variant="outlined" size="small" onClick={() => {
-                selectedMethods.remove(selectedColumnIndex, link.id);
+                selectedMethods.remove(selectedColumnIndex, link?.id, selectedLinkIndex);
               }}>close</Button>
             </Grid>
           </Grid>
