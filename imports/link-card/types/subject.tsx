@@ -4,7 +4,7 @@ import { generateSerial, insertMutation } from '@deep-foundation/deeplinks/impor
 import { Grid } from '../../ui';
 import React from 'react';
 import { Button } from '../../ui';
-import { useSelectedLinks } from '../../../pages';
+import { useSelectedLinks, useSelectedLinksMethods } from '../../../pages';
 import { useDeep } from '@deep-foundation/deeplinks/imports/client';
 
 export function LinkCardSubject({
@@ -14,7 +14,7 @@ export function LinkCardSubject({
 }) {
   const deep = useDeep();
   const client = useApolloClient();
-  const [selectedLinks, setSelectedLinks] = useSelectedLinks();
+  const selectedMethods = useSelectedLinksMethods();
 
   return <>
     <Grid container spacing={1}>
@@ -84,7 +84,7 @@ export function LinkCardSubject({
               ] })],
               name: 'INSERT_RULE_LINKS',
             }));
-            setSelectedLinks([...selectedLinks, nodeIds[0]]);
+            selectedMethods.add(0, nodeIds[0]);
           }}
         >
           + rule

@@ -1,6 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { GLOBAL_ID_CONTAIN, GLOBAL_ID_PACKAGE, GLOBAL_ID_PROMISE, GLOBAL_ID_REJECTED, GLOBAL_ID_RESOLVED, GLOBAL_ID_THEN, useAuthNode, useDeep } from '@deep-foundation/deeplinks/imports/client';
-import { minilinks, MinilinkCollection, MinilinksGeneratorOptionsDefault, useMinilinks } from '@deep-foundation/deeplinks/imports/minilinks';
+import { minilinks, MinilinkCollection, MinilinksGeneratorOptionsDefault, useMinilinksConstruct } from '@deep-foundation/deeplinks/imports/minilinks';
 import { useTokenController } from '@deep-foundation/deeplinks/imports/react-token';
 import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client';
 import { useLocalStore } from '@deep-foundation/store/local';
@@ -32,6 +32,7 @@ import isEqualWith from 'lodash/isEqualWith';
 import copy from 'copy-to-clipboard';
 import { useCheckAuth } from '../imports/use-check-auth';
 import Debug from 'debug';
+import jquery from 'jquery';
 
 const debug = Debug('deepcase:index');
 // if (typeof(window) === 'object') localStorage.debug = 'deepcase:*,deeplinks:minilinks';
@@ -93,13 +94,42 @@ export const AuthPanel = React.memo<any>(function AuthPanel() {
       <Button onClick={async () => {
         const g = await deep.guest({});
       }}>guest</Button>
-      <Button onClick={() => deep.logout()}>logout</Button>
     </ButtonGroup>
   </>;
 });
 
-export function useSelectedLinks() {
-  return useQueryStore('dc-dg-sl', []);
+export function useSelectedLinksMethods() {
+  const [selectedLinks, setSelectedLinks, selectedRef] = useSelectedLinks();
+  return useMemo(() => {
+    return {
+      add: function(column: number, id: number) {
+        if (!selectedRef?.current?.find((c,i) => i === column)?.find(l => l === id)) {
+          setSelectedLinks([
+            ...selectedLinks.slice(0, column),
+            [...(selectedLinks?.[column] || []), id],
+            ...selectedLinks.slice(column + 1),
+          ]);
+        }
+      },
+      scrollTo: function(column: number, id: number) {
+        setTimeout(() => jquery(`.lineto-${column}-${id}`)?.[0]?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }), 200);
+      },
+      remove: function(column: number, id: number) {
+        setSelectedLinks(selectedLinks.map((sl, index) => {
+          return column === index
+          ? sl.filter(l => l !== id)
+          : sl;
+        }).filter(col => col.length > 0));
+      },
+    };
+  }, []);
+};
+
+export function useSelectedLinks(): [number[][], (selectedLinks: number[][]) => void, { current: number[][] }] {
+  const store = useQueryStore('dc-dg-sl', [[]]);
+  const ref = useRef<any>(store[0]);
+  ref.current = store[0];
+  return [store[0], store[1], ref];
 }
 
 const defaultGraphiqlHeight = 300;
@@ -135,22 +165,26 @@ export function PageContent() {
   // const [labelsConfig, setLabelsConfig] = useLabelsConfig();
   const [spaceId, setSpaceId] = useSpaceId();
 
-  const [selectedLinks, setSelectedLinks] = useSelectedLinks();
+  const [selectedLinks, setSelectedLinks, selectedRef] = useSelectedLinks();
+  const selectedMethods = useSelectedLinksMethods();
   const [operation, setOperation] = useOperation();
   const [connected, setConnected] = useEngineConnected();
   const [baseTypes, setBaseTypes] = useBaseTypes();
   const [bgTransparent] = useBackgroundTransparent();
 
   useEffect(() => {(async () => {
-    setBaseTypes({
-      Package: await deep.id('@deep-foundation/core', 'Package'),
-      containTree: await deep.id('@deep-foundation/core', 'containTree'),
-      Contain: await deep.id('@deep-foundation/core', 'Contain'),
-      Focus: await deep.id('@deep-foundation/core', 'Focus'),
-      Query: await deep.id('@deep-foundation/core', 'Query'),
-      Space: await deep.id('@deep-foundation/core', 'Space'),
-      User: await deep.id('@deep-foundation/core', 'User'),
-    });
+    try {
+      setBaseTypes({
+        Package: await deep.id('@deep-foundation/core', 'Package'),
+        containTree: await deep.id('@deep-foundation/core', 'containTree'),
+        Contain: await deep.id('@deep-foundation/core', 'Contain'),
+        Focus: await deep.id('@deep-foundation/core', 'Focus'),
+        Active: await deep.id('@deep-foundation/core', 'Active'),
+        Query: await deep.id('@deep-foundation/core', 'Query'),
+        Space: await deep.id('@deep-foundation/core', 'Space'),
+        User: await deep.id('@deep-foundation/core', 'User'),
+      });
+    } catch(error) {}
   })()}, []);
   
   const classes = useStyles({ connected, bgTransparent });
@@ -172,7 +206,7 @@ export function PageContent() {
 
   const prevD = useRef<any>({});
   
-  const minilinks = useMinilinks();
+  const minilinks = useMinilinksConstruct();
   const { ref: mlRef, ml } = minilinks;
 
   const [graphData, setGraphData] = useState({ spaceId, nodes: [], links: [], _links: {}, _nodes: {}, });
@@ -198,15 +232,35 @@ export function PageContent() {
     }
   }, []);
 
+  const listenerRef = useRef<any>();
+  const selectedLinkIdsInGraphRef = useRef<any>({});
+  useEffect(() => {
+    const temp: any = {};
+    for (const colI in selectedLinks) {
+      const column = selectedLinks[colI];
+      for (const rowI in column) {
+        const link = ml.byId?.[column?.[rowI]];
+        if (link) {
+          temp[link.id] = link;
+          if (selectedLinkIdsInGraphRef.current[link.id]) listenerRef?.current?.updatedListener(link, link);
+        }
+      }
+    }
+    Object.keys(selectedLinkIdsInGraphRef.current).forEach((id:string) => {
+      const link = ml.byId[+id];
+      // console.log('selected!!!', id, link)
+      if (!temp[+id]) listenerRef?.current?.updatedListener(link, link);
+    });
+  }, [selectedLinks]);
   useEffect(() => {
     setGraphData({ spaceId, nodes: [], links: [], _links: {}, _nodes: {}, });
     const notfyDependencies = (link) => {
-      if (link.type_id === baseTypes.Focus) {
+      if (link.type_id === baseTypes.Focus || link.type_id === baseTypes.Active) {
         debug('this is focus, need to update focus.to visualization');
         if (link.to) updatedListener(link.to, link.to);
       }
       if (link?.typed?.length) {
-        debug('this is focus, need to update focus.to visualization');
+        debug('this is type, need to update focus.typed visualization');
         for (let i = 0; i < link.typed.length; i++) {
           const instance = link.typed[i];
           if (instance.id != link.id) updatedListener(instance, instance);
@@ -216,6 +270,8 @@ export function PageContent() {
     const addedListener = (nl, needNotify = true) => {
       setGraphData((graphData) => {
         debug('added', nl.id, nl);
+        const active = nl?.inByType?.[baseTypes.Active]?.find(f => f.from_id === spaceId);
+        debug('active', active?.id, active);
         const focus = nl?.inByType?.[baseTypes.Focus]?.find(f => f.from_id === spaceId);
         debug('focus', focus?.id, focus);
         let optional = {};
@@ -248,17 +304,18 @@ export function PageContent() {
         const labelString = labelArray.join('\n');
 
         // <isSelected>
-        const isSelected = screenFind ? (
-          nl?.linkId.toString() === screenFind || !!(labelString?.includes(screenFind))
-          ) : selectedLinks?.find(id => id === nl?.linkId);
+        // screenFind ? (nl?.id?.toString() === screenFind || !!(labelString?.includes(screenFind))) : true
+        const isSelected = !!selectedRef?.current?.find(col => !!col?.find(id => id === nl?.id));
         // </isSelected>
+
+        if (isSelected) selectedLinkIdsInGraphRef.current[nl?.id] = true;
 
         graphData._nodes[nl?.id] = {
           id: nl?.id,
           link: nl,
           labelArray,
           labelString,
-          textColor: focus ? '#03a9f4': isSelected ? '#ffffff' : '#757575',
+          textColor: active ? '#03a9f4': isSelected ? '#ffffff' : '#757575',
           ...optional,
         };
         graphData.nodes.push(graphData._nodes[nl?.id]);
@@ -314,6 +371,11 @@ export function PageContent() {
     ml.emitter.on('added', addedListener);
     ml.emitter.on('updated', updatedListener);
     ml.emitter.on('removed', removedListener);
+    listenerRef.current = {
+      addedListener,
+      updatedListener,
+      removedListener,
+    };
     return () => {
       ml.emitter.removeListener('added', addedListener);
       ml.emitter.removeListener('updated', updatedListener);
@@ -355,7 +417,8 @@ export function PageContent() {
     } else if (operation) {
       clickEventEmitter.emit(operation, node?.link);
     } else {
-      if (!selectedLinks.find(i => i === node.link?.id)) setSelectedLinks([ ...selectedLinks, node.link?.id ]);
+      if (!selectedLinks.find(i => i === node.link?.id))
+      selectedMethods.add(0, node.link?.id);
     }
   }, 500);
   onNodeClickRef.current = onNodeClick;
@@ -364,31 +427,32 @@ export function PageContent() {
 
   const fgRef = useRef<any>();
   const focusLink = useCallback((id: number) => {
-    // const node = (graphData.nodes || [])?.find(n => n.id === id);
+    // с
+    const node = (graphData.nodes || [])?.find(n => n.id === id);
 
-    // const distance = 40;
-    // const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
+    const distance = 80;
+    const distRatio = 1 - distance/Math.hypot(node.x, node.y, node.z);
 
-    // var dx = node.dx,
-    //   dy = node.dy,
-    //   dz = node.dz,
-    //   x = node.x,
-    //   y = node.y,
-    //   z = node.z,
-    //   scale = Math.max(1, Math.min(8, 0.9 / Math.max(dx / rootRef?.current.outerWidth, dy / rootRef?.current.outerHeight))),
-    //   translate = [rootRef?.current.outerWidth / 2 - scale * x, rootRef?.current.outerHeight / 2 - scale * y];
+    var dx = node.dx,
+      dy = node.dy,
+      dz = node.dz,
+      x = node.x,
+      y = node.y,
+      z = node.z,
+      scale = Math.max(1, Math.min(8, 0.9 / Math.max(dx / rootRef?.current.outerWidth, dy / rootRef?.current.outerHeight))),
+      translate = [rootRef?.current.outerWidth / 2 - scale * x, rootRef?.current.outerHeight / 2 - scale * y];
 
-    // try {
-    //   fgRef.current.centerAt(x, y)
-    // } catch(error) {}
-    // try {
-    //   fgRef?.current?.cameraPosition(
-    //     { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
-    //     node, // lookAt ({ x, y, z })
-    //     3000  // ms transition duration
-    //   );
-    // } catch(error) {}
-  }, [/*graphData*/]);
+    try {
+      fgRef.current.centerAt(x, y)
+    } catch(error) {}
+    try {
+      fgRef?.current?.cameraPosition(
+        { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
+        node, // lookAt ({ x, y, z })
+        3000  // ms transition duration
+      );
+    } catch(error) {}
+  }, [graphData]);
 
   const holdRef = useRef<any>({});
 
@@ -484,13 +548,17 @@ export function PageContent() {
     if (node?.link?.type_id === baseTypes.Space) setSpaceId(node.link?.id);
   }, []);
 
+  useEffect(() => {
+    if (typeof(window) === 'object') {
+      window['deep'] = deep;
+      window['ml'] = ml;
+    }
+  }, [deep, ml]);
+
   return <DeepGraphProvider focusLink={focusLink}>
     {[<DeepLoader
       key={spaceId}
       spaceId={spaceId}
-      onChange={(results) => {
-        // console.log('onChangeResults', results);
-      }}
 
       minilinks={minilinks}
 
@@ -520,11 +588,11 @@ export function PageContent() {
         }}
       >
         {!!flyPanel && <div style={{ position: 'relative' }}>
-          <LinkCard link={flyPanel.link} ml={ml} graphDataRef={graphDataRef}/>
+          <LinkCard link={flyPanel.link} ml={ml} graphDataRef={graphDataRef} selectedColumnIndex={0}/>
           <IconButton
             size="small" style={{ position: 'absolute', top: 6, right: 6 }}
             onClick={() => {
-              setSelectedLinks([ ...selectedLinks, flyPanel.link?.id ]);
+              selectedMethods.add(0, flyPanel.link?.id);
               setFlyPanel(null);
             }}
           ><Add/></IconButton>

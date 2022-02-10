@@ -9,7 +9,7 @@ import cn from 'classnames';
 import React, { useState } from 'react';
 import { useMemo } from 'react';
 import pckg from '../package.json';
-import { AuthPanel, useOperation, useSelectedLinks } from '../pages';
+import { AuthPanel, useOperation, useSelectedLinks, useSelectedLinksMethods } from '../pages';
 import { EnginePanel, useEngineConnected } from './engine';
 import { LinkCard } from './link-card/index';
 import { Button, ButtonGroup, Grid, IconButton, makeStyles, Paper, TextField } from './ui';
@@ -28,6 +28,8 @@ const transitionHoverScale = {
     transform: 'scale(1.01)',
   },
 };
+
+const defaultCardWidth = 300;
 
 const useStyles = makeStyles((theme) => ({
   overlay: {
@@ -56,13 +58,32 @@ const useStyles = makeStyles((theme) => ({
   rightPaper: ({ connected }: StyleProps) => ({
     ...connectedPosition({ right: connected ? 0 : -1000 }),
     position: 'absolute',
-    overflow: 'scroll',
-    width: 300,
+    overflowX: 'scroll',
+    width: defaultCardWidth,
     height: '100%',
-    padding: theme.spacing(1),
     pointerEvents: 'all',
     boxSizing: 'border-box',
+    '& > table': {
+      display: 'block',
+      position: 'absolute',
+      top: 0, left: 0,
+      height: '100%',
+    },
+    '& > table > tr > td': {
+      padding: theme.spacing(1),
+      overflowY: 'scroll',
+      maxHeight: '100%',
+      minHeight: '100%',
+      // position: 'relative',
+    },
   }),
+  columnPaper: {
+    height: '100%',
+    width: '100%',
+    overflowX: 'scroll',
+    padding: theme.spacing(1),
+    boxSizing: 'border-box',
+  },
   bottom: {
     width: '100%',
   },
@@ -177,6 +198,44 @@ export function useFocusMethods() {
     };
   }, []);
 };
+export function useActiveMethods() {
+  const [baseTypes] = useBaseTypes();
+  const [spaceId] = useSpaceId();
+  const deep = useDeep();
+  return useMemo(() => {
+    return {
+      deactive: async function(id: number) {
+        console.log(await deep.delete({ type_id: baseTypes.Active, from_id: spaceId, to_id: id }));
+      },
+      find: async function(id: number) {
+        const q = await deep.select({
+          type_id: baseTypes.Active,
+          from_id: spaceId,
+          to_id: id,
+        });
+        return q?.data?.[0];
+      },
+      active: async function(id: number) {
+        const active = await this.find(id);
+        const { data: [{ id: newId }] } = await deep.insert({
+          type_id: baseTypes.Active,
+          from_id: spaceId,
+          to_id: id,
+          in: { data: {
+            type_id: baseTypes.Contain,
+            from_id: spaceId
+          } },
+        });
+      },
+      toggle: async function(id: number) {
+        const active = await this.find(id);
+        let oldId = active?.id;
+        if (!oldId) await this.active(id);
+        else await this.deactive(id);
+      },
+    };
+  }, []);
+};
 
 export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataRef: any }) {
   const theme: any = useTheme();
@@ -195,6 +254,7 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
   const [spaceId, setSpaceId] = useSpaceId();
 
   const [selectedLinks, setSelectedLinks] = useSelectedLinks();
+  const selectedMethods = useSelectedLinksMethods();
   const [operation, setOperation] = useOperation();
   const [connected, setConnected] = useEngineConnected();
 
@@ -216,6 +276,9 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
                     <Button color={showMP ? 'primary' : 'default'} onClick={() => setShowMP(!showMP)}>mp</Button> */}
                     <Button color={clickSelect ? 'primary' : 'default'} onClick={() => setClickSelect(!clickSelect)}>select</Button>
                   </ButtonGroup>
+                </Grid>
+                <Grid item>
+                  <Button variant="outlined" onClick={() => setSelectedLinks([])}>clear</Button>
                 </Grid>
                 {/* <Grid item>
                   <ButtonGroup variant="outlined">
@@ -305,6 +368,9 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
                 <Grid item>
                   <AuthPanel/>
                 </Grid>
+                <Grid item>
+                  <Button href="http://localhost:3006/gql" target="_blank">gql</Button>
+                </Grid>
               </Grid>
             </Grid>
             <Grid item>
@@ -330,7 +396,7 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
                       to_id: queryId,
                       type_id: await deep.id('@deep-foundation/core', 'Contain'),
                     }]);
-                    setSelectedLinks([...selectedLinks, queryId]);
+                    selectedMethods.add(0, queryId);
                   }}><Add/> query</Button>
                 </Grid>
                 <Grid item>
@@ -345,7 +411,7 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
                         type_id: await deep.id('@deep-foundation/core', 'Contain'),
                         string: { data: { value: '' } },
                       });
-                      setSelectedLinks([...selectedLinks, newSpaceId]);
+                      selectedMethods.add(0, newSpaceId);
                       setSpaceId(newSpaceId);
                     }}><Add/> space</Button>
                     <Button disabled={spaceId === deep.linkId} onClick={async () => {
@@ -363,20 +429,33 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
       </div>
       <div className={classes.right}>
         <PaperPanel className={cn(classes.rightPaper, classes.transitionHoverScale)}>
-          <Grid container spacing={1}>
-            <Grid item xs={12}>
-              <Button variant="outlined" fullWidth onClick={() => setSelectedLinks([])}>
-                clear
-              </Button>
-            </Grid>
-            <Grid item xs={12}><LinkCard link={{ id: 1, type: 1 }} ml={ml} closable={false} graphDataRef={graphDataRef}/></Grid>
-            {selectedLinks.map((id) => {
-              const link = ml.byId[id];
-              return <Grid key={id} item xs={12} style={{ position: 'relative' }}>
-                <LinkCard link={link} ml={ml} graphDataRef={graphDataRef}/>
-              </Grid>;
+          <table style={{ width: defaultCardWidth * selectedLinks?.length }}>
+            <tr>
+              {selectedLinks.map((column, index) => {
+                return <td style={{ width: defaultCardWidth }}>
+                  <PaperPanel className={classes.columnPaper}>
+                    <Button style={{ position: 'sticky', top: 0 }} disabled fullWidth size="small">
+                      {index}
+                    </Button>
+                    {column.map(id => {
+                      const link = ml.byId[id];
+                      return <LinkCard id={id} link={link} ml={ml} graphDataRef={graphDataRef} selectedColumnIndex={index}/>;
+                    })}
+                  </PaperPanel>
+                </td>;
+              })}
+            </tr>
+          </table>
+          {/* <Grid container spacing={1}>
+            {selectedLinks.map((column, index) => {
+              return <>{column.map(id => {
+                const link = ml.byId[id];
+                return <Grid key={id} item xs={12} style={{ position: 'relative' }}>
+                  <LinkCard id={id} link={link} ml={ml} graphDataRef={graphDataRef} selectedColumnIndex={index}/>
+                </Grid>;
+              })}</>;
             })}
-          </Grid>
+          </Grid> */}
         </PaperPanel>
       </div>
     </div>;

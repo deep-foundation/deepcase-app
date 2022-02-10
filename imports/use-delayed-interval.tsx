@@ -20,10 +20,10 @@ export function useDelayedInterval(callback: () => Promise<any>, delay: number =
           }, delay);
         });
       }
-    }, 1000);
+    }, delay);
     return () => {
       clearTimeout(timeout);
       clearInterval(interval);
     };
-  }, [callback]);
+  }, []);
 }

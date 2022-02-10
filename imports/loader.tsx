@@ -8,18 +8,18 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useBaseTypes } from "./gui";
 import { useInterval } from 'usehooks-ts';
 import { useDelayedInterval } from "./use-delayed-interval";
-import { useCallback } from "react";
+import { useCallback, memo } from "react";
 
-export function DeepLoaderFocus({
-  focus,
+export function DeepLoaderActive({
+  query,
   onChange,
 }: {
-  focus: any;
+  query: any;
   onChange: (results: Link<number>[]) => any;
 }) {
   const deep = useDeep();
   const subQuery = useMemo(() => {
-    const v = (focus?.value?.value);
+    const v = (query?.value?.value);
     const variables = deep.serializeQuery(v);
     return generateQuery({
       operation: 'query',
@@ -34,32 +34,34 @@ export function DeepLoaderFocus({
       })],
       name: 'DEEPCASE',
     });
-  }, [focus, focus?.value?.value]);
+  }, [query, query?.value?.value]);
   const subQueryResults = useQuery(subQuery.query, { variables: subQuery.variables });
   const [sintSubQueryResults, setSintSubQueryResults] = useState<any>(subQueryResults);
   const subQueryPrimary = sintSubQueryResults || subQueryResults;
 
+  const delayedSubQueryRef = useRef<any>();
+  delayedSubQueryRef.current = subQuery;
   useDelayedInterval(useCallback(() => new Promise((res) => {
-    // console.log('subQuery.variables', subQuery.variables);
-    subQueryResults.refetch(subQuery.variables).then((r) => {
+    subQueryResults.refetch(delayedSubQueryRef.current.variables).then((r) => {
       setSintSubQueryResults(r);
       res(undefined);
     });
-  }), [focus, focus?.value?.value]));
+  }), [query, query?.value?.value]));
 
   useEffect(() => {
-    if (subQueryPrimary?.data?.q0) onChange(subQueryPrimary?.data?.q0);
+    if (subQueryPrimary?.data?.q0) onChange && onChange(subQueryPrimary?.data?.q0);
   }, [subQueryPrimary]);
+
   useEffect(() => {
     return () => {
-      onChange([]);
+      onChange && onChange([]);
     }
   }, []);
 
   return <></>;
 }
 
-export function DeepLoader({
+export const DeepLoader = memo(function DeepLoader({
   onChange,
   spaceId,
 
@@ -67,7 +69,7 @@ export function DeepLoader({
 
   onUpdateScreenQuery,
 }: {
-  onChange: (results: { [key: string]: any[] }) => any;
+  onChange?: (results: { [key: string]: any[] }) => any;
   spaceId?: number;
 
   minilinks?: any;
@@ -95,7 +97,7 @@ export function DeepLoader({
             // limit: baseTypes?.Focus ? 100 : 0,
           } }),
       ],
-      name: 'FOCUSES',
+      name: 'ACTIVES',
     });
     onUpdateScreenQuery && onUpdateScreenQuery(query);
     return query;
@@ -104,8 +106,8 @@ export function DeepLoader({
   const [r, setR] = useState<any>();
   const screenLinks = (r?.data?.q0 || screenResults?.data?.q0);
   const [results, setResults] = useState<any>({});
-  const onlyFocusLinks = useMemo(() => {
-    return minilinks.ml.byId?.[spaceId]?.out?.filter(out => out.type_id === baseTypes.Focus && out?.to?.type_id === baseTypes.Query && out?.to)?.map(l => l?.to) || [];
+  const onlyActiveQueries = useMemo(() => {
+    return minilinks.ml.byId?.[spaceId]?.out?.filter(out => out.type_id === baseTypes.Active && out?.to?.type_id === baseTypes.Query && out?.to)?.map(l => l?.to) || [];
   }, [results, r, screenLinks, spaceId]);
   const types = useMemo(() => {
     const all = {};
@@ -131,10 +133,12 @@ export function DeepLoader({
     return typesArray;
   }, [results]);
 
-  // console.log({ screenLinks, screenResults, r, onlyFocusLinks, Query: baseTypes?.Query });
+  // console.log({ screenLinks, screenResults, r, onlyActiveQueries, Query: baseTypes?.Query });
   
+  const useDelayedIntervalRef = useRef<any>();
+  useDelayedIntervalRef.current = screenQuery;
   useDelayedInterval(() => new Promise((res) => {
-    screenResults.refetch(screenQuery.variables).then((r) => {
+    screenResults.refetch(useDelayedIntervalRef.current.variables).then((r) => {
       setR(r);
       res(undefined);
     });
@@ -147,22 +151,26 @@ export function DeepLoader({
         let newResults;
         newResults = {
           ...results,
-          focuses: screenLinks,
+          actives: screenLinks,
         };
         // applyChanges(newResults);
-        onChange(newResults);
+        onChange && onChange(newResults);
         return newResults;
       });
     }
+  }, [screenLinks]);
+
+  // unmount empty useEffect
+  useEffect(() => {
     return () => {
       minilinks.ml.apply([]);
     };
-  }, [screenLinks]);
+  }, []);
 
   return <>
-    {onlyFocusLinks?.map((f, i) => (<DeepLoaderFocus
+    {onlyActiveQueries?.map((f, i) => (<DeepLoaderActive
       key={f.id}
-      focus={f}
+      query={f}
       onChange={(r) => {
         setResults((results) => {
           const newResults = {
@@ -170,20 +178,20 @@ export function DeepLoader({
             [f.id]: r,
           };
           // applyChanges(newResults);
-          onChange(newResults);
+          onChange && onChange(newResults);
           return newResults;
         });
       }}
     />))}
-    <DeepLoaderFocus
-      focus={useMemo(() => ({
+    <DeepLoaderActive
+      query={useMemo(() => ({
         value: {
           value: { _by_item: {
             group_id: { _eq: baseTypes.containTree },
             path_item_id: { _eq: spaceId },
           } },
         },
-      }), [baseTypes, spaceId])}
+      }), [spaceId])}
       onChange={(r) => {
         setResults((results) => {
           const newResults = {
@@ -191,13 +199,13 @@ export function DeepLoader({
             packages: r,
           };
           // applyChanges(newResults);
-          onChange(newResults);
+          onChange && onChange(newResults);
           return newResults;
         });
       }}
     />
-    <DeepLoaderFocus
-      focus={useMemo(() => ({
+    <DeepLoaderActive
+      query={useMemo(() => ({
         value: { value: {
           id: { _in: types },
         } },
@@ -209,10 +217,10 @@ export function DeepLoader({
             types: r,
           };
           // applyChanges(newResults);
-          onChange(newResults);
+          onChange && onChange(newResults);
           return newResults;
         });
       }}
     />
   </>;
-}
+});

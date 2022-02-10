@@ -2,50 +2,54 @@ import { DeepClient, GLOBAL_ID_NUMBER, GLOBAL_ID_OBJECT, GLOBAL_ID_STRING, useDe
 import { Packager } from '@deep-foundation/deeplinks/imports/packager';
 import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client';
 import { Clear, LocationOnOutlined as Unfocused, LocationOn as Focused } from '@material-ui/icons';
-import { Button, IconButton, TextField } from '@material-ui/core';
+import { Button, ButtonGroup, IconButton, InputAdornment, TextField } from '@material-ui/core';
 import { useDebounceCallback } from '@react-hook/debounce';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useDebouncedCallback } from 'use-debounce';
-import { useDeepGraph, useSelectedLinks } from '../../pages';
+import { useDebounce, useDebouncedCallback } from 'use-debounce';
+import { useDeepGraph, useSelectedLinks, useSelectedLinksMethods } from '../../pages';
 import { deleteBoolExp, insertBoolExp, updateBoolExp } from '../gql';
-import { Card, CardActions, CardContent, Divider, Grid, Typography } from '../ui';
+import { Card, CardActions, CardContent, Divider, Grid, Typography, Dialog } from '../ui';
 import { LinkCardPackage } from './types/package';
 import { LinkCardRule } from './types/rule';
 import { LinkCardSubject } from './types/subject';
-import { LinkCardType } from './types/type';
 import json5 from 'json5';
-import { MinilinksResult } from '@deep-foundation/deeplinks/imports/minilinks';
+import { MinilinksResult, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
 import { isString, isNumber, isObject } from 'lodash';
-import { useBaseTypes, useFocusMethods } from '../gui';
+import { useBaseTypes, useFocusMethods, PaperPanel, useSpaceId, useActiveMethods } from '../gui';
+import LineTo from 'react-lineto';
+import dynamic from 'next/dynamic';
+import CodeIcon from '@material-ui/icons/Code';
+
+const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
 
 export function LinkCard({
   ml,
+  id,
   link,
-  closable = true,
   graphDataRef,
+  selectedColumnIndex,
+
+  linetoPrefix = '',
 }: {
   ml?: MinilinksResult<any>,
+  id?: number,
   link: any;
-  closable?: boolean;
   graphDataRef: any;
+  selectedColumnIndex: number;
+
+  linetoPrefix?: string;
 }) {
   const client = useApolloClient();
   const deep = useDeep();
   const update = useDebounceCallback((...args: any[]) => deep.update.call(deep, ...args), 1000);
 
-  useEffect(() => {
-    if (process.browser) {
-      // @ts-ignore
-      window.packager = new Packager(new DeepClient({ apolloClient: client }));
-      // @ts-ignore
-      console.log(window.packager);
-    }
-  }, []);
-
   const { focusLink } = useDeepGraph();
   const [selectedLinks, setSelectedLinks] = useSelectedLinks();
+  const selectedMethods = useSelectedLinksMethods();
   const [baseTypes] = useBaseTypes();
   const focusMethods = useFocusMethods();
+  const activeMethods = useActiveMethods();
+  const [spaceId, setSpaceId] = useSpaceId();
   // const focusLinks = useMinilinksFilter(ml, useCallback((ol, nl) => !!(nl.type_id === baseTypes.Focus && nl.to_id === link.id), [baseTypes]));
   // const wq = useDeepQuery(useMemo(() => ({
   //   in: {
@@ -58,50 +62,155 @@ export function LinkCard({
 
   // NeedPackerTypeNaming
 
-  return <Card>
-    {!!closable && <>
-      {/* <IconButton
-      style={{ position: 'absolute', top: 6, right: 36 }}
-        onClick={() => {
-          // if (focusLinks.length) {
-          //   for (let i = 0; i < focusLinks.length; i++) {
-          //     const focusLink = focusLinks[i];
-          //     focusMethods.unfocus(focusLink.id);
-          //   }
-          // } else {
-          //   const { x, y, z } = graphDataRef?.current?._nodes[link.id] || {};
-          //   focusMethods.focus(link.id, { x, y, z });
-          // }
-        }}
-      ><Focused/></IconButton> */}
+  const active = useMinilinksFilter(ml, (l) => l?.type_id === baseTypes?.Activelink, l => link?.inByType?.[baseTypes?.Active]?.find(f => f?.from_id === spaceId));
+
+  const [codeEditor, setCodeEditor] = useState(false);
+
+  const textFieldProps = useMemo(() => ({
+    endAdornment: <InputAdornment position="end">
       <IconButton
-        style={{ position: 'absolute', top: 6, right: 6 }}
-        onClick={() => setSelectedLinks(selectedLinks.filter(id => id !== link.id))}
-      ><Clear/></IconButton>
-    </>}
-    <CardContent>
-      <Typography style={{ display: 'block', cursor: 'pointer' }} onClick={() => ml.byId[link.id] && focusLink(link.id)}>id: {link?.id || 0}: {deep.stringify(link?.value?.value)}</Typography>
-      <Typography style={{ display: 'block', cursor: 'pointer' }} onClick={() => ml.byId[link.type_id] && focusLink(link.type_id)} variant="caption">type_id: {link?.type_id || 0}: {deep.stringify(link?.type?.value?.value)}</Typography>
-      <Typography style={{ display: 'block', cursor: 'pointer' }} onClick={() => ml.byId[link.from_id] && focusLink(link.from_id)} variant="caption">from_id: {link?.from_id || 0}</Typography>
-      <Typography style={{ display: 'block', cursor: 'pointer' }} onClick={() => ml.byId[link.to_id] && focusLink(link.to_id)} variant="caption">to_id: {link?.to_id || 0}</Typography>
-    </CardContent>
-    <CardActions>
+        onClick={() => setCodeEditor(true)}
+      >
+        <CodeIcon/>
+      </IconButton>
+    </InputAdornment>,
+  }), []);
+  const onChangeObject = useCallback((v) => {
+    let json = {};
+    try { json = json5.parse(v); } catch(error) {}
+    update(link?.value?.id, { value: json }, { table: 'objects' });
+  }, []);
+  const onChangeObjectTextField = useCallback((e) => onChangeObject(e.target.value), []);
+  const onChangeObjectMonacoEditor = useCallback((v, e) => onChangeObject(v), []);
+
+  const [counter, setCounter] = useState(0);
+
+  return <>
+    <PaperPanel style={{ padding: 6, marginTop: 10 }} className={`lineto${linetoPrefix}-${selectedColumnIndex}-${id}`}>
       <Grid container spacing={1}>
-        {link?.id === 1 && <Grid item xs={12}>
-          <LinkCardType link={link}/>
-        </Grid>}
+        <Grid item xs={12}>
+          <Grid container spacing={1} justifyContent="space-between" style={{
+            overflow: 'hidden', position: 'relative',
+            top: -10,
+            marginBottom: -15,
+          }}>
+            <Grid item>
+              <Button disabled size="small">
+
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button variant="outlined" size="small" color={active ? 'primary' : 'default'} onClick={() => activeMethods.toggle(link.id)}>active</Button>
+            </Grid>
+            <Grid item>
+              <Button variant="outlined" size="small" onClick={() => {
+                selectedMethods.remove(selectedColumnIndex, link.id);
+              }}>close</Button>
+            </Grid>
+          </Grid>
+        </Grid>
+        <Grid item xs={6}>
+          <Button disabled={!link?.id} fullWidth variant="outlined" size="small" onClick={() => ml.byId[link.id] && focusLink(link.id)}>id: {link?.id || 0}</Button>
+        </Grid>
+        <Grid item xs={6}>
+          <ButtonGroup variant="outlined" size="small" fullWidth>
+            <Button disabled={!link?.type_id} onClick={() => {
+              ml.byId[link.type_id] && focusLink(link.type_id);
+            }}><div>
+              <div>type: {link?.type_id || 0}</div>
+              <Typography variant="caption" color="primary">{link?.type?.value?.value}</Typography>
+            </div></Button>
+            <Button style={{ width: 0 }} disabled={!link?.type_id} onClick={() => {
+              ml.byId[link.type_id] && focusLink(link.type_id);
+              selectedMethods.add(selectedColumnIndex + 1, link.type_id);
+              selectedMethods.scrollTo(selectedColumnIndex + 1, link.type_id);
+            }}>
+              {`=`}
+            </Button>
+          </ButtonGroup>
+        </Grid>
+        <Grid item xs={6}>
+          <ButtonGroup variant="outlined" size="small" fullWidth>
+            <Button style={{ width: 0 }} disabled={!link?.from_id} onClick={() => {
+              ml.byId[link.from_id] && focusLink(link.from_id);
+              selectedMethods.add(selectedColumnIndex + 1, link.from_id);
+              selectedMethods.scrollTo(selectedColumnIndex + 1, link.from_id);
+            }}>
+              {`<`}
+            </Button>
+            <Button disabled={!link?.from_id} onClick={() => {
+              ml.byId[link.from_id] && focusLink(link.from_id);
+            }}><div>
+              <div>from: {link?.from_id || 0}</div>
+              <Typography variant="caption" color="primary">{link?.from?.type?.value?.value}</Typography>
+            </div></Button>
+          </ButtonGroup>
+        </Grid>
+        <Grid item xs={6}>
+          <ButtonGroup variant="outlined" size="small" fullWidth>
+            <Button disabled={!link?.to_id} onClick={() => ml.byId[link.to_id] && focusLink(link.to_id)}><div>
+              <div>to: {link?.to_id || 0}</div>
+              <Typography variant="caption" color="primary">{link?.to?.type?.value?.value}</Typography>
+            </div></Button>
+            <Button style={{ width: 0 }} disabled={!link?.to_id} onClick={() => {
+              ml.byId[link.to_id] && focusLink(link.to_id);
+              selectedMethods.add(selectedColumnIndex + 1, link.to_id);
+              selectedMethods.scrollTo(selectedColumnIndex + 1, link.to_id);
+            }}>
+              {`>`}
+            </Button>
+          </ButtonGroup>
+        </Grid>
         {!!isString(link?.value?.value) && <Grid item xs={12}>
-          <TextField fullWidth variant="outlined" size="small" defaultValue={link?.value?.value} onChange={(e) => update({ id: { _eq: link?.value?.id } }, { value: e.target.value}, { table: 'strings' })}/>
+          {[<TextField key={counter}
+            fullWidth variant="outlined" size="small" defaultValue={link?.value?.value} onChange={(e) => {
+              update({ id: { _eq: link?.value?.id } }, { value: e.target.value}, { table: 'strings' });
+            }}
+            InputProps={textFieldProps}
+          />]}
+          <Dialog
+            open={codeEditor}
+            onClose={() => {
+              setCodeEditor(false);
+              setCounter(counter => counter + 1);
+            }}
+          >
+            <MonacoEditor
+              height="80vh"
+              width="90vw"
+              theme="vs-dark"
+              defaultLanguage="javascript"
+              defaultValue={link?.value?.value}
+            />
+          </Dialog>
         </Grid>}
         {!!isNumber(link?.value?.value) && <Grid item xs={12}>
-          <TextField fullWidth variant="outlined" size="small" defaultValue={link?.value?.value} onChange={(e) => update({ id: { _eq: link?.value?.id } }, { value: e.target.value}, { table: 'numbers' })} type="number"/>
+          {[<TextField key={counter} fullWidth variant="outlined" size="small" defaultValue={link?.value?.value} onChange={(e) => {
+            update({ id: { _eq: link?.value?.id } }, { value: e.target.value}, { table: 'numbers' });
+          }} type="number"/>]}
         </Grid>}
         {!!isObject(link?.value?.value) && <Grid item xs={12}>
-          <TextField fullWidth variant="outlined" size="small" defaultValue={JSON.stringify(link?.value?.value)} onChange={(e) => {
-            let json = {};
-            try { json = json5.parse(e.target.value); } catch(error) {}
-            update(link?.value?.id, { value: json }, { table: 'objects' });
-          }}/>
+          {[<TextField key={counter}
+            fullWidth variant="outlined" size="small" defaultValue={json5.stringify(link?.value?.value, null, 2)}
+            onChange={onChangeObjectTextField}
+            InputProps={textFieldProps}
+          />]}
+          <Dialog
+            open={codeEditor}
+            onClose={() => {
+              setCodeEditor(false);
+              setCounter(counter => counter + 1);
+            }}
+          >
+            <MonacoEditor
+              height="80vh"
+              width="90vw"
+              theme="vs-dark"
+              defaultLanguage="javascript"
+              defaultValue={json5.stringify(link?.value?.value, null, 2)}
+              onChange={onChangeObjectMonacoEditor}
+            />
+          </Dialog>
         </Grid>}
         {!link?.value && <Grid item xs={12}>
           <Button
@@ -133,6 +242,6 @@ export function LinkCard({
           >+value</Button>
         </Grid>}
       </Grid>
-    </CardActions>
-  </Card>;
+    </PaperPanel>
+  </>;
 }
