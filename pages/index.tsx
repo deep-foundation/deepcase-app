@@ -260,11 +260,11 @@ export function PageContent() {
       if (link.type_id === baseTypes.Contain) {
         debug('this is contain, need to update focus.to visualization');
         if (link?.to) {
-          updatedListener(link.to, link.to);
-          // for (let i = 0; i < link.to.typed.length; i++) {
-          //   const instance = link.to.typed[i];
-          //   if (instance.id != link.id) updatedListener(instance, instance);
-          // }
+          updatedListener(link.to, link.to, false);
+          for (let i = 0; i < link.to.typed.length; i++) {
+            const instance = link.to.typed[i];
+            if (instance.id != link.id) updatedListener(instance, instance, false);
+          }
         }
       }
       if (link.type_id === baseTypes.Focus || link.type_id === baseTypes.Active) {
@@ -279,7 +279,7 @@ export function PageContent() {
         }
       }
     };
-    const addedListener = (nl, needNotify = true) => {
+    const addedListener = (nl, recursive = true) => {
       setGraphData((graphData) => {
         if (graphData._nodes[nl?.id]) {
           debug('!added', nl);
@@ -350,19 +350,19 @@ export function PageContent() {
         });
 
         debug('notify', nl);
-        if (needNotify) notifyDependencies(nl);
+        if (recursive) notifyDependencies(nl);
 
         return { spaceId, _nodes: graphData._nodes, _links: graphData._links, nodes: [...graphData.nodes], links: [...graphData.links], };
       });
     };
-    const updatedListener = (ol, nl) => {
+    const updatedListener = (ol, nl, recursive = true) => {
       debug('updated', nl.id, nl);
-      removedListener(ol);
-      addedListener(nl);
+      removedListener(ol, recursive);
+      addedListener(nl, recursive);
       debug('notify', nl.id, nl);
-      notifyDependencies(nl);
+      if (recursive) notifyDependencies(nl);
     };
-    const removedListener = (ol, needNotify = true) => {
+    const removedListener = (ol, recursive = true) => {
       setGraphData((graphData) => {
         debug('removed', ol.id, graphData.links);
         const removedLinks = remove(graphData.links, n => {
@@ -381,7 +381,7 @@ export function PageContent() {
         return { ...graphData };
       });
       debug('notify', ol);
-      if (needNotify) notifyDependencies(ol);
+      if (recursive) notifyDependencies(ol);
     };
     ml.emitter.on('added', addedListener);
     ml.emitter.on('updated', updatedListener);
