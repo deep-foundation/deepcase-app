@@ -569,105 +569,99 @@ export function PageContent() {
 
       // onUpdateScreenQuery={query => console.log('updateScreenQuery', query)}
     />]}
-    <div
-      ref={rootRef}
-      className={classes.root}
-      onMouseUp={(e) => clearTimeout(holdRef.current)}
+    <ReactResizeDetector
+      handleWidth handleHeight
+      onResize={(width, height) => setWindowSize({ width, height })}
+    />
+    <Popover
+      open={!!flyPanel}
+      anchorReference="anchorPosition"
+      anchorPosition={flyPanel}
+      onClose={() => setFlyPanel(null)}
+      anchorOrigin={{
+        vertical: 'top',
+        horizontal: 'left',
+      }}
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'left',
+      }}
     >
-      <ReactResizeDetector
-        handleWidth handleHeight
-        onResize={(width, height) => setWindowSize({ width, height })}
-      />
-      <Popover
-        open={!!flyPanel}
-        anchorReference="anchorPosition"
-        anchorPosition={flyPanel}
-        onClose={() => setFlyPanel(null)}
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
-        }}
-      >
-        {!!flyPanel && <div style={{ position: 'relative' }}>
-          <LinkCard link={flyPanel.link} ml={ml} graphDataRef={graphDataRef} selectedColumnIndex={0} selectedLinkIndex={undefined}/>
-          <IconButton
-            size="small" style={{ position: 'absolute', top: 6, right: 6 }}
-            onClick={() => {
-              selectedMethods.add(0, flyPanel.link?.id);
-              setFlyPanel(null);
-            }}
-          ><Add/></IconButton>
-        </div>}
-      </Popover>
-      {[<ForceGraph
-        fgRef={fgRef}
-        key={`${windowSize.width}+${windowSize.height}+${spaceId}`}
-        width={windowSize.width}
-        height={windowSize.height}
+      {!!flyPanel && <div style={{ position: 'relative' }}>
+        <LinkCard link={flyPanel.link} ml={ml} graphDataRef={graphDataRef} selectedColumnIndex={0} selectedLinkIndex={undefined}/>
+        <IconButton
+          size="small" style={{ position: 'absolute', top: 6, right: 6 }}
+          onClick={() => {
+            selectedMethods.add(0, flyPanel.link?.id);
+            setFlyPanel(null);
+          }}
+        ><Add/></IconButton>
+      </div>}
+    </Popover>
+    {[<ForceGraph
+      fgRef={fgRef}
+      key={`${windowSize.width}+${windowSize.height}+${spaceId}`}
+      width={windowSize.width}
+      height={windowSize.height}
 
-        d3Force={'charge'}
-        onDagError={() => {}}
+      d3Force={'charge'}
+      onDagError={() => {}}
 
-        Component={
-          forceGraph == '2d'
-          ? ForceGraph2D
-          : forceGraph == '3d'
-          ? ForceGraph3D
-          : ForceGraphVR
-        }
-        graphData={spaceId === graphData?.spaceId ? graphData : { nodes: [], links: [] }}
-        backgroundColor={bgTransparent ? 'transparent' : theme?.palette?.background?.default}
-        // linkAutoColorBy={forceGraph_linkAutoColorBy}
-        linkOpacity={1}
-        linkWidth={0.5}
-        linkDirectionalArrowLength={3.5}
-        linkDirectionalArrowRelPos={1}
-        linkLabel={forceGraph_linkLabel}
-        linkCurvature={forceGraph_linkCurvature}
-        linkLineDash={forceGraph_linkLineDash}
-        nodeCanvasObject={forceGraph_nodeCanvasObject}
-        nodeThreeObject={forceGraph != 'vr' ? forceGraph_nodeThreeObject : undefined}
-        // nodeThreeObject={node => {
-        //   return new Three.Mesh(
-        //     [
-        //       new Three.BoxGeometry(Math.random() * 20, Math.random() * 20, Math.random() * 20),
-        //       new Three.ConeGeometry(Math.random() * 10, Math.random() * 20),
-        //       new Three.CylinderGeometry(Math.random() * 10, Math.random() * 10, Math.random() * 20),
-        //       new Three.DodecahedronGeometry(Math.random() * 10),
-        //       new Three.SphereGeometry(Math.random() * 10),
-        //       new Three.TorusGeometry(Math.random() * 10, Math.random() * 2),
-        //       new Three.TorusKnotGeometry(Math.random() * 10, Math.random() * 2)
-        //     ][node.link?.id%7],
-        //     new Three.MeshLambertMaterial({
-        //       color: Math.round(Math.random() * Math.pow(2, 24)),
-        //       transparent: true,
-        //       opacity: 0.75
-        //     })
-        //   );
-        // }}
-        // nodeThreeObject={node => {
-        //   const _l = node.label || [];
+      Component={
+        forceGraph == '2d'
+        ? ForceGraph2D
+        : forceGraph == '3d'
+        ? ForceGraph3D
+        : ForceGraphVR
+      }
+      graphData={spaceId === graphData?.spaceId ? graphData : { nodes: [], links: [] }}
+      backgroundColor={bgTransparent ? 'transparent' : theme?.palette?.background?.default}
+      // linkAutoColorBy={forceGraph_linkAutoColorBy}
+      linkOpacity={1}
+      linkWidth={0.5}
+      linkDirectionalArrowLength={3.5}
+      linkDirectionalArrowRelPos={1}
+      linkLabel={forceGraph_linkLabel}
+      linkCurvature={forceGraph_linkCurvature}
+      linkLineDash={forceGraph_linkLineDash}
+      nodeCanvasObject={forceGraph_nodeCanvasObject}
+      nodeThreeObject={forceGraph != 'vr' ? forceGraph_nodeThreeObject : undefined}
+      // nodeThreeObject={node => {
+      //   return new Three.Mesh(
+      //     [
+      //       new Three.BoxGeometry(Math.random() * 20, Math.random() * 20, Math.random() * 20),
+      //       new Three.ConeGeometry(Math.random() * 10, Math.random() * 20),
+      //       new Three.CylinderGeometry(Math.random() * 10, Math.random() * 10, Math.random() * 20),
+      //       new Three.DodecahedronGeometry(Math.random() * 10),
+      //       new Three.SphereGeometry(Math.random() * 10),
+      //       new Three.TorusGeometry(Math.random() * 10, Math.random() * 2),
+      //       new Three.TorusKnotGeometry(Math.random() * 10, Math.random() * 2)
+      //     ][node.link?.id%7],
+      //     new Three.MeshLambertMaterial({
+      //       color: Math.round(Math.random() * Math.pow(2, 24)),
+      //       transparent: true,
+      //       opacity: 0.75
+      //     })
+      //   );
+      // }}
+      // nodeThreeObject={node => {
+      //   const _l = node.label || [];
 
-        //   const isSelected = screenFind ? (
-        //     node?.linkId.toString() === screenFind || !!(_l?.join(' ')?.includes(screenFind))
-        //   ) : selectedLinks?.find(id => id === node?.linkId);
+      //   const isSelected = screenFind ? (
+      //     node?.linkId.toString() === screenFind || !!(_l?.join(' ')?.includes(screenFind))
+      //   ) : selectedLinks?.find(id => id === node?.linkId);
 
-        //   const sprite = new SpriteText(_l.join(' '));
-        //   sprite.color = isSelected ? '#fff' : '#707070';
-        //   sprite.textHeight = 8;
-        //   return new Three.Mesh(sprite);
-        // }}
-        onNodeDrag={forceGraph_onNodeDrag}
-        onNodeDragEnd={forceGraph_onNodeDragEnd}
-        onNodeClick={forceGraph_onNodeClick}
-        onNodeRightClick={forceGraph_onNodeRightClick}
-      />]}
-      <GUI ml={ml} graphDataRef={graphDataRef}/>
-    </div>
+      //   const sprite = new SpriteText(_l.join(' '));
+      //   sprite.color = isSelected ? '#fff' : '#707070';
+      //   sprite.textHeight = 8;
+      //   return new Three.Mesh(sprite);
+      // }}
+      onNodeDrag={forceGraph_onNodeDrag}
+      onNodeDragEnd={forceGraph_onNodeDragEnd}
+      onNodeClick={forceGraph_onNodeClick}
+      onNodeRightClick={forceGraph_onNodeRightClick}
+    />]}
+    <GUI ml={ml} graphDataRef={graphDataRef}/>
     <div style={{
       position: 'fixed',
       bottom: 4,
@@ -709,14 +703,14 @@ export function ConnectionController({ children }: { children: any }) {
           <Typography align='center'><Button disabled>{pckg.version}</Button></Typography>
         </PaperPanel>
       </Backdrop>
+      {!!connected && <CatchErrors
+        errorRenderer={(error, reset) => {
+          return <div style={{ padding: 6, boxSizing: 'border-box' }}><Button variant="outlined" color="secondary" fullWidth onClick={() => console.error(error)}><div style={{ textAlign: 'left' }}>
+            <Typography variant='body2'>{String(error)}</Typography>
+          </div></Button></div>;
+        }}
+      >{children}</CatchErrors>}
     </div>
-    {!!connected && <CatchErrors
-      errorRenderer={(error, reset) => {
-        return <div style={{ padding: 6, boxSizing: 'border-box' }}><Button variant="outlined" color="secondary" fullWidth onClick={() => console.error(error)}><div style={{ textAlign: 'left' }}>
-          <Typography variant='body2'>{String(error)}</Typography>
-        </div></Button></div>;
-      }}
-    >{children}</CatchErrors>}
   </>;
 }
 
