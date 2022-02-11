@@ -278,9 +278,6 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
                     <Button color={clickSelect ? 'primary' : 'default'} onClick={() => setClickSelect(!clickSelect)}>select</Button>
                   </ButtonGroup>
                 </Grid>
-                <Grid item>
-                  <Button variant="outlined" onClick={() => setSelectedLinks([])}>clear</Button>
-                </Grid>
                 {/* <Grid item>
                   <ButtonGroup variant="outlined">
                     <Button color={labelsConfig.types ? 'primary' : 'default'} onClick={() => setLabelsConfig({ ...labelsConfig, types: !labelsConfig.types })}>types</Button>
@@ -380,9 +377,6 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
                   <ScreenFind ml={ml}/>
                 </Grid>
                 <Grid item>
-                  <Button disabled>{pckg.version}</Button>
-                </Grid>
-                <Grid item>
                   <Button variant="outlined" disabled={!spaceId} onClick={async () => {
                     const { data: [{ id: queryId }] } = await deep.insert({
                       type_id: await deep.id('@deep-foundation/core', 'Query'),
@@ -425,6 +419,11 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
         </PaperPanel>
       </div>
       <div className={classes.right}>
+        <Button style={{
+          position: 'absolute',
+          bottom: 0, right: defaultCardWidth + 16,
+          pointerEvents: 'all',
+        }} variant="outlined" onClick={() => setSelectedLinks([])}>clear</Button>
         <PaperPanel className={cn(classes.rightPaper, classes.transitionHoverScale)}>
           <table style={{ width: defaultCardWidth * selectedLinks?.length }}>
             <tr>

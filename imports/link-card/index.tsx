@@ -88,6 +88,8 @@ export function LinkCard({
 
   const [counter, setCounter] = useState(0);
 
+  const names = ml?.byId[id]?.inByType[baseTypes.Contain] || [];
+
   return <>
     <PaperPanel style={{ padding: 6, marginTop: 10 }} className={`lineto${linetoPrefix}-${selectedColumnIndex}-${id}`}>
       <Grid container spacing={1}>
@@ -114,8 +116,6 @@ export function LinkCard({
         </Grid>
         <Grid item xs={6}>
           <Button disabled={!link?.id} fullWidth variant="outlined" size="small" onClick={() => ml.byId[link.id] && focusLink(link.id)}>id: {link?.id || 0}</Button>
-        </Grid>
-        <Grid item xs={6}>
           <ButtonGroup variant="outlined" size="small" fullWidth>
             <Button disabled={!link?.type_id} onClick={() => {
               ml.byId[link.type_id] && focusLink(link.type_id);
@@ -131,6 +131,14 @@ export function LinkCard({
               {`=`}
             </Button>
           </ButtonGroup>
+        </Grid>
+        <Grid item xs={6}>
+          <Button disabled fullWidth size="small">contains</Button>
+          {names.map(name => <Button fullWidth variant="outlined" size="small" onClick={() => {
+            ml.byId[name?.id] && focusLink(name?.id);
+            selectedMethods.add(selectedColumnIndex + 1, name?.id);
+            selectedMethods.scrollTo(selectedColumnIndex + 1, name?.id);
+          }}>{name?.value?.value || name?.id}</Button>)}
         </Grid>
         <Grid item xs={6}>
           <ButtonGroup variant="outlined" size="small" fullWidth>

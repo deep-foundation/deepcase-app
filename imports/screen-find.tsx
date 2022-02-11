@@ -3,7 +3,7 @@ import { TextField, Typography } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import { useState } from "react";
 import { useDeepGraph, useSelectedLinksMethods } from "../pages";
-import { useScreenFind } from "./gui";
+import { useBaseTypes, useScreenFind } from "./gui";
 
 export function ScreenFind({
   ml
@@ -14,17 +14,22 @@ export function ScreenFind({
   const { focusLink } = useDeepGraph();
   const selectiedMethods = useSelectedLinksMethods();
   const deep = useDeep();
+  const [baseTypes] = useBaseTypes();
 
   const [founded, setFounded] = useState([]);
 
   return <Autocomplete
     value={screenFind}
     options={founded}
-    renderOption={(id) => <div>
-      <Typography>{ml.byId[id].id}</Typography>
-      <Typography variant="body2" color="primary">{ml?.byId[id]?.type?.value?.value}</Typography>
-      {!!ml?.byId[id]?.value?.value && <Typography variant="body2" style={{}}>{((s) => (s.length > 30 ? `${s.slice(0, 30).trim()}...` : s))(deep.stringify(ml?.byId[id]?.value?.value))}</Typography>}
-    </div>}
+    renderOption={(id) => {
+      const type = ml?.byId[id]?.type?.value?.value;
+      const name = ml?.byId[id]?.inByType[baseTypes.Contain]?.[0]?.value?.value;
+      return <div>
+        <Typography>{ml.byId[id].id} {!!name && <Typography variant="caption" color="primary">{name}</Typography>}</Typography>
+        <Typography component="div" variant="caption" color="primary">{type}</Typography>
+        {!!ml?.byId[id]?.value?.value && <Typography component="div" variant="caption" style={{}}>{((s) => (s.length > 30 ? `${s.slice(0, 30).trim()}...` : s))(deep.stringify(ml?.byId[id]?.value?.value))}</Typography>}
+      </div>;
+    }}
     // getOptionLabel={(id) => id}
     style={{ width: 200 }}
     onChange={(event, newValue) => {

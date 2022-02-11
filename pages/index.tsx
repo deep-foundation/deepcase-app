@@ -269,6 +269,10 @@ export function PageContent() {
     };
     const addedListener = (nl, needNotify = true) => {
       setGraphData((graphData) => {
+        if (graphData._nodes[nl?.id]) {
+          debug('!added', nl);
+          return graphData;
+        }
         debug('added', nl.id, nl);
         const active = nl?.inByType?.[baseTypes.Active]?.find(f => f.from_id === spaceId);
         debug('active', active?.id, active);
