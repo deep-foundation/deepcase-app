@@ -12,8 +12,8 @@ export function useCheckAuth() {
   const [spaceId, setSpaceId] = useSpaceId();
   const filledRef = useRef(false);
   useEffect(() => {
-    debug('useCheckAuth');
     const isAuth = !!(deep.linkId && token && token === deep.token);
+    debug('useCheckAuth', 'token', token, 'deep.token', deep.token, 'isAuth', isAuth);
     // validate
     if (isAuth) (async () => {
       const result = await deep.select({ id: deep.linkId });
@@ -28,7 +28,7 @@ export function useCheckAuth() {
     // fill
     if (!isAuth && !filledRef.current) (async () => {
       filledRef.current = true;
-      const { linkId } = await deep.guest();
+      await deep.guest();
     })();
   }, [token]);
 }

@@ -10,9 +10,11 @@ import React, { useState } from 'react';
 import { useMemo } from 'react';
 import pckg from '../package.json';
 import { AuthPanel, useOperation, useSelectedLinks, useSelectedLinksMethods } from '../pages';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import { EnginePanel, useEngineConnected } from './engine';
 import { LinkCard } from './link-card/index';
 import { Button, ButtonGroup, Grid, IconButton, makeStyles, Paper, TextField } from './ui';
+import { ScreenFind } from './screen-find';
 
 type StyleProps = { connected: boolean; };
 const connectedPosition = (style: any) => ({
@@ -249,7 +251,6 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
   // const [containerVisible, setContainerVisible] = useContainerVisible();
   const [forceGraph, setForceGraph] = useForceGraph();
   const [inserting, setInserting] = useInserting();
-  const [screenFind, setScreenFind] = useScreenFind();
   // const [labelsConfig, setLabelsConfig] = useLabelsConfig();
   const [spaceId, setSpaceId] = useSpaceId();
 
@@ -376,11 +377,7 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
             <Grid item>
               <Grid container spacing={1}>
                 <Grid item>
-                  <TextField variant="outlined" size="small"
-                    value={screenFind}
-                    onChange={e => setScreenFind(e.target.value)}
-                    placeholder="find..."
-                  />
+                  <ScreenFind ml={ml}/>
                 </Grid>
                 <Grid item>
                   <Button disabled>{pckg.version}</Button>

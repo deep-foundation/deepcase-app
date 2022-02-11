@@ -104,7 +104,7 @@ export function useSelectedLinksMethods() {
     return {
       add: function(column: number, id: number) {
         if (!selectedRef?.current?.find((c,i) => i === column)?.find(l => l === id)) {
-          setSelectedLinks([
+          setSelectedLinks((selectedLinks) => [
             ...selectedLinks.slice(0, column),
             [...(selectedLinks?.[column] || []), id],
             ...selectedLinks.slice(column + 1),
@@ -125,7 +125,7 @@ export function useSelectedLinksMethods() {
   }, []);
 };
 
-export function useSelectedLinks(): [number[][], (selectedLinks: number[][]) => void, { current: number[][] }] {
+export function useSelectedLinks(): [number[][], (selectedLinks: (number[][] | ((oldValue: number[][]) => number[][]))) => void, { current: number[][] }] {
   const store = useQueryStore('dc-dg-sl', [[]]);
   const ref = useRef<any>(store[0]);
   ref.current = store[0];
@@ -304,7 +304,6 @@ export function PageContent() {
         const labelString = labelArray.join('\n');
 
         // <isSelected>
-        // screenFind ? (nl?.id?.toString() === screenFind || !!(labelString?.includes(screenFind))) : true
         const isSelected = !!selectedRef?.current?.find(col => !!col?.find(id => id === nl?.id));
         // </isSelected>
 
