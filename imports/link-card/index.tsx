@@ -83,7 +83,7 @@ export function LinkCard({
   const onChangeObject = useCallback((v) => {
     let json = {};
     try { json = json5.parse(v); } catch(error) {}
-    update(link?.value?.id, { value: json }, { table: 'objects' });
+    update({ link_id: { _eq: id } }, { value: json }, { table: 'objects' });
   }, []);
   const onChangeObjectTextField = useCallback((e) => onChangeObject(e.target.value), []);
   const onChangeObjectMonacoEditor = useCallback((v, e) => onChangeObject(v), []);
@@ -198,7 +198,7 @@ export function LinkCard({
           {!!isString(link?.value?.value) && <Grid item xs={12}>
             {[<TextField key={counter}
               fullWidth variant="outlined" size="small" defaultValue={deep.stringify(link?.value?.value)} onChange={(e) => {
-                update({ id: { _eq: link?.value?.id } }, { value: e.target.value}, { table: 'strings' });
+                update({ link_id: { _eq: id } }, { value: e.target.value}, { table: 'strings' });
               }}
               InputProps={textFieldProps}
             />]}
@@ -220,7 +220,7 @@ export function LinkCard({
           </Grid>}
           {!!isNumber(link?.value?.value) && <Grid item xs={12}>
             {[<TextField key={counter} fullWidth variant="outlined" size="small" defaultValue={link?.value?.value} onChange={(e) => {
-              update({ id: { _eq: link?.value?.id } }, { value: e.target.value}, { table: 'numbers' });
+              update({ link_id: { _eq: id } }, { value: e.target.value}, { table: 'numbers' });
             }} type="number"/>]}
           </Grid>}
           {!!isObject(link?.value?.value) && <Grid item xs={12}>

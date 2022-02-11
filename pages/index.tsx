@@ -256,9 +256,19 @@ export function PageContent() {
   }, [selectedLinks]);
   useEffect(() => {
     setGraphData({ spaceId, nodes: [], links: [], _links: {}, _nodes: {}, });
-    const notfyDependencies = (link) => {
+    const notifyDependencies = (link) => {
+      if (link.type_id === baseTypes.Contain) {
+        debug('this is contain, need to update focus.to visualization');
+        if (link?.to) {
+          updatedListener(link.to, link.to);
+          // for (let i = 0; i < link.to.typed.length; i++) {
+          //   const instance = link.to.typed[i];
+          //   if (instance.id != link.id) updatedListener(instance, instance);
+          // }
+        }
+      }
       if (link.type_id === baseTypes.Focus || link.type_id === baseTypes.Active) {
-        debug('this is focus, need to update focus.to visualization');
+        debug('this is focus or active, need to update focus.to visualization');
         if (link.to) updatedListener(link.to, link.to);
       }
       if (link?.typed?.length) {
@@ -340,7 +350,7 @@ export function PageContent() {
         });
 
         debug('notify', nl);
-        if (needNotify) notfyDependencies(nl);
+        if (needNotify) notifyDependencies(nl);
 
         return { spaceId, _nodes: graphData._nodes, _links: graphData._links, nodes: [...graphData.nodes], links: [...graphData.links], };
       });
@@ -350,7 +360,7 @@ export function PageContent() {
       removedListener(ol);
       addedListener(nl);
       debug('notify', nl.id, nl);
-      notfyDependencies(nl);
+      notifyDependencies(nl);
     };
     const removedListener = (ol, needNotify = true) => {
       setGraphData((graphData) => {
@@ -371,7 +381,7 @@ export function PageContent() {
         return { ...graphData };
       });
       debug('notify', ol);
-      if (needNotify) notfyDependencies(ol);
+      if (needNotify) notifyDependencies(ol);
     };
     ml.emitter.on('added', addedListener);
     ml.emitter.on('updated', updatedListener);
