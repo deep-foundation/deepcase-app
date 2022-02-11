@@ -2,7 +2,7 @@ import { useAuthNode, useDeep } from '@deep-foundation/deeplinks/imports/client'
 import { MinilinksResult } from '@deep-foundation/deeplinks/imports/minilinks';
 import { useLocalStore } from '@deep-foundation/store/local';
 import { useQueryStore } from '@deep-foundation/store/query';
-import { useMediaQuery } from '@material-ui/core';
+import { Typography, useMediaQuery } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
 import { Add, Clear, Colorize, Visibility as VisibilityOn, VisibilityOff, LocationOnOutlined as Unfocused, LocationOn as Focused } from '@material-ui/icons';
 import cn from 'classnames';
@@ -15,6 +15,7 @@ import { EnginePanel, useEngineConnected } from './engine';
 import { LinkCard } from './link-card/index';
 import { Button, ButtonGroup, Grid, IconButton, makeStyles, Paper, TextField } from './ui';
 import { ScreenFind } from './screen-find';
+import { CatchErrors } from './react-errors';
 
 type StyleProps = { connected: boolean; };
 const connectedPosition = (style: any) => ({
@@ -330,6 +331,8 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
                           to_id: id,
                           type_id: await deep.id('@deep-foundation/core', 'Contain'),
                         });
+                        selectedMethods.add(0, id);
+                        selectedMethods.scrollTo(0, id);
                       }}
                     ><Add/></Button>
                     <Button
@@ -435,7 +438,15 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
                     </Button>
                     {column.map((id, linkIndex) => {
                       const link = ml.byId[id];
-                      return <LinkCard id={id} link={link} ml={ml} graphDataRef={graphDataRef} selectedColumnIndex={index} selectedLinkIndex={linkIndex}/>;
+                      return <CatchErrors
+                        errorRenderer={(error, reset) => {
+                          return <div style={{ padding: 6, boxSizing: 'border-box' }}><Button variant="outlined" color="secondary" fullWidth onClick={() => console.error(error)}><div style={{ textAlign: 'left' }}>
+                            <Typography variant='body2'>{String(error)}</Typography>
+                          </div></Button></div>;
+                        }}
+                      >
+                        <LinkCard id={id} link={link} ml={ml} graphDataRef={graphDataRef} selectedColumnIndex={index} selectedLinkIndex={linkIndex}/>
+                      </CatchErrors>;
                     })}
                   </PaperPanel>
                 </td>;

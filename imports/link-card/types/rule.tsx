@@ -5,7 +5,6 @@ import { useMutation, useSubscription } from '@apollo/client';
 import { updateString, insertString, deleteString, insertBoolExp, updateBoolExp, deleteBoolExp, LINKS_WHERE, insertLink, deleteLink } from '../../gql';
 import { useDebouncedCallback } from 'use-debounce';
 import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client';
-import MonacoEditor from 'react-monaco-editor';
 import { generateSerial, insertMutation } from '@deep-foundation/deeplinks/imports/gql';
 import { useOperation, useSelectedLinks } from '../../../pages';
 import { useClickEmitter } from '../../click-emitter';

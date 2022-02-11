@@ -15,10 +15,11 @@ import { LinkCardSubject } from './types/subject';
 import json5 from 'json5';
 import { MinilinksResult, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
 import { isString, isNumber, isObject } from 'lodash';
-import { useBaseTypes, useFocusMethods, PaperPanel, useSpaceId, useActiveMethods } from '../gui';
+import { useBaseTypes, useFocusMethods, PaperPanel, useSpaceId, useActiveMethods, useInserting } from '../gui';
 import LineTo from 'react-lineto';
 import dynamic from 'next/dynamic';
 import CodeIcon from '@material-ui/icons/Code';
+import { Alert } from '@material-ui/lab';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
 
@@ -53,6 +54,7 @@ export function LinkCard({
   const focusMethods = useFocusMethods();
   const activeMethods = useActiveMethods();
   const [spaceId, setSpaceId] = useSpaceId();
+  const [inserting, setInserting] = useInserting();
   // const focusLinks = useMinilinksFilter(ml, useCallback((ol, nl) => !!(nl.type_id === baseTypes.Focus && nl.to_id === link.id), [baseTypes]));
   // const wq = useDeepQuery(useMemo(() => ({
   //   in: {
@@ -100,158 +102,180 @@ export function LinkCard({
             marginBottom: -15,
           }}>
             <Grid item>
-              <Button disabled size="small">
-
-              </Button>
+              <Button disabled={!link} variant="outlined" size="small" color={inserting?.type === link?.id ? 'primary' : 'default'} onClick={() => {
+                setInserting({ ...inserting, type: link?.id });
+              }}>use as type</Button>
             </Grid>
             <Grid item>
-              <Button variant="outlined" size="small" color={active ? 'primary' : 'default'} onClick={() => activeMethods.toggle(link.id)}>active</Button>
+              <Button disabled={!link} variant="outlined" size="small" color={active ? 'primary' : 'default'} onClick={() => activeMethods.toggle(link.id)}>active</Button>
             </Grid>
             <Grid item>
               <Button variant="outlined" size="small" onClick={() => {
-                selectedMethods.remove(selectedColumnIndex, link?.id, selectedLinkIndex);
+                selectedMethods.remove(selectedColumnIndex, id, selectedLinkIndex);
               }}>close</Button>
             </Grid>
           </Grid>
         </Grid>
-        <Grid item xs={6}>
-          <Button disabled={!link?.id} fullWidth variant="outlined" size="small" onClick={() => ml.byId[link.id] && focusLink(link.id)}>id: {link?.id || 0}</Button>
-          <ButtonGroup variant="outlined" size="small" fullWidth>
-            <Button disabled={!link?.type_id} onClick={() => {
-              ml.byId[link.type_id] && focusLink(link.type_id);
-            }}><div>
-              <div>type: {link?.type_id || 0}</div>
-              <Typography variant="caption" color="primary">{link?.type?.value?.value}</Typography>
-            </div></Button>
-            <Button style={{ width: 0 }} disabled={!link?.type_id} onClick={() => {
-              ml.byId[link.type_id] && focusLink(link.type_id);
-              selectedMethods.add(selectedColumnIndex + 1, link.type_id);
-              selectedMethods.scrollTo(selectedColumnIndex + 1, link.type_id);
-            }}>
-              {`=`}
-            </Button>
-          </ButtonGroup>
-        </Grid>
-        <Grid item xs={6}>
-          <Button disabled fullWidth size="small">contains</Button>
-          {names.map(name => <Button fullWidth variant="outlined" size="small" onClick={() => {
-            ml.byId[name?.id] && focusLink(name?.id);
-            selectedMethods.add(selectedColumnIndex + 1, name?.id);
-            selectedMethods.scrollTo(selectedColumnIndex + 1, name?.id);
-          }}>{name?.value?.value || name?.id}</Button>)}
-        </Grid>
-        <Grid item xs={6}>
-          <ButtonGroup variant="outlined" size="small" fullWidth>
-            <Button style={{ width: 0 }} disabled={!link?.from_id} onClick={() => {
-              ml.byId[link.from_id] && focusLink(link.from_id);
-              selectedMethods.add(selectedColumnIndex + 1, link.from_id);
-              selectedMethods.scrollTo(selectedColumnIndex + 1, link.from_id);
-            }}>
-              {`<`}
-            </Button>
-            <Button disabled={!link?.from_id} onClick={() => {
-              ml.byId[link.from_id] && focusLink(link.from_id);
-            }}><div>
-              <div>from: {link?.from_id || 0}</div>
-              <Typography variant="caption" color="primary">{link?.from?.type?.value?.value}</Typography>
-            </div></Button>
-          </ButtonGroup>
-        </Grid>
-        <Grid item xs={6}>
-          <ButtonGroup variant="outlined" size="small" fullWidth>
-            <Button disabled={!link?.to_id} onClick={() => ml.byId[link.to_id] && focusLink(link.to_id)}><div>
-              <div>to: {link?.to_id || 0}</div>
-              <Typography variant="caption" color="primary">{link?.to?.type?.value?.value}</Typography>
-            </div></Button>
-            <Button style={{ width: 0 }} disabled={!link?.to_id} onClick={() => {
-              ml.byId[link.to_id] && focusLink(link.to_id);
-              selectedMethods.add(selectedColumnIndex + 1, link.to_id);
-              selectedMethods.scrollTo(selectedColumnIndex + 1, link.to_id);
-            }}>
-              {`>`}
-            </Button>
-          </ButtonGroup>
-        </Grid>
-        {!!isString(link?.value?.value) && <Grid item xs={12}>
-          {[<TextField key={counter}
-            fullWidth variant="outlined" size="small" defaultValue={link?.value?.value} onChange={(e) => {
-              update({ id: { _eq: link?.value?.id } }, { value: e.target.value}, { table: 'strings' });
-            }}
-            InputProps={textFieldProps}
-          />]}
-          <Dialog
-            open={codeEditor}
-            onClose={() => {
-              setCodeEditor(false);
-              setCounter(counter => counter + 1);
-            }}
-          >
-            <MonacoEditor
-              height="80vh"
-              width="90vw"
-              theme="vs-dark"
-              defaultLanguage="javascript"
-              defaultValue={link?.value?.value}
-            />
-          </Dialog>
+        {!link && <Grid item xs={12}>
+          <Alert severity="info">
+            link {id} is deleted or unselectable
+          </Alert>
+          {/* <Button variant="outlined" color="secondary" style={{ pointerEvents: 'none' }}>
+            deleted or unselectable
+          </Button> */}
         </Grid>}
-        {!!isNumber(link?.value?.value) && <Grid item xs={12}>
-          {[<TextField key={counter} fullWidth variant="outlined" size="small" defaultValue={link?.value?.value} onChange={(e) => {
-            update({ id: { _eq: link?.value?.id } }, { value: e.target.value}, { table: 'numbers' });
-          }} type="number"/>]}
-        </Grid>}
-        {!!isObject(link?.value?.value) && <Grid item xs={12}>
-          {[<TextField key={counter}
-            fullWidth variant="outlined" size="small" defaultValue={json5.stringify(link?.value?.value, null, 2)}
-            onChange={onChangeObjectTextField}
-            InputProps={textFieldProps}
-          />]}
-          <Dialog
-            open={codeEditor}
-            onClose={() => {
-              setCodeEditor(false);
-              setCounter(counter => counter + 1);
-            }}
-          >
-            <MonacoEditor
-              height="80vh"
-              width="90vw"
-              theme="vs-dark"
-              defaultLanguage="javascript"
-              defaultValue={json5.stringify(link?.value?.value, null, 2)}
-              onChange={onChangeObjectMonacoEditor}
-            />
-          </Dialog>
-        </Grid>}
-        {!link?.value && <Grid item xs={12}>
-          <Button
-            fullWidth variant="outlined"
-            onClick={async () => {
-              const { data: [{ id }] } = await deep.select({
-                in: {
-                  type: ['@deep-foundation/core', 'Value'],
-                  from_id: link?.type_id
-                },
-              });
-              const table = (
-                GLOBAL_ID_STRING === id
-                ? 'strings'
-                : GLOBAL_ID_NUMBER === id
-                ? 'numbers'
-                : GLOBAL_ID_OBJECT === id
-                ? 'objects'
-                : ''
-              );
-              if (table) {
-                await deep.insert({
-                  link_id: link?.id
-                }, {
-                  table
+        {!!link && <>
+          <Grid item xs={6}>
+            <ButtonGroup variant="outlined" size="small" fullWidth>
+              <Button disabled={!link?.id} fullWidth variant="outlined" size="small" onClick={() => ml.byId[link.id] && focusLink(link.id)}>id: {id}</Button>
+              <Button disabled={!link} style={{ width: 0 }} color="secondary" onClick={() => {
+                deep.delete({ id: link?.id });
+              }}>
+                {`x`}
+              </Button>
+            </ButtonGroup>
+            <ButtonGroup variant="outlined" size="small" fullWidth>
+              <Button disabled={!link?.type_id} onClick={() => {
+                ml.byId[link.type_id] && focusLink(link.type_id);
+              }}><div>
+                <div>type: {link?.type_id || 0}</div>
+                <Typography variant="caption" color="primary">{deep.stringify(link?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value)}</Typography>
+              </div></Button>
+              <Button style={{ width: 0 }} disabled={!link?.type_id} onClick={() => {
+                ml.byId[link.type_id] && focusLink(link.type_id);
+                selectedMethods.add(selectedColumnIndex + 1, link.type_id);
+                selectedMethods.scrollTo(selectedColumnIndex + 1, link.type_id);
+              }}>
+                {`=`}
+              </Button>
+            </ButtonGroup>
+          </Grid>
+          <Grid item xs={6}>
+            <Button disabled fullWidth size="small">contains</Button>
+            {names.map(name => {
+              const nameString = deep.stringify(name?.value?.value);
+              return <Button fullWidth variant="outlined" size="small" onClick={() => {
+                ml.byId[name?.id] && focusLink(name?.id);
+                selectedMethods.add(selectedColumnIndex + 1, name?.id);
+                selectedMethods.scrollTo(selectedColumnIndex + 1, name?.id);
+              }}>{nameString || name?.id}</Button>;
+            })}
+          </Grid>
+          <Grid item xs={6}>
+            <ButtonGroup variant="outlined" size="small" fullWidth>
+              <Button style={{ width: 0 }} disabled={!link?.from_id} onClick={() => {
+                ml.byId[link.from_id] && focusLink(link.from_id);
+                selectedMethods.add(selectedColumnIndex + 1, link.from_id);
+                selectedMethods.scrollTo(selectedColumnIndex + 1, link.from_id);
+              }}>
+                {`<`}
+              </Button>
+              <Button disabled={!link?.from_id} onClick={() => {
+                ml.byId[link.from_id] && focusLink(link.from_id);
+              }}><div>
+                <div>from: {link?.from_id || 0}</div>
+                <Typography variant="caption" color="primary">{deep.stringify(link?.from?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value)}</Typography>
+              </div></Button>
+            </ButtonGroup>
+          </Grid>
+          <Grid item xs={6}>
+            <ButtonGroup variant="outlined" size="small" fullWidth>
+              <Button disabled={!link?.to_id} onClick={() => ml.byId[link.to_id] && focusLink(link.to_id)}><div>
+                <div>to: {link?.to_id || 0}</div>
+                <Typography variant="caption" color="primary">{deep.stringify(link?.to?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value)}</Typography>
+              </div></Button>
+              <Button style={{ width: 0 }} disabled={!link?.to_id} onClick={() => {
+                ml.byId[link.to_id] && focusLink(link.to_id);
+                selectedMethods.add(selectedColumnIndex + 1, link.to_id);
+                selectedMethods.scrollTo(selectedColumnIndex + 1, link.to_id);
+              }}>
+                {`>`}
+              </Button>
+            </ButtonGroup>
+          </Grid>
+        </>}
+        {!!link && <>
+          {!!isString(link?.value?.value) && <Grid item xs={12}>
+            {[<TextField key={counter}
+              fullWidth variant="outlined" size="small" defaultValue={deep.stringify(link?.value?.value)} onChange={(e) => {
+                update({ id: { _eq: link?.value?.id } }, { value: e.target.value}, { table: 'strings' });
+              }}
+              InputProps={textFieldProps}
+            />]}
+            <Dialog
+              open={codeEditor}
+              onClose={() => {
+                setCodeEditor(false);
+                setCounter(counter => counter + 1);
+              }}
+            >
+              <MonacoEditor
+                height="80vh"
+                width="90vw"
+                theme="vs-dark"
+                defaultLanguage="javascript"
+                defaultValue={link?.value?.value}
+              />
+            </Dialog>
+          </Grid>}
+          {!!isNumber(link?.value?.value) && <Grid item xs={12}>
+            {[<TextField key={counter} fullWidth variant="outlined" size="small" defaultValue={link?.value?.value} onChange={(e) => {
+              update({ id: { _eq: link?.value?.id } }, { value: e.target.value}, { table: 'numbers' });
+            }} type="number"/>]}
+          </Grid>}
+          {!!isObject(link?.value?.value) && <Grid item xs={12}>
+            {[<TextField key={counter}
+              fullWidth variant="outlined" size="small" defaultValue={json5.stringify(link?.value?.value, null, 2)}
+              onChange={onChangeObjectTextField}
+              InputProps={textFieldProps}
+            />]}
+            <Dialog
+              open={codeEditor}
+              onClose={() => {
+                setCodeEditor(false);
+                setCounter(counter => counter + 1);
+              }}
+            >
+              <MonacoEditor
+                height="80vh"
+                width="90vw"
+                theme="vs-dark"
+                defaultLanguage="javascript"
+                defaultValue={json5.stringify(link?.value?.value, null, 2)}
+                onChange={onChangeObjectMonacoEditor}
+              />
+            </Dialog>
+          </Grid>}
+          {!link?.value && <Grid item xs={12}>
+            <Button
+              fullWidth variant="outlined"
+              onClick={async () => {
+                const { data: [{ id }] } = await deep.select({
+                  in: {
+                    type: ['@deep-foundation/core', 'Value'],
+                    from_id: link?.type_id
+                  },
                 });
-              }
-            }}
-          >+value</Button>
-        </Grid>}
+                const table = (
+                  GLOBAL_ID_STRING === id
+                  ? 'strings'
+                  : GLOBAL_ID_NUMBER === id
+                  ? 'numbers'
+                  : GLOBAL_ID_OBJECT === id
+                  ? 'objects'
+                  : ''
+                );
+                if (table) {
+                  await deep.insert({
+                    link_id: link?.id
+                  }, {
+                    table
+                  });
+                }
+              }}
+            >+value</Button>
+          </Grid>}
+        </>}
       </Grid>
     </PaperPanel>
   </>;

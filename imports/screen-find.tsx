@@ -22,7 +22,7 @@ export function ScreenFind({
     value={screenFind}
     options={founded}
     renderOption={(id) => {
-      const type = ml?.byId[id]?.type?.value?.value;
+      const type = ml?.byId[id]?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value;
       const name = ml?.byId[id]?.inByType[baseTypes.Contain]?.[0]?.value?.value;
       return <div>
         <Typography>{ml.byId[id].id} {!!name && <Typography variant="caption" color="primary">{name}</Typography>}</Typography>
@@ -47,10 +47,6 @@ export function ScreenFind({
       style={{ margin: 0 }}
       onChange={(event) => {
         const newValue = event?.target?.value;
-        var a = '123';
-        const b = ['12', 'set 123 fds', '15-23'];
-        // 
-
         setFounded([
           ...ml.links.filter(link => link?.id.toString() === newValue).map(link => `${link.id}`),
           ...ml.links.filter(link => link?.value?.value.toString().includes(newValue)).map(link => `${link.id}`),

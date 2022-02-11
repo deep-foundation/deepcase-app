@@ -33,6 +33,8 @@ import copy from 'copy-to-clipboard';
 import { useCheckAuth } from '../imports/use-check-auth';
 import Debug from 'debug';
 import jquery from 'jquery';
+import { gql } from '@apollo/client';
+import { CatchErrors } from '../imports/react-errors';
 
 const debug = Debug('deepcase:index');
 // if (typeof(window) === 'object') localStorage.debug = 'deepcase:*,deeplinks:minilinks';
@@ -168,9 +170,9 @@ export function PageContent() {
   const [selectedLinks, setSelectedLinks, selectedRef] = useSelectedLinks();
   const selectedMethods = useSelectedLinksMethods();
   const [operation, setOperation] = useOperation();
-  const [connected, setConnected] = useEngineConnected();
   const [baseTypes, setBaseTypes] = useBaseTypes();
   const [bgTransparent] = useBackgroundTransparent();
+  const [connected, setConnected] = useEngineConnected();
 
   useEffect(() => {(async () => {
     try {
@@ -242,14 +244,14 @@ export function PageContent() {
         const link = ml.byId?.[column?.[rowI]];
         if (link) {
           temp[link.id] = link;
-          if (selectedLinkIdsInGraphRef.current[link.id]) listenerRef?.current?.updatedListener(link, link);
+          if (selectedLinkIdsInGraphRef.current[link.id] && link) listenerRef?.current?.updatedListener(link, link);
         }
       }
     }
     Object.keys(selectedLinkIdsInGraphRef.current).forEach((id:string) => {
       const link = ml.byId[+id];
       // console.log('selected!!!', id, link)
-      if (!temp[+id]) listenerRef?.current?.updatedListener(link, link);
+      if (!temp[+id] && link) listenerRef?.current?.updatedListener(link, link);
     });
   }, [selectedLinks]);
   useEffect(() => {
@@ -302,7 +304,7 @@ export function PageContent() {
           }`);
         }
         // if (labelsConfig?.types)
-        if (nl?.type?.value?.value) label.push(`type:${nl?.type?.value?.value}`);
+        if (nl?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value) label.push(`type:${nl?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value}`);
 
         const labelArray = label.map((s: string) => (s.length > 30 ? `${s.slice(0, 30).trim()}...` : s));
         const labelString = labelArray.join('\n');
@@ -665,12 +667,6 @@ export function PageContent() {
         onNodeRightClick={forceGraph_onNodeRightClick}
       />]}
       <GUI ml={ml} graphDataRef={graphDataRef}/>
-      <Backdrop className={classes.backdrop} open={!connected}>
-        <PaperPanel flying>
-          <EngineWindow/>
-          <Typography align='center'><Button disabled>{pckg.version}</Button></Typography>
-        </PaperPanel>
-      </Backdrop>
     </div>
     <div style={{
       position: 'fixed',
@@ -693,10 +689,43 @@ export function PageConnected() {
   </>
 }
 
+export function ConnectionController({ children }: { children: any }) {
+  const [connected, setConnected] = useEngineConnected();
+  const [bgTransparent] = useBackgroundTransparent();
+  const classes = useStyles({ connected, bgTransparent });
+  const apolloClient = useApolloClient();
+  useEffect(() => {
+    apolloClient.query({ query: gql`query { links(limit: 0) { id } }` }).catch(() => {
+      setConnected(false);
+    });
+  }, []);
+  return <>
+    <div
+      className={classes.root}
+    >
+      <Backdrop className={classes.backdrop} open={!connected}>
+        <PaperPanel flying>
+          <EngineWindow/>
+          <Typography align='center'><Button disabled>{pckg.version}</Button></Typography>
+        </PaperPanel>
+      </Backdrop>
+    </div>
+    {!!connected && <CatchErrors
+      errorRenderer={(error, reset) => {
+        return <div style={{ padding: 6, boxSizing: 'border-box' }}><Button variant="outlined" color="secondary" fullWidth onClick={() => console.error(error)}><div style={{ textAlign: 'left' }}>
+          <Typography variant='body2'>{String(error)}</Typography>
+        </div></Button></div>;
+      }}
+    >{children}</CatchErrors>}
+  </>;
+}
+
 export default function Page() {
   return (
     <Provider>
-      <PageConnected/>
+      <ConnectionController>
+        <PageConnected/>
+      </ConnectionController>
     </Provider>
   );
 }

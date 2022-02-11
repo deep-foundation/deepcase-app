@@ -20,7 +20,7 @@ export const theme = createTheme({
       paper: '#00000030',
     },
     primary: colors.lightBlue,
-    secondary: colors.lightGreen,
+    secondary: colors.red,
   },
   shape: {
     borderRadius: 0,

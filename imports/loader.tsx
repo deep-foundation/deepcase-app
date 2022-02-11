@@ -119,7 +119,7 @@ export const DeepLoader = memo(function DeepLoader({
       for (let i = 0; i < results?.[fk]?.length; i++) {
         const link = results?.[fk]?.[i];
         all[link?.id] = link;
-        if (fk !== 'types') {
+        if (fk !== 'types' && fk !== 'typeContains') {
           if (!typesObject[link.type_id]) {
             typesObject[link.type_id] = true;
             typesArray.push(link.type_id);
@@ -215,6 +215,25 @@ export const DeepLoader = memo(function DeepLoader({
           const newResults = {
             ...results,
             types: r,
+          };
+          // applyChanges(newResults);
+          onChange && onChange(newResults);
+          return newResults;
+        });
+      }}
+    />
+    <DeepLoaderActive
+      query={useMemo(() => ({
+        value: { value: {
+          to_id: { _in: types },
+          type_id: { _eq: baseTypes.Contain },
+        } },
+      }), [types])}
+      onChange={(r) => {
+        setResults((results) => {
+          const newResults = {
+            ...results,
+            typeContains: r,
           };
           // applyChanges(newResults);
           onChange && onChange(newResults);

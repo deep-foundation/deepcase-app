@@ -1,22 +1,29 @@
 import React from 'react';
 
-export class HideErrors extends React.Component<any,any> {
+export class CatchErrors extends React.Component<{
+  errorRenderer: (error: Error, reset: () => any) => React.ReactNode;
+  children: any;
+},any> {
+  reset: () => any;
+
   constructor(props) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { error: undefined };
+
+    this.reset = () => {
+      this.setState({ error: undefined });
+    };
   }
 
   static getDerivedStateFromError(error) {
-    // Обновить состояние с тем, чтобы следующий рендер показал запасной UI.
-    return { hasError: true };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    // Можно также сохранить информацию об ошибке в соответствующую службу журнала ошибок
-    console.error(error, errorInfo);
+    return { error };
   }
 
   render() {
+    if (this.state.error) {
+      return this.props.errorRenderer(this.state.error, this.reset);
+    }
+
     return this.props.children; 
   }
 }
