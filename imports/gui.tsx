@@ -2,7 +2,7 @@ import { useAuthNode, useDeep } from '@deep-foundation/deeplinks/imports/client'
 import { MinilinksResult } from '@deep-foundation/deeplinks/imports/minilinks';
 import { useLocalStore } from '@deep-foundation/store/local';
 import { useQueryStore } from '@deep-foundation/store/query';
-import { Typography, useMediaQuery } from '@material-ui/core';
+import { Link, Typography, useMediaQuery } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
 import { Add, Clear, Colorize, Visibility as VisibilityOn, VisibilityOff, LocationOnOutlined as Unfocused, LocationOn as Focused } from '@material-ui/icons';
 import cn from 'classnames';
@@ -32,7 +32,8 @@ const transitionHoverScale = {
   },
 };
 
-const defaultCardWidth = 300;
+export const defaultLeftWidth = 10;
+export const defaultCardWidth = 300;
 
 const useStyles = makeStyles((theme) => ({
   overlay: {
@@ -53,8 +54,8 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(1),
     ...connectedPosition({ top: connected ? 0 : -500 }),
   }),
-  right: {
-    margin: `16px 0 16px 16px`,
+  content: {
+    margin: `16px 0 16px 0`,
     boxSizing: 'border-box',
     position: 'relative',
   },
@@ -79,6 +80,14 @@ const useStyles = makeStyles((theme) => ({
       minHeight: '100%',
       // position: 'relative',
     },
+  }),
+  leftPaper: ({ connected }: StyleProps) => ({
+    ...connectedPosition({ left: connected ? 0 : -1000 }),
+    position: 'absolute',
+    width: defaultLeftWidth,
+    height: '100%',
+    pointerEvents: 'all',
+    boxSizing: 'border-box',
   }),
   columnPaper: {
     height: '100%',
@@ -117,7 +126,7 @@ const defaultGraphiqlHeight = 300;
 //   return useQueryStore('show-mp', false);
 // }
 export function useClickSelect() {
-  return useLocalStore('click-select', false);
+  return useLocalStore('click-select', true);
 }
 export function useContainer() {
   const [spaceId] = useSpaceId();
@@ -421,7 +430,16 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
           </Grid>
         </PaperPanel>
       </div>
-      <div className={classes.right}>
+      <div className={classes.content}>
+        <PaperPanel className={cn(classes.leftPaper, classes.transitionHoverScale)}>
+          <Typography style={{
+            position: 'relative',
+            writingMode: 'vertical-rl',
+            textOrientation: 'mixed',
+            right: -30,
+            width: '100%'
+          }}><Link href="https://github.com/deep-foundation/deepcase/issues/1">notebook</Link> will be here soon...</Typography>
+        </PaperPanel>
         <Button style={{
           position: 'absolute',
           bottom: 0, right: defaultCardWidth + 16,
@@ -464,6 +482,12 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
             })}
           </Grid> */}
         </PaperPanel>
+        <div style={{
+          position: 'fixed',
+          bottom: 10, left: defaultLeftWidth + 8,
+        }}>
+          <Typography variant="caption" color="primary">{pckg.version}</Typography>
+        </div>
       </div>
     </div>;
 };

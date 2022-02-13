@@ -4,6 +4,7 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 import { useState } from "react";
 import { useDeepGraph, useSelectedLinksMethods } from "../pages";
 import { useBaseTypes, useScreenFind } from "./gui";
+import levenSort from 'leven-sort';
 
 export function ScreenFind({
   ml
@@ -25,12 +26,12 @@ export function ScreenFind({
       const type = ml?.byId[id]?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value;
       const name = ml?.byId[id]?.inByType[baseTypes.Contain]?.[0]?.value?.value;
       return <div>
-        <Typography>{ml.byId[id].id} {!!name && <Typography variant="caption" color="primary">{name}</Typography>}</Typography>
+        <Typography>{ml.byId?.[id]?.id} {!!name && <Typography variant="caption" color="primary">{name}</Typography>}</Typography>
         <Typography component="div" variant="caption" color="primary">{type}</Typography>
         {!!ml?.byId[id]?.value?.value && <Typography component="div" variant="caption" style={{}}>{((s) => (s.length > 30 ? `${s.slice(0, 30).trim()}...` : s))(deep.stringify(ml?.byId[id]?.value?.value))}</Typography>}
       </div>;
     }}
-    // getOptionLabel={(id) => id}
+    getOptionLabel={(id) => id}
     style={{ width: 200 }}
     onChange={(event, newValue) => {
       if (newValue) {
@@ -39,6 +40,7 @@ export function ScreenFind({
         selectiedMethods.scrollTo(0, +newValue);
       }
     }}
+    filterOptions={options => options}
     renderInput={(params) => <TextField {...params}
       label="find"
       margin="normal"
@@ -47,11 +49,12 @@ export function ScreenFind({
       style={{ margin: 0 }}
       onChange={(event) => {
         const newValue = event?.target?.value;
-        setFounded([
-          ...ml.links.filter(link => link?.id.toString() === newValue).map(link => `${link.id}`),
-          ...ml.links.filter(link => link?.value?.value.toString().includes(newValue)).map(link => `${link.id}`),
-          ...ml.links.filter(link => link?.id.toString() !== newValue && link.id.toString().includes(newValue)).map(link => `${link.id}`),
-        ]);
+        const results = ml.links.map(link => ({ link, value: `${link.id} ${deep.stringify(link.inByType[baseTypes.Contain]?.[0]?.value?.value)} ${deep.stringify(link?.value?.value)}`.toLowerCase() }));
+        setFounded(levenSort(results, newValue.toLowerCase(), 'value').map(({ link }) => `${link.id}`));
+        // const results = [
+        //   ...ml.links.filter(link => link?.id.toString().co).map(link => `${link.id}`),
+        //   ...ml.links.filter(link => link?.value?.value.toString().includes(newValue)).map(link => `${link.id}`),
+        // ];
       }}
     />}
   />

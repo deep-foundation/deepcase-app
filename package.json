@@ -11,10 +11,10 @@
     "package:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@apollo/client": "^3.5.5",
+    "@apollo/client": "3.5.5",
     "@capacitor-community/electron": "^4.0.3",
     "@capacitor/core": "^3.2.3",
-    "@deep-foundation/deeplinks": "0.0.45",
+    "@deep-foundation/deeplinks": "0.0.46",
     "@deep-foundation/hasura": "0.0.10",
     "@deep-foundation/materialized-path": "0.0.8",
     "@deep-foundation/store": "0.0.6",
@@ -39,6 +39,7 @@
     "jquery": "^3.6.0",
     "json5": "^2.2.0",
     "jsonwebtoken": "^8.5.1",
+    "leven-sort": "^3.0.0",
     "next": "^10.2.3",
     "next-env": "^1.1.1",
     "normalize.css": "^8.0.1",

@@ -2,7 +2,7 @@ import { DeepClient, GLOBAL_ID_NUMBER, GLOBAL_ID_OBJECT, GLOBAL_ID_STRING, useDe
 import { Packager } from '@deep-foundation/deeplinks/imports/packager';
 import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client';
 import { Clear, LocationOnOutlined as Unfocused, LocationOn as Focused } from '@material-ui/icons';
-import { Button, ButtonGroup, IconButton, InputAdornment, TextField } from '@material-ui/core';
+import { Button, ButtonGroup, IconButton, InputAdornment, Link as MuiLink, TextField } from '@material-ui/core';
 import { useDebounceCallback } from '@react-hook/debounce';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDebounce, useDebouncedCallback } from 'use-debounce';
@@ -13,7 +13,7 @@ import { LinkCardPackage } from './types/package';
 import { LinkCardRule } from './types/rule';
 import { LinkCardSubject } from './types/subject';
 import json5 from 'json5';
-import { MinilinksResult, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
+import { Link, MinilinksResult, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
 import { isString, isNumber, isObject } from 'lodash';
 import { useBaseTypes, useFocusMethods, PaperPanel, useSpaceId, useActiveMethods, useInserting } from '../gui';
 import LineTo from 'react-lineto';
@@ -22,6 +22,64 @@ import CodeIcon from '@material-ui/icons/Code';
 import { Alert } from '@material-ui/lab';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
+
+const monacoEditorOptions = {
+  wordWrap: true,
+}
+
+export function LinkCardCode({
+  open, onClose, link, onChange, ml,
+}: {
+  open: boolean;
+  onClose: () => void;
+  link: Link<number>;
+  onChange: (code: string, ...props) => void;
+  ml: MinilinksResult<Link<number>>;
+}) {
+  const deep = useDeep();
+  const [baseTypes] = useBaseTypes();
+
+  // const Handler = useMinilinksFilter(ml, (l) => false, (l) => ml.links.find(l => l?.));
+  // const handlers = useMinilinksFilter(ml, (l) => true, (l) => (link.in));
+  // console.log('handlers', handlers);
+
+  return <Dialog
+    fullWidth
+    maxWidth={'md'}
+    open={open}
+    onClose={onClose}
+    PaperProps={{
+      style: {
+        overflow: 'initial',
+      },
+    }}
+  >
+    <Grid container>
+      <Grid item xs={12}>
+        <Typography style={{
+          position: 'absolute',
+          left: 0, top: -32
+        }}>opened tabs will be here soon...</Typography>
+        <Typography style={{
+          position: 'absolute',
+          writingMode: 'vertical-rl',
+          textOrientation: 'mixed',
+          right: -30,
+          width: '100%'
+        }}><MuiLink href="https://github.com/deep-foundation/deepcase/issues/17">activities</MuiLink> will be here soon...</Typography>
+        <MonacoEditor
+          options={monacoEditorOptions}
+          height="80vh"
+          width="100%"
+          theme="vs-dark"
+          defaultLanguage="javascript"
+          defaultValue={deep.stringify(link?.value?.value)}
+          onChange={onChange}
+        />
+      </Grid>
+    </Grid>
+  </Dialog>
+}
 
 export function LinkCard({
   ml,
@@ -80,26 +138,42 @@ export function LinkCard({
       </IconButton>
     </InputAdornment>,
   }), []);
+
   const onChangeObject = useCallback((v) => {
     let json = {};
     try { json = json5.parse(v); } catch(error) {}
+    console.log(json, id);
     update({ link_id: { _eq: id } }, { value: json }, { table: 'objects' });
   }, []);
   const onChangeObjectTextField = useCallback((e) => onChangeObject(e.target.value), []);
   const onChangeObjectMonacoEditor = useCallback((v, e) => onChangeObject(v), []);
+
+  const onChangeString = useCallback((v) => {
+    update({ link_id: { _eq: id } }, { value: v }, { table: 'strings' });
+  }, []);
+  const onChangeStringTextField = useCallback((e) => onChangeString(e.target.value), []);
+  const onChangeStringMonacoEditor = useCallback((v, e) => onChangeString(v), []);
+
+  const onChangeNumber = useCallback((v) => {
+    update({ link_id: { _eq: id } }, { value: v }, { table: 'numbers' });
+  }, []);
+  const onChangeNumberTextField = useCallback((e) => onChangeNumber(e.target.value), []);
+  const onChangeNumberMonacoEditor = useCallback((v, e) => onChangeNumber(v), []);
 
   const [counter, setCounter] = useState(0);
 
   const names = ml?.byId[id]?.inByType[baseTypes.Contain] || [];
 
   return <>
-    <PaperPanel style={{ padding: 6, marginTop: 10 }} className={`lineto${linetoPrefix}-${selectedColumnIndex}-${id}`}>
+    <PaperPanel style={{
+      padding: 6,
+      // marginBottom: -15,
+    }}>
       <Grid container spacing={1}>
         <Grid item xs={12}>
           <Grid container spacing={1} justifyContent="space-between" style={{
             overflow: 'hidden', position: 'relative',
-            top: -10,
-            marginBottom: -15,
+            // top: -10,
           }}>
             <Grid item>
               <Button disabled={!link} variant="outlined" size="small" color={inserting?.type === link?.id ? 'primary' : 'default'} onClick={() => {
@@ -197,54 +271,37 @@ export function LinkCard({
         {!!link && <>
           {!!isString(link?.value?.value) && <Grid item xs={12}>
             {[<TextField key={counter}
-              fullWidth variant="outlined" size="small" defaultValue={deep.stringify(link?.value?.value)} onChange={(e) => {
-                update({ link_id: { _eq: id } }, { value: e.target.value}, { table: 'strings' });
-              }}
+              fullWidth variant="outlined" size="small" defaultValue={deep.stringify(link?.value?.value)}
               InputProps={textFieldProps}
+              onChange={onChangeStringTextField}
             />]}
-            <Dialog
-              open={codeEditor}
-              onClose={() => {
-                setCodeEditor(false);
-                setCounter(counter => counter + 1);
-              }}
-            >
-              <MonacoEditor
-                height="80vh"
-                width="90vw"
-                theme="vs-dark"
-                defaultLanguage="javascript"
-                defaultValue={link?.value?.value}
-              />
-            </Dialog>
+            <LinkCardCode
+              open={!!codeEditor}
+              onClose={() => setCodeEditor(false)}
+              link={link}
+              onChange={onChangeStringMonacoEditor}
+              ml={ml}
+            />
           </Grid>}
           {!!isNumber(link?.value?.value) && <Grid item xs={12}>
-            {[<TextField key={counter} fullWidth variant="outlined" size="small" defaultValue={link?.value?.value} onChange={(e) => {
-              update({ link_id: { _eq: id } }, { value: e.target.value}, { table: 'numbers' });
-            }} type="number"/>]}
+            {[<TextField key={counter} fullWidth variant="outlined" size="small" defaultValue={link?.value?.value}
+              type="number"
+              onChange={onChangeNumberTextField}
+            />]}
           </Grid>}
           {!!isObject(link?.value?.value) && <Grid item xs={12}>
             {[<TextField key={counter}
               fullWidth variant="outlined" size="small" defaultValue={json5.stringify(link?.value?.value, null, 2)}
-              onChange={onChangeObjectTextField}
               InputProps={textFieldProps}
+              onChange={onChangeObjectTextField}
             />]}
-            <Dialog
-              open={codeEditor}
-              onClose={() => {
-                setCodeEditor(false);
-                setCounter(counter => counter + 1);
-              }}
-            >
-              <MonacoEditor
-                height="80vh"
-                width="90vw"
-                theme="vs-dark"
-                defaultLanguage="javascript"
-                defaultValue={json5.stringify(link?.value?.value, null, 2)}
-                onChange={onChangeObjectMonacoEditor}
-              />
-            </Dialog>
+            <LinkCardCode
+              open={!!codeEditor}
+              onClose={() => setCodeEditor(false)}
+              link={link}
+              onChange={onChangeObjectMonacoEditor}
+              ml={ml}
+            />
           </Grid>}
           {!link?.value && <Grid item xs={12}>
             <Button

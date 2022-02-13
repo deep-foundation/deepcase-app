@@ -1,6 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { GLOBAL_ID_CONTAIN, GLOBAL_ID_PACKAGE, GLOBAL_ID_PROMISE, GLOBAL_ID_REJECTED, GLOBAL_ID_RESOLVED, GLOBAL_ID_THEN, useAuthNode, useDeep } from '@deep-foundation/deeplinks/imports/client';
-import { minilinks, MinilinkCollection, MinilinksGeneratorOptionsDefault, useMinilinksConstruct } from '@deep-foundation/deeplinks/imports/minilinks';
+import { minilinks, MinilinkCollection, MinilinksGeneratorOptionsDefault, useMinilinksConstruct, MinilinksLink } from '@deep-foundation/deeplinks/imports/minilinks';
 import { useTokenController } from '@deep-foundation/deeplinks/imports/react-token';
 import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client';
 import { useLocalStore } from '@deep-foundation/store/local';
@@ -17,13 +17,14 @@ import { useClickEmitter } from '../imports/click-emitter';
 import { EngineWindow, useEngineConnected } from '../imports/engine';
 import { ForceGraph, ForceGraph2D, ForceGraph3D, ForceGraphVR, SpriteText } from '../imports/graph';
 import { 
+  defaultCardWidth,
   GUI, PaperPanel, useBackgroundTransparent, useBaseTypes, useClickSelect, useContainer, useFocusMethods, useForceGraph, useGraphiqlHeight, useInserting, useScreenFind, useSpaceId, useWindowSize,
   // useShowMP, useShowTypes, useContainerVisible, useLabelsConfig
 } from '../imports/gui';
 import { LinkCard } from '../imports/link-card/index';
 import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
-import { Backdrop, Button, ButtonGroup, IconButton, makeStyles, Popover, Typography } from '../imports/ui';
+import { Backdrop, Button, ButtonGroup, IconButton, makeStyles, Popover, Typography, Tooltip } from '../imports/ui';
 import pckg from '../package.json';
 import { useInterval } from 'usehooks-ts';
 import isEqual from 'lodash/isEqual';
@@ -66,7 +67,6 @@ const useStyles = makeStyles((theme) => ({
     animation: '5s $deeplinksBackground ease'
   }),
   backdrop: {
-    zIndex: theme.zIndex.drawer + 1,
   },
 }));
 
@@ -79,6 +79,15 @@ export const AuthPanel = React.memo<any>(function AuthPanel() {
   const [operation, setOperation] = useOperation();
 
   const [pastError, setPastError] = useState(false);
+  const [valid, setValid] = useState<any>(undefined);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPastError(false);
+      setValid(undefined);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [pastError, valid]);
 
   return <>
     <ButtonGroup variant="outlined">
@@ -86,12 +95,18 @@ export const AuthPanel = React.memo<any>(function AuthPanel() {
       <Button onClick={() => {
         copy(deep.token);
       }}>copy token</Button>
-      <Button color={pastError ? 'secondary' : 'default'} onClick={async () => {
-        setPastError(false);
-        const token: string = await navigator?.clipboard?.readText();
-        const { error } = await deep.login({ token });
-        if (error) setPastError(true);
-      }}>past token</Button>
+      <Tooltip open={!!valid || !!pastError} title={pastError ? 'Token invalid' : "Token valid, login?"} arrow>
+        <Button color={pastError ? 'secondary' : valid ? 'primary' : 'default'} onClick={async () => {
+          if (valid) await deep.login({ token: valid });
+          else {
+            setPastError(false);
+            const token: string = await navigator?.clipboard?.readText();
+            const { linkId, error } = await deep.jwt({ token });
+            if (error && !linkId) setPastError(true);
+            else if (linkId) setValid(token);
+          }
+        }}>{valid ? 'login token' : 'past token'}</Button>
+      </Tooltip>
       <Button color={operation === 'auth' ? 'primary' : 'default'} onClick={() => setOperation(operation === 'auth' ? '' : 'auth')}>login</Button>
       <Button onClick={async () => {
         const g = await deep.guest({});
@@ -114,7 +129,9 @@ export function useSelectedLinksMethods() {
         }
       },
       scrollTo: function(column: number, id: number) {
-        setTimeout(() => jquery(`.lineto-${column}-${id}`)?.[0]?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }), 200);
+        setTimeout(() => {
+          jquery(`.lineto-${column}-${id}`)?.[0]?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+        }, 200);
       },
       remove: function(column: number, id?: number, selectedLinkIndex?: number) {
         setSelectedLinks(selectedRef.current.map((sl, index) => {
@@ -286,10 +303,13 @@ export function PageContent() {
           return graphData;
         }
         debug('added', nl.id, nl);
+
         const active = nl?.inByType?.[baseTypes.Active]?.find(f => f.from_id === spaceId);
         debug('active', active?.id, active);
+
         const focus = nl?.inByType?.[baseTypes.Focus]?.find(f => f.from_id === spaceId);
         debug('focus', focus?.id, focus);
+
         let optional = {};
         if (focus?.value?.value) {
           optional = {
@@ -304,7 +324,6 @@ export function PageContent() {
 
         const label: (string|number)[] = [];
         label.push(focus ? `[${nl?.id}]` : nl?.id);
-        // if (labelsConfig?.contains) (nl?.inByType?.[GLOBAL_ID_CONTAIN] || []).forEach(link => link?.value?.value && label.push(`${link?.value?.value}`));
         if (/*labelsConfig?.values && */nl?.value?.value) {
           let json;
           try { json = json5.stringify(nl?.value.value); } catch(error) {}
@@ -314,6 +333,7 @@ export function PageContent() {
           }`);
         }
         // if (labelsConfig?.types)
+        if (nl?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value) label.push(`name:${nl?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value}`);
         if (nl?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value) label.push(`type:${nl?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value}`);
 
         const labelArray = label.map((s: string) => (s.length > 30 ? `${s.slice(0, 30).trim()}...` : s));
@@ -425,8 +445,8 @@ export function PageContent() {
       setOperation('');
     } else if (clickSelect) {
       setFlyPanel({
-        top: (mouseMove?.current?.clientY),
-        left: (mouseMove?.current?.clientX),
+        top: (mouseMove?.current?.clientY - (defaultCardWidth / 3)),
+        left: (mouseMove?.current?.clientX - (defaultCardWidth / 2)),
         link: node?.link,
       });
     } else if (operation) {
@@ -434,6 +454,7 @@ export function PageContent() {
     } else {
       if (!selectedLinks.find(i => i === node.link?.id))
       selectedMethods.add(0, node.link?.id);
+      selectedMethods.scrollTo(0, node.link?.id);
     }
   }, 500);
   onNodeClickRef.current = onNodeClick;
@@ -525,12 +546,18 @@ export function PageContent() {
           const focus = ml?.byId?.[id]?.inByType[baseTypes.Focus]?.find(f => f.from_id === spaceId);
           if (focus) {
             holdRef.current.fix = false;
+            delete node.fx;
+            delete node.fy;
+            delete node.fz;
             focusMethods.unfocus(node?.link?.id);
           } else {
             holdRef.current.fix = true;
+            node.fx = x;
+            node.fy = y;
+            node.fz = z;
             focusMethods.focus(node?.link?.id, { x, y, z });
           }
-        }, 500),
+        }, 300),
       };
     }
   }, [ml]);
@@ -583,6 +610,9 @@ export function PageContent() {
       ref={rootRef}
       className={classes.root}
       onMouseUp={(e) => clearTimeout(holdRef.current)}
+      onMouseMove={(e) => {
+        mouseMove.current = e;
+      }}
     >
       <ReactResizeDetector
         handleWidth handleHeight
@@ -601,11 +631,17 @@ export function PageContent() {
           vertical: 'top',
           horizontal: 'left',
         }}
+        style={{
+          zIndex: 'initial',
+        }}
+        PaperProps={{
+          style: { overflow: 'initial' },
+        }}
       >
-        {!!flyPanel && <div style={{ position: 'relative' }}>
-          <LinkCard link={flyPanel.link} ml={ml} graphDataRef={graphDataRef} selectedColumnIndex={0} selectedLinkIndex={undefined}/>
+        {!!flyPanel && <div style={{ position: 'relative', width: defaultCardWidth }}>
+          <LinkCard link={flyPanel.link} ml={ml} graphDataRef={graphDataRef} selectedColumnIndex={-1} selectedLinkIndex={undefined}/>
           <IconButton
-            size="small" style={{ position: 'absolute', top: 6, right: 6 }}
+            size="small" style={{ position: 'absolute', top: -15, right: 6 }}
             onClick={() => {
               selectedMethods.add(0, flyPanel.link?.id);
               setFlyPanel(null);
@@ -677,13 +713,6 @@ export function PageContent() {
         onNodeRightClick={forceGraph_onNodeRightClick}
       />]}
       <GUI ml={ml} graphDataRef={graphDataRef}/>
-    </div>
-    <div style={{
-      position: 'fixed',
-      bottom: 4,
-      left: 6,
-    }}>
-      <Typography variant="caption" color="primary">{pckg.version}</Typography>
     </div>
   </DeepGraphProvider>;
 }
