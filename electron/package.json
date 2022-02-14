@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@capacitor-community/electron": "^4.0.1",
-    "@deep-foundation/deeplinks": "0.0.46",
+    "@deep-foundation/deeplinks": "^0.0.47",
     "@deep-foundation/hasura": "0.0.10",
     "@deep-foundation/materialized-path": "0.0.8",
     "@deep-foundation/store": "0.0.6",

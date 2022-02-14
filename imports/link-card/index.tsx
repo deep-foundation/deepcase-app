@@ -322,9 +322,19 @@ export function LinkCard({
                   ? 'objects'
                   : ''
                 );
+                const value = (
+                  GLOBAL_ID_STRING === id
+                  ? ''
+                  : GLOBAL_ID_NUMBER === id
+                  ? 0
+                  : GLOBAL_ID_OBJECT === id
+                  ? {}
+                  : ''
+                );
                 if (table) {
                   await deep.insert({
-                    link_id: link?.id
+                    link_id: link?.id,
+                    value
                   }, {
                     table
                   });

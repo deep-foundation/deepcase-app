@@ -733,9 +733,13 @@ export function ConnectionController({ children }: { children: any }) {
   const [bgTransparent] = useBackgroundTransparent();
   const classes = useStyles({ connected, bgTransparent });
   const apolloClient = useApolloClient();
+  const deep = useDeep();
   useEffect(() => {
     apolloClient.query({ query: gql`query { links(limit: 0) { id } }` }).catch(() => {
-      setConnected(false);
+      setConnected((connected) => {
+        if (!!connected) deep.guest();
+        return false;
+      });
     });
   }, []);
   return <>
