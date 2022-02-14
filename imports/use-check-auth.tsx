@@ -10,14 +10,14 @@ export function useCheckAuth() {
   const deep = useDeep();
   const [token] = useTokenController();
   const [spaceId, setSpaceId] = useSpaceId();
-  const filledRef = useRef(false);
   useEffect(() => {
+    // const isAuth = !!(deep.linkId && token && token === deep.token);
+    // We use as axiom - deep.token already synced with token
     const isAuth = !!(deep.linkId && token && token === deep.token);
     debug('useCheckAuth', 'token', token, 'deep.token', deep.token, 'isAuth', isAuth);
     // validate
     if (isAuth) (async () => {
       const result = await deep.select({ id: deep.linkId });
-      filledRef.current = true;
       if (!result?.data?.length) {
         debug(`user ${deep.linkId} invalid`);
         deep.logout();
@@ -27,8 +27,7 @@ export function useCheckAuth() {
       }
     })();
     // fill
-    if (!isAuth && !filledRef.current) (async () => {
-      filledRef.current = true;
+    if (!isAuth) (async () => {
       const g = await deep.guest();
     })();
   }, [token]);

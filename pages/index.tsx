@@ -742,9 +742,6 @@ export function ConnectionController({ children }: { children: any }) {
   useEffect(() => {
     if (deep.linkId) apolloClient.query({ query: gql`query { links(limit: 0) { id } }` }).catch(() => {
       setConnected((connected) => {
-        if (!!connected) {
-          const g = deep.guest();
-        }
         return false;
       });
     });
