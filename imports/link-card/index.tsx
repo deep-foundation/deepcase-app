@@ -92,7 +92,7 @@ export function LinkCard({
   linetoPrefix = '',
 }: {
   ml?: MinilinksResult<any>,
-  id?: number,
+  id: number,
   link: any;
   graphDataRef: any;
 
@@ -140,21 +140,23 @@ export function LinkCard({
   }), []);
 
   const onChangeObject = useCallback((v) => {
+    console.log('onChangeObject', id, v);
     let json = {};
     try { json = json5.parse(v); } catch(error) {}
-    console.log(json, id);
     update({ link_id: { _eq: id } }, { value: json }, { table: 'objects' });
   }, []);
   const onChangeObjectTextField = useCallback((e) => onChangeObject(e.target.value), []);
   const onChangeObjectMonacoEditor = useCallback((v, e) => onChangeObject(v), []);
 
   const onChangeString = useCallback((v) => {
+    console.log('onChangeString', id, v);
     update({ link_id: { _eq: id } }, { value: v }, { table: 'strings' });
   }, []);
   const onChangeStringTextField = useCallback((e) => onChangeString(e.target.value), []);
   const onChangeStringMonacoEditor = useCallback((v, e) => onChangeString(v), []);
 
   const onChangeNumber = useCallback((v) => {
+    console.log('onChangeNumber', id, v);
     update({ link_id: { _eq: id } }, { value: v }, { table: 'numbers' });
   }, []);
   const onChangeNumberTextField = useCallback((e) => onChangeNumber(e.target.value), []);

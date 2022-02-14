@@ -63,8 +63,7 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     height: '100%',
     backgroundColor: bgTransparent ? 'transparent' : theme?.palette?.background?.default,
-    overflow: 'hidden',
-    animation: '5s $deeplinksBackground ease'
+    overflow: 'hidden'
   }),
   backdrop: {
   },
@@ -74,12 +73,14 @@ export function useOperation() {
   return useLocalStore('dc-dg-operation', '');
 }
 
-export const AuthPanel = React.memo<any>(function AuthPanel() {
+export const AuthPanel = React.memo<any>(function AuthPanel({ ml }: { ml: any }) {
   const deep = useDeep();
   const [operation, setOperation] = useOperation();
 
   const [pastError, setPastError] = useState(false);
   const [valid, setValid] = useState<any>(undefined);
+  const selectedMethods = useSelectedLinksMethods();
+  const { focusLink } = useDeepGraph();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -91,7 +92,11 @@ export const AuthPanel = React.memo<any>(function AuthPanel() {
 
   return <>
     <ButtonGroup variant="outlined">
-      <Button disabled>{deep.linkId}</Button>
+      <Button onClick={() => {
+        ml.byId[deep.linkId] && focusLink(deep.linkId);
+        selectedMethods.add(0, deep.linkId);
+        selectedMethods.scrollTo(0, deep.linkId);
+      }}>userId: {deep.linkId}</Button>
       <Button onClick={() => {
         copy(deep.token);
       }}>copy token</Button>
@@ -638,8 +643,8 @@ export function PageContent() {
           style: { overflow: 'initial' },
         }}
       >
-        {!!flyPanel && <div style={{ position: 'relative', width: defaultCardWidth }}>
-          <LinkCard link={flyPanel.link} ml={ml} graphDataRef={graphDataRef} selectedColumnIndex={-1} selectedLinkIndex={undefined}/>
+        {!!(flyPanel?.link?.id) && <div style={{ position: 'relative', width: defaultCardWidth }}>
+          <LinkCard id={flyPanel?.link?.id} link={flyPanel?.link} ml={ml} graphDataRef={graphDataRef} selectedColumnIndex={-1} selectedLinkIndex={undefined}/>
           <IconButton
             size="small" style={{ position: 'absolute', top: -15, right: 6 }}
             onClick={() => {
@@ -735,9 +740,13 @@ export function ConnectionController({ children }: { children: any }) {
   const apolloClient = useApolloClient();
   const deep = useDeep();
   useEffect(() => {
-    apolloClient.query({ query: gql`query { links(limit: 0) { id } }` }).catch(() => {
+    if (deep.linkId) apolloClient.query({ query: gql`query { links(limit: 0) { id } }` }).catch(() => {
+      console.log('ERROR');
       setConnected((connected) => {
-        if (!!connected) deep.guest();
+        if (!!connected) {
+          const g = deep.guest();
+          console.log('GUEST', g);
+        }
         return false;
       });
     });

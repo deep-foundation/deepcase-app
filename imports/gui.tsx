@@ -9,7 +9,7 @@ import cn from 'classnames';
 import React, { useState } from 'react';
 import { useMemo } from 'react';
 import pckg from '../package.json';
-import { AuthPanel, useOperation, useSelectedLinks, useSelectedLinksMethods } from '../pages';
+import { AuthPanel, useDeepGraph, useOperation, useSelectedLinks, useSelectedLinksMethods } from '../pages';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { EnginePanel, useEngineConnected } from './engine';
 import { LinkCard } from './link-card/index';
@@ -268,6 +268,7 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
   const selectedMethods = useSelectedLinksMethods();
   const [operation, setOperation] = useOperation();
   const [connected, setConnected] = useEngineConnected();
+  const { focusLink } = useDeepGraph();
 
   const classes = useStyles({ connected });
 
@@ -303,25 +304,19 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
                     <Button color={forceGraph == 'vr' ? 'primary' : 'default'} onClick={() => setForceGraph('vr')}>vr</Button>
                   </ButtonGroup>
                 </Grid>
-                {/* <Grid item>
+                <Grid item>
                   <ButtonGroup variant="outlined">
                     <Button
                       color={operation === 'container' ? 'primary' : 'default'}
                       onClick={() => setOperation(operation === 'container' ? '' : 'container')}
                     >
-                      container: {container}
+                      auto contain: {container}
                     </Button>
                     <Button
                       onClick={() => setContainer(0)}
                     ><Clear/></Button>
-                    <Button
-                      color={containerVisible ? 'primary' : 'default'}
-                      onClick={() => setContainerVisible(!containerVisible)}
-                    >
-                      {containerVisible ? <VisibilityOn/> : <VisibilityOff/>}
-                    </Button>
                   </ButtonGroup>
-                </Grid> */}
+                </Grid>
                 <Grid item>
                   <ButtonGroup variant="outlined">
                     <Button
@@ -376,7 +371,7 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
                   </ButtonGroup>
                 </Grid>
                 <Grid item>
-                  <AuthPanel/>
+                  <AuthPanel ml={ml}/>
                 </Grid>
                 <Grid item>
                   <Button href="http://localhost:3006/gql" target="_blank">gql</Button>
@@ -417,9 +412,14 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
                       selectedMethods.add(0, newSpaceId);
                       setSpaceId(newSpaceId);
                     }}><Add/> space</Button>
+                    <Button disabled={!spaceId} onClick={async () => {
+                      ml.byId[deep.linkId] && focusLink(deep.linkId);
+                      selectedMethods.add(0, deep.linkId);
+                      selectedMethods.scrollTo(0, deep.linkId);
+                    }}>space: {spaceId}</Button>
                     <Button disabled={spaceId === deep.linkId} onClick={async () => {
                       setSpaceId(deep.linkId);
-                    }}>{spaceId} exit</Button>
+                    }}>exit</Button>
                   </ButtonGroup>
                 </Grid>
                 <Grid item>

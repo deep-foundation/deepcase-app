@@ -29,7 +29,8 @@ export function useCheckAuth() {
     // fill
     if (!isAuth && !filledRef.current) (async () => {
       filledRef.current = true;
-      await deep.guest();
+      const g = await deep.guest();
+      console.log({ isAuth, filled: filledRef.current, g });
     })();
   }, [token]);
 }
