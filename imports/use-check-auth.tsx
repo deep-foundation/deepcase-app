@@ -27,7 +27,7 @@ export function useCheckAuth() {
       }
     })();
     // fill
-    if (!isAuth) (async () => {
+    if (!token) (async () => {
       const g = await deep.guest();
     })();
   }, [token]);
