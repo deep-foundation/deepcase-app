@@ -110,11 +110,17 @@ const useStyles = makeStyles((theme) => ({
   transitionHoverScale,
 }));
 
-export function PaperPanel(props: any) {
+export function PaperPanel({
+  flying = false,
+  ...props
+}: {
+  flying?: boolean;
+  [key: string]: any;
+}) {
   const [hover, setHover] = useState(false);
   const classes = useStyles({ connected: false });
   
-  return <Paper onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} elevation={hover ? 3 : 1} className={props.flying ? classes.transitionHoverScale : null} {...props}/>;
+  return <Paper onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} elevation={hover ? 3 : 1} className={flying ? classes.transitionHoverScale : null} {...props}/>;
 }
 
 const defaultGraphiqlHeight = 300;
