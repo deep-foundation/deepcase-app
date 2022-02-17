@@ -116,6 +116,9 @@ export const AuthPanel = React.memo<any>(function AuthPanel({ ml }: { ml: any })
       <Button onClick={async () => {
         const g = await deep.guest({});
       }}>guest</Button>
+      <Button onClick={async () => {
+        const g = await deep.logout();
+      }}>logout</Button>
     </ButtonGroup>
   </>;
 });
@@ -199,7 +202,7 @@ export function PageContent() {
   useEffect(() => {(async () => {
     try {
       setBaseTypes({
-        Package: await deep.id('@deep-foundation/core', 'Package'),
+        Package: await deep.id('@deep-foundation/core', 'PackagerPackage'),
         containTree: await deep.id('@deep-foundation/core', 'containTree'),
         Contain: await deep.id('@deep-foundation/core', 'Contain'),
         Focus: await deep.id('@deep-foundation/core', 'Focus'),
@@ -428,7 +431,7 @@ export function PageContent() {
   const clickEventEmitter = useClickEmitter();
   const onNodeClick = useDebounceCallback((node) => {
     if (operation === 'auth') {
-      deep.login({ linkId: +node.link?.id });
+      deep.login({ linkId: +node.link?.id }).then(console.log, console.log);
       setOperation('');
     } else if (operation === 'delete') {
       deep.delete(node.link?.id);
@@ -592,7 +595,7 @@ export function PageContent() {
     onNodeClickRef.current(node);
   }, []);
   const forceGraph_onNodeRightClick = useCallback((node) => {
-    if (node?.link?.type_id === baseTypes.Space) setSpaceId(node.link?.id);
+    setSpaceId(node.link?.id);
   }, []);
 
   useEffect(() => {

@@ -43,6 +43,10 @@ export function LinkCardCode({
   // const handlers = useMinilinksFilter(ml, (l) => true, (l) => (link.in));
   // console.log('handlers', handlers);
 
+  function handleEditorDidMount(editor, monaco) {
+    editor.getModel().updateOptions({ tabSize: 2 });
+  }
+
   return <Dialog
     fullWidth
     maxWidth={'md'}
@@ -62,6 +66,10 @@ export function LinkCardCode({
         }}>opened tabs will be here soon...</Typography>
         <Typography style={{
           position: 'absolute',
+          left: 0, bottom: -32
+        }}>in next versions we try to support vsc ecosystem here</Typography>
+        <Typography style={{
+          position: 'absolute',
           writingMode: 'vertical-rl',
           textOrientation: 'mixed',
           right: -30,
@@ -75,6 +83,7 @@ export function LinkCardCode({
           defaultLanguage="javascript"
           defaultValue={deep.stringify(link?.value?.value)}
           onChange={onChange}
+          onMount={handleEditorDidMount}
         />
       </Grid>
     </Grid>
@@ -311,7 +320,7 @@ export function LinkCard({
               onClick={async () => {
                 const { data: [{ id }] } = await deep.select({
                   in: {
-                    type: ['@deep-foundation/core', 'Value'],
+                    type_id: await deep.id('@deep-foundation/core', 'Value'),
                     from_id: link?.type_id
                   },
                 });

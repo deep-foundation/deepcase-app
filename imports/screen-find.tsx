@@ -23,8 +23,8 @@ export function ScreenFind({
     value={screenFind}
     options={founded}
     renderOption={(id) => {
-      const type = ml?.byId[id]?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value;
-      const name = ml?.byId[id]?.inByType[baseTypes.Contain]?.[0]?.value?.value;
+      const type = deep.stringify(ml?.byId[id]?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value);
+      const name = deep.stringify(ml?.byId[id]?.inByType[baseTypes.Contain]?.[0]?.value?.value);
       return <div>
         <Typography>{ml.byId?.[id]?.id} {!!name && <Typography variant="caption" color="primary">{name}</Typography>}</Typography>
         <Typography component="div" variant="caption" color="primary">{type}</Typography>

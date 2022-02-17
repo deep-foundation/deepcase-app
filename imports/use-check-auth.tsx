@@ -22,7 +22,6 @@ export function useCheckAuth() {
         debug(`user ${deep.linkId} invalid`);
         deep.logout();
       } else {
-        setSpaceId(deep.linkId);
         debug(`user ${deep.linkId} valid`);
       }
     })();
