@@ -14,6 +14,7 @@ COPY node_modules ./node_modules
 COPY imports ./imports
 COPY out ./out
 COPY public ./public
+COPY pages ./pages
 COPY next.config.js ./next.config.js
 
 ENV PORT 3007
