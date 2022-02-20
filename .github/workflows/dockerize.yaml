@@ -20,7 +20,7 @@ jobs:
       - name: ci
         run: npm ci
       - name: build deeplinks
-        run: cd node_modules/@deep-foundation/deeplinks && npm run package:build
+        run: cd node_modules/@deep-foundation/deeplinks && npm i && npm run package:build
       - name: build+export next
         run: npm run build && npm run export
       - name: Log in to Docker Hub
