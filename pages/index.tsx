@@ -38,7 +38,7 @@ import { gql } from '@apollo/client';
 import { CatchErrors } from '../imports/react-errors';
 
 const debug = Debug('deepcase:index');
-// if (typeof(window) === 'object') localStorage.debug = 'deepcase:*,deeplinks:minilinks';
+if (typeof(window) === 'object') localStorage.debug = 'deepcase:*,deeplinks:minilinks';
 
 // @ts-ignore
 const Graphiql = dynamic(() => import('../imports/graphiql').then(m => m.Graphiql), { ssr: false });
@@ -202,7 +202,7 @@ export function PageContent() {
   useEffect(() => {(async () => {
     try {
       setBaseTypes({
-        Package: await deep.id('@deep-foundation/core', 'PackagerPackage'),
+        Package: await deep.id('@deep-foundation/core', 'Package'),
         containTree: await deep.id('@deep-foundation/core', 'containTree'),
         Contain: await deep.id('@deep-foundation/core', 'Contain'),
         Focus: await deep.id('@deep-foundation/core', 'Focus'),
@@ -281,7 +281,8 @@ export function PageContent() {
   }, [selectedLinks]);
   useEffect(() => {
     setGraphData({ spaceId, nodes: [], links: [], _links: {}, _nodes: {}, });
-    const notifyDependencies = (link) => {
+    const notifyDependencies = (link, history) => {
+      if (history[link.id]) return;
       if (link.type_id === baseTypes.Contain) {
         debug('this is contain, need to update focus.to visualization');
         if (link?.to) {
@@ -303,8 +304,10 @@ export function PageContent() {
           if (instance.id != link.id) updatedListener(instance, instance);
         }
       }
+      history[link.id] = true;
     };
-    const addedListener = (nl, recursive = true) => {
+    const addedListener = (nl, recursive = true, history = {}) => {
+      history[nl.id] = true;
       setGraphData((graphData) => {
         if (graphData._nodes[nl?.id]) {
           debug('!added', nl);
@@ -378,19 +381,22 @@ export function PageContent() {
         });
 
         debug('notify', nl);
-        if (recursive) notifyDependencies(nl);
+        if (recursive) notifyDependencies(nl, history);
 
         return { spaceId, _nodes: graphData._nodes, _links: graphData._links, nodes: [...graphData.nodes], links: [...graphData.links], };
       });
     };
-    const updatedListener = (ol, nl, recursive = true) => {
+    const updatedListener = (ol, nl, recursive = true, history = {}) => {
+      if (history[nl.id]) return;
+      history[nl.id] = true;
       debug('updated', nl.id, nl);
-      removedListener(ol, recursive);
-      addedListener(nl, recursive);
+      removedListener(ol, recursive, history);
+      addedListener(nl, recursive, history);
       debug('notify', nl.id, nl);
-      if (recursive) notifyDependencies(nl);
+      if (recursive) notifyDependencies(nl, history);
     };
-    const removedListener = (ol, recursive = true) => {
+    const removedListener = (ol, recursive = true, history = {}) => {
+      history[ol.id] = true;
       setGraphData((graphData) => {
         debug('removed', ol.id, graphData.links);
         const removedLinks = remove(graphData.links, n => {
@@ -409,7 +415,7 @@ export function PageContent() {
         return { ...graphData };
       });
       debug('notify', ol);
-      if (recursive) notifyDependencies(ol);
+      if (recursive) notifyDependencies(ol, history);
     };
     ml.emitter.on('added', addedListener);
     ml.emitter.on('updated', updatedListener);
