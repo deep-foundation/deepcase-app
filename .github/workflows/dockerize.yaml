@@ -47,7 +47,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: deepf/deepcase
+          images: deepf/deepcase:deepcase-19-menzorg
       - name: build docker image and push
         id: docker_build
         uses: docker/build-push-action@v2
