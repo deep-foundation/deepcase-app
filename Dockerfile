@@ -12,7 +12,7 @@ RUN apk add docker-compose
 COPY package.json .
 COPY node_modules ./node_modules
 COPY imports ./imports
-COPY out ./out
+COPY app ./app
 COPY public ./public
 COPY pages ./pages
 COPY next.config.js ./next.config.js
