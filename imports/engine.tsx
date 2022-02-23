@@ -66,6 +66,10 @@ export const EngineWindow = React.memo<any>(function EngineWindow({
   const [path, setPath] = useEnginePath();
   const { regenerate } = useApolloClientRegenerator();
 
+  console.log('engine', {connected, operation, path});
+
+  const buttonsDisabled = !!operation || !path;
+
   return <>
     <Grid container spacing={1} style={{ padding: theme.spacing(3), width: 400 }}>
       <Grid item xs={12} component={Typography} align="center">
@@ -101,16 +105,20 @@ export const EngineWindow = React.memo<any>(function EngineWindow({
       </Grid>}
       <Grid item xs={12}></Grid>
       <Grid item xs={12}>
-        <Button disabled={!!operation || !path} size="small" variant="outlined" fullWidth onClick={async () => {
-          await call({ operation: 'run', envs: { PATH: path } });
-          regenerate();
+        <Button size="small" disabled={buttonsDisabled} variant="outlined" color={buttonsDisabled ? 'default' : 'primary'} fullWidth onClick={async () => {
+          if (!buttonsDisabled) {
+            await call({ operation: 'run', envs: { PATH: path } });
+            regenerate();
+          }
         }}>run engine</Button>
         <LinearProgress variant={operation === 'run' ? 'indeterminate' : 'determinate'} value={!path ? 0 : 100}/>
       </Grid>
       <Grid item xs={12}>
-        <Button disabled={!!operation || !path} size="small" variant="outlined" fullWidth onClick={async () => {
-          await call({ operation: 'reset', envs: { PATH: path } });
-          regenerate();
+        <Button size="small" disabled={buttonsDisabled} variant="outlined" color={buttonsDisabled ? 'default' : 'primary'} fullWidth onClick={async () => {
+          if (!buttonsDisabled) {
+            await call({ operation: 'reset', envs: { PATH: path } });
+            regenerate();
+          }
         }}>reset engine</Button>
         <LinearProgress variant={operation === 'reset' ? 'indeterminate' : 'determinate'} value={!path ? 0 : 100}/>
       </Grid>

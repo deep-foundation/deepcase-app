@@ -789,7 +789,7 @@ export default function Page() {
   return (
     <Provider>
       <ConnectionController>
-        <PageConnected/>
+        {!!process?.browser && <PageConnected/>}
       </ConnectionController>
     </Provider>
   );

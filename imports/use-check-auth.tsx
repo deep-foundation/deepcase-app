@@ -3,6 +3,7 @@ import { useTokenController } from "@deep-foundation/deeplinks/imports/react-tok
 import { useEffect, useRef } from "react";
 import Debug from 'debug';
 import { useSpaceId } from "./gui";
+import { useEngineConnected } from "./engine";
 
 const debug = Debug('deepcase:use-check-auth');
 
@@ -10,6 +11,7 @@ export function useCheckAuth() {
   const deep = useDeep();
   const [token] = useTokenController();
   const [spaceId, setSpaceId] = useSpaceId();
+  const [connected, setConnected] = useEngineConnected();
   useEffect(() => {
     // const isAuth = !!(deep.linkId && token && token === deep.token);
     // We use as axiom - deep.token already synced with token
@@ -28,6 +30,7 @@ export function useCheckAuth() {
     // fill
     if (!token) (async () => {
       const g = await deep.guest();
+      if (g.error) setConnected(false);
     })();
   }, [token]);
 }
