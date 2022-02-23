@@ -66,8 +66,6 @@ export const EngineWindow = React.memo<any>(function EngineWindow({
   const [path, setPath] = useEnginePath();
   const { regenerate } = useApolloClientRegenerator();
 
-  const pathReady = !!path || !isMacOrLinux;
-
   return <>
     <Grid container spacing={1} style={{ padding: theme.spacing(3), width: 400 }}>
       <Grid item xs={12} component={Typography} align="center">
@@ -96,24 +94,25 @@ export const EngineWindow = React.memo<any>(function EngineWindow({
           </Typography>
           <PaperPanel style={{ padding: theme.spacing(1) }}>
             <Typography component="pre" color="primary">
-              echo $PATH;
+              {`echo $PATH;`}
             </Typography>
           </PaperPanel>
         </PaperPanel>
       </Grid>}
+      <Grid item xs={12}></Grid>
       <Grid item xs={12}>
-        <Button disabled={!!operation || !pathReady} size="small" variant="outlined" fullWidth onClick={async () => {
+        <Button disabled={!!operation || !path} size="small" variant="outlined" fullWidth onClick={async () => {
           await call({ operation: 'run', envs: { PATH: path } });
           regenerate();
         }}>run engine</Button>
-        <LinearProgress variant={operation === 'run' ? 'indeterminate' : 'determinate'} value={!pathReady ? 0 : 100}/>
+        <LinearProgress variant={operation === 'run' ? 'indeterminate' : 'determinate'} value={!path ? 0 : 100}/>
       </Grid>
       <Grid item xs={12}>
-        <Button disabled={!!operation || !pathReady} size="small" variant="outlined" fullWidth onClick={async () => {
+        <Button disabled={!!operation || !path} size="small" variant="outlined" fullWidth onClick={async () => {
           await call({ operation: 'reset', envs: { PATH: path } });
           regenerate();
         }}>reset engine</Button>
-        <LinearProgress variant={operation === 'reset' ? 'indeterminate' : 'determinate'} value={!pathReady ? 0 : 100}/>
+        <LinearProgress variant={operation === 'reset' ? 'indeterminate' : 'determinate'} value={!path ? 0 : 100}/>
       </Grid>
     </Grid>
   </>;
