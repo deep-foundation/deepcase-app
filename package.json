@@ -11,7 +11,7 @@
     "package:publish": "npm run build && npm publish --access public"
   },
   "dependencies": {
-    "@apollo/client": "3.5.5",
+    "@apollo/client": "^3.5.8",
     "@capacitor-community/electron": "^4.0.3",
     "@capacitor/core": "^3.2.3",
     "@deep-foundation/deeplinks": "git://github.com/deep-foundation/deeplinks#deepcase-19-menzorg",

@@ -182,6 +182,7 @@ export function useFocusMethods() {
         await deep.delete(where);
       },
       focus: async (id, value: { x: number; y: number; z: number; }) => {
+        console.log('focus', { spaceId });
         const q = await deep.select({
           type_id: baseTypes.Focus,
           from_id: spaceId,
@@ -214,7 +215,7 @@ export function useFocusMethods() {
         }
       }
     };
-  }, []);
+  }, [spaceId]);
 };
 export function useActiveMethods() {
   const [baseTypes] = useBaseTypes();
@@ -393,7 +394,7 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
                   <Button variant="outlined" disabled={!spaceId} onClick={async () => {
                     const { data: [{ id: queryId }] } = await deep.insert({
                       type_id: await deep.id('@deep-foundation/core', 'Query'),
-                      object: { data: { value: {limit:0} } },
+                      object: { data: { value: {} } },
                     });
                     if (container) await deep.insert([{
                       from_id: container,
