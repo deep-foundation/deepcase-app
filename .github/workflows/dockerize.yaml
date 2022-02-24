@@ -23,7 +23,6 @@ env:
   MIGRATIONS_DEEPLINKS_APP_URL: http://host.docker.internal:3007
   MIGRATIONS_DEEPLINKS_URL: http://host.docker.internal:3006
   NEXT_PUBLIC_DEEPLINKS_URL: http://host.docker.internal:3007
-  NEXT_PUBLIC_HIDEPATH: 1
 jobs:
   dockerize:
     name: dockerize
