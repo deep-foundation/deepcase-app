@@ -24,7 +24,7 @@ import {
 import { LinkCard } from '../imports/link-card/index';
 import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
-import { Backdrop, Button, ButtonGroup, IconButton, makeStyles, Popover, Typography, Tooltip } from '../imports/ui';
+import { Grid, Button, ButtonGroup, IconButton, makeStyles, Popover, Typography, Tooltip } from '../imports/ui';
 import pckg from '../package.json';
 import { useInterval } from 'usehooks-ts';
 import isEqual from 'lodash/isEqual';
@@ -65,8 +65,6 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: bgTransparent ? 'transparent' : theme?.palette?.background?.default,
     overflow: 'hidden'
   }),
-  backdrop: {
-  },
 }));
 
 export function useOperation() {
@@ -750,21 +748,32 @@ export function ConnectionController({ children }: { children: any }) {
   const deep = useDeep();
   useEffect(() => {
     if (deep.linkId) apolloClient.query({ query: gql`query { links(limit: 0) { id } }` }).catch(() => {
+      console.log('CATCH !connected');
       setConnected((connected) => {
+        console.log('CATCH !connected before connected: ', connected);
         return false;
       });
     });
   }, []);
+
   return <>
     <div
       className={classes.root}
     >
-      <Backdrop className={classes.backdrop} open={!connected}>
-        <PaperPanel flying>
-          <EngineWindow/>
-          <Typography align='center'><Button disabled>{pckg.version}</Button></Typography>
-        </PaperPanel>
-      </Backdrop>
+      {!connected && <Grid container justifyContent="center" alignItems="center" style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+      }}>
+        <Grid item>
+          <PaperPanel flying>
+            <EngineWindow/>
+            <Typography align='center'><Button disabled>{pckg.version}</Button></Typography>
+          </PaperPanel>
+        </Grid>
+      </Grid>}
       {!!connected && <CatchErrors
         errorRenderer={(error, reset) => {
           return <div style={{ padding: 6, boxSizing: 'border-box' }}><Button variant="outlined" color="secondary" fullWidth onClick={() => console.error(error)}><div style={{ textAlign: 'left' }}>
@@ -780,7 +789,7 @@ export default function Page() {
   return (
     <Provider>
       <ConnectionController>
-        <PageConnected/>
+        {!!process?.browser && <PageConnected/>}
       </ConnectionController>
     </Provider>
   );
