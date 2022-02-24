@@ -38,7 +38,7 @@ import { gql } from '@apollo/client';
 import { CatchErrors } from '../imports/react-errors';
 
 const debug = Debug('deepcase:index');
-if (typeof(window) === 'object') localStorage.debug = 'deepcase:*,deeplinks:minilinks';
+// if (typeof(window) === 'object') localStorage.debug = 'deepcase:*,deeplinks:minilinks';
 
 // @ts-ignore
 const Graphiql = dynamic(() => import('../imports/graphiql').then(m => m.Graphiql), { ssr: false });
@@ -94,7 +94,7 @@ export const AuthPanel = React.memo<any>(function AuthPanel({ ml }: { ml: any })
         ml.byId[deep.linkId] && focusLink(deep.linkId);
         selectedMethods.add(0, deep.linkId);
         selectedMethods.scrollTo(0, deep.linkId);
-      }}>userId: {deep.linkId}</Button>
+      }}>user: {deep.linkId}</Button>
       <Button onClick={() => {
         copy(deep.token);
       }}>copy token</Button>
@@ -281,13 +281,16 @@ export function PageContent() {
     setGraphData({ spaceId, nodes: [], links: [], _links: {}, _nodes: {}, });
     const notifyDependencies = (link, history) => {
       if (history[link.id]) return;
+      history[link.id] = true;
       if (link.type_id === baseTypes.Contain) {
         debug('this is contain, need to update focus.to visualization');
         if (link?.to) {
           updatedListener(link.to, link.to, false);
           for (let i = 0; i < link.to.typed.length; i++) {
             const instance = link.to.typed[i];
-            if (instance.id != link.id) updatedListener(instance, instance, false);
+            if (instance.id != link.id) {
+              updatedListener(instance, instance, false);
+            }
           }
         }
       }
@@ -302,10 +305,8 @@ export function PageContent() {
           if (instance.id != link.id) updatedListener(instance, instance);
         }
       }
-      history[link.id] = true;
     };
     const addedListener = (nl, recursive = true, history = {}) => {
-      history[nl.id] = true;
       setGraphData((graphData) => {
         if (graphData._nodes[nl?.id]) {
           debug('!added', nl);
@@ -343,7 +344,9 @@ export function PageContent() {
         }
         // if (labelsConfig?.types)
         if (nl?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value) label.push(`name:${nl?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value}`);
-        if (nl?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value) label.push(`type:${nl?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value}`);
+        if (nl?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value) {
+          label.push(`type:${nl?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value}`);
+        }
 
         const labelArray = label.map((s: string) => (s.length > 30 ? `${s.slice(0, 30).trim()}...` : s));
         const labelString = labelArray.join('\n');
