@@ -12,18 +12,17 @@ env:
   NEXT_PUBLIC_ENGINES: 1
   NEXT_PUBLIC_HIDEPATH: 1
   MIGRATIONS_ID_TYPE_SQL: bigint
-  MIGRATIONS_HASURA_PATH: localhost:8080
+  MIGRATIONS_HASURA_PATH: host.docker.internal:8080
   MIGRATIONS_HASURA_SSL: 0
   MIGRATIONS_HASURA_SECRET: myadminsecretkey
   NEXT_PUBLIC_DEEPLINKS_SERVER: http://localhost:3007
   NEXT_PUBLIC_HASURA_PATH: localhost:8080
   NEXT_PUBLIC_HASURA_SSL: 0
-  DEEPLINKS_HASURA_PATH: localhost:8080
+  DEEPLINKS_HASURA_PATH: host.docker.internal:8080
   DEEPLINKS_HASURA_SSL: 0
   MIGRATIONS_DEEPLINKS_APP_URL: http://host.docker.internal:3007
   MIGRATIONS_DEEPLINKS_URL: http://host.docker.internal:3006
   NEXT_PUBLIC_DEEPLINKS_URL: http://host.docker.internal:3007
-  DOCKER: 1
 jobs:
   dockerize:
     name: dockerize
