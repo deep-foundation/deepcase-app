@@ -7,7 +7,6 @@ import { exec } from 'child_process';
 
 const execP = promisify(exec);
 
-process.env['MIGRATIONS_DEEPLINKS_APP_URL'] = 'localhost:3007';
 process.env['MIGRATIONS_HASURA_PATH'] = 'localhost:8080';
 process.env['MIGRATIONS_HASURA_SSL'] = '0';
 process.env['MIGRATIONS_HASURA_SECRET'] = 'myadminsecretkey';
@@ -16,14 +15,12 @@ const {
   MIGRATIONS_HASURA_PATH,
   MIGRATIONS_HASURA_SSL,
   MIGRATIONS_HASURA_SECRET,
-  MIGRATIONS_DEEPLINKS_APP_URL,
 } = process.env;
 
 const envsObj = {
   MIGRATIONS_HASURA_PATH,
   MIGRATIONS_HASURA_SSL,
   MIGRATIONS_HASURA_SECRET,
-  MIGRATIONS_DEEPLINKS_APP_URL,
 };
 
 (async () => {

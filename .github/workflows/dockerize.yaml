@@ -20,7 +20,6 @@ env:
   NEXT_PUBLIC_HASURA_SSL: 0
   DEEPLINKS_HASURA_PATH: host.docker.internal:8080
   DEEPLINKS_HASURA_SSL: 0
-  MIGRATIONS_DEEPLINKS_APP_URL: http://host.docker.internal:3007
   MIGRATIONS_DEEPLINKS_URL: http://host.docker.internal:3006
   NEXT_PUBLIC_DEEPLINKS_URL: http://host.docker.internal:3007
 jobs:

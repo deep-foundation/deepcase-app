@@ -3,7 +3,6 @@
 ## envs
 
 ```
-export MIGRATIONS_DEEPLINKS_APP_URL=localhost:3007;
 export MIGRATIONS_HASURA_PATH=localhost:8080;
 export MIGRATIONS_HASURA_SSL=0;
 export MIGRATIONS_HASURA_SECRET=myadminsecretkey;
