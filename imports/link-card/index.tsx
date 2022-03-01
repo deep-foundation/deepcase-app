@@ -281,11 +281,18 @@ export function LinkCard({
         </>}
         {!!link && <>
           {!!isString(link?.value?.value) && <Grid item xs={12}>
-            {[<TextField key={counter}
-              fullWidth variant="outlined" size="small" defaultValue={deep.stringify(link?.value?.value)}
-              InputProps={textFieldProps}
-              onChange={onChangeStringTextField}
-            />]}
+            {[<ButtonGroup variant="outlined" size="small" fullWidth>
+              <TextField key={counter}
+                fullWidth variant="outlined" size="small" defaultValue={deep.stringify(link?.value?.value)}
+                InputProps={textFieldProps}
+                onChange={onChangeStringTextField}
+              />
+              <Button disabled={!link} style={{ width: 0 }} color="secondary" onClick={() => {
+                deep.delete({ link_id: link?.id }, { table: 'strings' });
+              }}>
+                {`x`}
+              </Button>
+            </ButtonGroup>]}
             <LinkCardCode
               open={!!codeEditor}
               onClose={() => setCodeEditor(false)}
@@ -295,17 +302,31 @@ export function LinkCard({
             />
           </Grid>}
           {!!isNumber(link?.value?.value) && <Grid item xs={12}>
-            {[<TextField key={counter} fullWidth variant="outlined" size="small" defaultValue={link?.value?.value}
-              type="number"
-              onChange={onChangeNumberTextField}
-            />]}
+            {[<ButtonGroup variant="outlined" size="small" fullWidth>
+              <TextField key={counter} fullWidth variant="outlined" size="small" defaultValue={link?.value?.value}
+                type="number"
+                onChange={onChangeNumberTextField}
+              />
+              <Button disabled={!link} style={{ width: 0 }} color="secondary" onClick={() => {
+                deep.delete({ link_id: link?.id }, { table: 'numbers' });
+              }}>
+                {`x`}
+              </Button>
+            </ButtonGroup>]}
           </Grid>}
           {!!isObject(link?.value?.value) && <Grid item xs={12}>
-            {[<TextField key={counter}
-              fullWidth variant="outlined" size="small" defaultValue={json5.stringify(link?.value?.value, null, 2)}
-              InputProps={textFieldProps}
-              onChange={onChangeObjectTextField}
-            />]}
+            {[<ButtonGroup variant="outlined" size="small" fullWidth>
+              <TextField key={counter}
+                fullWidth variant="outlined" size="small" defaultValue={json5.stringify(link?.value?.value, null, 2)}
+                InputProps={textFieldProps}
+                onChange={onChangeObjectTextField}
+              />
+              <Button disabled={!link} style={{ width: 0 }} color="secondary" onClick={() => {
+                deep.delete({ link_id: link?.id }, { table: 'objects' });
+              }}>
+                {`x`}
+              </Button>
+            </ButtonGroup>]}
             <LinkCardCode
               open={!!codeEditor}
               onClose={() => setCodeEditor(false)}
@@ -324,6 +345,7 @@ export function LinkCard({
                     from_id: link?.type_id
                   },
                 });
+                console.log({ id, link, GLOBAL_ID_OBJECT, GLOBAL_ID_STRING, GLOBAL_ID_NUMBER });
                 const table = (
                   GLOBAL_ID_STRING === id
                   ? 'strings'
