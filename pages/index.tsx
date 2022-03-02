@@ -38,7 +38,7 @@ import { gql } from '@apollo/client';
 import { CatchErrors } from '../imports/react-errors';
 
 const debug = Debug('deepcase:index');
-// if (typeof(window) === 'object') localStorage.debug = 'deepcase:*,deeplinks:minilinks';
+if (typeof(window) === 'object') localStorage.debug = 'deepcase:*,deeplinks:*,hasura:client';
 
 // @ts-ignore
 const Graphiql = dynamic(() => import('../imports/graphiql').then(m => m.Graphiql), { ssr: false });
