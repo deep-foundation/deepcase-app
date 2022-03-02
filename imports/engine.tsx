@@ -13,6 +13,7 @@ import { PaperPanel } from './gui';
 const _call = (options: IOptions) => axios.post(`${process.env.NEXT_PUBLIC_DEEPLINKS_SERVER}/api/deeplinks`, options).then(console.log, console.log);
 
 export const NEXT_PUBLIC_ENGINES = !!+process.env.NEXT_PUBLIC_ENGINES;
+export const NEXT_PUBLIC_HIDEPATH = !!+process.env.NEXT_PUBLIC_HIDEPATH;
 
 let _useEngineConnected;
 
@@ -54,8 +55,6 @@ export function useEngine() {
 }
 
 // const isMac = process.platform === 'darwin';
-const hidePath = process.env['NEXT_PUBLIC_HIDEPATH'] === '1';
-const isMacOrLinux = typeof window !== 'undefined' ? (navigator.platform.toUpperCase().indexOf("MAC") >= 0 || navigator.platform.toUpperCase().indexOf("LINUX") >= 0 ) && !hidePath : false;
 
 export const EngineWindow = React.memo<any>(function EngineWindow({
 }: {
@@ -68,7 +67,7 @@ export const EngineWindow = React.memo<any>(function EngineWindow({
 
   console.log('engine', {connected, operation, path});
 
-  const buttonsDisabled = !!operation || !path;
+  const buttonsDisabled = !!operation || (!path && !NEXT_PUBLIC_HIDEPATH);
 
   return <>
     <Grid container spacing={1} style={{ padding: theme.spacing(3), width: 400 }}>
@@ -84,7 +83,7 @@ export const EngineWindow = React.memo<any>(function EngineWindow({
       <Grid item xs={12} component={Typography} align="center" variant="caption">
         Some of the functionality has not yet been translated by our programmers from deep space of wet dreams.
       </Grid>
-      {!!isMacOrLinux && <Grid item xs={12}>
+      {!NEXT_PUBLIC_HIDEPATH && <Grid item xs={12}>
         <PaperPanel style={{ padding: theme.spacing(1) }}>
           <TextField
             fullWidth
