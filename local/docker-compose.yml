@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   case:
-    image: deepf/deepcase:deepcase-19-menzorg
+    image: deepf/deepcase:main
     networks:
       - network
     ports:
