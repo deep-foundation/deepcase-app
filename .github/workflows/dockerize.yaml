@@ -22,6 +22,7 @@ env:
   DEEPLINKS_HASURA_SSL: 0
   MIGRATIONS_DEEPLINKS_URL: http://host.docker.internal:3006
   NEXT_PUBLIC_DEEPLINKS_URL: http://host.docker.internal:3007
+  DOCKER: 1
 jobs:
   dockerize:
     name: dockerize
