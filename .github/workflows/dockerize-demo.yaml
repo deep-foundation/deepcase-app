@@ -15,9 +15,9 @@ env:
   MIGRATIONS_HASURA_PATH: host.docker.internal:8080
   MIGRATIONS_HASURA_SSL: 0
   MIGRATIONS_HASURA_SECRET: myadminsecretkey
-  NEXT_PUBLIC_DEEPLINKS_SERVER: http://localhost:3007
-  NEXT_PUBLIC_GQL_PATH: localhost:3006/gql
-  NEXT_PUBLIC_GQL_SSL: 0
+  NEXT_PUBLIC_DEEPLINKS_SERVER: https://deep.deep.foundation
+  NEXT_PUBLIC_GQL_PATH: deeplinks.deep.foundation/gql
+  NEXT_PUBLIC_GQL_SSL: 1
   DEEPLINKS_HASURA_PATH: host.docker.internal:8080
   DEEPLINKS_HASURA_SSL: 0
   MIGRATIONS_DEEPLINKS_URL: http://host.docker.internal:3006
@@ -45,6 +45,7 @@ jobs:
         uses: docker/metadata-action@v3
         with:
           images: deepf/deepcase
+          tags: type=demo
       - name: build docker image and push
         id: docker_build
         uses: docker/build-push-action@v2
