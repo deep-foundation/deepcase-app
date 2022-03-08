@@ -44,8 +44,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: deepf/deepcase
-          tags: type=demo
+          images: deepf/deepcase:demo
       - name: build docker image and push
         id: docker_build
         uses: docker/build-push-action@v2
