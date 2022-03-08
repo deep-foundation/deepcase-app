@@ -8,9 +8,8 @@ export MIGRATIONS_HASURA_SSL=0;
 export MIGRATIONS_HASURA_SECRET=myadminsecretkey;
 
 export NEXT_PUBLIC_DEEPLINKS_SERVER=http://localhost:3007;
-export NEXT_PUBLIC_HASURA_PATH=localhost:8080;
-export NEXT_PUBLIC_HASURA_PATH=localhost:8080;
-export NEXT_PUBLIC_HASURA_SSL=0;
+export NEXT_PUBLIC_GQL_PATH=localhost:3006/gql;
+export NEXT_PUBLIC_GQL_SSL=0;
 
 export NEXT_PUBLIC_ENGINES=1;
 
