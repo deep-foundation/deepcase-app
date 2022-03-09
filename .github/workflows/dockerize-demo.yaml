@@ -33,6 +33,8 @@ jobs:
           node-version: '14.15'
       - name: ci
         run: npm ci
+      - name: build deeplinks
+        run: cd node_modules/@deep-foundation/deeplinks && npm i && npm run package:build && rm -rf node_modules
       - name: build next
         run: npm run build
       - name: Log in to Docker Hub
@@ -52,5 +54,6 @@ jobs:
           context: .
           push: true
           tags: deepf/deepcase:demo
+          labels: ${{ steps.meta.outputs.labels }}
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
