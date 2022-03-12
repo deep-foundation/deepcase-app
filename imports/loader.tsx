@@ -107,7 +107,9 @@ export const DeepLoader = memo(function DeepLoader({
   const screenLinks = (r?.data?.q0 || screenResults?.data?.q0);
   const [results, setResults] = useState<any>({});
   const onlyActiveQueries = useMemo(() => {
-    return minilinks.ml.byId?.[spaceId]?.out?.filter(out => out.type_id === baseTypes.Active && out?.to?.type_id === baseTypes.Query && out?.to)?.map(l => l?.to) || [];
+    return minilinks.ml.byId?.[spaceId]?.out?.filter(out => (
+      out.type_id === baseTypes.Active && out?.to?.type_id === baseTypes.Query && out?.to && out?.to?.value
+    ))?.map(l => l?.to) || [];
   }, [results, r, screenLinks, spaceId]);
   const types = useMemo(() => {
     const all = {};
