@@ -17,6 +17,9 @@ import { Button, ButtonGroup, Grid, IconButton, makeStyles, Paper, TextField } f
 import { ScreenFind } from './screen-find';
 import { CatchErrors } from './react-errors';
 
+const NEXT_PUBLIC_GQL_PATH = process.env.NEXT_PUBLIC_GQL_PATH || 'localhost:3006/gql';
+const NEXT_PUBLIC_GQL_SSL = process.env.NEXT_PUBLIC_GQL_SSL || '0';
+
 type StyleProps = { connected: boolean; };
 const connectedPosition = (style: any) => ({
   position: 'relative',
@@ -381,7 +384,7 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
                   <AuthPanel ml={ml}/>
                 </Grid>
                 <Grid item>
-                  <Button href="http://localhost:3006/gql" target="_blank">gql</Button>
+                  <Button href={`http${+NEXT_PUBLIC_GQL_SSL ? 's' : ''}://${NEXT_PUBLIC_GQL_PATH}`} target="_blank">gql</Button>
                 </Grid>
               </Grid>
             </Grid>
