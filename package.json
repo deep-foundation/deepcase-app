@@ -6,7 +6,7 @@
     "build": "rm -rf app && next build",
     "export": "rm -rf out && next export",
     "start": "next start",
-    "electron-dev": "(cd electron && npm ci && cd .. && npx cap copy electron && npx cap open electron)",
+    "electron-dev": "(npx cap copy electron && npx cap open electron)",
     "electron-build": "(cd electron && npx cap copy electron && npx electron-packager . --overwrite --icon ./assets/icon)",
     "package:publish": "npm run build && npm publish --access public"
   },
@@ -17,7 +17,7 @@
     "@deep-foundation/hasura": "0.0.14",
     "@deep-foundation/materialized-path": "0.0.9",
     "@deep-foundation/react-hasura": "0.0.5",
-    "@deep-foundation/deeplinks": "0.0.58",
+    "@deep-foundation/deeplinks": "git://github.com/deep-foundation/deeplinks#main",
     "@deep-foundation/store": "0.0.6",
     "@graphiql/toolkit": "^0.2.2",
     "@material-ui/core": "^4.11.4",

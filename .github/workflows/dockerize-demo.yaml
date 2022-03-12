@@ -9,15 +9,15 @@ defaults:
   run:
     working-directory: ./
 env:
-  NEXT_PUBLIC_ENGINES: 1
+  NEXT_PUBLIC_ENGINES: 0
   NEXT_PUBLIC_HIDEPATH: 1
   MIGRATIONS_ID_TYPE_SQL: bigint
   MIGRATIONS_HASURA_PATH: host.docker.internal:8080
   MIGRATIONS_HASURA_SSL: 0
   MIGRATIONS_HASURA_SECRET: myadminsecretkey
-  NEXT_PUBLIC_DEEPLINKS_SERVER: http://localhost:3007
-  NEXT_PUBLIC_GQL_PATH: localhost:3006/gql
-  NEXT_PUBLIC_GQL_SSL: 0
+  NEXT_PUBLIC_DEEPLINKS_SERVER: https://deep.deep.foundation
+  NEXT_PUBLIC_GQL_PATH: deeplinks.deep.foundation/gql
+  NEXT_PUBLIC_GQL_SSL: 1
   DEEPLINKS_HASURA_PATH: host.docker.internal:8080
   DEEPLINKS_HASURA_SSL: 0
   MIGRATIONS_DEEPLINKS_URL: http://host.docker.internal:3006
@@ -53,7 +53,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: deepf/deepcase:demo
           labels: ${{ steps.meta.outputs.labels }}
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
