@@ -25,7 +25,6 @@
   "mac": {
     "category": "public.app-category.developer-tools",
     "target": [
-      "mas",
       "mas-dev"
     ],
     "icon": "assets/appIcon.icns"
