@@ -10,6 +10,7 @@ const execP = promisify(exec);
 process.env['MIGRATIONS_HASURA_PATH'] = 'localhost:8080';
 process.env['MIGRATIONS_HASURA_SSL'] = '0';
 process.env['MIGRATIONS_HASURA_SECRET'] = 'myadminsecretkey';
+process.env['DEBUG'] = 'deeplinks:*';
 
 const {
   MIGRATIONS_HASURA_PATH,
