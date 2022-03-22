@@ -2,7 +2,7 @@ import { generateSerial, insertMutation } from '@deep-foundation/deeplinks/impor
 import axios from 'axios';
 import React, { useCallback, useState } from 'react';
 import { Button, Grid, ButtonGroup, Divider, LinearProgress, TextField, Typography } from './ui';
-import { IOptions } from '@deep-foundation/deeplinks/imports/engine';
+import { ICallOptions } from '@deep-foundation/deeplinks/imports/engine';
 import { useLocalStore } from '@deep-foundation/store/local';
 import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client';
 import { useApolloClientRegenerator } from '@deep-foundation/react-hasura/apollo-client-regenerator';
@@ -10,7 +10,7 @@ import { useTheme } from '@material-ui/styles';
 import Link from 'next/link';
 import { PaperPanel } from './gui';
 
-const _call = (options: IOptions) => axios.post(`${process.env.NEXT_PUBLIC_DEEPLINKS_SERVER}/api/deeplinks`, options).then(console.log, console.log);
+const _call = (options: ICallOptions) => axios.post(`${process.env.NEXT_PUBLIC_DEEPLINKS_SERVER}/api/deeplinks`, options).then(console.log, console.log);
 
 export const NEXT_PUBLIC_ENGINES = !!+process.env.NEXT_PUBLIC_ENGINES;
 export const NEXT_PUBLIC_HIDEPATH = !!+process.env.NEXT_PUBLIC_HIDEPATH;
@@ -37,7 +37,7 @@ export function useEngine() {
   const client = useApolloClient();
   const [connected, setConnected] = useEngineConnected();
   const [operation, setOperation] = useState('');
-  const call = useCallback(async (options: IOptions) => {
+  const call = useCallback(async (options: ICallOptions) => {
     setOperation(options.operation);
     if (['reset', 'sleep'].includes(options.operation)) {
       setConnected(false);
