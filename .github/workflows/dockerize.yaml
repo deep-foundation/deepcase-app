@@ -10,6 +10,7 @@ defaults:
     working-directory: ./
 env:
   NEXT_PUBLIC_ENGINES: 1
+  NEXT_PUBLIC_HIDEPATH: 1
   NEXT_PUBLIC_ENGINES_ROUTE: 1
   MIGRATIONS_ID_TYPE_SQL: bigint
   MIGRATIONS_HASURA_PATH: host.docker.internal:8080
