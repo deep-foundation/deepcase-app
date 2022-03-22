@@ -22,6 +22,7 @@ env:
   DEEPLINKS_HASURA_PATH: deep_graphql-engine_1:8080
   DEEPLINKS_HASURA_SSL: 0
   MIGRATIONS_DEEPLINKS_URL: http://deep_links_1:3006
+  DEBUG: deeplinks:engine:*
   DOCKER: 1
 jobs:
   dockerize:
