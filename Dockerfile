@@ -16,7 +16,6 @@ COPY app ./app
 COPY public ./public
 COPY pages ./pages
 COPY next.config.js ./next.config.js
-COPY backup ./backup
 
 ENV PORT 3007
 ENV DOCKER 1
