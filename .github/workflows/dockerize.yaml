@@ -9,7 +9,7 @@ defaults:
   run:
     working-directory: ./
 env:
-  NEXT_PUBLIC_ENGINES: 0
+  NEXT_PUBLIC_ENGINES: 1
   NEXT_PUBLIC_HIDEPATH: 1
   NEXT_PUBLIC_ENGINES_ROUTE: 1
   MIGRATIONS_ID_TYPE_SQL: bigint
@@ -34,6 +34,8 @@ jobs:
           node-version: '14.15'
       - name: ci
         run: npm ci
+      - name: build deeplinks
+        run: cd node_modules/@deep-foundation/deeplinks && npm i && npm run package:build && rm -rf node_modules
       - name: build next
         run: npm run build
       - name: Log in to Docker Hub
