@@ -1,4 +1,4 @@
-name: Deploy deeplinks demo-app
+name: Deploy deepcase demo-app
 on:
   push:
     branches: [ main ]

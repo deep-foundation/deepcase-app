@@ -214,21 +214,6 @@ export function PageContent() {
   
   const classes = useStyles({ connected, bgTransparent });
   const deep = useDeep();
-
-  useEffect(() => {
-    // @ts-ignore
-    global.axios = axios;
-    const pl = Capacitor.getPlatform();
-    if (pl === 'web') {
-      axios.post(`${process.env.NEXT_PUBLIC_DEEPLINKS_SERVER}/api/deeplinks`, { abc: 123 }).then(console.log, console.log);
-    } else if (pl === 'electron') {
-      // console.log(`platform is electron, connection to server to ${process.env.NEXT_PUBLIC_DEEPLINKS_SERVER}/api/deeplinks`);
-      axios.post(`${process.env.NEXT_PUBLIC_DEEPLINKS_SERVER}/api/deeplinks`, { def: 234 }).then(console.log, console.log);
-    } else {
-      // console.log(`platform is not detected, connection to server lost`);
-    }
-  }, []);
-
   const prevD = useRef<any>({});
   
   const minilinks = useMinilinksConstruct();
