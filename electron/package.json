@@ -1,15 +1,15 @@
 {
   "name": "Deep.Case",
   "version": "1.0.0",
-  "description": "An Amazing Capacitor App",
+  "description": "Data-oriented operating space of associative data representation. Wellcome doe deep universe.",
   "homepage": "https://deep.foundation/",
   "author": {
-    "name": "",
+    "name": "Deep Foundation",
     "email": "admin@deep.foundation"
   },
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/deep-foundation"
   },
   "license": "MIT",
   "main": "build/src/index.js",

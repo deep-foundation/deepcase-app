@@ -36,7 +36,7 @@
       "deb"
     ],
     "category": "Utility",
-    "icon": "assets/appIcon.png"
+    "icon": "assets/appIcon.icns"
   },
   "forceCodeSigning": false,
   "removePackageScripts": false,
