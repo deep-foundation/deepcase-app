@@ -8,6 +8,7 @@ const unpackagedPathWindows = 'dist\\win-unpacked\\resources\\app\\node_modules\
 exports.default = async function(context) {
   try {
     if (fs.existsSync(unpackagedPathLinux)) {
+      console.log('recovering');
       fs.rmSync(`${unpackagedPathLinux}/hasura`, { recursive: true });
       shell(`mkdir ${unpackagedPathLinux}/hasura`);
       shell(`cp -r ${originalPath}/hasura/ ${unpackagedPathLinux}`);
@@ -17,6 +18,7 @@ exports.default = async function(context) {
       shell(`cp -r ${originalPath}/deeplinks/ ${unpackagedPathLinux}`);
     }
     if (fs.existsSync(unpackagedPathWindows)) {
+      console.log('recovering');
       fs.rmSync(`${unpackagedPathWindows}\\hasura`, { recursive: true });
       shell(`mkdir ${unpackagedPathWindows}\\hasura`);
       shell(`cp -r ${originalPath}\\hasura\\ ${unpackagedPathWindows}`);

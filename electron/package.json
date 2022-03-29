@@ -18,10 +18,11 @@
     "electron:start-live": "node ./live-runner.js",
     "electron:start": "npm run build && electron --inspect=5858 ./",
     "electron:debug": "APP_DEV=true electron .",
-    "electron:pack": "npm run build && electron-builder -c ./electron-builder.config.json",
+    "electron:pack": "npm run build && CSC_NAME='ABRAKAR, OOO (8ZG6TUT4AY)' electron-builder --publish never -c ./electron-builder.config.json",
     "electron:sign": "npm run electron:sign-prod && npm run electron:sign-dev",
-    "electron:sign-prod": "electron-osx-sign dist/mas/Deep.Case.app --entitlements=./entitlements.mas.plist --entitlements-inherit=./entitlements.mas.inherit.plist --identity='Apple Distribution: ABRAKAR, OOO (8ZG6TUT4AY)' --platform=mas --type=distribution --provisioning-profile=deepcaseappstore.provisionprofile",
-    "electron:sign-dev": "electron-osx-sign dist/mas-dev/Deep.Case.app --identity='Apple Development: Пётр Безденежных (2H45PHYHQ5)' --platform=mas --type=development --provisioning-profile=./deepcasedevelopment.provisionprofile",
+    "electron:sign-prod": "electron-osx-sign dist/mas/Deep.Case.app --entitlements=./entitlements.mas.plist --entitlements-inherit=./entitlements.mas.inherit.plist --identity='Developer ID Application: ABRAKAR, OOO (8ZG6TUT4AY)' --platform=mas --type=distribution --provisioning-profile=developer-id-deepcase.provisionprofile",
+    "electron:sign-dev": "electron-osx-sign dist/mas-dev/Deep.Case.app --identity='Developer ID Application: ABRAKAR, OOO (8ZG6TUT4AY)' --platform=mas --type=development --entitlements=./entitlements.mas.plist --entitlements-inherit=./entitlements.mas.inherit.plist --provisioning-profile=./deepcasedevelopment.provisionprofile",
+    "electron:notarize": "node notarize.js",
     "electron:make": "npm run build && electron-builder build -c ./electron-builder.config.json -p always"
   },
   "dependencies": {
@@ -38,7 +39,6 @@
     "electron-updater": "~4.3.9",
     "electron-window-state": "~5.0.3",
     "express": "^4.17.1",
-    "fix-path": "^4.0.0",
     "fkill": "^7.2.1",
     "microtime": "^3.0.0",
     "socket.io": "^4.2.0"
@@ -46,6 +46,7 @@
   "devDependencies": {
     "electron": "~13.1.9",
     "electron-builder": "^22.14.5",
+    "electron-notarize": "^1.2.1",
     "electron-rebuild": "~2.3.5",
     "node-gyp": "^8.4.1",
     "typescript": "~4.3.5"

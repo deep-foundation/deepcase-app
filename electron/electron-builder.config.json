@@ -1,5 +1,7 @@
 {
   "appId": "deep.case.app",
+  "afterSign": "notarize.js",
+  "afterPack": "./recovery-after-electron-build.js",
   "directories": {
     "buildResources": "resources"
   },
@@ -10,7 +12,6 @@
     "app/**/*"
   ],
   "publish": null,
-  "afterPack": "./recovery-after-electron-build.js",
   "nsis": {
     "allowElevation": true,
     "oneClick": false,
@@ -24,23 +25,11 @@
   },
   "mac": {
     "category": "public.app-category.developer-tools",
-    "target": [
-      "mas-dev"
-    ],
-    "icon": "assets/appIcon.icns"
-  },
-  "masDev": {
-    "type": "development",
-    "provisioningProfile": "./deepcasedevelopment.provisionprofile"
-  },
-  "mas": {
-    "type": "distribution",
-    "provisioningProfile": "./deepcasemacappstore.provisionprofile",
+    "gatekeeperAssess": false,
+    "hardenedRuntime": true,
+    "icon": "assets/appIcon.icns",
     "entitlements": "./entitlements.mas.plist",
-    "entitlementsInherit": "./entitlements.mas.inherit.plist",
-    "asarUnpack": [
-      "node_modules"
-    ]
+    "entitlementsInherit": "./entitlements.mas.plist"
   },
   "linux": {
     "target": [
