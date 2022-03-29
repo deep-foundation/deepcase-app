@@ -33,10 +33,7 @@
   },
   "linux": {
     "target": [
-      "appImage",
-      "deb",
-      "rpm",
-      "apk"
+      "deb"
     ],
     "category": "Utility",
     "icon": "assets/appIcon.png"
