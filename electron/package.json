@@ -41,15 +41,15 @@
     "express": "^4.17.1",
     "fkill": "^7.2.1",
     "microtime": "^3.0.0",
-    "socket.io": "^4.2.0"
+    "socket.io": "^4.2.0",
+    "typescript": "^4.3.5"
   },
   "devDependencies": {
     "electron": "~13.1.9",
     "electron-builder": "^22.14.5",
     "electron-notarize": "^1.2.1",
     "electron-rebuild": "~2.3.5",
-    "node-gyp": "^8.4.1",
-    "typescript": "~4.3.5"
+    "node-gyp": "^8.4.1"
   },
   "keywords": [
     "capacitor",
