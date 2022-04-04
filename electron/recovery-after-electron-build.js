@@ -1,10 +1,11 @@
 const fs = require('fs');
 const shell = require('child_process').execSync;
 
-const originalPath = 'node_modules/@deep-foundation';
-const unpackagedPathLinux = 'dist/linux-unpacked/resources/app/node_modules/@deep-foundation';
-const unpackagedPathWindows = 'dist\\win-unpacked\\resources\\app\\node_modules\\@deep-foundation';
-const tsPath = 'node_modules/typescript';
+const delimetr = process.platform === 'win32' ? '\\' : '/';
+const deepPath = `node_modules${delimetr}@deep-foundation`;
+const tsPath = `node_modules${delimetr}typescript`;
+const linuxAppPath = 'dist/linux-unpacked/resources/app';
+const windowsAppPath = 'dist\\win-unpacked\\resources\\app';
 const macAppPath = 'dist/mac/Deep.Case.app/Contents/Resources/app';
 
 exports.default = async function(context) {
@@ -15,29 +16,35 @@ exports.default = async function(context) {
       fs.rmSync(`${macAppPath}/${tsPath}`, { recursive: true });
       shell(`cp -r ${tsPath} ${macAppPath}/${tsPath}`);
     }
-    if (fs.existsSync(unpackagedPathLinux)) {
+    if (fs.existsSync(linuxAppPath)) {
       console.log('recovering');
-      fs.rmSync(`${unpackagedPathLinux}/hasura`, { recursive: true });
-      shell(`mkdir ${unpackagedPathLinux}/hasura`);
-      shell(`cp -r ${originalPath}/hasura/ ${unpackagedPathLinux}`);
-      fs.rmSync(`${unpackagedPathLinux}/hasura/node_modules`, { recursive: true });
+      fs.rmSync(`${linuxAppPath}/${deepPath}/hasura`, { recursive: true });
+      shell(`mkdir ${linuxAppPath}/${deepPath}/hasura`);
+      shell(`cp -r ${deepPath}/hasura ${linuxAppPath}/${deepPath}/hasura`);
+      if (fs.existsSync(`${linuxAppPath}/${deepPath}/hasura/node_modules`)) fs.rmSync(`${linuxAppPath}/${deepPath}/hasura/node_modules`, { recursive: true });
 
-      fs.rmSync(`${unpackagedPathLinux}/deeplinks`, { recursive: true });
-      shell(`mkdir ${unpackagedPathLinux}/deeplinks`);
-      shell(`cp -r ${originalPath}/deeplinks/ ${unpackagedPathLinux}`);
-      fs.rmSync(`${unpackagedPathLinux}/deeplinks/node_modules`, { recursive: true });
+      fs.rmSync(`${linuxAppPath}/${deepPath}/deeplinks`, { recursive: true });
+      shell(`mkdir ${linuxAppPath}/${deepPath}/deeplinks`);
+      shell(`cp -r ${deepPath}/deeplinks ${linuxAppPath}/${deepPath}/deeplinks`);
+      if (fs.existsSync(`${linuxAppPath}/${deepPath}/deeplinks/node_modules`)) fs.rmSync(`${linuxAppPath}/${deepPath}/deeplinks/node_modules`, { recursive: true });
+
+      fs.rmSync(`${linuxAppPath}/${tsPath}`, { recursive: true });
+      shell(`cp -r ${tsPath} ${linuxAppPath}/${tsPath}`);
     }
-    if (fs.existsSync(unpackagedPathWindows)) {
+    if (fs.existsSync(windowsAppPath)) {
       console.log('recovering');
-      fs.rmSync(`${unpackagedPathWindows}\\hasura`, { recursive: true });
-      shell(`mkdir ${unpackagedPathWindows}\\hasura`);
-      shell(`cp -r ${originalPath}\\hasura\\ ${unpackagedPathWindows}`);
-      fs.rmSync(`${unpackagedPathWindows}\\hasura\\node_modules`, { recursive: true });
+      fs.rmSync(`${windowsAppPath}\\${deepPath}\\hasura`, { recursive: true });
+      shell(`mkdir ${windowsAppPath}\\${deepPath}\\hasura`);
+      shell(`cp -r ${deepPath}\\hasura ${windowsAppPath}\\${deepPath}`);
+      if (fs.existsSync(`${linuxAppPath}}\\${deepPath}}\\hasura}\\node_modules`)) fs.rmSync(`${windowsAppPath}\\${deepPath}\\hasura\\node_modules`, { recursive: true });
 
-      fs.rmSync(`${unpackagedPathWindows}\\deeplinks`, { recursive: true });
-      shell(`mkdir ${unpackagedPathWindows}\\deeplinks`);
-      shell(`cp -r ${originalPath}\\deeplinks\\ ${unpackagedPathWindows}`);
-      fs.rmSync(`${unpackagedPathWindows}\\deeplinks\\node_modules`, { recursive: true });
+      fs.rmSync(`${windowsAppPath}\\${deepPath}\\deeplinks`, { recursive: true });
+      shell(`mkdir ${windowsAppPath}\\${deepPath}\\deeplinks`);
+      shell(`cp -r ${deepPath}\\deeplinks ${windowsAppPath}\\${deepPath}`);
+      if (fs.existsSync(`${linuxAppPath}}\\${deepPath}}\\deeplinks}\\node_modules`)) fs.rmSync(`${windowsAppPath}\\${deepPath}\\deeplinks\\node_modules`, { recursive: true });
+
+      fs.rmSync(`${windowsAppPath}/${tsPath}`, { recursive: true });
+      shell(`cp -r ${tsPath} ${windowsAppPath}/${tsPath}`);
     }
   } catch(err) {
     console.error(err);
