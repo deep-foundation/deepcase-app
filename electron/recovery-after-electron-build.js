@@ -16,6 +16,9 @@ exports.default = async function(context) {
       console.log('recovering');
       fs.rmSync(`${macAppPath}/${tsPath}`, { recursive: true });
       shell(`cp -r ${tsPath} ${macAppPath}/${tsPath}`);
+      //fix config
+      fs.rmSync(`${macAppPath}/${deepPath}/deeplinks/tsconfig.json`, { recursive: true });
+      shell(`cp ${deepPath}/deeplinks/tsconfig.json ${macAppPath}/${deepPath}/deeplinks/tsconfig.json`);
     }
     if (fs.existsSync(linuxAppPath)) {
     }
