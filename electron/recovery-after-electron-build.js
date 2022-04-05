@@ -4,6 +4,7 @@ const shell = require('child_process').execSync;
 const delimetr = process.platform === 'win32' ? '\\' : '/';
 const deepPath = `node_modules${delimetr}@deep-foundation`;
 const tsPath = `node_modules${delimetr}typescript`;
+const typesPath = `node_modules${delimetr}@types`;
 const linuxAppPath = 'dist/linux-unpacked/resources/app';
 const windowsAppPath = 'dist\\win-unpacked\\resources\\app';
 const macAppPath = 'dist/mac/Deep.Case.app/Contents/Resources/app';
@@ -30,21 +31,13 @@ exports.default = async function(context) {
 
       fs.rmSync(`${linuxAppPath}/${tsPath}`, { recursive: true });
       shell(`cp -r ${tsPath} ${linuxAppPath}/${tsPath}`);
+      //if (fs.existsSync(`${linuxAppPath}/${typesPath}`)) fs.rmSync(`${linuxAppPath}/${typesPath}`, { recursive: true });
+      //shell(`cp -r ${typesPath} ${linuxAppPath}/${typesPath}`);
     }
     if (fs.existsSync(windowsAppPath)) {
       console.log('recovering');
-      fs.rmSync(`${windowsAppPath}\\${deepPath}\\hasura`, { recursive: true });
-      shell(`mkdir ${windowsAppPath}\\${deepPath}\\hasura`);
-      shell(`cp -r ${deepPath}\\hasura ${windowsAppPath}\\${deepPath}`);
-      if (fs.existsSync(`${linuxAppPath}}\\${deepPath}}\\hasura}\\node_modules`)) fs.rmSync(`${windowsAppPath}\\${deepPath}\\hasura\\node_modules`, { recursive: true });
-
-      fs.rmSync(`${windowsAppPath}\\${deepPath}\\deeplinks`, { recursive: true });
-      shell(`mkdir ${windowsAppPath}\\${deepPath}\\deeplinks`);
-      shell(`cp -r ${deepPath}\\deeplinks ${windowsAppPath}\\${deepPath}`);
-      if (fs.existsSync(`${linuxAppPath}}\\${deepPath}}\\deeplinks}\\node_modules`)) fs.rmSync(`${windowsAppPath}\\${deepPath}\\deeplinks\\node_modules`, { recursive: true });
-
-      fs.rmSync(`${windowsAppPath}/${tsPath}`, { recursive: true });
-      shell(`cp -r ${tsPath} ${windowsAppPath}/${tsPath}`);
+      fs.rmSync(`${windowsAppPath}\\node_modules`, { recursive: true });
+      shell(`cp -r node_modules ${windowsAppPath}\\node_modules`);
     }
   } catch(err) {
     console.error(err);
