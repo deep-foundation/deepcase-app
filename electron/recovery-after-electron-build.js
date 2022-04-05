@@ -18,21 +18,6 @@ exports.default = async function(context) {
       shell(`cp -r ${tsPath} ${macAppPath}/${tsPath}`);
     }
     if (fs.existsSync(linuxAppPath)) {
-      console.log('recovering');
-      fs.rmSync(`${linuxAppPath}/${deepPath}/hasura`, { recursive: true });
-      shell(`mkdir ${linuxAppPath}/${deepPath}/hasura`);
-      shell(`cp -r ${deepPath}/hasura ${linuxAppPath}/${deepPath}/hasura`);
-      if (fs.existsSync(`${linuxAppPath}/${deepPath}/hasura/node_modules`)) fs.rmSync(`${linuxAppPath}/${deepPath}/hasura/node_modules`, { recursive: true });
-
-      fs.rmSync(`${linuxAppPath}/${deepPath}/deeplinks`, { recursive: true });
-      shell(`mkdir ${linuxAppPath}/${deepPath}/deeplinks`);
-      shell(`cp -r ${deepPath}/deeplinks ${linuxAppPath}/${deepPath}/deeplinks`);
-      if (fs.existsSync(`${linuxAppPath}/${deepPath}/deeplinks/node_modules`)) fs.rmSync(`${linuxAppPath}/${deepPath}/deeplinks/node_modules`, { recursive: true });
-
-      fs.rmSync(`${linuxAppPath}/${tsPath}`, { recursive: true });
-      shell(`cp -r ${tsPath} ${linuxAppPath}/${tsPath}`);
-      //if (fs.existsSync(`${linuxAppPath}/${typesPath}`)) fs.rmSync(`${linuxAppPath}/${typesPath}`, { recursive: true });
-      //shell(`cp -r ${typesPath} ${linuxAppPath}/${typesPath}`);
     }
     if (fs.existsSync(windowsAppPath)) {
       console.log('recovering');

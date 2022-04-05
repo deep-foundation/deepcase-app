@@ -8,12 +8,12 @@ exports.default = async function packageTask (context) {
     return;
   }
   const appName = context.packager.appInfo.productFilename;
-  console.log('notarizing');
-  return await notarize({
+  console.log('Notarizing...');
+  await notarize({
     appBundleId,
     appPath: `${appOutDir}/${appName}.app`,
     appleId: process.env.APPLEID,
     appleIdPassword: process.env.APPLEIDPASS,
   });
-  console.log('done');
+  console.log('Notarizing done');
 }
