@@ -1,5 +1,4 @@
 const fs = require('fs');
-
 const delimetr = process.platform === 'win32' ? '\\' : '/';
 const badboy = `node_modules${delimetr}app-builder-lib${delimetr}out${delimetr}fileMatcher.js`;
 
