@@ -12,7 +12,6 @@ exports.default = async function(context) {
   try {
     if (fs.existsSync(`${appPath}${delimetr}${typesPath}`))fs.rmSync(`${appPath}${delimetr}${typesPath}`, { recursive: true });
     shell(`cp -r ${typesPath} ${appPath}${delimetr}${typesPath}`);
-    }
   } catch(err) {
     console.error(err);
   }
