@@ -1,5 +1,6 @@
 {
   "appId": "deep.case.app",
+  "afterPack": "./recover-after-electron-build.js",
   "directories": {
     "buildResources": "resources"
   },
