@@ -1,7 +1,6 @@
 {
   "appId": "deep.case.app",
   "afterSign": "notarize.js",
-  "afterPack": "./recovery-after-electron-build.js",
   "directories": {
     "buildResources": "resources"
   },
