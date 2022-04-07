@@ -69,11 +69,11 @@ jobs:
           ditto -c -k --keepParent Deep.Case.app Deep.Case.app.zip
       - name: And a README (to work around GitHub double-zips)
         run: |
-          echo "More information: https://deep.foundation" > dist/mac/README.txt
+          echo "More information: https://deep.foundation" > electron/dist/mac/README.txt
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: Deep.Case-macOS
           path: |
-            dist/mac/Deep.Case.app.zip
-            dist/mac/README.txt
+            electron/dist/mac/Deep.Case.app.zip
+            electron/dist/mac/README.txt
