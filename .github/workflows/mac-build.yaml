@@ -9,6 +9,7 @@ defaults:
   run:
     working-directory: ./
 env:
+  USE_HARD_LINKS: false
   MIGRATIONS_DIR: /tmp/.deep-migrate
   ASSET_PREFIX: '.'
   npm_config_yes: true
@@ -32,6 +33,10 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Reconfigure git to use HTTP authentication
+        run: >
+          git config --global url."https://github.com/".insteadOf
+          ssh://git@github.com/
       - name: Configure Node caching
         uses: actions/cache@v2
         env:
