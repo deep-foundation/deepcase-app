@@ -15,7 +15,8 @@
   "nsis": {
     "allowElevation": true,
     "oneClick": false,
-    "allowToChangeInstallationDirectory": true
+    "allowToChangeInstallationDirectory": true,
+    "artifactName": "${productName}-Setup.${ext}"
   },
   "win": {
     "target": [

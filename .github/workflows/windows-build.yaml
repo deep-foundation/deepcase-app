@@ -66,9 +66,17 @@ jobs:
         run: npm run build && npm run export && npx rimraf electron/app && npx cap copy electron
       - name: Build distribution
         run: cd electron && npm run electron:pack
+      - name: Create zip file
+        run: |
+          cd electron/dist
+          tar.exe -a -c -f Deep.Case.zip "Deep.Case-setup.exe"
+      - name: And a README (to work around GitHub double-zips)
+        run: |
+          echo "More information: https://deep.foundation" > electron/dist/README.txt
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: Deep.Case-Windows
           path: |
-            "electron/dist/Deep.Case Setup 1.0.0.exe"
+            electron/dist/Deep.Case.zip
+            electron/dist/README.txt
