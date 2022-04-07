@@ -65,7 +65,7 @@ jobs:
         run: cd electron && npm run electron:pack
       - name: Create zip file
         run: |
-          cd dist/mac
+          cd electron/dist/mac
           ditto -c -k --keepParent Deep.Case.app Deep.Case.app.zip
       - name: And a README (to work around GitHub double-zips)
         run: |
