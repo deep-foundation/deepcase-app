@@ -33,7 +33,7 @@
   },
   "linux": {
     "target": [
-      "deb"
+      "AppImage"
     ],
     "category": "Utility",
     "icon": "assets/appIcon.icns"
