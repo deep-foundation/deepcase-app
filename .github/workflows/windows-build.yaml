@@ -71,4 +71,4 @@ jobs:
         with:
           name: Deep.Case-Windows
           path: |
-            "electron/dist/Deep.Case Setup 1.0.0"
+            "electron/dist/Deep.Case Setup 1.0.0.exe"
