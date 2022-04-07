@@ -14,13 +14,12 @@ exports.default = async function(context) {
     if (fs.existsSync(macAppPath)) {
       //electron-builder force removes .d.ts files. It brokes ts-node/register(config) for migrations
       console.log('recovering');
-      fs.rmSync(`${macAppPath}/${tsPath}`, { recursive: true });
-      shell(`cp -r ${tsPath} ${macAppPath}/${tsPath}`);
-      //fix config
-      fs.rmSync(`${macAppPath}/${deepPath}/deeplinks/tsconfig.json`, { recursive: true });
-      shell(`cp ${deepPath}/deeplinks/tsconfig.json ${macAppPath}/${deepPath}/deeplinks/tsconfig.json`);
+      fs.rmSync(`${macAppPath}/node_modules`, { recursive: true });
+      shell(`cp -r node_modules ${macAppPath}/node_modules`);
     }
     if (fs.existsSync(linuxAppPath)) {
+      fs.rmSync(`${linuxAppPath}/node_modules`, { recursive: true });
+      shell(`cp -r node_modules ${linuxAppPath}/node_modules`);
     }
     if (fs.existsSync(windowsAppPath)) {
       console.log('recovering');
