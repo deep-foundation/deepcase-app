@@ -1,4 +1,4 @@
-name: linux Build
+name: Linux Build
 on:
   push:
     branches: [ main ]
