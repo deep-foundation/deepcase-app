@@ -38,8 +38,8 @@ jobs:
           node-version: '14.15'
       - name: ci
         run: npm ci
-      - name: build deeplinks
-        run: cd node_modules/@deep-foundation/deeplinks && npm i && npm run package:build && rm -rf node_modules
+      - name: pull dl
+        run: cd node_modules/@deep-foundation && rm -rf deeplinks && git clone https://github.com/deep-foundation/deeplinks.git && cd deeplinks && npm run package:build && cd ../../.. && rm -rf electron/node_modules/@deep-foundation/deeplinks && cp -r node_modules/@deep-foundation/deeplinks electron/node_modules/@deep-foundation/deeplinks
       - name: build next
         run: npm run build
       - name: Log in to Docker Hub
