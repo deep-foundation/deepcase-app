@@ -10,7 +10,7 @@ defaults:
     working-directory: ./
 env:
   USE_HARD_LINKS: false
-  MIGRATIONS_DIR: /tmp/.deep-migrate
+  MIGRATIONS_DIR: /tmp/.migrate
   ASSET_PREFIX: '.'
   npm_config_yes: true
   NEXT_PUBLIC_ENGINES: 1
