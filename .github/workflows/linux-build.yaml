@@ -10,11 +10,10 @@ defaults:
     working-directory: ./
 env:
   USE_HARD_LINKS: false
-  MIGRATIONS_DIR: /tmp/.deep-migrate
+  MIGRATIONS_DIR: /tmp/.migrate
   ASSET_PREFIX: '.'
   npm_config_yes: true
   NEXT_PUBLIC_ENGINES: 1
-  NEXT_PUBLIC_HIDEPATH: 1
   MIGRATIONS_ID_TYPE_SQL: bigint
   MIGRATIONS_ID_TYPE_GQL: bigint
   MIGRATIONS_HASURA_PATH: localhost:8080

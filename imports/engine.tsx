@@ -13,7 +13,6 @@ import { PaperPanel } from './gui';
 const _call = (options: ICallOptions) => axios.post(`${process.env.NEXT_PUBLIC_DEEPLINKS_SERVER}/api/deeplinks`, options).then(console.log, console.log);
 
 export const NEXT_PUBLIC_ENGINES = !!+process.env.NEXT_PUBLIC_ENGINES;
-export const NEXT_PUBLIC_HIDEPATH = !!+process.env.NEXT_PUBLIC_HIDEPATH;
 
 let _useEngineConnected;
 
@@ -67,7 +66,7 @@ export const EngineWindow = React.memo<any>(function EngineWindow({
 
   console.log('engine', {connected, operation, path});
 
-  const buttonsDisabled = !!operation || (!path && !NEXT_PUBLIC_HIDEPATH);
+  const buttonsDisabled = !!operation;
 
   return <>
     <Grid container spacing={1} style={{ padding: theme.spacing(3), width: 400 }}>
@@ -83,25 +82,6 @@ export const EngineWindow = React.memo<any>(function EngineWindow({
       <Grid item xs={12} component={Typography} align="center" variant="caption">
         Some of the functionality has not yet been translated by our programmers from deep space of wet dreams.
       </Grid>
-      {!NEXT_PUBLIC_HIDEPATH && <Grid item xs={12}>
-        <PaperPanel style={{ padding: theme.spacing(1) }}>
-          <TextField
-            fullWidth
-            variant="outlined"
-            placeholder="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
-            value={path}
-            onChange={(e) => setPath(e.target.value)}
-          />
-          <Typography>
-            Please enter your $PATH env var from terminal. <Typography component={Link} href="https://github.com/deep-foundation/dev/issues/56">issue</Typography>
-          </Typography>
-          <PaperPanel style={{ padding: theme.spacing(1) }}>
-            <Typography component="pre" color="primary">
-              {`echo $PATH;`}
-            </Typography>
-          </PaperPanel>
-        </PaperPanel>
-      </Grid>}
       <Grid item xs={12}></Grid>
       <Grid item xs={12}>
         <Button size="small" disabled={buttonsDisabled} variant="outlined" color={buttonsDisabled ? 'default' : 'primary'} fullWidth onClick={async () => {
