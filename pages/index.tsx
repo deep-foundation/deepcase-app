@@ -219,6 +219,8 @@ export function PageContent() {
   const minilinks = useMinilinksConstruct();
   const { ref: mlRef, ml } = minilinks;
 
+  console.log({minilinks});
+
   const [graphData, setGraphData] = useState({ spaceId, nodes: [], links: [], _links: {}, _nodes: {}, });
   const graphDataRef = useRef(graphData);
   graphDataRef.current = graphData;
