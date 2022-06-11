@@ -48,7 +48,7 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
       - name: Install dc dependencies
-        run: npm ci
+        run: npm ci --force
       - name: Install electron dependencies
         run: cd electron && npm ci && ls node_modules | grep @
       - name: pull dl
