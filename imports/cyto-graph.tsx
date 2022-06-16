@@ -2,78 +2,32 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import CytoscapeComponent from 'react-cytoscapejs';
 import cytoscape from 'cytoscape';
 import edgeConnections from 'cytoscape-edge-connections';
+import cola from 'cytoscape-cola';
+import COSEBilkent from 'cytoscape-cose-bilkent';
+import cxtmenu from 'cytoscape-cxtmenu';
 import { CytoGraphProps } from './cyto-graph-props';
 
+cytoscape.use(cxtmenu);
 cytoscape.use(edgeConnections);
+cytoscape.use(cola);
+cytoscape.use(COSEBilkent);
 
-export default function CytoGraph({
-  links = [],
+export default function CytoGraphOld({
   ml,
 }: CytoGraphProps){
-  const elements = [];
-  for (let i = 0; i < links.length; i++) {
-    const link = links[i];
-    if (link.from_id && ml?.byId?.[link.from_id]) elements.push({
-      data: { id: `${link.id}-from`, source: `${link.id}`, target: `${link.from_id}` }, classes: 'link-from',
-    });
-    if (link.to_id && ml?.byId?.[link.to_id]) elements.push({
-      data: { id: `${link.id}-to`, source: `${link.id}`, target: `${link.to_id}` }, classes: 'link-to',
-    });
-    if (link.type_id && ml?.byId?.[link.type_id]) elements.push({
-      data: { id: `${link.id}-type`, source: `${link.id}`, target: `${link.type_id}` }, classes: 'link-type',
-    });
-    elements.push({
-      data: { id: `${link.id}`, label: link.id }, classes: 'link-node',
-    });
-  }
-  console.log('links', links);
-  console.log('elements', elements);
-  // let elements = [
-  //   { 
-  //     data: { id: 'one', label: 'Node 1' }, 
-  //     position: { x: 50, y: 100 },
-  //     style: { 
-  //       'background-color': 'red',
-  //       'bounds-expansion': '120px',
-  //     },
-  //   },
-  //   { data: { id: 'two', label: 'Node 2' }, position: { x: 300, y: 100 }, classes: 'foo' },
-  //   { data: { id: 'three', label: 'Node 3' }, position: { x: 50, y: 250 } },
-  //   { data: { id: 'type', label: 'Type' }, position: { x: 10, y: 50 } },
-  //   { 
-  //     data: { id: 'a', source: 'one', target: 'two', label: 'Edge from Node1 to Node2' },
-  //     classes: 'from'
-  //   },
-  //   { 
-  //     data: { id: 'b', source: 'one', target: 'three', label: 'Edge from Node1 to Node3' }, 
-  //     classes: 'to'
-  //   },
-  //   { 
-  //     data: { id: 'c', source: 'one', target: 'type', label: 'Edge from Node1 to Node3' }, 
-  //     classes: 'to type'
-  //   },
-    
-    
-  // ];
-
-  const ref = useRef<any>();
+  const refCyto = useRef();
   useEffect(() => {
-    let ncy = ref.current?._cy;
-  }, [])
- 
-  return (<CytoscapeComponent
-      ref={ref}
-      elements={elements} 
-      stylesheet={[
+    var cy = cytoscape({
+      container: refCyto.current,
+      style: [
         {
           selector: 'node',
           style: {
+            color: '#fff',
             width: 16,
             height: 16,
             'font-size': 16,
             'text-margin-y': -4,
-            // 'text-outline-color': '#ff225b',
-            // 'text-outline-width': 5,
             label: 'data(label)',
           }
         },
@@ -84,19 +38,19 @@ export default function CytoGraph({
           }
         },
         {
-          selector: '.to',
+          selector: '.link-to',
           style: {
             'target-arrow-shape': 'triangle',
           }
         },
         {
-          selector: '.from',
+          selector: '.link-from',
           style: {
             'target-arrow-shape': 'tee',
           }
         },
         {
-          selector: '.type',
+          selector: '.link-type',
           style: {
             'target-arrow-shape': 'triangle',
             'line-style': 'dashed',
@@ -117,8 +71,52 @@ export default function CytoGraph({
             'source-distance-from-node': 1,
           }
         }
-      ]}
-      style={ { width: '600px', height: '600px' } } 
-    />
-  )
+      ],
+    });
+    const addedListener = (nl) => {
+      // создание безопасных данных
+      // if (nl.from_id && ml?.byId?.[nl.from_id]) cy.add({
+      //   data: { id: `${nl.id}-from`, source: `${nl.id}`, target: `${nl.from_id}` }, classes: 'link-from',
+      // });
+      // if (nl.to_id && ml?.byId?.[nl.to_id]) cy.add({
+      //   data: { id: `${nl.id}-to`, source: `${nl.id}`, target: `${nl.to_id}` }, classes: 'link-to',
+      // });
+      // if (nl.type_id && ml?.byId?.[nl.type_id]) cy.add({
+      //   data: { id: `${nl.id}-type`, source: `${nl.id}`, target: `${nl.type_id}` }, classes: 'link-type',
+      // });
+      cy.add({
+        data: { id: `${nl.id}`, label: nl.id }, classes: 'link-node',
+      });
+      // восстановление недосозданных ранее
+      if (ml?.byTo?.[nl.id].length && !cy.getElementById(`${nl.from_id}`)) cy.add({
+        data: { id: `${nl.id}-from`, source: `${nl.id}`, target: `${nl.from_id}` }, classes: 'link-from',
+      });
+      // if (nl.to_id && ml?.byId?.[nl.to_id]) cy.add({
+      //   data: { id: `${nl.id}-to`, source: `${nl.id}`, target: `${nl.to_id}` }, classes: 'link-to',
+      // });
+      // if (nl.type_id && ml?.byId?.[nl.type_id]) cy.add({
+      //   data: { id: `${nl.id}-type`, source: `${nl.id}`, target: `${nl.type_id}` }, classes: 'link-type',
+      // });
+    };
+    const updatedListener = (ol, nl) => {
+    };
+    const removedListener = (ol) => {
+    };
+    ml.emitter.on('added', addedListener);
+    ml.emitter.on('updated', updatedListener);
+    ml.emitter.on('removed', removedListener);
+    const releayoutInterval = setInterval(() => {
+      cy.elements().layout({
+        fit: false,
+        name: 'cola',
+      }).run();
+    }, 1000);
+    return () => {
+      ml.emitter.removeListener('added', addedListener);
+      ml.emitter.removeListener('updated', updatedListener);
+      ml.emitter.removeListener('removed', removedListener);
+      clearInterval(releayoutInterval);
+    };
+  }, []);
+  return <div ref={refCyto} style={{ width: 800, height: 800 }}></div>;
 }

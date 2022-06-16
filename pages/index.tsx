@@ -52,9 +52,9 @@ const connectedPosition = (style: any) => ({
 
 const useStyles = makeStyles((theme) => ({
   "@global": {
-    body: ({ bgTransparent }: any) => ({
-      backgroundColor: bgTransparent ? 'transparent' : theme?.palette?.background?.default,
-    }),
+    // body: ({ bgTransparent }: any) => ({
+    //   backgroundColor: bgTransparent ? 'transparent' : theme?.palette?.background?.default,
+    // }),
   },
   root: ({ bgTransparent }: any) => ({
     position: 'absolute',

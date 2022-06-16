@@ -6,6 +6,9 @@ import { colors, createTheme, ThemeProvider } from './ui';
 import React, { useEffect } from 'react';
 import { Analitics } from './analitics';
 
+import { ChakraProvider } from './framework'
+import themeChakra from './theme/theme';
+
 const temp = createTheme({});
 const { breakpoints } = temp;
 
@@ -70,15 +73,19 @@ export const GRAPHQL_SSL = !!+process.env.NEXT_PUBLIC_GQL_SSL;
 
 export function Provider({
   children,
+  chakra=false,
 }: {
   children: JSX.Element;
+  chakra?: boolean;
 }) {
+  const ThemeProviderCustom = chakra ? ChakraProvider : ThemeProvider;
+  const themeCustom = chakra ? themeChakra : theme;
   return (
     <Analitics
       yandexMetrikaAccounts={[84726091]}
       googleAnalyticsAccounts={['G-DC5RRWLRNV']}
     >
-      <ThemeProvider theme={theme}>
+      <ThemeProviderCustom theme={themeCustom}>
         <QueryStoreProvider>
           <LocalStoreProvider>
             <TokenProvider>
@@ -90,7 +97,7 @@ export function Provider({
             </TokenProvider>
           </LocalStoreProvider>
         </QueryStoreProvider>
-      </ThemeProvider>
+      </ThemeProviderCustom>
     </Analitics>
   )
 };
