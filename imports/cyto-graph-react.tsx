@@ -1,68 +1,189 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import CytoscapeComponent from 'react-cytoscapejs';
 import cytoscape from 'cytoscape';
 import edgeConnections from 'cytoscape-edge-connections';
 import cola from 'cytoscape-cola';
+// import klay from 'cytoscape-klay';
+// import dagre from 'cytoscape-dagre';
+// import elk from 'cytoscape-elk';
 import COSEBilkent from 'cytoscape-cose-bilkent';
+import euler from 'cytoscape-euler';
 import cxtmenu from 'cytoscape-cxtmenu';
 import { CytoGraphProps } from './cyto-graph-props';
-import { useTheme, useColorMode } from './framework';
+import { useTheme, useColorMode, useColorModeValue } from './framework';
 import { useChackraColor, useChackraGlobal } from './get-color';
+import { useBaseTypes, useFocusMethods, useSpaceId } from './gui';
+import { useDeep } from '@deep-foundation/deeplinks/imports/client';
 
 
-cytoscape.use( cxtmenu );
+// cytoscape.use(dagre);
+// cytoscape.use(cola);
+cytoscape.use(COSEBilkent);
+// cytoscape.use(klay);
+// cytoscape.use(elk);
+// cytoscape.use(euler);
+cytoscape.use(cxtmenu);
 cytoscape.use(edgeConnections);
-cytoscape.use( cola );
-cytoscape.use( COSEBilkent );
 
 export default function CytoGraph({
   links = [],
   ml,
 }: CytoGraphProps){
   const elements = [];
+  const deep = useDeep();
+  const [baseTypes, setBaseTypes] = useBaseTypes();
+  const [spaceId, setSpaceId] = useSpaceId();
+  const { focus, unfocus } = useFocusMethods();
+
+  const ref = useRef<any>();
+
+  useEffect(() => {(async () => {
+    try {
+      setBaseTypes({
+        Package: await deep.id('@deep-foundation/core', 'Package'),
+        containTree: await deep.id('@deep-foundation/core', 'containTree'),
+        Contain: await deep.id('@deep-foundation/core', 'Contain'),
+        Focus: await deep.id('@deep-foundation/core', 'Focus'),
+        Active: await deep.id('@deep-foundation/core', 'Active'),
+        Query: await deep.id('@deep-foundation/core', 'Query'),
+        Space: await deep.id('@deep-foundation/core', 'Space'),
+        User: await deep.id('@deep-foundation/core', 'User'),
+      });
+    } catch(error) {}
+  })()}, []);
+
+  // links visualization
+  let cy = ref.current?._cy;
   for (let i = 0; i < links.length; i++) {
     const link = links[i];
-    if (link.from_id && ml?.byId?.[link.from_id]) elements.push({
-      data: { id: `${link.id}-from`, source: `${link.id}`, target: `${link.from_id}` }, classes: 'link-from',
-    });
-    if (link.to_id && ml?.byId?.[link.to_id]) elements.push({
-      data: { id: `${link.id}-to`, source: `${link.id}`, target: `${link.to_id}` }, classes: 'link-to',
-    });
-    if (link.type_id && ml?.byId?.[link.type_id]) elements.push({
-      data: { id: `${link.id}-type`, source: `${link.id}`, target: `${link.type_id}` }, classes: 'link-type',
-    });
+    const focus = link?.inByType?.[baseTypes.Focus]?.find(f => f.from_id === spaceId);
+
+    if (!!cy) {
+      if (link.from_id && ml?.byId?.[link.from_id] && !!cy.$(`#${link.from_id}`).length) elements.push({
+        data: { id: `${link.id}-from`, source: `${link.id}`, target: `${link.from_id}`, link },
+        classes: [
+          'link-from',
+          ...(focus ? ['focused'] : ['unfocused'])
+        ].join(' '),
+      });
+      if (link.to_id && ml?.byId?.[link.to_id] && !!cy.$(`#${link.to_id}`).length) elements.push({
+        data: { id: `${link.id}-to`, source: `${link.id}`, target: `${link.to_id}`, link },
+        classes: [
+          'link-to',
+          ...(focus ? ['focused'] : ['unfocused'])
+        ].join(' '),
+      });
+      if (link.type_id && ml?.byId?.[link.type_id] && !!cy.$(`#${link.type_id}`).length) elements.push({
+        data: { id: `${link.id}-type`, source: `${link.id}`, target: `${link.type_id}`, link },
+        classes: [
+          'link-type',
+          ...(focus ? ['focused'] : ['unfocused'])
+        ].join(' '),
+      });
+    }
+
     elements.push({
-      data: { id: `${link.id}`, label: link.id }, classes: 'link-node',
+      id: link.id,
+      data: { id: `${link.id}`, label: link.id, link },
+      classes: [
+        'link-node',
+        ...(focus ? ['focused'] : ['unfocused'])
+      ].join(' '),
+      
+      ...(focus?.value?.value?.x ? {
+        position: focus?.value?.value?.x ? focus?.value?.value : {},
+        locked: !!focus,
+      } : {}),
+      focused: !!focus,
     });
   }
   
   const globalStyle = useChackraGlobal();
   const textColor = useChackraColor(globalStyle.body.color);
+  const gray900 = useChackraColor('gray.900');
+  const white = useChackraColor('white');
+  const colorFocus = useColorModeValue(gray900, white);
+  console.log({colorFocus, textColor});
+  console.log(gray900, white);
 
-  const ref = useRef<any>();
+  const layout = { 
+    fit: false,
+    name: 'cose-bilkent', 
+    animate: true,
+    // convergenceThreshold: 1000,
+    // animateFilter: (node) => {
+    //   return !node.focused;
+    // },
+    // edgeWeight: (edge) => {
+    //   return !edge.is('.link-type');
+    // },
+    // rankDir: 'TB',
+  };
+
+  const refDragStartedEvent = useRef<any>();
+
+  const relayout = useCallback(() => {
+    let cy = ref.current?._cy;
+    cy.elements().layout(layout).run();
+  }, []);
 
   useEffect(() => {
-    let cy = ref.current?._cy;
-    cy.elements().layout({
-      fit: false,
-      name: 'cola',
-      // animate: false,
-    }).run();
+    if (!refDragStartedEvent.current) {
+      relayout();
+    }
   }, [links]);
 
+  // has memory about locking of key=linkId
+  // undefined - not locked
+  // true - locked
+  // false - unlocked
+  const lockingRef = useRef<any>({});
+
   useEffect(() => {
+    const locking = lockingRef.current;
+
     let ncy = ref.current?._cy;
+   
+    ncy.on('mouseover', 'node', function(e) {
+      e.target.addClass('hover');
+    });
+    ncy.on('mouseout', 'node', function(e) {
+      e.target.removeClass('hover');
+    });
+    ncy.on('tapstart', 'node', function(evt){
+      var node = evt.target;
+      console.log( 'tapstart ' + node.id() , evt);
+      refDragStartedEvent.current = evt;
+    });
+    let dragendData: any = undefined;
+    ncy.on('tapend', 'node', function(evt){
+      var node = evt.target;
+      console.log('tapend ' + node.id(), evt);
+      if (refDragStartedEvent?.current?.position?.x !== evt.position?.x && refDragStartedEvent?.current?.position?.y !== evt.position?.y) {
+        refDragStartedEvent.current = undefined;
+        dragendData = { position: evt.position };
+        evt.target.emit('dragend');
+      }
+    });
+    ncy.on('dragend', 'node', function(evt){
+      var node = evt.target;
+      const id = node?.data('link')?.id;
+      if (id) {
+        console.log('dragend ' + id, evt, dragendData);
+        locking[id] = true;
+        node.position(dragendData.position);
+        node.lock();
+        focus(id, dragendData.position);
+        dragendData = undefined;
+        relayout();
+        ncy.$(`#${id},#${id}-from,#${id}-to,#${id}-type`).addClass('focused');
+      }
+    });
+    
     ncy.cxtmenu({
       selector: 'node, edge',
       outsideMenuCancel: 10,
-      commands: [
-        {
-          content: '<span class="fa fa-flash fa-2x"></span>',
-          select: function(ele){
-            console.log( ele.id() );
-          }
-        },
-  
+      commands: [ 
         {
           content: '<span class="fa fa-star fa-2x"></span>',
           select: function(ele){
@@ -70,7 +191,21 @@ export default function CytoGraph({
           },
           enabled: false
         },
-  
+        
+        {
+          content: 'Unlock',
+          select: function(ele){ 
+            const id = ele.data('link')?.id;
+            if (id) {
+              ele.unlock();
+              unfocus(id);
+              relayout();
+              locking[id] = false;
+              ncy.$(`#${id},#${id}-from,#${id}-to,#${id}-type`).removeClass('focused');
+            }
+          }
+        },
+
         {
           content: 'Text',
           select: function(ele){
@@ -100,21 +235,30 @@ export default function CytoGraph({
       ]
     });
 
-    ncy.on('mouseover', 'node', function(e) {
-      e.target.addClass('hover');
-    });
-    ncy.on('mouseout', 'node', function(e) {
-      e.target.removeClass('hover');
-    });
-
+    // on update link or link value - unlock reposition lock
+    const updatedListener = (oldLink, newLink) => {
+      if (
+        newLink.type_id === baseTypes.Focus && newLink?.value?.value?.x &&
+        
+        // if true - we remember how WE lock it, ok, we have updatefrom db...
+        // if undefined - we not know lock/not lock... just update from db...
+        // if false - we must stop update from db, we already unlock it on client, and not need to update focus from db... it mistake
+        // this line - fix it
+        locking[newLink.to_id] !== false
+      ) {
+        const node = ncy.$(`node#${newLink.to_id}`);
+        node.unlock();
+        node.position(newLink?.value?.value);
+        relayout();
+        node.lock();
+        console.log('updated focus (unlock, pos, lock)', locking[newLink.to_id]);
+      }
+    };
+    ml.emitter.on('updated', updatedListener);
+    return () => {
+      ml.emitter.removeListener('updated', updatedListener);
+    };
   }, []);
-
-
-  const layout = { 
-    name: 'cola', 
-    animate: false,
-    convergenceThreshold: 1000,
-  };
 
   return (<CytoscapeComponent
       ref={ref}
@@ -133,12 +277,6 @@ export default function CytoGraph({
           }
         },
         {
-          selector: '.foo',
-          style: {
-            'background-color': 'green',
-          }
-        },
-        {
           selector: 'node.hover',
           style: {
             'z-compound-depth': 'top',
@@ -148,10 +286,6 @@ export default function CytoGraph({
             'underlay-padding': 2,
             'underlay-color': '#008fcc',
             'underlay-shape': 'ellipse',
-            
-            // "border-width": 1,
-            // "border-color": '#de12af',
-            // "border-style": 'dashed',
           }
         },
         {
@@ -179,18 +313,29 @@ export default function CytoGraph({
           style: {
             width: 1,
             'curve-style': 'bezier',
-            'line-color': '#adadad',
-            'target-arrow-color': '#adadad',
-            'source-arrow-color': '#adadad',
             'target-distance-from-node': 8,
             'source-distance-from-node': 1,
           }
-        }
+        },
+        {
+          selector: '.link-from.focused, .link-to.focused, .link-type.focused',
+          style: {
+            'width': 3,
+            'line-color': colorFocus,
+          }
+        },
+        {
+          selector: '.link-node.focused',
+          style: {
+            'border-width': 3,
+            'border-color': colorFocus,
+          }
+        },
       ]}
       panningEnabled={true}
       
       pan={ { x: 200, y: 200 } }
-      style={ { width: '1000px', height: '1000px' } } 
+      style={ { width: '100%', height: '100vh' } } 
     />
   )
 }

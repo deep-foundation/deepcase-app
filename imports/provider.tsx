@@ -81,10 +81,10 @@ export function Provider({
   const ThemeProviderCustom = chakra ? ChakraProvider : ThemeProvider;
   const themeCustom = chakra ? themeChakra : theme;
   return (
-    <Analitics
-      yandexMetrikaAccounts={[84726091]}
-      googleAnalyticsAccounts={['G-DC5RRWLRNV']}
-    >
+    // <Analitics
+    //   yandexMetrikaAccounts={[84726091]}
+    //   googleAnalyticsAccounts={['G-DC5RRWLRNV']}
+    // >
       <ThemeProviderCustom theme={themeCustom}>
         <QueryStoreProvider>
           <LocalStoreProvider>
@@ -98,6 +98,6 @@ export function Provider({
           </LocalStoreProvider>
         </QueryStoreProvider>
       </ThemeProviderCustom>
-    </Analitics>
+    // </Analitics>
   )
 };

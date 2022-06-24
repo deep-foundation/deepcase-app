@@ -39,7 +39,11 @@
     "cytoscape-cola": "^2.5.1",
     "cytoscape-cose-bilkent": "^4.1.0",
     "cytoscape-cxtmenu": "^3.4.0",
+    "cytoscape-dagre": "^2.4.0",
     "cytoscape-edge-connections": "^0.4.2",
+    "cytoscape-elk": "^2.0.2",
+    "cytoscape-euler": "^1.2.2",
+    "cytoscape-klay": "^3.1.4",
     "deep-diff": "^1.0.2",
     "dotenv": "^8.2.0",
     "dotenv-load": "^2.0.0",
@@ -70,6 +74,7 @@
     "typescript": "^4.4.4",
     "use-debounce": "^6.0.1",
     "usehooks-ts": "^2.2.0",
+    "web-worker": "^1.2.0",
     "ws": "^7.5.6"
   },
   "engines": {
