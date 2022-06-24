@@ -19,6 +19,7 @@ const themeChakra = extendTheme({
     }),
   },
   colors: {
+    primary: '#0080ff',
     gray: {
       900: '#111720',
     },

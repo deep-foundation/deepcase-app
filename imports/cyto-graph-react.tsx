@@ -61,6 +61,7 @@ export default function CytoGraph({
     if (!!cy) {
       if (link.from_id && ml?.byId?.[link.from_id] && !!cy.$(`#${link.from_id}`).length) elements.push({
         data: { id: `${link.id}-from`, source: `${link.id}`, target: `${link.from_id}`, link },
+        selectable: false,
         classes: [
           'link-from',
           ...(focus ? ['focused'] : ['unfocused'])
@@ -68,6 +69,7 @@ export default function CytoGraph({
       });
       if (link.to_id && ml?.byId?.[link.to_id] && !!cy.$(`#${link.to_id}`).length) elements.push({
         data: { id: `${link.id}-to`, source: `${link.id}`, target: `${link.to_id}`, link },
+        selectable: false,
         classes: [
           'link-to',
           ...(focus ? ['focused'] : ['unfocused'])
@@ -75,6 +77,7 @@ export default function CytoGraph({
       });
       if (link.type_id && ml?.byId?.[link.type_id] && !!cy.$(`#${link.type_id}`).length) elements.push({
         data: { id: `${link.id}-type`, source: `${link.id}`, target: `${link.type_id}`, link },
+        selectable: false,
         classes: [
           'link-type',
           ...(focus ? ['focused'] : ['unfocused'])
@@ -85,6 +88,7 @@ export default function CytoGraph({
     elements.push({
       id: link.id,
       data: { id: `${link.id}`, label: link.id, link },
+      selectable: false,
       classes: [
         'link-node',
         ...(focus ? ['focused'] : ['unfocused'])
@@ -102,6 +106,7 @@ export default function CytoGraph({
   const textColor = useChackraColor(globalStyle.body.color);
   const gray900 = useChackraColor('gray.900');
   const white = useChackraColor('white');
+  const colorClicked = useChackraColor('primary');
   const colorFocus = useColorModeValue(gray900, white);
   console.log({colorFocus, textColor});
   console.log(gray900, white);
@@ -144,12 +149,33 @@ export default function CytoGraph({
 
     let ncy = ref.current?._cy;
    
-    ncy.on('mouseover', 'node', function(e) {
-      e.target.addClass('hover');
+    ncy.on('mouseover', '.link-from, .link-to, .link-type, .link-node', function(e) {
+      var node = e.target;
+      const id = node?.data('link')?.id;
+      if (id) {
+        console.log('hover ' + id, e);
+        ncy.$(`node, edge`).not(`#${id},#${id}-from,#${id}-to,#${id}-type`).removeClass('hover');
+        ncy.$(`#${id},#${id}-from,#${id}-to,#${id}-type`).addClass('hover');
+      }
     });
-    ncy.on('mouseout', 'node', function(e) {
-      e.target.removeClass('hover');
+    ncy.on('mouseout', '.link-from, .link-to, .link-type, .link-node', function(e) {
+      var node = e.target;
+      const id = node?.data('link')?.id;
+      if (id) {
+        console.log('hover ' + id, e);
+        ncy.$(`node, edge`).removeClass('hover');
+      }
     });
+    ncy.on('click', '.link-from, .link-to, .link-type, .link-node', function(e) {
+      var node = e.target;
+      const id = node?.data('link')?.id;
+      if (id) {
+        console.log('click ' + id, e);
+        ncy.$(`node, edge`).not(`#${id},#${id}-from,#${id}-to,#${id}-type`).removeClass('clicked');
+        ncy.$(`#${id},#${id}-from,#${id}-to,#${id}-type`).toggleClass('clicked');
+      }
+    });
+
     ncy.on('tapstart', 'node', function(evt){
       var node = evt.target;
       console.log( 'tapstart ' + node.id() , evt);
@@ -284,7 +310,7 @@ export default function CytoGraph({
             // @ts-ignore
             'underlay-opacity': 0.8,
             'underlay-padding': 2,
-            'underlay-color': '#008fcc',
+            'underlay-color': '#0080ff',
             'underlay-shape': 'ellipse',
           }
         },
@@ -325,10 +351,25 @@ export default function CytoGraph({
           }
         },
         {
+          selector: '.link-from.clicked, .link-to.clicked, .link-type.clicked',
+          style: {
+            // 'width': 3,
+            'line-color': colorClicked,
+            'target-arrow-color': colorClicked,
+          }
+        },
+        {
           selector: '.link-node.focused',
           style: {
             'border-width': 3,
             'border-color': colorFocus,
+          }
+        },
+        {
+          selector: '.link-node.clicked',
+          style: {
+            color: colorClicked,
+            'background-color': colorClicked, 
           }
         },
       ]}
