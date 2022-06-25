@@ -101,6 +101,73 @@ export default function CytoGraph({
       focused: !!focus,
     });
   }
+
+  elements.push({ 
+    id: 'demo-query-link-node',
+    data: { id: 'demo-query-link-node', label: 'Node big' }, 
+    selectable: false,
+    classes: 'query-link-node',
+  });
+  elements.push({ 
+    id: 'demo-query-link-from-node',
+    data: { id: 'demo-query-link-from-node', label: 'From' }, 
+    selectable: false,
+    classes: 'query-link-from-node',
+  });
+  elements.push({ 
+    id: 'demo-query-link-to-node',
+    data: { id: 'demo-query-link-to-node', label: 'To' }, 
+    selectable: false,
+    classes: 'query-link-to-node',
+  });
+  elements.push({ 
+    id: 'demo-query-link-type-node',
+    data: { id: 'demo-query-link-type-node', label: 'Type' }, 
+    selectable: false,
+    classes: 'query-link-type-node',
+  });
+  elements.push({ 
+    id: 'demo-query-link-in-node',
+    data: { id: 'demo-query-link-in-node', label: 'In' }, 
+    selectable: false,
+    classes: 'query-link-in-node',
+  });
+  elements.push({ 
+    id: 'demo-query-link-out-node',
+    data: { id: 'demo-query-link-out-node', label: 'Out' }, 
+    selectable: false,
+    classes: 'query-link-out-node',
+  });
+  elements.push({ 
+    id: 'demo-query-link-out-edge',
+    data: { id: 'demo-query-link-out-edge', source: 'demo-query-link-out-node', target: 'demo-query-link-node' }, 
+    selectable: false,
+    classes: 'query-link-out-edge',
+  });
+  elements.push({ 
+    id: 'demo-query-link-in-edge',
+    data: { id: 'demo-query-link-in-edge', source: 'demo-query-link-in-node', target: 'demo-query-link-node' }, 
+    selectable: false,
+    classes: 'query-link-in-edge',
+  });
+  elements.push({ 
+    id: 'demo-query-link-type-edge',
+    data: { id: 'demo-query-link-type-edge', source: 'demo-query-link-node', target: 'demo-query-link-type-node' }, 
+    selectable: false,
+    classes: 'query-link-type-edge',
+  });
+  elements.push({ 
+    id: 'demo-query-link-from-edge',
+    data: { id: 'demo-query-link-from-edge', source: 'demo-query-link-node', target: 'demo-query-link-from-node' }, 
+    selectable: false,
+    classes: 'query-link-from-edge',
+  });
+  elements.push({ 
+    id: 'demo-query-link-to-edge',
+    data: { id: 'demo-query-link-to-edge', source: 'demo-query-link-node', target: 'demo-query-link-to-node' }, 
+    selectable: false,
+    classes: 'query-link-to-edge',
+  });
   
   const globalStyle = useChackraGlobal();
   const textColor = useChackraColor(globalStyle.body.color);
@@ -341,6 +408,128 @@ export default function CytoGraph({
             'curve-style': 'bezier',
             'target-distance-from-node': 8,
             'source-distance-from-node': 1,
+          }
+        },
+        {
+          selector: '.query-link-node',
+          style: {
+            color: textColor,
+            'background-color': 'rgba(0, 0, 0, 0)',
+            'border-color': textColor,
+            'border-width': 1,
+            'border-style': 'solid',
+            width: 16,
+            height: 16,
+            'font-size': 16,
+            'text-margin-y': -4,
+            label: 'data(label)',
+          }
+        },
+        {
+          selector: '.query-link-from-node',
+          style: {
+            color: textColor,
+            'background-color': 'rgba(0, 0, 0, 0)',
+            'border-color': textColor,
+            'border-width': 1,
+            'border-style': 'solid',
+            width: 8,
+            height: 8,
+            'font-size': 16,
+            'text-margin-y': -4,
+            label: 'data(label)',
+          }
+        },
+        {
+          selector: '.query-link-to-node',
+          style: {
+            color: textColor,
+            'background-color': 'rgba(0, 0, 0, 0)',
+            'border-color': textColor,
+            'border-width': 1,
+            'border-style': 'solid',
+            width: 8,
+            height: 8,
+            'font-size': 16,
+            'text-margin-y': -4,
+            label: 'data(label)',
+          }
+        },
+        {
+          selector: '.query-link-type-node',
+          style: {
+            color: textColor,
+            'background-color': 'rgba(0, 0, 0, 0)',
+            'border-color': textColor,
+            'border-width': 1,
+            'border-style': 'solid',
+            width: 8,
+            height: 8,
+            'font-size': 16,
+            'text-margin-y': -4,
+            label: 'data(label)',
+          }
+        },
+        {
+          selector: '.query-link-in-node',
+          style: {
+            color: textColor,
+            'background-color': 'rgba(0, 0, 0, 0)',
+            'border-color': textColor,
+            'border-width': 1,
+            'border-style': 'solid',
+            width: 8,
+            height: 8,
+            'font-size': 16,
+            'text-margin-y': -4,
+            label: 'data(label)',
+          }
+        },
+        {
+          selector: '.query-link-out-node',
+          style: {
+            color: textColor,
+            'background-color': 'rgba(0, 0, 0, 0)',
+            'border-color': textColor,
+            'border-width': 1,
+            'border-style': 'solid',
+            width: 8,
+            height: 8,
+            'font-size': 16,
+            'text-margin-y': -4,
+            label: 'data(label)',
+          }
+        },
+        {
+          selector: '.query-link-out-edge',
+          style: {
+            'target-arrow-shape': 'tee',
+          }
+        },
+        {
+          selector: '.query-link-from-edge',
+          style: {
+            'target-arrow-shape': 'tee',
+          }
+        },
+        {
+          selector: '.query-link-in-edge',
+          style: {
+            'target-arrow-shape': 'triangle',
+          }
+        },
+        {
+          selector: '.query-link-to-edge',
+          style: {
+            'target-arrow-shape': 'triangle',
+          }
+        },
+        {
+          selector: '.query-link-type-edge',
+          style: {
+            'target-arrow-shape': 'triangle',
+            'line-style': 'dashed',
+            'line-dash-pattern': [5, 5],
           }
         },
         {
