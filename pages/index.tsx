@@ -735,13 +735,25 @@ export function ConnectionController({ children }: { children: any }) {
   const apolloClient = useApolloClient();
   const deep = useDeep();
   useEffect(() => {
-    if (deep.linkId) apolloClient.query({ query: gql`query { links(limit: 0) { id } }` }).catch(() => {
-      console.log('CATCH !connected');
+    const interval = setInterval(async () => {
+      let isConnected = false;
+      try {
+        const result = await apolloClient.query({ query: gql`query { links(limit: 1) { id } }` });
+        if (result?.data?.links?.[0]) {
+          isConnected = true;
+        }
+      } catch(error) {
+        console.log('!connected');
+        isConnected = false;
+      }
       setConnected((connected) => {
-        console.log('CATCH !connected before connected: ', connected);
-        return false;
+        console.log(`set ${isConnected ? '' : '!'}connected, against: `, connected);
+        return isConnected;
       });
-    });
+    }, 5000);
+    return () => {
+      return clearInterval(interval);
+    };
   }, []);
 
   return <>
