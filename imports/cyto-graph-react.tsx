@@ -1,20 +1,18 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import CytoscapeComponent from 'react-cytoscapejs';
 import cytoscape from 'cytoscape';
 import edgeConnections from 'cytoscape-edge-connections';
-import cola from 'cytoscape-cola';
+import { useCallback, useEffect, useRef } from 'react';
+import CytoscapeComponent from 'react-cytoscapejs';
 // import klay from 'cytoscape-klay';
 // import dagre from 'cytoscape-dagre';
 // import elk from 'cytoscape-elk';
+import { useDeep } from '@deep-foundation/deeplinks/imports/client';
 import COSEBilkent from 'cytoscape-cose-bilkent';
-import euler from 'cytoscape-euler';
 import cxtmenu from 'cytoscape-cxtmenu';
 import { CytoGraphProps } from './cyto-graph-props';
-import { useTheme, useColorMode, useColorModeValue } from './framework';
+import { CytoReactLayout } from './cyto-react-layout';
+import { useColorModeValue } from './framework';
 import { useChackraColor, useChackraGlobal } from './get-color';
 import { useBaseTypes, useFocusMethods, useSpaceId } from './gui';
-import { useDeep } from '@deep-foundation/deeplinks/imports/client';
-
 
 // cytoscape.use(dagre);
 // cytoscape.use(cola);
@@ -54,6 +52,7 @@ export default function CytoGraph({
 
   // links visualization
   let cy = ref.current?._cy;
+  
   for (let i = 0; i < links.length; i++) {
     const link = links[i];
     const focus = link?.inByType?.[baseTypes.Focus]?.find(f => f.from_id === spaceId);
@@ -174,9 +173,8 @@ export default function CytoGraph({
   const gray900 = useChackraColor('gray.900');
   const white = useChackraColor('white');
   const colorClicked = useChackraColor('primary');
+  const colorBgInsertNode = useColorModeValue(white, gray900);
   const colorFocus = useColorModeValue(gray900, white);
-  console.log({colorFocus, textColor});
-  console.log(gray900, white);
 
   const layout = { 
     fit: false,
@@ -210,12 +208,13 @@ export default function CytoGraph({
   // true - locked
   // false - unlocked
   const lockingRef = useRef<any>({});
+  const refHTMLNode = useRef<any>();
 
   useEffect(() => {
     const locking = lockingRef.current;
 
     let ncy = ref.current?._cy;
-   
+
     ncy.on('mouseover', '.link-from, .link-to, .link-type, .link-node', function(e) {
       var node = e.target;
       const id = node?.data('link')?.id;
@@ -353,219 +352,222 @@ export default function CytoGraph({
     };
   }, []);
 
-  return (<CytoscapeComponent
-      ref={ref}
-      elements={elements} 
-      layout={layout}
-      stylesheet={[
-        {
-          selector: 'node',
-          style: {
-            color: textColor,
-            width: 16,
-            height: 16,
-            'font-size': 16,
-            'text-margin-y': -4,
-            label: 'data(label)',
-          }
-        },
-        {
-          selector: 'node.hover',
-          style: {
-            'z-compound-depth': 'top',
-            'overlay-opacity': 0,
-            // @ts-ignore
-            'underlay-opacity': 0.8,
-            'underlay-padding': 2,
-            'underlay-color': '#0080ff',
-            'underlay-shape': 'ellipse',
-          }
-        },
-        {
-          selector: '.link-to',
-          style: {
-            'target-arrow-shape': 'triangle',
-          }
-        },
-        {
-          selector: '.link-from',
-          style: {
-            'target-arrow-shape': 'tee',
-          }
-        },
-        {
-          selector: '.link-type',
-          style: {
-            'target-arrow-shape': 'triangle',
-            'line-style': 'dashed',
-            'line-dash-pattern': [5, 5]
-          }
-        },
-        {
-          selector: 'edge',
-          style: {
-            width: 1,
-            'curve-style': 'bezier',
-            'target-distance-from-node': 8,
-            'source-distance-from-node': 1,
-          }
-        },
-        {
-          selector: '.query-link-node',
-          style: {
-            color: textColor,
-            'background-color': 'rgba(0, 0, 0, 0)',
-            'border-color': textColor,
-            'border-width': 1,
-            'border-style': 'solid',
-            width: 16,
-            height: 16,
-            'font-size': 16,
-            'text-margin-y': -4,
-            label: 'data(label)',
-          }
-        },
-        {
-          selector: '.query-link-from-node',
-          style: {
-            color: textColor,
-            'background-color': 'rgba(0, 0, 0, 0)',
-            'border-color': textColor,
-            'border-width': 1,
-            'border-style': 'solid',
-            width: 8,
-            height: 8,
-            'font-size': 16,
-            'text-margin-y': -4,
-            label: 'data(label)',
-          }
-        },
-        {
-          selector: '.query-link-to-node',
-          style: {
-            color: textColor,
-            'background-color': 'rgba(0, 0, 0, 0)',
-            'border-color': textColor,
-            'border-width': 1,
-            'border-style': 'solid',
-            width: 8,
-            height: 8,
-            'font-size': 16,
-            'text-margin-y': -4,
-            label: 'data(label)',
-          }
-        },
-        {
-          selector: '.query-link-type-node',
-          style: {
-            color: textColor,
-            'background-color': 'rgba(0, 0, 0, 0)',
-            'border-color': textColor,
-            'border-width': 1,
-            'border-style': 'solid',
-            width: 8,
-            height: 8,
-            'font-size': 16,
-            'text-margin-y': -4,
-            label: 'data(label)',
-          }
-        },
-        {
-          selector: '.query-link-in-node',
-          style: {
-            color: textColor,
-            'background-color': 'rgba(0, 0, 0, 0)',
-            'border-color': textColor,
-            'border-width': 1,
-            'border-style': 'solid',
-            width: 8,
-            height: 8,
-            'font-size': 16,
-            'text-margin-y': -4,
-            label: 'data(label)',
-          }
-        },
-        {
-          selector: '.query-link-out-node',
-          style: {
-            color: textColor,
-            'background-color': 'rgba(0, 0, 0, 0)',
-            'border-color': textColor,
-            'border-width': 1,
-            'border-style': 'solid',
-            width: 8,
-            height: 8,
-            'font-size': 16,
-            'text-margin-y': -4,
-            label: 'data(label)',
-          }
-        },
-        {
-          selector: '.query-link-out-edge',
-          style: {
-            'target-arrow-shape': 'tee',
-          }
-        },
-        {
-          selector: '.query-link-from-edge',
-          style: {
-            'target-arrow-shape': 'tee',
-          }
-        },
-        {
-          selector: '.query-link-in-edge',
-          style: {
-            'target-arrow-shape': 'triangle',
-          }
-        },
-        {
-          selector: '.query-link-to-edge',
-          style: {
-            'target-arrow-shape': 'triangle',
-          }
-        },
-        {
-          selector: '.query-link-type-edge',
-          style: {
-            'target-arrow-shape': 'triangle',
-            'line-style': 'dashed',
-            'line-dash-pattern': [5, 5],
-          }
-        },
-        {
-          selector: '.link-from.focused, .link-to.focused, .link-type.focused',
-          style: {
-            'width': 3,
-            'line-color': colorFocus,
-          }
-        },
-        {
-          selector: '.link-from.clicked, .link-to.clicked, .link-type.clicked',
-          style: {
-            // 'width': 3,
-            'line-color': colorClicked,
-            'target-arrow-color': colorClicked,
-          }
-        },
-        {
-          selector: '.link-node.focused',
-          style: {
-            'border-width': 3,
-            'border-color': colorFocus,
-          }
-        },
-        {
-          selector: '.link-node.clicked',
-          style: {
-            color: colorClicked,
-            'background-color': colorClicked, 
-          }
-        },
-      ]}
-      panningEnabled={true}
-      
-      pan={ { x: 200, y: 200 } }
-      style={ { width: '100%', height: '100vh' } } 
-    />
+  return (<div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
+    <CytoscapeComponent
+        ref={ref}
+        elements={elements} 
+        layout={layout}
+        stylesheet={[
+          {
+            selector: 'node',
+            style: {
+              color: textColor,
+              width: 24,
+              height: 24,
+              'font-size': 16,
+              'text-margin-y': -4,
+              label: 'data(label)',
+              'background-image': 'https://live.staticflickr.com/3063/2751740612_af11fb090b_b.jpg',
+              'background-fit': 'cover',
+            }
+          },
+          {
+            selector: 'node.hover',
+            style: {
+              'z-compound-depth': 'top',
+              'overlay-opacity': 0,
+              // @ts-ignore
+              'underlay-opacity': 0.8,
+              'underlay-padding': 2,
+              'underlay-color': '#0080ff',
+              'underlay-shape': 'ellipse',
+            }
+          },
+          {
+            selector: '.link-to',
+            style: {
+              'target-arrow-shape': 'triangle',
+            }
+          },
+          {
+            selector: '.link-from',
+            style: {
+              'target-arrow-shape': 'tee',
+            }
+          },
+          {
+            selector: '.link-type',
+            style: {
+              'target-arrow-shape': 'triangle',
+              'line-style': 'dashed',
+              'line-dash-pattern': [5, 5]
+            }
+          },
+          {
+            selector: 'edge',
+            style: {
+              width: 1,
+              'curve-style': 'bezier',
+              'target-distance-from-node': 8,
+              'source-distance-from-node': 1,
+            }
+          },
+          {
+            selector: '.query-link-node',
+            style: {
+              color: textColor,
+              'background-color': colorBgInsertNode,
+              'border-color': textColor,
+              'border-width': 1,
+              'border-style': 'solid',
+              width: 16,
+              height: 16,
+              'font-size': 16,
+              'text-margin-y': -4,
+              label: 'data(label)',
+            }
+          },
+          {
+            selector: '.query-link-from-node',
+            style: {
+              color: textColor,
+              'background-color': colorBgInsertNode,
+              'border-color': textColor,
+              'border-width': 1,
+              'border-style': 'solid',
+              width: 8,
+              height: 8,
+              'font-size': 16,
+              'text-margin-y': -4,
+            }
+          },
+          {
+            selector: '.query-link-to-node',
+            style: {
+              color: textColor,
+              'background-color': colorBgInsertNode,
+              'border-color': textColor,
+              'border-width': 1,
+              'border-style': 'solid',
+              width: 8,
+              height: 8,
+              'font-size': 16,
+              'text-margin-y': -4,
+            }
+          },
+          {
+            selector: '.query-link-type-node',
+            style: {
+              color: textColor,
+              'background-color': colorBgInsertNode,
+              'border-color': textColor,
+              'border-width': 1,
+              'border-style': 'solid',
+              width: 8,
+              height: 8,
+              'font-size': 16,
+              'text-margin-y': -4,
+            }
+          },
+          {
+            selector: '.query-link-in-node',
+            style: {
+              color: textColor,
+              'background-color': colorBgInsertNode,
+              'border-color': textColor,
+              'border-width': 1,
+              'border-style': 'solid',
+              width: 8,
+              height: 8,
+              'font-size': 16,
+              'text-margin-y': -4,
+            }
+          },
+          {
+            selector: '.query-link-out-node',
+            style: {
+              color: textColor,
+              'background-color': colorBgInsertNode,
+              'border-color': textColor,
+              'border-width': 1,
+              'border-style': 'solid',
+              width: 8,
+              height: 8,
+              'font-size': 16,
+              'text-margin-y': -4,
+            }
+          },
+          {
+            selector: '.query-link-out-edge',
+            style: {
+              'target-arrow-shape': 'tee',
+            }
+          },
+          {
+            selector: '.query-link-from-edge',
+            style: {
+              'target-arrow-shape': 'tee',
+            }
+          },
+          {
+            selector: '.query-link-in-edge',
+            style: {
+              'target-arrow-shape': 'triangle',
+            }
+          },
+          {
+            selector: '.query-link-to-edge',
+            style: {
+              'target-arrow-shape': 'triangle',
+            }
+          },
+          {
+            selector: '.query-link-type-edge',
+            style: {
+              'target-arrow-shape': 'triangle',
+              'line-style': 'dashed',
+              'line-dash-pattern': [5, 5],
+            }
+          },
+          {
+            selector: '.link-from.focused, .link-to.focused, .link-type.focused',
+            style: {
+              'width': 2,
+              'line-color': colorFocus,
+            }
+          },
+          {
+            selector: '.link-from.clicked, .link-to.clicked, .link-type.clicked',
+            style: {
+              'line-color': colorClicked,
+              'target-arrow-color': colorClicked,
+              width: 2,
+            }
+          },
+          {
+            selector: '.link-node.focused',
+            style: {
+              'border-width': 2,
+              'border-color': colorFocus,
+            }
+          },
+          {
+            selector: '.link-node.clicked',
+            style: {
+              color: colorClicked,
+              'background-color': colorClicked, 
+            }
+          },
+        ]}
+        panningEnabled={true}
+        
+        pan={ { x: 200, y: 200 } }
+        style={ { width: '100%', height: '100vh' } } 
+      />
+      <CytoReactLayout
+        cytoRef={ref}
+        elementIds={elements.filter(e => !e?.data?.source && !e?.data?.target).map(e => e.id)}
+      />
+    </div>
   )
 }

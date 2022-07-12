@@ -260,7 +260,6 @@ export function PageContent() {
     }
     Object.keys(selectedLinkIdsInGraphRef.current).forEach((id:string) => {
       const link = ml.byId[+id];
-      // console.log('selected!!!', id, link)
       if (!temp[+id] && link) listenerRef?.current?.updatedListener(link, link);
     });
   }, [selectedLinks]);
