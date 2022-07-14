@@ -754,7 +754,7 @@ export function ConnectionController({ children }: { children: any }) {
     return () => {
       return clearInterval(interval);
     };
-  }, []);
+  }, [apolloClient]);
 
   return <>
     <div
