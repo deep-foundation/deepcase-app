@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { ConnectionController } from '.';
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
 import { CytoGraphProps } from '../imports/cyto-graph-props';
+import { CytoReactElement } from '../imports/cyto-react-element';
 import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
 
@@ -28,8 +29,8 @@ export default function Page() {
           minilinks={minilinks}
           // onUpdateScreenQuery={query => console.log('updateScreenQuery', query)}
           />]}
-        <CytoGraph links={links} ml={ml}/>
         <ColorModeSwitcher/>
+        <CytoReactElement />
       </ConnectionController>
     </Provider>
   </>);
