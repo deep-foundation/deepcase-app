@@ -108,6 +108,6 @@ export function CytoReactLayout({
     {elementIds.map(id => <div style={{
       position: 'absolute',
       left: 0, top: 0,
-    }} id={generateId(id)}>{id}</div>)}
+    }} id={generateId(id)}></div>)}
   </div>;
 }

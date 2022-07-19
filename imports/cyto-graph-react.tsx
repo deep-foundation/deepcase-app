@@ -33,6 +33,8 @@ export default function CytoGraph({
   const [spaceId, setSpaceId] = useSpaceId();
   const { focus, unfocus } = useFocusMethods();
 
+  console.log(baseTypes, ml);
+
   const ref = useRef<any>();
 
   useEffect(() => {(async () => {
@@ -223,6 +225,10 @@ export default function CytoGraph({
         ncy.$(`node, edge`).not(`#${id},#${id}-from,#${id}-to,#${id}-type`).removeClass('hover');
         ncy.$(`#${id},#${id}-from,#${id}-to,#${id}-type`).addClass('hover');
       }
+      if (node.locked) {
+        node.unlock();
+        node._locked = true;
+      }
     });
     ncy.on('mouseout', '.link-from, .link-to, .link-type, .link-node', function(e) {
       var node = e.target;
@@ -230,6 +236,10 @@ export default function CytoGraph({
       if (id) {
         console.log('hover ' + id, e);
         ncy.$(`node, edge`).removeClass('hover');
+      }
+      if (node._locked) {
+        node.lock();
+        node._locked = false;
       }
     });
     ncy.on('click', '.link-from, .link-to, .link-type, .link-node', function(e) {

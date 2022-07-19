@@ -292,13 +292,14 @@ export function PageContent() {
         }
       }
     };
-    const addedListener = (nl, recursive = true, history = {}) => {
+    const addedListener = (ol, nl, recursive = true, history = {}) => {
       setGraphData((graphData) => {
         if (graphData._nodes[nl?.id]) {
           debug('!added', nl);
           return graphData;
         }
-        debug('added', nl.id, nl);
+
+        debug('added', nl?.id, nl);
 
         const active = nl?.inByType?.[baseTypes.Active]?.find(f => f.from_id === spaceId);
         debug('active', active?.id, active);
@@ -334,7 +335,7 @@ export function PageContent() {
           label.push(`type:${nl?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value}`);
         }
 
-        const labelArray = label.map((s: string) => (s.length > 30 ? `${s.slice(0, 30).trim()}...` : s));
+        const labelArray = label.map((s: string) => (s?.length > 30 ? `${s.slice(0, 30).trim()}...` : s));
         const labelString = labelArray.join('\n');
 
         // <isSelected>
@@ -377,12 +378,12 @@ export function PageContent() {
       if (history[nl.id]) return;
       history[nl.id] = true;
       debug('updated', nl.id, nl);
-      removedListener(ol, recursive, history);
-      addedListener(nl, recursive, history);
+      removedListener(ol, undefined, recursive, history);
+      addedListener(undefined, nl, recursive, history);
       debug('notify', nl.id, nl);
       if (recursive) notifyDependencies(nl, history);
     };
-    const removedListener = (ol, recursive = true, history = {}) => {
+    const removedListener = (ol, nl, recursive = true, history = {}) => {
       history[ol.id] = true;
       setGraphData((graphData) => {
         debug('removed', ol.id, graphData.links);
