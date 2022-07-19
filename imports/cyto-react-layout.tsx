@@ -41,9 +41,11 @@ export function CytoReactLayout({
       const origin = "top left";
   
       divRef.current.style.webkitTransform = val;
+      // @ts-ignore
       divRef.current.style.msTransform = val;
       divRef.current.style.transform = val;
       divRef.current.style.webkitTransformOrigin = origin;
+      // @ts-ignore
       divRef.current.style.msTransformOrigin = origin;
       divRef.current.style.transformOrigin = origin;
     }
@@ -77,6 +79,7 @@ export function CytoReactLayout({
           const val = valRel + valAbs;
           const stl = element.style;
           stl.webkitTransform = val;
+          // @ts-ignore
           stl.msTransform = val;
           stl.transform = val;
         }
