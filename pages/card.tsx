@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { ConnectionController } from '.';
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
 import { CytoGraphProps } from '../imports/cyto-graph-props';
-import { CytoReactElement } from '../imports/cyto-react-element';
+import { CytoReactLinksCard } from '../imports/cyto-react-links-card';
 import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
 
@@ -22,16 +22,14 @@ export default function Page() {
 
   return (<>
     <Provider chakra>
-      <ConnectionController>
-        {[<DeepLoader
-          key={spaceId}
-          spaceId={spaceId}
-          minilinks={minilinks}
-          // onUpdateScreenQuery={query => console.log('updateScreenQuery', query)}
-          />]}
-        <ColorModeSwitcher/>
-        <CytoReactElement />
-      </ConnectionController>
+      {[<DeepLoader
+        key={spaceId}
+        spaceId={spaceId}
+        minilinks={minilinks}
+        // onUpdateScreenQuery={query => console.log('updateScreenQuery', query)}
+        />]}
+      <ColorModeSwitcher/>
+      <CytoReactLinksCard />
     </Provider>
   </>);
 }

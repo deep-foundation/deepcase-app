@@ -183,7 +183,7 @@ export function useFocusMethods() {
       unfocus: async (id) => {
         console.log('unfocus', { spaceId, id });
         const where = { type_id: baseTypes.Focus, from_id: spaceId, to_id: id };
-        await deep.delete(where);
+        console.log('unfocused', await deep.delete(where));
       },
       focus: async (id, value: { x: number; y: number; z: number; }) => {
         console.log('focus', { spaceId, id, value });
@@ -217,6 +217,7 @@ export function useFocusMethods() {
             }, { table: 'objects' });
           }
         }
+        console.log('focused', { spaceId, id, value, focusId });
       }
     };
   }, [spaceId]);

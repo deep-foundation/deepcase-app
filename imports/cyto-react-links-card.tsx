@@ -114,7 +114,16 @@ const ListPanel = React.memo<any>(({
   )
 })
 
-export const CytoReactElement = React.memo<any>((element) => {
+export const CytoReactLinksCard = React.memo<any>(({
+  elements = [],
+}: {
+  elements: {
+    id: number;
+    src: string;
+    linkName: string;
+    containerName: string;
+  }[];
+}) => {
   const [switchLayout, setSwitchLayout] = useState('grid');
   const [selectedLink, setSelectedLink] = useState(0);
 
@@ -130,51 +139,6 @@ export const CytoReactElement = React.memo<any>((element) => {
   const selectLink = useCallback((linkId) => {
     setSelectedLink((prevLinkId) => prevLinkId == linkId ? 0 : linkId);
   }, []);
-
-  const emoji = [
-    {
-      id: 1,
-      src: '🥸',
-      linkName: 'Massage',
-      containerName: '@deepcase/massage',
-    },
-    {
-      id: 2,
-      src: '🥳',
-      linkName: 'Massage',
-      containerName: '@deepcase/massage',
-    },
-    {
-      id: 3,
-      src: '💀',
-      linkName: 'Massage',
-      containerName: '@deepcase/massage',
-    },
-    {
-      id: 4,
-      src: '💩',
-      linkName: 'Massage',
-      containerName: '@deepcase/massage',
-    },
-    {
-      id: 5,
-      src: '❤️‍🔥',
-      linkName: 'Massage',
-      containerName: '@deepcase/massage',
-    },
-    {
-      id: 6,
-      src: '💩',
-      linkName: 'Massage',
-      containerName: '@deepcase/massage',
-    },
-    {
-      id: 7,
-      src: '❤️‍🔥',
-      linkName: 'Massage',
-      containerName: '@deepcase/massage',
-    }
-  ]
 
   return (<Provider chakra>
       <Box
@@ -238,7 +202,7 @@ export const CytoReactElement = React.memo<any>((element) => {
             }}
           >
             <GridPanel 
-              data={emoji} 
+              data={elements} 
               borderColor={colorWhiteToGray} 
               onSelectLink={selectLink} 
               selectedLink={selectedLink} 
@@ -258,7 +222,7 @@ export const CytoReactElement = React.memo<any>((element) => {
               overflowY: 'scroll',
             }}
           >
-            <ListPanel data={emoji} borderColor={colorWhiteToGray} selectedLink={selectedLink} onSelectLink={selectLink}/>
+            <ListPanel data={elements} borderColor={colorWhiteToGray} selectedLink={selectedLink} onSelectLink={selectLink}/>
           </ScaleFade>
         </Box>
         <Box>
