@@ -116,6 +116,7 @@ const ListPanel = React.memo<any>(({
 
 export const CytoReactLinksCard = React.memo<any>(({
   elements = [],
+  onSubmit
 }: {
   elements: {
     id: number;
@@ -123,6 +124,7 @@ export const CytoReactLinksCard = React.memo<any>(({
     linkName: string;
     containerName: string;
   }[];
+  onSubmit?: (id: number) => any;
 }) => {
   const [switchLayout, setSwitchLayout] = useState('grid');
   const [selectedLink, setSelectedLink] = useState(0);
@@ -237,7 +239,7 @@ export const CytoReactLinksCard = React.memo<any>(({
               arial-label='submit'
               colorScheme={colorGrayToWhite}
               variant='outline'
-              onClick={() => console.log(selectedLink)}
+              onClick={() => onSubmit && onSubmit(selectedLink)}
             >
               <Text fontSize='xs'>Submit</Text>
             </Button>

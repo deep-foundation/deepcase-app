@@ -262,44 +262,11 @@ export default function CytoGraph({
           linkName: 'Massage',
           containerName: '@deepcase/massage',
         },
-        {
-          id: 2,
-          src: '🥳',
-          linkName: 'Massage',
-          containerName: '@deepcase/massage',
-        },
-        {
-          id: 3,
-          src: '💀',
-          linkName: 'Massage',
-          containerName: '@deepcase/massage',
-        },
-        {
-          id: 4,
-          src: '💩',
-          linkName: 'Massage',
-          containerName: '@deepcase/massage',
-        },
-        {
-          id: 5,
-          src: '❤️‍🔥',
-          linkName: 'Massage',
-          containerName: '@deepcase/massage',
-        },
-        {
-          id: 6,
-          src: '💩',
-          linkName: 'Massage',
-          containerName: '@deepcase/massage',
-        },
-        {
-          id: 7,
-          src: '❤️‍🔥',
-          linkName: 'Massage',
-          containerName: '@deepcase/massage',
-        }
       ]
-      return <CytoReactLinksCard elements={elements} />;
+      return <CytoReactLinksCard
+        elements={elements}
+        onSubmit={(id) => setInsertLink(undefined)}
+      />;
     };
   }, []);
   if (insertLink) {
