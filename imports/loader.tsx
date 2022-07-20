@@ -11,9 +11,11 @@ import { useDelayedInterval } from "./use-delayed-interval";
 import { useCallback, memo } from "react";
 
 export function DeepLoaderActive({
+  id,
   query,
   onChange,
 }: {
+  id: number;
   query: any;
   onChange: (results: Link<number>[]) => any;
 }) {
@@ -172,6 +174,7 @@ export const DeepLoader = memo(function DeepLoader({
   return <>
     {onlyActiveQueries?.map((f, i) => (<DeepLoaderActive
       key={f.id}
+      id={f.id}
       query={f}
       onChange={(r) => {
         setResults((results) => {
@@ -186,6 +189,7 @@ export const DeepLoader = memo(function DeepLoader({
       }}
     />))}
     <DeepLoaderActive
+      id={spaceId}
       query={useMemo(() => ({
         value: {
           value: { _by_item: {
@@ -207,6 +211,7 @@ export const DeepLoader = memo(function DeepLoader({
       }}
     />
     <DeepLoaderActive
+      id={1}
       query={useMemo(() => ({
         value: { value: {
           id: { _in: types },
@@ -225,6 +230,7 @@ export const DeepLoader = memo(function DeepLoader({
       }}
     />
     <DeepLoaderActive
+      id={baseTypes.Contain}
       query={useMemo(() => ({
         value: { value: {
           to_id: { _in: types },

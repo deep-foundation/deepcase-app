@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 
-export function defaultGenerateId(id) {
+export function defaultGenerateId(element) {
+  const id = typeof(element.id) === 'function' ? element.id() : element.id;
   return `${id}-layout-element`;
 }
 
@@ -26,11 +27,11 @@ const aligns = [
 
 export function CytoReactLayout({
   cytoRef,
-  elementIds = [],
+  elements = [],
   generateId = defaultGenerateId,
 }: {
   cytoRef: any;
-  elementIds: string[];
+  elements: any[];
   generateId?: (id: string) => string;
 }) {
   const divRef = useRef<HTMLDivElement>();
@@ -59,11 +60,11 @@ export function CytoReactLayout({
       };
     }
 
-    function renderPosition(id: string, position: any) {
-      const element = document.getElementById(generateId(id));
+    function renderPosition(cyElement: any, position: any) {
+      const id = cyElement.id();
+      const element = document.getElementById(generateId(cyElement));
+
       if (element) {
-        
-        
         const prevX = element.dataset.x;
         const prevY = element.dataset.y;
 
@@ -88,15 +89,15 @@ export function CytoReactLayout({
       }
     }
 
-    const handleUpdate =(e) => renderPosition(e.target.id(), getNodePosition(e.target));
-    const handleRender =(e) => updatePanZoom({ pan: cy.pan(), zoom: cy.zoom() });
+    const handleUpdate = (e) => renderPosition(e.target, getNodePosition(e.target));
+    const handleRender = (e) => updatePanZoom({ pan: cy.pan(), zoom: cy.zoom() });
 
     const cy = cytoRef.current._cy;
     cy.on("render", handleRender);
     cy.on("add", handleUpdate);
     cy.on("layoutstop", ({cy}: any) => {
       cy.elements().forEach((e: any) => {
-        renderPosition(e.id(), getNodePosition(e));
+        renderPosition(e, getNodePosition(e));
       });
     });
     cy.on("data", handleUpdate);
@@ -108,9 +109,14 @@ export function CytoReactLayout({
     position: 'absolute',
     left: 0, top: 0,
   }}>
-    {elementIds.map(id => <div style={{
-      position: 'absolute',
-      left: 0, top: 0,
-    }} id={generateId(id)}></div>)}
+    {elements.map((element) => {
+      const Component = element?.data?.Component;
+      return <div style={{
+        position: 'absolute',
+        left: 0, top: 0,
+      }} id={generateId(element)}>
+        <Component/>
+      </div>;
+    })}
   </div>;
 }

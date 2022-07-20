@@ -1,27 +1,64 @@
 import cytoscape from 'cytoscape';
 import edgeConnections from 'cytoscape-edge-connections';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import CytoscapeComponent from 'react-cytoscapejs';
 // import klay from 'cytoscape-klay';
 // import dagre from 'cytoscape-dagre';
 // import elk from 'cytoscape-elk';
-import { useDeep } from '@deep-foundation/deeplinks/imports/client';
+import cola from 'cytoscape-cola';
+import { useDeep, useDeepQuery } from '@deep-foundation/deeplinks/imports/client';
 import COSEBilkent from 'cytoscape-cose-bilkent';
 import cxtmenu from 'cytoscape-cxtmenu';
 import { CytoGraphProps } from './cyto-graph-props';
 import { CytoReactLayout } from './cyto-react-layout';
 import { useColorModeValue } from './framework';
 import { useChackraColor, useChackraGlobal } from './get-color';
-import { useBaseTypes, useFocusMethods, useSpaceId } from './gui';
+import { useBaseTypes, useContainer, useFocusMethods, useSpaceId } from './gui';
+import { useDebounceCallback } from '@react-hook/debounce';
+import { useRerenderer } from './rerenderer-hook';
+import json5 from 'json5';
+import { CytoReactLinksCard } from './cyto-react-links-card';
+import { useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
 
 // cytoscape.use(dagre);
-// cytoscape.use(cola);
+cytoscape.use(cola);
 cytoscape.use(COSEBilkent);
 // cytoscape.use(klay);
 // cytoscape.use(elk);
 // cytoscape.use(euler);
 cytoscape.use(cxtmenu);
 cytoscape.use(edgeConnections);
+
+function useCytoFocusMethods(cy, relayoutDebounced) {
+  const { focus, unfocus } = useFocusMethods();
+  const lockingRef = useRef<any>({});
+  return {
+    lockingRef,
+    focus: async (el, position) => {
+      const id = el?.data('link')?.id;
+      const locking = lockingRef.current;
+      if (id) {
+        locking[id] = true;
+        el.position(position);
+        el.lock();
+        const focused = await focus(id, position);
+        relayoutDebounced();
+        return focused;
+      }
+    },
+    unfocus: async (el) => {
+      const locking = lockingRef.current;
+      const id = el?.data('link')?.id;
+      if (id) {
+        el._locked = false;
+        el.unlock();
+        unfocus(id);
+        relayoutDebounced();
+        locking[id] = false;
+      }
+    }
+  };
+}
 
 export default function CytoGraph({
   links = [],
@@ -31,9 +68,11 @@ export default function CytoGraph({
   const deep = useDeep();
   const [baseTypes, setBaseTypes] = useBaseTypes();
   const [spaceId, setSpaceId] = useSpaceId();
-  const { focus, unfocus } = useFocusMethods();
+  const [container, setContainer] = useContainer();
 
-  console.log(baseTypes, ml);
+  useRerenderer(1000);
+
+  console.log('render', baseTypes, ml);
 
   const ref = useRef<any>();
 
@@ -54,41 +93,84 @@ export default function CytoGraph({
 
   // links visualization
   let cy = ref.current?._cy;
-  
+
+  const relayout = useCallback(() => {
+    let cy = ref.current?._cy;
+    const elements = cy.elements();
+    elements.layout(layout).run();
+  }, []);
+  const relayoutDebounced = useDebounceCallback(relayout, 500);
+
+  const { focus, unfocus, lockingRef } = useCytoFocusMethods(cy, relayoutDebounced);
+
   for (let i = 0; i < links.length; i++) {
     const link = links[i];
     const focus = link?.inByType?.[baseTypes.Focus]?.find(f => f.from_id === spaceId);
 
     if (!!cy) {
-      if (link.from_id && ml?.byId?.[link.from_id] && !!cy.$(`#${link.from_id}`).length) elements.push({
-        data: { id: `${link.id}-from`, source: `${link.id}`, target: `${link.from_id}`, link },
-        selectable: false,
-        classes: [
-          'link-from',
-          ...(focus ? ['focused'] : ['unfocused'])
-        ].join(' '),
-      });
-      if (link.to_id && ml?.byId?.[link.to_id] && !!cy.$(`#${link.to_id}`).length) elements.push({
-        data: { id: `${link.id}-to`, source: `${link.id}`, target: `${link.to_id}`, link },
-        selectable: false,
-        classes: [
-          'link-to',
-          ...(focus ? ['focused'] : ['unfocused'])
-        ].join(' '),
-      });
-      if (link.type_id && ml?.byId?.[link.type_id] && !!cy.$(`#${link.type_id}`).length) elements.push({
-        data: { id: `${link.id}-type`, source: `${link.id}`, target: `${link.type_id}`, link },
-        selectable: false,
-        classes: [
-          'link-type',
-          ...(focus ? ['focused'] : ['unfocused'])
-        ].join(' '),
-      });
+      if (link.from_id) {
+        if (ml?.byId?.[link.from_id] && !!cy.$(`#${link.from_id}`).length) {
+          elements.push({
+            data: { id: `${link.id}-from`, source: `${link.id}`, target: `${link.from_id}`, link },
+            selectable: false,
+            classes: [
+              'link-from',
+              ...(focus ? ['focused'] : ['unfocused'])
+            ].join(' '),
+          });
+        }
+      }
+      if (link.to_id) {
+        if (ml?.byId?.[link.to_id] && !!cy.$(`#${link.to_id}`).length) {
+          elements.push({
+            data: { id: `${link.id}-to`, source: `${link.id}`, target: `${link.to_id}`, link },
+            selectable: false,
+            classes: [
+              'link-to',
+              ...(focus ? ['focused'] : ['unfocused'])
+            ].join(' '),
+          });
+        }
+      }
+      if (link.type_id) {
+        if (ml?.byId?.[link.type_id] && !!cy.$(`#${link.type_id}`).length) {
+          elements.push({
+            data: { id: `${link.id}-type`, source: `${link.id}`, target: `${link.type_id}`, link },
+            selectable: false,
+            classes: [
+              'link-type',
+              ...(focus ? ['focused'] : ['unfocused'])
+            ].join(' '),
+          });
+        }
+      }
     }
 
+    let _value = '';
+    let _name = '';
+    let _type = '';
+    if (/*labelsConfig?.values && */link?.value?.value) {
+      let json;
+      try { json = json5.stringify(link?.value.value); } catch(error) {}
+      _value = (
+        typeof(link?.value.value) === 'object' && json
+        ? json : link?.value.value
+      );
+    }
+    if (link?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value) {
+      _name = `name:${link?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value}`;
+    }
+    if (link?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value) {
+      _type = `type:${link?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value}`;
+    }
     elements.push({
       id: link.id,
-      data: { id: `${link.id}`, label: link.id, link },
+      data: { id: `${link.id}`, label: (
+        `${link.id}`
+        +(_type ? '\n'+`${_type}` : '')
+        +(_name ? '\n'+`${_name}` : '')
+        +(_value ? '\n'+`${_value}` : '')
+      ), link },
       selectable: false,
       classes: [
         'link-node',
@@ -103,72 +185,104 @@ export default function CytoGraph({
     });
   }
 
-  elements.push({ 
-    id: 'demo-query-link-node',
-    data: { id: 'demo-query-link-node', label: 'Node big' }, 
-    selectable: false,
-    classes: 'query-link-node',
-  });
-  elements.push({ 
-    id: 'demo-query-link-from-node',
-    data: { id: 'demo-query-link-from-node', label: 'From' }, 
-    selectable: false,
-    classes: 'query-link-from-node',
-  });
-  elements.push({ 
-    id: 'demo-query-link-to-node',
-    data: { id: 'demo-query-link-to-node', label: 'To' }, 
-    selectable: false,
-    classes: 'query-link-to-node',
-  });
-  elements.push({ 
-    id: 'demo-query-link-type-node',
-    data: { id: 'demo-query-link-type-node', label: 'Type' }, 
-    selectable: false,
-    classes: 'query-link-type-node',
-  });
-  elements.push({ 
-    id: 'demo-query-link-in-node',
-    data: { id: 'demo-query-link-in-node', label: 'In' }, 
-    selectable: false,
-    classes: 'query-link-in-node',
-  });
-  elements.push({ 
-    id: 'demo-query-link-out-node',
-    data: { id: 'demo-query-link-out-node', label: 'Out' }, 
-    selectable: false,
-    classes: 'query-link-out-node',
-  });
-  elements.push({ 
-    id: 'demo-query-link-out-edge',
-    data: { id: 'demo-query-link-out-edge', source: 'demo-query-link-out-node', target: 'demo-query-link-node' }, 
-    selectable: false,
-    classes: 'query-link-out-edge',
-  });
-  elements.push({ 
-    id: 'demo-query-link-in-edge',
-    data: { id: 'demo-query-link-in-edge', source: 'demo-query-link-in-node', target: 'demo-query-link-node' }, 
-    selectable: false,
-    classes: 'query-link-in-edge',
-  });
-  elements.push({ 
-    id: 'demo-query-link-type-edge',
-    data: { id: 'demo-query-link-type-edge', source: 'demo-query-link-node', target: 'demo-query-link-type-node' }, 
-    selectable: false,
-    classes: 'query-link-type-edge',
-  });
-  elements.push({ 
-    id: 'demo-query-link-from-edge',
-    data: { id: 'demo-query-link-from-edge', source: 'demo-query-link-node', target: 'demo-query-link-from-node' }, 
-    selectable: false,
-    classes: 'query-link-from-edge',
-  });
-  elements.push({ 
-    id: 'demo-query-link-to-edge',
-    data: { id: 'demo-query-link-to-edge', source: 'demo-query-link-node', target: 'demo-query-link-to-node' }, 
-    selectable: false,
-    classes: 'query-link-to-edge',
-  });
+  // elements.push({ 
+  //   id: 'demo-query-link-node',
+  //   data: { id: 'demo-query-link-node', label: 'Node big' }, 
+  //   selectable: false,
+  //   classes: 'query-link-node',
+  // });
+  // elements.push({ 
+  //   id: 'demo-query-link-from-node',
+  //   data: { id: 'demo-query-link-from-node', label: 'From' }, 
+  //   selectable: false,
+  //   classes: 'query-link-from-node',
+  // });
+  // elements.push({ 
+  //   id: 'demo-query-link-to-node',
+  //   data: { id: 'demo-query-link-to-node', label: 'To' }, 
+  //   selectable: false,
+  //   classes: 'query-link-to-node',
+  // });
+  // elements.push({ 
+  //   id: 'demo-query-link-type-node',
+  //   data: { id: 'demo-query-link-type-node', label: 'Type' }, 
+  //   selectable: false,
+  //   classes: 'query-link-type-node',
+  // });
+  // elements.push({ 
+  //   id: 'demo-query-link-in-node',
+  //   data: { id: 'demo-query-link-in-node', label: 'In' }, 
+  //   selectable: false,
+  //   classes: 'query-link-in-node',
+  // });
+  // elements.push({ 
+  //   id: 'demo-query-link-out-node',
+  //   data: { id: 'demo-query-link-out-node', label: 'Out' }, 
+  //   selectable: false,
+  //   classes: 'query-link-out-node',
+  // });
+  // elements.push({ 
+  //   id: 'demo-query-link-out-edge',
+  //   data: { id: 'demo-query-link-out-edge', source: 'demo-query-link-out-node', target: 'demo-query-link-node' }, 
+  //   selectable: false,
+  //   classes: 'query-link-out-edge',
+  // });
+  // elements.push({ 
+  //   id: 'demo-query-link-in-edge',
+  //   data: { id: 'demo-query-link-in-edge', source: 'demo-query-link-in-node', target: 'demo-query-link-node' }, 
+  //   selectable: false,
+  //   classes: 'query-link-in-edge',
+  // });
+  // elements.push({ 
+  //   id: 'demo-query-link-type-edge',
+  //   data: { id: 'demo-query-link-type-edge', source: 'demo-query-link-node', target: 'demo-query-link-type-node' }, 
+  //   selectable: false,
+  //   classes: 'query-link-type-edge',
+  // });
+  // elements.push({ 
+  //   id: 'demo-query-link-from-edge',
+  //   data: { id: 'demo-query-link-from-edge', source: 'demo-query-link-node', target: 'demo-query-link-from-node' }, 
+  //   selectable: false,
+  //   classes: 'query-link-from-edge',
+  // });
+  // elements.push({ 
+  //   id: 'demo-query-link-to-edge',
+  //   data: { id: 'demo-query-link-to-edge', source: 'demo-query-link-node', target: 'demo-query-link-to-node' }, 
+  //   selectable: false,
+  //   classes: 'query-link-to-edge',
+  // });
+
+  const [insertLink, setInsertLink] = useState<{ x: number; y: number; }>();
+  const reactElements = [];
+  const InsertLinkCardComponent = useMemo(() => {
+    return function CytoReactLinksCardInsertNode() {
+      const { data: types } = useDeepQuery({ type_id: 1, from_id: 0, to_id: 0 });
+      const elements = (types || [])?.map(t => ({
+        id: t.id,
+        src: t.id,
+        linkName: t.id,
+        containerName: t.id,
+      }));
+      return <CytoReactLinksCard
+        elements={elements}
+        onSubmit={(id) => setInsertLink(undefined)}
+      />;
+    };
+  }, []);
+  if (insertLink) {
+    const element = {
+      id: 'insert-link-card',
+      position: insertLink,
+      locked: true,
+      classes: 'insert-link-card',
+      data: {
+        id: 'insert-link-card',
+        Component: InsertLinkCardComponent,
+      },
+    };
+    elements.push(element);
+    reactElements.push(element);
+  }
   
   const globalStyle = useChackraGlobal();
   const textColor = useChackraColor(globalStyle.body.color);
@@ -178,10 +292,49 @@ export default function CytoGraph({
   const colorBgInsertNode = useColorModeValue(white, gray900);
   const colorFocus = useColorModeValue(gray900, white);
 
-  const layout = { 
-    fit: false,
+  const layoutCosa = { 
     name: 'cose-bilkent', 
     animate: true,
+    quality: 'default',
+    // Whether to include labels in node dimensions. Useful for avoiding label overlap
+    nodeDimensionsIncludeLabels: false,
+    // number of ticks per frame; higher is faster but more jerky
+    refresh: 30,
+    // Whether to fit the network view after when done
+    fit: false,
+    // Padding on fit
+    // padding: 10,
+    // Whether to enable incremental mode
+    randomize: true,
+    // Node repulsion (non overlapping) multiplier
+    nodeRepulsion: 4500,
+    // Ideal (intra-graph) edge length
+    idealEdgeLength: 100,
+    // Divisor to compute edge forces
+    edgeElasticity: 0.7,
+    // Nesting factor (multiplier) to compute ideal edge length for inter-graph edges
+    nestingFactor: 0.1,
+    // Gravity force (constant)
+    gravity: 0.7,
+    // Maximum number of iterations to perform
+    numIter: 2500,
+    // Whether to tile disconnected nodes
+    tile: true,
+    // Type of layout animation. The option set is {'during', 'end', false}
+    // Duration for animate:end
+    animationDuration: 500,
+    // Amount of vertical space to put between degree zero nodes during tiling (can also be a function)
+    tilingPaddingVertical: 10,
+    // Amount of horizontal space to put between degree zero nodes during tiling (can also be a function)
+    tilingPaddingHorizontal: 10,
+    // Gravity range (constant) for compounds
+    gravityRangeCompound: 1.5,
+    // Gravity force (constant) for compounds
+    gravityCompound: 1.0,
+    // Gravity range (constant)
+    gravityRange: 3,
+    // Initial cooling factor for incremental layout
+    initialEnergyOnIncremental: 0.5
     // convergenceThreshold: 1000,
     // animateFilter: (node) => {
     //   return !node.focused;
@@ -191,17 +344,51 @@ export default function CytoGraph({
     // },
     // rankDir: 'TB',
   };
+  const layoutCola = { 
+    name: 'cola', 
+    animate: false, // whether to show the layout as it's running
+    refresh: 1, // number of ticks per frame; higher is faster but more jerky
+    maxSimulationTime: 4000, // max length in ms to run the layout
+    ungrabifyWhileSimulating: false, // so you can't drag nodes during layout
+    fit: false, // on every layout reposition of nodes, fit the viewport
+    // padding: 30, // padding around the simulation
+    boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
+    nodeDimensionsIncludeLabels: false, // whether labels should be included in determining the space used by a node
+  
+    // layout event callbacks
+    ready: function(){}, // on layoutready
+    stop: function(){}, // on layoutstop
+  
+    // positioning options
+    randomize: false, // use random node positions at beginning of layout
+    avoidOverlap: true, // if true, prevents overlap of node bounding boxes
+    handleDisconnected: true, // if true, avoids disconnected components from overlapping
+    convergenceThreshold: 0.01, // when the alpha value (system energy) falls below this value, the layout stops
+    nodeSpacing: function( node ){ return 50; }, // extra spacing around nodes
+    flow: undefined, // use DAG/tree flow layout if specified, e.g. { axis: 'y', minSeparation: 30 }
+    alignment: undefined, // relative alignment constraints on nodes, e.g. {vertical: [[{node: node1, offset: 0}, {node: node2, offset: 5}]], horizontal: [[{node: node3}, {node: node4}], [{node: node5}, {node: node6}]]}
+    gapInequalities: undefined, // list of inequality constraints for the gap between the nodes, e.g. [{"axis":"y", "left":node1, "right":node2, "gap":25}]
+    centerGraph: true, // adjusts the node positions initially to center the graph (pass false if you want to start the layout from the current position)
+  
+    // different methods of specifying edge length
+    // each can be a constant numerical value or a function like `function( edge ){ return 2; }`
+    edgeLength: undefined, // sets edge length directly in simulation
+    edgeSymDiffLength: undefined, // symmetric diff edge length in simulation
+    edgeJaccardLength: undefined, // jaccard edge length in simulation
+  
+    // iterations of cola algorithm; uses default values on undefined
+    unconstrIter: undefined, // unconstrained initial layout iterations
+    userConstIter: undefined, // initial layout iterations with user-specified constraints
+    allConstIter: undefined, // initial layout iterations with all constraints including non-overlap
+  };
+
+  const layout = layoutCola;
 
   const refDragStartedEvent = useRef<any>();
 
-  const relayout = useCallback(() => {
-    let cy = ref.current?._cy;
-    cy.elements().layout(layout).run();
-  }, []);
-
   useEffect(() => {
     if (!refDragStartedEvent.current) {
-      relayout();
+      relayoutDebounced();
     }
   }, [links]);
 
@@ -209,7 +396,6 @@ export default function CytoGraph({
   // undefined - not locked
   // true - locked
   // false - unlocked
-  const lockingRef = useRef<any>({});
   const refHTMLNode = useRef<any>();
 
   useEffect(() => {
@@ -227,7 +413,7 @@ export default function CytoGraph({
       }
       if (node.locked) {
         node.unlock();
-        node._locked = true;
+        node.mouseHoverDragging = true;
       }
     });
     ncy.on('mouseout', '.link-from, .link-to, .link-type, .link-node', function(e) {
@@ -237,9 +423,9 @@ export default function CytoGraph({
         console.log('hover ' + id, e);
         ncy.$(`node, edge`).removeClass('hover');
       }
-      if (node._locked) {
+      if (node.mouseHoverDragging) {
         node.lock();
-        node._locked = false;
+        node.mouseHoverDragging = false;
       }
     });
     ncy.on('click', '.link-from, .link-to, .link-type, .link-node', function(e) {
@@ -272,12 +458,8 @@ export default function CytoGraph({
       const id = node?.data('link')?.id;
       if (id) {
         console.log('dragend ' + id, evt, dragendData);
-        locking[id] = true;
-        node.position(dragendData.position);
-        node.lock();
-        focus(id, dragendData.position);
+        focus(node, dragendData?.position);
         dragendData = undefined;
-        relayout();
         ncy.$(`#${id},#${id}-from,#${id}-to,#${id}-type`).addClass('focused');
       }
     });
@@ -299,10 +481,7 @@ export default function CytoGraph({
           select: function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
-              ele.unlock();
-              unfocus(id);
-              relayout();
-              locking[id] = false;
+              unfocus(ele);
               ncy.$(`#${id},#${id}-from,#${id}-to,#${id}-type`).removeClass('focused');
             }
           }
@@ -322,16 +501,24 @@ export default function CytoGraph({
       outsideMenuCancel: 10,
       commands: [
         {
-          content: 'bg1',
-          select: function(){
-            console.log( 'bg1' );
+          content: '+query',
+          select: async function(){
+            const { data: [{ id: queryId }] } = await deep.insert({
+              type_id: await deep.id('@deep-foundation/core', 'Query'),
+              object: { data: { value: {} } },
+            });
+            if (container) await deep.insert([{
+              from_id: container,
+              to_id: queryId,
+              type_id: await deep.id('@deep-foundation/core', 'Contain'),
+            }]);
           }
         },
   
         {
-          content: 'bg2',
-          select: function(){
-            console.log( 'bg2' );
+          content: '+link',
+          select: function(el, ev){
+            setInsertLink(ev.position);
           }
         }
       ]
@@ -349,11 +536,13 @@ export default function CytoGraph({
         locking[newLink.to_id] !== false
       ) {
         const node = ncy.$(`node#${newLink.to_id}`);
-        node.unlock();
-        node.position(newLink?.value?.value);
-        relayout();
-        node.lock();
-        console.log('updated focus (unlock, pos, lock)', locking[newLink.to_id]);
+        if (!node.mouseHoverDragging) {
+          node.unlock();
+          node.position(newLink?.value?.value);
+          relayoutDebounced();
+          node.lock();
+          console.log('updated focus (unlock, pos, lock)', locking[newLink.to_id]);
+        }
       }
     };
     ml.emitter.on('updated', updatedListener);
@@ -377,7 +566,8 @@ export default function CytoGraph({
               'font-size': 16,
               'text-margin-y': -4,
               label: 'data(label)',
-              'background-image': 'https://live.staticflickr.com/3063/2751740612_af11fb090b_b.jpg',
+              "text-wrap": "wrap",
+              // 'background-image': 'https://live.staticflickr.com/3063/2751740612_af11fb090b_b.jpg',
               'background-fit': 'cover',
             }
           },
@@ -434,7 +624,6 @@ export default function CytoGraph({
               height: 16,
               'font-size': 16,
               'text-margin-y': -4,
-              label: 'data(label)',
             }
           },
           {
@@ -576,7 +765,7 @@ export default function CytoGraph({
       />
       <CytoReactLayout
         cytoRef={ref}
-        elementIds={elements.filter(e => !e?.data?.source && !e?.data?.target).map(e => e.id)}
+        elements={reactElements}
       />
     </div>
   )
