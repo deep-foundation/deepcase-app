@@ -6,7 +6,7 @@ import Linkify from 'react-linkify';
 import { BubbleArrowLeft } from '../icons/chat-bubble-left';
 import { BubbleArrowRight } from '../icons/chat-bubble-right';
 import { CytoReactLinkAvatar } from './cyto-react-avatar';
-import { Flex, Box, Link, Text, useColorModeValue, HStack, IconButton } from './framework';
+import { Box, Flex, HStack, IconButton, Link, Popover, PopoverBody, PopoverContent, PopoverTrigger, Text, Textarea, useColorModeValue } from './framework';
 import { useChackraColor, useChackraGlobal } from './get-color';
 import { Provider } from './provider';
 
@@ -81,6 +81,13 @@ export const CytoReactMessage = React.memo<any>(({
     null
   );
 
+  let [value, setValue] = useState('');
+
+  let handleInputChange = (e) => {
+    let inputValue = e.target.value
+    setValue(inputValue)
+  };
+
   return (<Provider chakra>
       <Flex maxW='sm' direction='column' alignItems='flex-end'>
         <HStack maxW='sm' display='flex' alignItems='flex-end' spacing={2}>
@@ -122,20 +129,32 @@ export const CytoReactMessage = React.memo<any>(({
           </Box>
           {align === 'right' && <CytoReactLinkAvatar emoji={emoji} name={name} src={src} />}
         </HStack>
-        <IconButton 
-          aria-label='replay to message button' 
-          variant='unstyled' 
-          colorScheme='current'
-          isRound 
-          sx={{
-            height: 5,
-            _hover: {
-              transform: 'scale(1.2)',
-            }
-          }}
-          icon={<TiArrowBackOutline />} 
-          onClick={() => console.log('replay')} 
-        />
+        <Popover placement='right-start'>
+          <PopoverTrigger>
+            <IconButton 
+              aria-label='replay to message button' 
+              variant='unstyled' 
+              colorScheme='current'
+              isRound 
+              sx={{
+                height: 5,
+                _hover: {
+                  transform: 'scale(1.2)',
+                }
+              }}
+              icon={<TiArrowBackOutline />} 
+              // onClick={() => console.log('replay')} 
+            />
+          </PopoverTrigger>
+          <PopoverContent>
+            <PopoverBody>
+              <Textarea
+                value={value}
+                onChange={handleInputChange}
+                placeholder='Write the answer' />
+            </PopoverBody>
+          </PopoverContent>
+        </Popover>
       </Flex>
     </Provider>
   )
