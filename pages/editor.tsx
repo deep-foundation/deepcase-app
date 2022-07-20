@@ -1,11 +1,11 @@
 
-import { Link, useMinilinksConstruct, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
+import { useMinilinksConstruct } from '@deep-foundation/deeplinks/imports/minilinks';
 import dynamic from "next/dynamic";
 import { ConnectionController } from '.';
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
 import { CytoGraphProps } from '../imports/cyto-graph-props';
-import { MessageTextArea } from '../imports/cyto-message-textarea';
-import { CytoReactMessage } from '../imports/cyto-react-message';
+import { EditorGrid } from '../imports/editor/editor-grid';
+import { EditorTextArea } from '../imports/editor/editor-textarea';
 import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
 
@@ -30,8 +30,7 @@ export default function Page() {
           // onUpdateScreenQuery={query => console.log('updateScreenQuery', query)}
           />]}
         <ColorModeSwitcher/>
-        <CytoReactMessage />
-        <MessageTextArea />
+        <EditorGrid editorTextAreaElement={<EditorTextArea />} />
       </ConnectionController>
     </Provider>
   </>);

@@ -6,7 +6,7 @@ import { BsCheck2 } from 'react-icons/bs';
 import { useChackraColor } from './get-color';
 
 
-export const MessageTextArea = React.memo(() => {
+export const MessageTextArea = React.memo<any>(() => {
   const gray900 = useChackraColor('gray.900');
   const white = useChackraColor('white');
   const whiteAlpha = useChackraColor('whiteAlpha.400');
