@@ -63,9 +63,6 @@ export function CytoReactLayout({
     function renderPosition(cyElement: any, position: any) {
       const id = cyElement.id();
       const element = document.getElementById(generateId(cyElement));
-      // if (id === 'insert-link-card') {
-        console.log('renderPosition', id, position, generateId(cyElement), element);
-      // }
 
       if (element) {
         const prevX = element.dataset.x;

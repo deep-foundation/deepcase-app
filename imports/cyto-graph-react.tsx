@@ -6,7 +6,7 @@ import CytoscapeComponent from 'react-cytoscapejs';
 // import dagre from 'cytoscape-dagre';
 // import elk from 'cytoscape-elk';
 import cola from 'cytoscape-cola';
-import { useDeep } from '@deep-foundation/deeplinks/imports/client';
+import { useDeep, useDeepQuery } from '@deep-foundation/deeplinks/imports/client';
 import COSEBilkent from 'cytoscape-cose-bilkent';
 import cxtmenu from 'cytoscape-cxtmenu';
 import { CytoGraphProps } from './cyto-graph-props';
@@ -18,6 +18,7 @@ import { useDebounceCallback } from '@react-hook/debounce';
 import { useRerenderer } from './rerenderer-hook';
 import json5 from 'json5';
 import { CytoReactLinksCard } from './cyto-react-links-card';
+import { useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
 
 // cytoscape.use(dagre);
 cytoscape.use(cola);
@@ -255,14 +256,13 @@ export default function CytoGraph({
   const reactElements = [];
   const InsertLinkCardComponent = useMemo(() => {
     return function CytoReactLinksCardInsertNode() {
-      const elements = [
-        {
-          id: 1,
-          src: '🥸',
-          linkName: 'Massage',
-          containerName: '@deepcase/massage',
-        },
-      ]
+      const { data: types } = useDeepQuery({ type_id: 1, from_id: 0, to_id: 0 });
+      const elements = (types || [])?.map(t => ({
+        id: t.id,
+        src: t.id,
+        linkName: t.id,
+        containerName: t.id,
+      }));
       return <CytoReactLinksCard
         elements={elements}
         onSubmit={(id) => setInsertLink(undefined)}

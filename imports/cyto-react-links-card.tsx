@@ -142,110 +142,107 @@ export const CytoReactLinksCard = React.memo<any>(({
     setSelectedLink((prevLinkId) => prevLinkId == linkId ? 0 : linkId);
   }, []);
 
-  return (<Provider chakra>
-      <Box
-        bg={colorGrayToWhite} 
-        maxW='sm'
-        maxH='md'
-        h='36'
-        w='52'
-        overflowY='hidden'
-        borderWidth='1px' 
-        borderColor={colorWhiteToGray} 
-        color={colorWhiteToGray} 
-        borderRadius='lg' 
-        overflow='hidden'
-        display='flex'
-        flexDir='column'
+  return (<Box
+    bg={colorGrayToWhite} 
+    maxW='sm'
+    maxH='md'
+    h='36'
+    w='52'
+    overflowY='hidden'
+    borderWidth='1px' 
+    borderColor={colorWhiteToGray} 
+    color={colorWhiteToGray} 
+    borderRadius='lg' 
+    overflow='hidden'
+    display='flex'
+    flexDir='column'
+  >
+    <Flex minWidth='max-content' alignItems='center' gap='2'>
+      <Spacer />
+      <IconButton 
+        aria-label='grid layout' 
+        variant='ghost' 
+        colorScheme='current'
+        isRound 
+        sx={{
+          transform: switchLayout === 'grid' && 'scale(1.2)',
+          _hover: {
+            transform: 'scale(1.2)',
+          }
+        }}
+        icon={<BsGrid3X2Gap />} 
+        onClick={() => setSwitchLayout('grid')} 
+      />
+      <IconButton 
+        aria-label='list layout' 
+        variant='ghost' 
+        colorScheme='current'
+        isRound 
+        sx={{
+          transform: switchLayout === 'list' && 'scale(1.2)',
+          _hover: {
+            transform: 'scale(1.2)',
+          }
+        }}
+        icon={<BsListUl />} 
+        onClick={() => setSwitchLayout('list')} 
+      />
+    </Flex>
+    <Box pos='relative' w='100%' h="100%">
+      <ScaleFade 
+        initialScale={0.9} 
+        in={switchLayout === 'grid'}
+        style={{
+          pointerEvents: switchLayout === 'grid' ? 'initial' : 'none',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          overflowY: 'scroll',
+        }}
       >
-        <Flex minWidth='max-content' alignItems='center' gap='2'>
-          <Spacer />
-          <IconButton 
-            aria-label='grid layout' 
-            variant='ghost' 
-            colorScheme='current'
-            isRound 
-            sx={{
-              transform: switchLayout === 'grid' && 'scale(1.2)',
-              _hover: {
-                transform: 'scale(1.2)',
-              }
-            }}
-            icon={<BsGrid3X2Gap />} 
-            onClick={() => setSwitchLayout('grid')} 
-          />
-          <IconButton 
-            aria-label='list layout' 
-            variant='ghost' 
-            colorScheme='current'
-            isRound 
-            sx={{
-              transform: switchLayout === 'list' && 'scale(1.2)',
-              _hover: {
-                transform: 'scale(1.2)',
-              }
-            }}
-            icon={<BsListUl />} 
-            onClick={() => setSwitchLayout('list')} 
-          />
-        </Flex>
-        <Box pos='relative' w='100%' h="100%">
-          <ScaleFade 
-            initialScale={0.9} 
-            in={switchLayout === 'grid'}
-            style={{
-              pointerEvents: switchLayout === 'grid' ? 'initial' : 'none',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              overflowY: 'scroll',
-            }}
-          >
-            <GridPanel 
-              data={elements} 
-              borderColor={colorWhiteToGray} 
-              onSelectLink={selectLink} 
-              selectedLink={selectedLink} 
-              borderColorSelected={colorBorderSelected} 
-            />
-          </ScaleFade>
-          <ScaleFade 
-            initialScale={0.9} 
-            in={switchLayout === 'list'}
-            style={{
-              pointerEvents: switchLayout === 'list' ? 'initial' : 'none',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              overflowY: 'scroll',
-            }}
-          >
-            <ListPanel data={elements} borderColor={colorWhiteToGray} selectedLink={selectedLink} onSelectLink={selectLink}/>
-          </ScaleFade>
-        </Box>
-        <Box>
-          <Collapse in={!!selectedLink} animateOpacity>
-            <Button
-              borderTopLeftRadius={0}
-              borderTopRightRadius={0}
-              borderBottom='none'
-              borderLeft='none'
-              borderRight='none'
-              width='100%'
-              arial-label='submit'
-              colorScheme={colorGrayToWhite}
-              variant='outline'
-              onClick={() => onSubmit && onSubmit(selectedLink)}
-            >
-              <Text fontSize='xs'>Submit</Text>
-            </Button>
-          </Collapse>
-        </Box>
-      </Box>
-    </Provider>
-  )
+        <GridPanel 
+          data={elements} 
+          borderColor={colorWhiteToGray} 
+          onSelectLink={selectLink} 
+          selectedLink={selectedLink} 
+          borderColorSelected={colorBorderSelected} 
+        />
+      </ScaleFade>
+      <ScaleFade 
+        initialScale={0.9} 
+        in={switchLayout === 'list'}
+        style={{
+          pointerEvents: switchLayout === 'list' ? 'initial' : 'none',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          overflowY: 'scroll',
+        }}
+      >
+        <ListPanel data={elements} borderColor={colorWhiteToGray} selectedLink={selectedLink} onSelectLink={selectLink}/>
+      </ScaleFade>
+    </Box>
+    <Box>
+      <Collapse in={!!selectedLink} animateOpacity>
+        <Button
+          borderTopLeftRadius={0}
+          borderTopRightRadius={0}
+          borderBottom='none'
+          borderLeft='none'
+          borderRight='none'
+          width='100%'
+          arial-label='submit'
+          colorScheme={colorGrayToWhite}
+          variant='outline'
+          onClick={() => onSubmit && onSubmit(selectedLink)}
+        >
+          <Text fontSize='xs'>Submit</Text>
+        </Button>
+      </Collapse>
+    </Box>
+  </Box>);
 })
