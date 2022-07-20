@@ -48,8 +48,12 @@ const themeChakra = extendTheme({
           justifyContent: 'center',
           padding: '1rem 0',
         },
-      }
-    }
+        outline: {
+          borderColor: 'red.500'
+        }
+      },
+
+    },
   }
 })
 

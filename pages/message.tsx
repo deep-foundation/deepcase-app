@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { ConnectionController } from '.';
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
 import { CytoGraphProps } from '../imports/cyto-graph-props';
+import { MessageTextArea } from '../imports/cyto-message-textarea';
 import { CytoReactMessage } from '../imports/cyto-react-message';
 import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
@@ -31,6 +32,7 @@ export default function Page() {
           />]}
         <ColorModeSwitcher/>
         <CytoReactMessage />
+        <MessageTextArea />
       </ConnectionController>
     </Provider>
   </>);
