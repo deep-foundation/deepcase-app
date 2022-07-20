@@ -102,6 +102,11 @@ export const EngineWindow = React.memo<any>(function EngineWindow({
         }}>reset engine</Button>
         <LinearProgress variant={operation === 'reset' ? 'indeterminate' : 'determinate'} value={!path ? 0 : 100}/>
       </Grid>
+      <Grid item xs={12}>
+        <Button size="small" fullWidth variant="outlined" onClick={async () => {
+          setConnected(true);
+        }}>skip</Button>
+      </Grid>
     </Grid>
   </>;
 });

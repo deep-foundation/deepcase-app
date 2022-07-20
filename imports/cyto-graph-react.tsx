@@ -256,7 +256,10 @@ export default function CytoGraph({
   const reactElements = [];
   const InsertLinkCardComponent = useMemo(() => {
     return function CytoReactLinksCardInsertNode() {
-      const { data: types } = useDeepQuery({ type_id: 1, from_id: 0, to_id: 0 });
+      const { data: types } = useDeepQuery({ _or: [
+        { type_id: 1, from_id: 0, to_id: 0 },
+        { type_id baseTypes.Contain, },
+      ] });
       const elements = (types || [])?.map(t => ({
         id: t.id,
         src: t.id,
@@ -265,7 +268,9 @@ export default function CytoGraph({
       }));
       return <CytoReactLinksCard
         elements={elements}
-        onSubmit={(id) => setInsertLink(undefined)}
+        onSubmit={(id) => {
+          setInsertLink(undefined)
+        }}
       />;
     };
   }, []);

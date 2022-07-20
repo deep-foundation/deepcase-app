@@ -81,7 +81,7 @@ export const CytoReactMessage = React.memo<any>(({
     null
   );
 
-  return (<Provider chakra>
+  return (<>
       <Flex maxW='sm' direction='column' alignItems='flex-end'>
         <HStack maxW='sm' display='flex' alignItems='flex-end' spacing={2}>
           {arrow === 'left' && <CytoReactLinkAvatar emoji={emoji} name={name} src={src} />}
@@ -137,7 +137,7 @@ export const CytoReactMessage = React.memo<any>(({
           onClick={() => console.log('replay')} 
         />
       </Flex>
-    </Provider>
+    </>
   )
 })
 

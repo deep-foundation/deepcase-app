@@ -22,14 +22,16 @@ export default function Page() {
 
   return (<>
     <Provider chakra>
-      {[<DeepLoader
-        key={spaceId}
-        spaceId={spaceId}
-        minilinks={minilinks}
-        // onUpdateScreenQuery={query => console.log('updateScreenQuery', query)}
-        />]}
-      <ColorModeSwitcher/>
-      <CytoReactLinksCard />
+      <>
+        {[<DeepLoader
+          key={spaceId}
+          spaceId={spaceId}
+          minilinks={minilinks}
+          // onUpdateScreenQuery={query => console.log('updateScreenQuery', query)}
+          />]}
+        <ColorModeSwitcher/>
+        <CytoReactLinksCard />
+      </>
     </Provider>
   </>);
 }
