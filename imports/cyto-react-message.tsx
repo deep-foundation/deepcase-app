@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { IconContext } from "react-icons";
 import { BsCheck2, BsCheck2All } from 'react-icons/bs';
-import { TiArrowBackOutline } from 'react-icons/ti';
 import Linkify from 'react-linkify';
 import { BubbleArrowLeft } from '../icons/chat-bubble-left';
 import { BubbleArrowRight } from '../icons/chat-bubble-right';
+import { MessageTextArea } from './cyto-message-textarea';
 import { CytoReactLinkAvatar } from './cyto-react-avatar';
-import { Flex, Box, Link, Text, useColorModeValue, HStack, IconButton } from './framework';
+import { Box, Flex, HStack, Link, Text, useColorModeValue } from './framework';
 import { useChackraColor, useChackraGlobal } from './get-color';
 import { Provider } from './provider';
 
@@ -49,6 +49,7 @@ interface IMessage {
   stage?: 'none' | 'sended' | 'received' | 'viewed';
   flexDivProps?: any;
   messageDivProps?: any;
+  answerButton?: any;
 }
 
 export const CytoReactMessage = React.memo<any>(({
@@ -63,6 +64,7 @@ export const CytoReactMessage = React.memo<any>(({
   stage = 'none',
   flexDivProps = {},
   messageDivProps = {},
+  answerButton,
 }:IMessage) => {
 
   const globalStyle = useChackraGlobal();
@@ -112,7 +114,7 @@ export const CytoReactMessage = React.memo<any>(({
               <Linkify componentDecorator={(decoratedHref: string, decoratedText: string, key: number) => <Link href={decoratedHref} children={decoratedText} key={key} onClick={(event) => {
                 event.stopPropagation();
               }}/>}>
-                <Text fontSize='sm' colorScheme={color}>
+                <Text fontSize='sm' colorScheme={gray900}>
                   {text}
                 </Text>
               </Linkify>
@@ -122,20 +124,8 @@ export const CytoReactMessage = React.memo<any>(({
           </Box>
           {align === 'right' && <CytoReactLinkAvatar emoji={emoji} name={name} src={src} />}
         </HStack>
-        <IconButton 
-          aria-label='replay to message button' 
-          variant='unstyled' 
-          colorScheme='current'
-          isRound 
-          sx={{
-            height: 5,
-            _hover: {
-              transform: 'scale(1.2)',
-            }
-          }}
-          icon={<TiArrowBackOutline />} 
-          onClick={() => console.log('replay')} 
-        />
+        {answerButton}
+        <MessageTextArea />
       </Flex>
     </>
   )
