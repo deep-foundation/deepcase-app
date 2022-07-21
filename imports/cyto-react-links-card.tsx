@@ -134,9 +134,9 @@ export const CytoReactLinksCard = React.memo<any>(({
   const gray900 = useChackraColor('gray.900');
   const white = useChackraColor('white');
   const colorBorderSelected = useChackraColor('primary');
-  const colorGrayToWhite = useColorModeValue(gray900, white);
-  const colorFocus = useColorModeValue(gray900, white);
-  const colorWhiteToGray = useColorModeValue(white, gray900);
+  const colorGrayToWhite = useColorModeValue(white, gray900);
+  const colorFocus = useColorModeValue(white, gray900);
+  const colorWhiteToGray = useColorModeValue(gray900, white);
 
   const selectLink = useCallback((linkId) => {
     setSelectedLink((prevLinkId) => prevLinkId == linkId ? 0 : linkId);

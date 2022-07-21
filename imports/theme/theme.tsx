@@ -48,9 +48,11 @@ const themeChakra = extendTheme({
           justifyContent: 'center',
           padding: '1rem 0',
         },
-        outline: {
-          borderColor: 'red.500'
-        }
+        // ЗАКОММЕНТИРОВАЛ
+        // применялось ко всем кнопкам, все стало красным
+        // outline: {
+        //   borderColor: 'red.500'
+        // }
       },
 
     },

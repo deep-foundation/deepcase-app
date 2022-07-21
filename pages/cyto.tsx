@@ -1,15 +1,17 @@
 
 import { CloseIcon } from '@chakra-ui/icons';
-import { Box, Button, ButtonGroup, Flex, HStack, IconButton } from '@chakra-ui/react';
+import { Box, Button, ButtonGroup, Flex, FormControl, FormLabel, HStack, IconButton, Switch } from '@chakra-ui/react';
 import { useDeep } from '@deep-foundation/deeplinks/imports/client';
 import { Link, useMinilinksConstruct, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
 import dynamic from "next/dynamic";
+import { useCallback, useState } from 'react';
 import { ConnectionController } from '.';
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
 import { CytoGraphProps } from '../imports/cyto-graph-props';
-import { useContainer, useSpaceId } from '../imports/gui';
+import { useContainer, useShowExtra, useSpaceId } from '../imports/hooks';
 import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
+import copy from 'copy-to-clipboard';
 
 const CytoGraph = dynamic<CytoGraphProps>(
   () => import('../imports/cyto-graph-react').then((m) => m.default),
@@ -23,15 +25,26 @@ export function Content({
   const deep = useDeep();
   const minilinks = useMinilinksConstruct();
   const { ref: mlRef, ml } = minilinks;
-  const links: Link<number>[] = useMinilinksFilter(ml, (l) => true, (l, ml) => [...ml.links]);
   const [container, setContainer] = useContainer();
+  const [extra, setExtra] = useShowExtra();
+  const links: Link<number>[] = useMinilinksFilter(
+    ml,
+    useCallback((l) => true, []),
+    useCallback((l, ml) => (
+      extra
+      ? [...ml.links]
+      : ml.links.filter(l => (
+        !(l.type_id === 3 && (!l.to || l.to?.type_id === 55 || !l.from)) &&
+        l.type_id !== 1 && l.type_id !== 55
+      ))
+    ), [extra]),
+  );
 
   return (<>
     {[<DeepLoader
       key={spaceId}
       spaceId={spaceId}
       minilinks={minilinks}
-      // onUpdateScreenQuery={query => console.log('updateScreenQuery', query)}
       />]}
     <CytoGraph links={links} ml={ml}/>
     <Box pos='absolute' left={0} top={0}>
@@ -60,6 +73,17 @@ export function Content({
             setContainer(deep.linkId);
           }}/>
         </ButtonGroup>
+        <ButtonGroup size='sm' isAttached variant='outline'>
+          <Button onClick={() => {
+            copy(deep.token);
+          }}>copy token</Button>
+        </ButtonGroup>
+        <FormControl display='flex' alignItems='center'>
+          <FormLabel htmlFor='show-extra-switch' mb='0'>
+            show extra
+          </FormLabel>
+          <Switch id='show-extra-switch' isChecked={extra} onChange={() => setExtra(!extra)}/>
+        </FormControl>
       </HStack>
     </Box>
     <ColorModeSwitcher/>

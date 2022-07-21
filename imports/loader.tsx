@@ -5,7 +5,7 @@ import { Link, LinkRelations, MinilinkCollection, MinilinksGeneratorOptionsDefau
 import { useLocalStore } from "@deep-foundation/store/local";
 import { useDebounceCallback } from "@react-hook/debounce";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useBaseTypes } from "./gui";
+import { useBaseTypes } from "./hooks";
 import { useInterval } from 'usehooks-ts';
 import { useDelayedInterval } from "./use-delayed-interval";
 import { useCallback, memo } from "react";

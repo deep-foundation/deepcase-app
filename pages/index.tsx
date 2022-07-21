@@ -17,9 +17,12 @@ import { useClickEmitter } from '../imports/click-emitter';
 import { EngineWindow, useEngineConnected } from '../imports/engine';
 import { ForceGraph, ForceGraph2D, ForceGraph3D, ForceGraphVR, SpriteText } from '../imports/graph';
 import { 
-  defaultCardWidth,
-  GUI, PaperPanel, useBackgroundTransparent, useBaseTypes, useClickSelect, useContainer, useFocusMethods, useForceGraph, useGraphiqlHeight, useInserting, useScreenFind, useSpaceId, useWindowSize,
+  useBackgroundTransparent, useBaseTypes, useClickSelect, useContainer, useFocusMethods, useForceGraph, useGraphiqlHeight, useInserting, useScreenFind, useSpaceId, useWindowSize,
   // useShowMP, useShowTypes, useContainerVisible, useLabelsConfig
+} from '../imports/hooks';
+import { 
+  defaultCardWidth,
+  GUI, PaperPanel
 } from '../imports/gui';
 import { LinkCard } from '../imports/link-card/index';
 import { DeepLoader } from '../imports/loader';
@@ -667,7 +670,8 @@ export function PageContent() {
           ? ForceGraph3D
           : ForceGraphVR
         }
-        graphData={spaceId === graphData?.spaceId ? graphData : { nodes: [], links: [] }}
+        // graphData={spaceId === graphData?.spaceId ? graphData : { nodes: [], links: [] }}
+        graphData={{ nodes: [], links: [] }}
         backgroundColor={bgTransparent ? 'transparent' : theme?.palette?.background?.default}
         // linkAutoColorBy={forceGraph_linkAutoColorBy}
         linkOpacity={1}

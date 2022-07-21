@@ -24,7 +24,7 @@ export const EditorTextArea = React.memo<any>(({
 
   return (<MonacoEditor
       options={monacoEditorOptions}
-      height="80vh"
+      height="100%"
       width="100%"
       theme="vs-dark"
       defaultLanguage="javascript"

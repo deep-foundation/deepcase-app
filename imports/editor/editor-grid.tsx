@@ -19,9 +19,9 @@ export const EditorGrid = React.memo<any>(({
   editorRight,
 }:IGrid) => {
 
-  return (<Box display='flex' flexDir='column'>
+  return (<Box display='flex' flexDir='column' h={'100%'}>
       <Box>{editorTabsElement}</Box>
-      <Box display='grid' gridTemplateColumns={columns}>
+      <Box display='grid' gridTemplateColumns={columns} h={'100%'}>
         {editorTextAreaElement}
         <Box>{editorRight}</Box>
       </Box>

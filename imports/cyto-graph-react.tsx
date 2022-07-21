@@ -1,24 +1,26 @@
 import cytoscape from 'cytoscape';
 import edgeConnections from 'cytoscape-edge-connections';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import CytoscapeComponent from 'react-cytoscapejs';
 // import klay from 'cytoscape-klay';
 // import dagre from 'cytoscape-dagre';
 // import elk from 'cytoscape-elk';
+import { useDeep } from '@deep-foundation/deeplinks/imports/client';
+import { useDebounceCallback } from '@react-hook/debounce';
 import cola from 'cytoscape-cola';
-import { useDeep, useDeepQuery } from '@deep-foundation/deeplinks/imports/client';
 import COSEBilkent from 'cytoscape-cose-bilkent';
 import cxtmenu from 'cytoscape-cxtmenu';
+import edgehandles from 'cytoscape-edgehandles';
+import { useCytoElements } from './cyto-graph-elements';
+import { useInsertedLink, useLinkReactElements, useCytoEditor } from './cyto-graph-hooks';
 import { CytoGraphProps } from './cyto-graph-props';
+import { layoutCosePreset, layoutColaPreset } from './cyto-layouts-presets';
 import { CytoReactLayout } from './cyto-react-layout';
 import { useColorModeValue } from './framework';
 import { useChackraColor, useChackraGlobal } from './get-color';
-import { useBaseTypes, useContainer, useFocusMethods, useSpaceId } from './gui';
-import { useDebounceCallback } from '@react-hook/debounce';
+import { useBaseTypes, useContainer, useFocusMethods, useShowExtra, useSpaceId } from './hooks';
 import { useRerenderer } from './rerenderer-hook';
-import json5 from 'json5';
-import { CytoReactLinksCard } from './cyto-react-links-card';
-import { useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
+import { CytoEditor } from './cyto-editor';
 
 // cytoscape.use(dagre);
 cytoscape.use(cola);
@@ -28,33 +30,44 @@ cytoscape.use(COSEBilkent);
 // cytoscape.use(euler);
 cytoscape.use(cxtmenu);
 cytoscape.use(edgeConnections);
+cytoscape.use(edgehandles);
 
 function useCytoFocusMethods(cy, relayoutDebounced) {
   const { focus, unfocus } = useFocusMethods();
   const lockingRef = useRef<any>({});
   return {
     lockingRef,
-    focus: async (el, position) => {
-      const id = el?.data('link')?.id;
-      const locking = lockingRef.current;
-      if (id) {
-        locking[id] = true;
-        el.position(position);
-        el.lock();
-        const focused = await focus(id, position);
-        relayoutDebounced();
-        return focused;
+    focus: async (elOrEl, position) => {
+      if (typeof(elOrEl) === 'number') {
+        return await focus(elOrEl, position);
+      } else {
+        const el = elOrEl;
+        const id = el?.data('link')?.id;
+        const locking = lockingRef.current;
+        if (id) {
+          locking[id] = true;
+          el.position(position);
+          el.lock();
+          const focused = await focus(id, position);
+          relayoutDebounced();
+          return focused;
+        }
       }
     },
-    unfocus: async (el) => {
-      const locking = lockingRef.current;
-      const id = el?.data('link')?.id;
-      if (id) {
-        el._locked = false;
-        el.unlock();
-        unfocus(id);
-        relayoutDebounced();
-        locking[id] = false;
+    unfocus: async (elOrEl) => {
+      if (typeof(elOrEl) === 'number') {
+        return await unfocus(elOrEl);
+      } else {
+        const el = elOrEl;
+        const locking = lockingRef.current;
+        const id = el?.data('link')?.id;
+        if (id) {
+          el._locked = false;
+          el.unlock();
+          unfocus(id);
+          relayoutDebounced();
+          locking[id] = false;
+        }
       }
     }
   };
@@ -64,17 +77,15 @@ export default function CytoGraph({
   links = [],
   ml,
 }: CytoGraphProps){
-  const elements = [];
   const deep = useDeep();
   const [baseTypes, setBaseTypes] = useBaseTypes();
   const [spaceId, setSpaceId] = useSpaceId();
   const [container, setContainer] = useContainer();
+  const [extra, setExtra] = useShowExtra();
 
   useRerenderer(1000);
 
-  console.log('render', baseTypes, ml);
-
-  const ref = useRef<any>();
+  const refCy = useRef<any>();
 
   useEffect(() => {(async () => {
     try {
@@ -86,104 +97,29 @@ export default function CytoGraph({
         Active: await deep.id('@deep-foundation/core', 'Active'),
         Query: await deep.id('@deep-foundation/core', 'Query'),
         Space: await deep.id('@deep-foundation/core', 'Space'),
+        Value: await deep.id('@deep-foundation/core', 'Value'),
+        String: await deep.id('@deep-foundation/core', 'String'),
+        Number: await deep.id('@deep-foundation/core', 'Number'),
+        Object: await deep.id('@deep-foundation/core', 'Object'),
         User: await deep.id('@deep-foundation/core', 'User'),
+        Any: await deep.id('@deep-foundation/core', 'Any'),
       });
     } catch(error) {}
   })()}, []);
 
   // links visualization
-  let cy = ref.current?._cy;
+  let cy = refCy.current?._cy;
+
+  const { elements, reactElements } = useCytoElements(ml, links, baseTypes, cy, spaceId);
 
   const relayout = useCallback(() => {
-    let cy = ref.current?._cy;
+    let cy = refCy.current?._cy;
     const elements = cy.elements();
     elements.layout(layout).run();
   }, []);
   const relayoutDebounced = useDebounceCallback(relayout, 500);
 
   const { focus, unfocus, lockingRef } = useCytoFocusMethods(cy, relayoutDebounced);
-
-  for (let i = 0; i < links.length; i++) {
-    const link = links[i];
-    const focus = link?.inByType?.[baseTypes.Focus]?.find(f => f.from_id === spaceId);
-
-    if (!!cy) {
-      if (link.from_id) {
-        if (ml?.byId?.[link.from_id] && !!cy.$(`#${link.from_id}`).length) {
-          elements.push({
-            data: { id: `${link.id}-from`, source: `${link.id}`, target: `${link.from_id}`, link },
-            selectable: false,
-            classes: [
-              'link-from',
-              ...(focus ? ['focused'] : ['unfocused'])
-            ].join(' '),
-          });
-        }
-      }
-      if (link.to_id) {
-        if (ml?.byId?.[link.to_id] && !!cy.$(`#${link.to_id}`).length) {
-          elements.push({
-            data: { id: `${link.id}-to`, source: `${link.id}`, target: `${link.to_id}`, link },
-            selectable: false,
-            classes: [
-              'link-to',
-              ...(focus ? ['focused'] : ['unfocused'])
-            ].join(' '),
-          });
-        }
-      }
-      if (link.type_id) {
-        if (ml?.byId?.[link.type_id] && !!cy.$(`#${link.type_id}`).length) {
-          elements.push({
-            data: { id: `${link.id}-type`, source: `${link.id}`, target: `${link.type_id}`, link },
-            selectable: false,
-            classes: [
-              'link-type',
-              ...(focus ? ['focused'] : ['unfocused'])
-            ].join(' '),
-          });
-        }
-      }
-    }
-
-    let _value = '';
-    let _name = '';
-    let _type = '';
-    if (/*labelsConfig?.values && */link?.value?.value) {
-      let json;
-      try { json = json5.stringify(link?.value.value); } catch(error) {}
-      _value = (
-        typeof(link?.value.value) === 'object' && json
-        ? json : link?.value.value
-      );
-    }
-    if (link?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value) {
-      _name = `name:${link?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value}`;
-    }
-    if (link?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value) {
-      _type = `type:${link?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value}`;
-    }
-    elements.push({
-      id: link.id,
-      data: { id: `${link.id}`, label: (
-        `${link.id}`
-        +(_type ? '\n'+`${_type}` : '')
-        +(_name ? '\n'+`${_name}` : '')
-        +(_value ? '\n'+`${_value}` : '')
-      ), link },
-      selectable: false,
-      classes: [
-        'link-node',
-        ...(focus ? ['focused'] : ['unfocused'])
-      ].join(' '),
-      
-      ...(focus?.value?.value?.x ? {
-        position: focus?.value?.value?.x ? focus?.value?.value : {},
-        locked: !!focus,
-      } : {}),
-      focused: !!focus,
-    });
-  }
 
   // elements.push({ 
   //   id: 'demo-query-link-node',
@@ -252,42 +188,7 @@ export default function CytoGraph({
   //   classes: 'query-link-to-edge',
   // });
 
-  const [insertLink, setInsertLink] = useState<{ x: number; y: number; }>();
-  const reactElements = [];
-  const InsertLinkCardComponent = useMemo(() => {
-    return function CytoReactLinksCardInsertNode() {
-      const { data: types } = useDeepQuery({ _or: [
-        { type_id: 1, from_id: 0, to_id: 0 },
-        { type_id baseTypes.Contain, },
-      ] });
-      const elements = (types || [])?.map(t => ({
-        id: t.id,
-        src: t.id,
-        linkName: t.id,
-        containerName: t.id,
-      }));
-      return <CytoReactLinksCard
-        elements={elements}
-        onSubmit={(id) => {
-          setInsertLink(undefined)
-        }}
-      />;
-    };
-  }, []);
-  if (insertLink) {
-    const element = {
-      id: 'insert-link-card',
-      position: insertLink,
-      locked: true,
-      classes: 'insert-link-card',
-      data: {
-        id: 'insert-link-card',
-        Component: InsertLinkCardComponent,
-      },
-    };
-    elements.push(element);
-    reactElements.push(element);
-  }
+  const { setInsertingLink } = useInsertedLink(elements, reactElements, focus, refCy, baseTypes, ml);
   
   const globalStyle = useChackraGlobal();
   const textColor = useChackraColor(globalStyle.body.color);
@@ -297,97 +198,7 @@ export default function CytoGraph({
   const colorBgInsertNode = useColorModeValue(white, gray900);
   const colorFocus = useColorModeValue(gray900, white);
 
-  const layoutCosa = { 
-    name: 'cose-bilkent', 
-    animate: true,
-    quality: 'default',
-    // Whether to include labels in node dimensions. Useful for avoiding label overlap
-    nodeDimensionsIncludeLabels: false,
-    // number of ticks per frame; higher is faster but more jerky
-    refresh: 30,
-    // Whether to fit the network view after when done
-    fit: false,
-    // Padding on fit
-    // padding: 10,
-    // Whether to enable incremental mode
-    randomize: true,
-    // Node repulsion (non overlapping) multiplier
-    nodeRepulsion: 4500,
-    // Ideal (intra-graph) edge length
-    idealEdgeLength: 100,
-    // Divisor to compute edge forces
-    edgeElasticity: 0.7,
-    // Nesting factor (multiplier) to compute ideal edge length for inter-graph edges
-    nestingFactor: 0.1,
-    // Gravity force (constant)
-    gravity: 0.7,
-    // Maximum number of iterations to perform
-    numIter: 2500,
-    // Whether to tile disconnected nodes
-    tile: true,
-    // Type of layout animation. The option set is {'during', 'end', false}
-    // Duration for animate:end
-    animationDuration: 500,
-    // Amount of vertical space to put between degree zero nodes during tiling (can also be a function)
-    tilingPaddingVertical: 10,
-    // Amount of horizontal space to put between degree zero nodes during tiling (can also be a function)
-    tilingPaddingHorizontal: 10,
-    // Gravity range (constant) for compounds
-    gravityRangeCompound: 1.5,
-    // Gravity force (constant) for compounds
-    gravityCompound: 1.0,
-    // Gravity range (constant)
-    gravityRange: 3,
-    // Initial cooling factor for incremental layout
-    initialEnergyOnIncremental: 0.5
-    // convergenceThreshold: 1000,
-    // animateFilter: (node) => {
-    //   return !node.focused;
-    // },
-    // edgeWeight: (edge) => {
-    //   return !edge.is('.link-type');
-    // },
-    // rankDir: 'TB',
-  };
-  const layoutCola = { 
-    name: 'cola', 
-    animate: false, // whether to show the layout as it's running
-    refresh: 1, // number of ticks per frame; higher is faster but more jerky
-    maxSimulationTime: 4000, // max length in ms to run the layout
-    ungrabifyWhileSimulating: false, // so you can't drag nodes during layout
-    fit: false, // on every layout reposition of nodes, fit the viewport
-    // padding: 30, // padding around the simulation
-    boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
-    nodeDimensionsIncludeLabels: false, // whether labels should be included in determining the space used by a node
-  
-    // layout event callbacks
-    ready: function(){}, // on layoutready
-    stop: function(){}, // on layoutstop
-  
-    // positioning options
-    randomize: false, // use random node positions at beginning of layout
-    avoidOverlap: true, // if true, prevents overlap of node bounding boxes
-    handleDisconnected: true, // if true, avoids disconnected components from overlapping
-    convergenceThreshold: 0.01, // when the alpha value (system energy) falls below this value, the layout stops
-    nodeSpacing: function( node ){ return 50; }, // extra spacing around nodes
-    flow: undefined, // use DAG/tree flow layout if specified, e.g. { axis: 'y', minSeparation: 30 }
-    alignment: undefined, // relative alignment constraints on nodes, e.g. {vertical: [[{node: node1, offset: 0}, {node: node2, offset: 5}]], horizontal: [[{node: node3}, {node: node4}], [{node: node5}, {node: node6}]]}
-    gapInequalities: undefined, // list of inequality constraints for the gap between the nodes, e.g. [{"axis":"y", "left":node1, "right":node2, "gap":25}]
-    centerGraph: true, // adjusts the node positions initially to center the graph (pass false if you want to start the layout from the current position)
-  
-    // different methods of specifying edge length
-    // each can be a constant numerical value or a function like `function( edge ){ return 2; }`
-    edgeLength: undefined, // sets edge length directly in simulation
-    edgeSymDiffLength: undefined, // symmetric diff edge length in simulation
-    edgeJaccardLength: undefined, // jaccard edge length in simulation
-  
-    // iterations of cola algorithm; uses default values on undefined
-    unconstrIter: undefined, // unconstrained initial layout iterations
-    userConstIter: undefined, // initial layout iterations with user-specified constraints
-    allConstIter: undefined, // initial layout iterations with all constraints including non-overlap
-  };
-
-  const layout = layoutCola;
+  const layout = layoutCosePreset;
 
   const refDragStartedEvent = useRef<any>();
 
@@ -402,19 +213,57 @@ export default function CytoGraph({
   // true - locked
   // false - unlocked
   const refHTMLNode = useRef<any>();
+  
+  const { linkReactElements, toggleLinkReactElement } = useLinkReactElements(elements, reactElements, refCy);
+  const [cytoEditor, setCytoEditor] = useCytoEditor();
+
+  const ehDirectionRef = useRef<any>();
 
   useEffect(() => {
     const locking = lockingRef.current;
 
-    let ncy = ref.current?._cy;
+    let ncy = refCy.current?._cy;
+
+    let eh = ncy.edgehandles({
+      // canConnect: function( sourceNode, targetNode ){
+      //   // whether an edge can be created between source and target
+      //   return !sourceNode.same(targetNode); // e.g. disallow loops
+      // },
+      // edgeParams: function( sourceNode, targetNode ){
+      //   // for edges between the specified source and target
+      //   // return element object to be passed to cy.add() for edge
+      //   return {};
+      // },
+      hoverDelay: 150, // time spent hovering over a target node before it is considered selected
+      snap: true, // when enabled, the edge can be drawn by just moving close to a target node (can be confusing on compound graphs)
+      snapThreshold: 50, // the target node must be less than or equal to this many pixels away from the cursor/finger
+      snapFrequency: 15, // the number of times per second (Hz) that snap checks done (lower is less expensive)
+      noEdgeEventsInDraw: true, // set events:no to edges during draws, prevents mouseouts on compounds
+      disableBrowserGestures: true // during an edge drawing gesture, disable browser gestures such as two-finger trackpad swipe and pinch-to-zoom
+    });
+    ncy.on('ehcomplete', async (event, sourceNode, targetNode, addedEdge) => {
+      let { position } = event;
+      addedEdge.remove();
+      const sid = sourceNode?.data('link')?.id;
+      const tid = targetNode?.data('link')?.id;
+      if (sid && tid && ehDirectionRef.current) {
+        let from, to;
+        if (ehDirectionRef.current === 'out') {
+          from = sid; to = tid;
+        } else if (ehDirectionRef.current === 'in') {
+          from = tid; to = sid;
+        }
+        setInsertingLink({ position: targetNode.position(), from, to });
+      }
+    });
 
     ncy.on('mouseover', '.link-from, .link-to, .link-type, .link-node', function(e) {
       var node = e.target;
       const id = node?.data('link')?.id;
       if (id) {
-        console.log('hover ' + id, e);
+        console.log('mouseover ' + id, e, ml.byId[id]);
         ncy.$(`node, edge`).not(`#${id},#${id}-from,#${id}-to,#${id}-type`).removeClass('hover');
-        ncy.$(`#${id},#${id}-from,#${id}-to,#${id}-type`).addClass('hover');
+        ncy.$(`#${id},#${id}-from,#${id}-to,#${id}-type`).not(`.unhoverable`).addClass('hover');
       }
       if (node.locked) {
         node.unlock();
@@ -425,7 +274,7 @@ export default function CytoGraph({
       var node = e.target;
       const id = node?.data('link')?.id;
       if (id) {
-        console.log('hover ' + id, e);
+        console.log('mouseout ' + id, e, ml.byId[id]);
         ncy.$(`node, edge`).removeClass('hover');
       }
       if (node.mouseHoverDragging) {
@@ -437,7 +286,7 @@ export default function CytoGraph({
       var node = e.target;
       const id = node?.data('link')?.id;
       if (id) {
-        console.log('click ' + id, e);
+        console.log('click ' + id, e, ml.byId[id]);
         ncy.$(`node, edge`).not(`#${id},#${id}-from,#${id}-to,#${id}-type`).removeClass('clicked');
         ncy.$(`#${id},#${id}-from,#${id}-to,#${id}-type`).toggleClass('clicked');
       }
@@ -470,17 +319,27 @@ export default function CytoGraph({
     });
     
     ncy.cxtmenu({
-      selector: 'node, edge',
+      selector: '.link-node',
       outsideMenuCancel: 10,
-      commands: [ 
+      commands: [
         {
-          content: '<span class="fa fa-star fa-2x"></span>',
+          content: 'client handler',
           select: function(ele){
-            console.log( ele.data('name') );
-          },
-          enabled: false
+            const id = ele.data('link')?.id;
+            if (id) {
+              toggleLinkReactElement(id);
+            }
+          }
         },
-        
+        {
+          content: 'editor',
+          select: function(ele){
+            const id = ele.data('link')?.id;
+            if (id) {
+              setCytoEditor(true);
+            }
+          }
+        },
         {
           content: 'Unlock',
           select: function(ele){ 
@@ -491,13 +350,35 @@ export default function CytoGraph({
             }
           }
         },
-
         {
-          content: 'Text',
-          select: function(ele){
-            console.log( ele.position() );
+          content: 'Delete',
+          select: async function(ele){ 
+            const id = ele.data('link')?.id;
+            if (id) {
+              await deep.delete(+id);
+            }
           }
-        }
+        },
+        {
+          content: '+out',
+          select: function(ele){ 
+            const id = ele.data('link')?.id;
+            if (id) {
+              ehDirectionRef.current = 'out';
+              eh.start(ele);
+            }
+          }
+        },
+        {
+          content: '+in',
+          select: async function(ele){ 
+            const id = ele.data('link')?.id;
+            if (id) {
+              ehDirectionRef.current = 'in';
+              eh.start(ele);
+            }
+          }
+        },
       ]
     });
   
@@ -523,10 +404,16 @@ export default function CytoGraph({
         {
           content: '+link',
           select: function(el, ev){
-            setInsertLink(ev.position);
+            setInsertingLink({ position: ev.position, from: 0, to: 0 });
           }
         }
       ]
+    });
+    
+    ncy.on('tap', function(event){
+      if(event.target === ncy){
+        setInsertingLink(undefined);
+      }
     });
 
     // on update link or link value - unlock reposition lock
@@ -558,12 +445,18 @@ export default function CytoGraph({
 
   return (<div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
     <CytoscapeComponent
-        ref={ref}
+        ref={refCy}
         elements={elements} 
         layout={layout}
         stylesheet={[
           {
             selector: 'node',
+            style: {
+              'background-opacity': 0,
+            },
+          },
+          {
+            selector: '.link-node',
             style: {
               color: textColor,
               width: 24,
@@ -574,10 +467,11 @@ export default function CytoGraph({
               "text-wrap": "wrap",
               // 'background-image': 'https://live.staticflickr.com/3063/2751740612_af11fb090b_b.jpg',
               'background-fit': 'cover',
+              'background-opacity': 1,
             }
           },
           {
-            selector: 'node.hover',
+            selector: '.link-node.hover',
             style: {
               'z-compound-depth': 'top',
               'overlay-opacity': 0,
@@ -616,6 +510,15 @@ export default function CytoGraph({
               'target-distance-from-node': 8,
               'source-distance-from-node': 1,
             }
+          },
+          {
+            selector: '.eh-ghost-edge,edge.eh-preview',
+            style: {
+              'width': 2,
+              'line-color': colorClicked,
+              'target-arrow-color': colorClicked,
+              'source-arrow-color': colorClicked,
+            },
           },
           {
             selector: '.query-link-node',
@@ -769,9 +672,10 @@ export default function CytoGraph({
         style={ { width: '100%', height: '100vh' } } 
       />
       <CytoReactLayout
-        cytoRef={ref}
+        cytoRef={refCy}
         elements={reactElements}
       />
+      <CytoEditor/>
     </div>
   )
 }

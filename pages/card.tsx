@@ -1,6 +1,7 @@
 
 import { Link, useMinilinksConstruct, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
 import dynamic from "next/dynamic";
+import { useCallback } from 'react';
 import { ConnectionController } from '.';
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
 import { CytoGraphProps } from '../imports/cyto-graph-props';
@@ -18,7 +19,11 @@ export default function Page() {
   const spaceId = 234;
   const minilinks = useMinilinksConstruct();
   const { ref: mlRef, ml } = minilinks;
-  const links: Link<number>[] = useMinilinksFilter(ml, (l) => true, (l, ml) => [...ml.links]);
+  const links: Link<number>[] = useMinilinksFilter(
+    ml,
+    useCallback((l) => true, []),
+    useCallback((l, ml) => [...ml.links], []),
+  );
 
   return (<>
     <Provider chakra>

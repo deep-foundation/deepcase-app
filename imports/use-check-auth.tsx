@@ -2,7 +2,7 @@ import { useDeep } from "@deep-foundation/deeplinks/imports/client";
 import { useTokenController } from "@deep-foundation/deeplinks/imports/react-token";
 import { useEffect, useRef } from "react";
 import Debug from 'debug';
-import { useSpaceId } from "./gui";
+import { useSpaceId } from "./hooks";
 import { useEngineConnected } from "./engine";
 
 const debug = Debug('deepcase:use-check-auth');

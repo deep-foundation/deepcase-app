@@ -1,7 +1,12 @@
 import { useEffect, useRef } from "react";
+import ReactResizeDetector from 'react-resize-detector';
+
+function getId(element) {
+  return typeof(element.id) === 'function' ? element.id() : element.id;
+}
 
 export function defaultGenerateId(element) {
-  const id = typeof(element.id) === 'function' ? element.id() : element.id;
+  const id = getId(element);
   return `${id}-layout-element`;
 }
 
@@ -110,12 +115,24 @@ export function CytoReactLayout({
     left: 0, top: 0,
   }}>
     {elements.map((element) => {
-      const Component = element?.data?.Component;
+      const cy = cytoRef.current._cy;
+      const id = getId(element);
+      const Component = cy.$(`#${id}`).data('Component');
+      const reactElement = Component ? <Component id={id}/> : null;
       return <div style={{
         position: 'absolute',
         left: 0, top: 0,
       }} id={generateId(element)}>
-        <Component/>
+        <ReactResizeDetector handleWidth handleHeight onResize={(width, height) => {
+          cy.$(`#${id}`).data('react-element-size', { width, height });
+          cy.$(`#${id}`).style({
+            'shape': 'rectangle',
+            'background': 'transparent',
+            width,
+            height,
+          });
+        }}/>
+        {reactElement}
       </div>;
     })}
   </div>;

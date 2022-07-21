@@ -3,7 +3,7 @@ import { TextField, Typography } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import { useState } from "react";
 import { useDeepGraph, useSelectedLinksMethods } from "../pages";
-import { useBaseTypes, useScreenFind } from "./gui";
+import { useBaseTypes, useScreenFind } from "./hooks";
 import levenSort from 'leven-sort';
 
 export function ScreenFind({

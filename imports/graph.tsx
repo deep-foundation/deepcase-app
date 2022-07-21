@@ -57,15 +57,17 @@ if (_.get(process, 'browser')) {
         props.onNodeClick && props.onNodeClick(node);
       }, [activeRef, last]);
 
-      return <div className={classes.wrapper}><Component
-        {...props}
-        ref={activeRef}
-        // TODO arrows without slow fps
-        // linkDirectionalArrowLength={10}
-        // linkDirectionalArrowRelPos={0.9}
-        // linkCurvature={0.25}
-        onNodeClick={onNodeClick}
-      /></div>;
+      return <div className={classes.wrapper}>
+        <Component
+          {...props}
+          ref={activeRef}
+          // TODO arrows without slow fps
+          // linkDirectionalArrowLength={10}
+          // linkDirectionalArrowRelPos={0.9}
+          // linkCurvature={0.25}
+          onNodeClick={onNodeClick}
+        />
+      </div>;
     });
   } catch(error) {}
 } else {

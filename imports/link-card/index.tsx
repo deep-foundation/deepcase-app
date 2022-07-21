@@ -15,7 +15,7 @@ import { LinkCardSubject } from './types/subject';
 import json5 from 'json5';
 import { Link, MinilinksResult, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
 import { isString, isNumber, isObject } from 'lodash';
-import { useBaseTypes, useFocusMethods, PaperPanel, useSpaceId, useActiveMethods, useInserting } from '../gui';
+import { useBaseTypes, useFocusMethods, useSpaceId, useActiveMethods, useInserting } from '../hooks';
 import LineTo from 'react-lineto';
 import dynamic from 'next/dynamic';
 import CodeIcon from '@material-ui/icons/Code';
@@ -122,19 +122,14 @@ export function LinkCard({
   const activeMethods = useActiveMethods();
   const [spaceId, setSpaceId] = useSpaceId();
   const [inserting, setInserting] = useInserting();
-  // const focusLinks = useMinilinksFilter(ml, useCallback((ol, nl) => !!(nl.type_id === baseTypes.Focus && nl.to_id === link.id), [baseTypes]));
-  // const wq = useDeepQuery(useMemo(() => ({
-  //   in: {
-  //     type: ['@deep-foundation/core', 'Value'],
-  //     from_id: link?.type_id
-  //   },
-  // }), []));
-
-  // console.log(wq);
 
   // NeedPackerTypeNaming
 
-  const active = useMinilinksFilter(ml, (l) => l?.type_id === baseTypes?.Activelink, l => link?.inByType?.[baseTypes?.Active]?.find(f => f?.from_id === spaceId));
+  const active = useMinilinksFilter(
+    ml,
+    useCallback((l) => l?.type_id === baseTypes?.Activelink, []),
+    useCallback(l => link?.inByType?.[baseTypes?.Active]?.find(f => f?.from_id === spaceId), []),
+  );
 
   const [codeEditor, setCodeEditor] = useState(false);
 
