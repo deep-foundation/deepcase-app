@@ -3,6 +3,8 @@ import { useState, useMemo } from "react";
 import { useLocalStorage } from "usehooks-ts";
 import { CytoReactLinksCard } from "./cyto-react-links-card";
 import { useContainer } from "./hooks";
+import { LinkClientHandlerDefault } from "./link-client-handlers/default";
+import { CatchErrors } from "./react-errors";
 
 export interface IInsertedLink {
   position: { x: number; y: number; };
@@ -18,8 +20,8 @@ export function useInsertedLink(elements, reactElements, focus, refCy, baseTypes
     return function CytoReactLinksCardInsertNode({
       from, to
     }: IInsertedLink) {
-      const fromType = ml.byId[from].type_id;
-      const toType = ml.byId[to].type_id;
+      const fromType = ml.byId?.[from]?.type_id;
+      const toType = ml.byId?.[to]?.type_id;
       const { data: types } = useDeepQuery(
         useMemo(() => ({
           _or: (!from && !to) ? [
@@ -53,12 +55,18 @@ export function useInsertedLink(elements, reactElements, focus, refCy, baseTypes
                 value
               }
             }
+            symbols: in(where: {
+              type_id: { _eq: ${baseTypes.Symbol} },
+            }) {
+              id
+              value
+            }
           `,
         }), [baseTypes]),
       );
       const elements = (types || [])?.map(t => ({
         id: t.id,
-        src: t.id,
+        src: t?.symbols?.[0]?.value?.value || t.id,
         linkName: t?.contains?.[0]?.value?.value || t.id,
         containerName: t?.contains?.[0]?.from?.value?.value || '',
       }));
@@ -73,10 +81,10 @@ export function useInsertedLink(elements, reactElements, focus, refCy, baseTypes
               valued === baseTypes.Number ? { number: { data: { value: 0 } } } :
               valued === baseTypes.Object ? { object: { data: { value: {} } } } :
               {}),
-            ...(container ? {
+            ...(container && id !== baseTypes.Contain ? {
               in: { data: {
                 from_id: container,
-                type_id: await deep.id('@deep-foundation/core', 'Contain'),
+                type_id: baseTypes.Contain,
               } },
             } : {}),
             from_id: from || 0,
@@ -115,8 +123,10 @@ export function useInsertedLink(elements, reactElements, focus, refCy, baseTypes
         setInsertLink(insertedLink);
         const el = cy.$('#insert-link-card');
         el.unlock();
-        el.position(insertedLink.position);
-        el.lock();
+        if (!insertedLink.from && !insertedLink.to) {
+          el.position(insertedLink.position);
+          el.lock();
+        }
       } else {
         setInsertLink(undefined);
       }
@@ -140,6 +150,7 @@ export function useLinkReactElements(elements, reactElements, refCy) {
         cy.$(`#${id}`).addClass('unhoverable').removeClass('hover');
         cy.$(`#${id}`).style({
           'shape': 'rectangle',
+          'background-opacity': '0',
         });
       } else {
         cy.$(`#${id}`).data('Component', undefined);
@@ -148,6 +159,7 @@ export function useLinkReactElements(elements, reactElements, refCy) {
           'shape': null,
           width: null,
           height: null,
+          'background-opacity': null,
         });
       }
       return {
@@ -160,12 +172,17 @@ export function useLinkReactElements(elements, reactElements, refCy) {
   const AnyLinkComponent = useMemo(() => {
     return function AnyLinkComponent({ id }: { id: number }) {
       return <div
-        style={{
-          width: 50, height: 50, background: 'red',
-          opacity: 0.5,
+        style={{}}
+        onClick={() => {
+          toggleLinkReactElement(id)
         }}
-        onClick={() => toggleLinkReactElement(id)}
-      >{id}</div>;
+      >
+        <CatchErrors errorRenderer={(error, reset) => {
+          return <div>{String(error)}</div>;
+        }}>
+          <LinkClientHandlerDefault/>
+        </CatchErrors>
+      </div>;
     };
   }, []);
 

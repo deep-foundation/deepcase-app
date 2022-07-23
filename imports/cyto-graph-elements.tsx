@@ -2,6 +2,7 @@ import json5 from 'json5';
 import { useMemo } from 'react';
 
 export function useCytoElements(ml, links, baseTypes, cy, spaceId) {
+  const _elements: { [key: string]: any } = {};
   const elements = [];
   const reactElements = [];
 
@@ -9,48 +10,10 @@ export function useCytoElements(ml, links, baseTypes, cy, spaceId) {
     const link = links[i];
     const focus = link?.inByType?.[baseTypes.Focus]?.find(f => f.from_id === spaceId);
 
-    if (!!cy) {
-      if (link.from_id) {
-        if (ml?.byId?.[link.from_id] && !!cy.$(`#${link.from_id}`).length) {
-          elements.push({
-            data: { id: `${link.id}-from`, source: `${link.id}`, target: `${link.from_id}`, link },
-            selectable: false,
-            classes: [
-              'link-from',
-              ...(focus ? ['focused'] : ['unfocused'])
-            ].join(' '),
-          });
-        }
-      }
-      if (link.to_id) {
-        if (ml?.byId?.[link.to_id] && !!cy.$(`#${link.to_id}`).length) {
-          elements.push({
-            data: { id: `${link.id}-to`, source: `${link.id}`, target: `${link.to_id}`, link },
-            selectable: false,
-            classes: [
-              'link-to',
-              ...(focus ? ['focused'] : ['unfocused'])
-            ].join(' '),
-          });
-        }
-      }
-      if (link.type_id) {
-        if (ml?.byId?.[link.type_id] && !!cy.$(`#${link.type_id}`).length) {
-          elements.push({
-            data: { id: `${link.id}-type`, source: `${link.id}`, target: `${link.type_id}`, link },
-            selectable: false,
-            classes: [
-              'link-type',
-              ...(focus ? ['focused'] : ['unfocused'])
-            ].join(' '),
-          });
-        }
-      }
-    }
-
     let _value = '';
     let _name = '';
     let _type = '';
+    let _symbol = '';
     if (/*labelsConfig?.values && */link?.value?.value) {
       let json;
       try { json = json5.stringify(link?.value.value); } catch(error) {}
@@ -65,7 +28,11 @@ export function useCytoElements(ml, links, baseTypes, cy, spaceId) {
     if (link?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value) {
       _type = `type:${link?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value}`;
     }
-    elements.push({
+    if (link?.type?.inByType?.[baseTypes?.Symbol]?.[0]?.value?.value) {
+      _symbol = link?.type?.inByType?.[baseTypes?.Symbol]?.[0]?.value?.value;
+    }
+
+    const element = {
       id: link.id,
       data: {
         id: `${link.id}`,
@@ -74,6 +41,7 @@ export function useCytoElements(ml, links, baseTypes, cy, spaceId) {
           +(_type ? '\n'+`${_type}` : '')
           +(_name ? '\n'+`${_name}` : '')
           +(_value ? '\n'+`${_value}` : '')
+          +`\n\n ${_symbol || '📍'}`
         ),
         link,
       },
@@ -88,9 +56,49 @@ export function useCytoElements(ml, links, baseTypes, cy, spaceId) {
         locked: !!focus,
       } : {}),
       focused: !!focus,
-    });
-  }
+    };
+    _elements[link?.id] = element;
+    elements.push(element);
 
+    if (!!cy) {
+      if (link.from_id) {
+        if (ml?.byId?.[link.from_id] && _elements[link.from_id]) {
+          elements.push({
+            data: { id: `${link.id}-from`, source: `${link.id}`, target: `${link.from_id}`, link },
+            selectable: false,
+            classes: [
+              'link-from',
+              ...(focus ? ['focused'] : ['unfocused'])
+            ].join(' '),
+          });
+        }
+      }
+      if (link.to_id) {
+        if (ml?.byId?.[link.to_id] && _elements[link.to_id]) {
+          elements.push({
+            data: { id: `${link.id}-to`, source: `${link.id}`, target: `${link.to_id}`, link },
+            selectable: false,
+            classes: [
+              'link-to',
+              ...(focus ? ['focused'] : ['unfocused'])
+            ].join(' '),
+          });
+        }
+      }
+      if (link.type_id) {
+        if (ml?.byId?.[link.type_id] && _elements[link.type_id]) {
+          elements.push({
+            data: { id: `${link.id}-type`, source: `${link.id}`, target: `${link.type_id}`, link },
+            selectable: false,
+            classes: [
+              'link-type',
+              ...(focus ? ['focused'] : ['unfocused'])
+            ].join(' '),
+          });
+        }
+      }
+    }
+  }
   return {
     elements, reactElements,
   };

@@ -249,5 +249,25 @@ export const DeepLoader = memo(function DeepLoader({
         });
       }}
     />
+    <DeepLoaderActive
+      id={baseTypes.Symbol}
+      query={useMemo(() => ({
+        value: { value: {
+          type_id: { _eq: baseTypes.Symbol },
+          to_id: { _in: types },
+        } },
+      }), [types])}
+      onChange={(r) => {
+        setResults((results) => {
+          const newResults = {
+            ...results,
+            symbols: r,
+          };
+          // applyChanges(newResults);
+          onChange && onChange(newResults);
+          return newResults;
+        });
+      }}
+    />
   </>;
 });

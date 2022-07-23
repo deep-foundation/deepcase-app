@@ -3,6 +3,7 @@ import { useLocalStore } from '@deep-foundation/store/local';
 import { useQueryStore } from '@deep-foundation/store/query';
 import React, { useState } from 'react';
 import { useMemo } from 'react';
+import { layouts } from './cyto-layouts-presets';
 
 export const defaultLeftWidth = 10;
 export const defaultCardWidth = 300;
@@ -143,4 +144,15 @@ export function useActiveMethods() {
       },
     };
   }, []);
+};
+
+export function useLayout() {
+  const [layoutName, setLayoutName] = useLocalStore('layout', 'cose-bilkent');
+  return {
+    setLayout(name: 'cose-bilkent' | 'cola') {
+      setLayoutName(name);
+    },
+    layout: layouts[layoutName],
+    layoutName,
+  };
 };
