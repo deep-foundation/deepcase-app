@@ -21,7 +21,7 @@ import { useColorModeValue } from './framework';
 import { useChackraColor, useChackraGlobal } from './get-color';
 import { useBaseTypes, useContainer, useFocusMethods, useLayout, useShowExtra, useSpaceId } from './hooks';
 import { useRerenderer } from './rerenderer-hook';
-import { CytoEditor } from './cyto-editor';
+import { CytoEditor, useEditorTabs } from './cyto-editor';
 
 cytoscape.use(dagre);
 cytoscape.use(cola);
@@ -114,7 +114,6 @@ export default function CytoGraph({
   let cy = refCy.current?._cy;
 
   const { elements, reactElements } = useCytoElements(ml, links, baseTypes, cy, spaceId);
-  console.log('elements', elements);
 
   const relayout = useCallback(() => {
     let cy = refCy.current?._cy;
@@ -221,6 +220,10 @@ export default function CytoGraph({
   
   const { linkReactElements, toggleLinkReactElement } = useLinkReactElements(elements, reactElements, refCy);
   const [cytoEditor, setCytoEditor] = useCytoEditor();
+  const {
+    addTab,
+    setTab,
+  } = useEditorTabs();
 
   const ehDirectionRef = useRef<any>();
 
@@ -341,6 +344,8 @@ export default function CytoGraph({
           select: function(ele){
             const id = ele.data('link')?.id;
             if (id) {
+              addTab({ id, title: id, saved: false });
+              setTab(id);
               setCytoEditor(true);
             }
           }
