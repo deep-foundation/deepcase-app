@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
 import { CytoGraphProps } from '../imports/cyto-graph-props';
 import { EditorGrid } from '../imports/editor/editor-grid';
+import { EditorHandlers } from '../imports/editor/editor-handlers';
 import { CloseButton, EditorTabs } from '../imports/editor/editor-tabs';
 import { EditorTextArea } from '../imports/editor/editor-textarea';
 import { Box, ChakraProvider } from '../imports/framework';
@@ -67,7 +68,11 @@ export default function Page() {
         <ColorModeSwitcher/>
         <Box h='5rem' />
         <Box pos='relative' width='100%' height='80vh'>
-          <EditorGrid editorTextAreaElement={<EditorTextArea />} editorTabsElement={<EditorTabs tabs={tabs} />} closeButtonElement={<CloseButton />} />
+          <EditorGrid 
+            editorTextAreaElement={<EditorTextArea />} 
+            editorTabsElement={<EditorTabs tabs={tabs} />} closeButtonElement={<CloseButton />} 
+            editorRight={<EditorHandlers />}
+          />
         </Box>
       </>
     </ChakraProvider>
