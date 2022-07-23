@@ -28,7 +28,6 @@ return (<Flex
       flexWrap="nowrap"
       overflowX="auto"
       as="nav"
-      px="2"
       css={{
         WebkitOverflowScrolling: "touch",
         msOverflowStyle: "-ms-autohiding-scrollbar"
