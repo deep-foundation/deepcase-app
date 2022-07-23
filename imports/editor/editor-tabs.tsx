@@ -59,17 +59,12 @@ export const EditorTab = React.memo(({
   
   const gray900 = useChackraColor('gray.900');
   const white = useChackraColor('white');
-  const colorBorderSelected = useChackraColor('primary');
-  const colorGrayToWhite = useColorModeValue(gray900, white);
-  const colorFocus = useColorModeValue(gray900, white);
-  const colorWhiteToGray = useColorModeValue(white, gray900);
   const { colorMode, toggleColorMode } = useColorMode();
-  console.log('gray.700');
 
   return (<Button
       aria-label={`tab-${id}`}
       // variant="solid"
-      bg={colorMode == 'light' ? white : colorMode == 'dark' ? gray900 : white}
+      bg={colorMode == 'light' ? white : gray900}
       onClick={() => onClick(id)}
       rightIcon={<NonSavedIcon />}
     >{title}</Button>

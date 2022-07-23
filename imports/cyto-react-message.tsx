@@ -6,7 +6,7 @@ import { BubbleArrowLeft } from '../icons/chat-bubble-left';
 import { BubbleArrowRight } from '../icons/chat-bubble-right';
 import { MessageTextArea } from './cyto-message-textarea';
 import { CytoReactLinkAvatar } from './cyto-react-avatar';
-import { Box, Flex, HStack, Link, Text, useColorModeValue } from './framework';
+import { Box, Flex, HStack, Link, Text, useColorModeValue, useColorMode } from './framework';
 import { useChackraColor, useChackraGlobal } from './get-color';
 import { Provider } from './provider';
 
@@ -75,7 +75,7 @@ export const CytoReactMessage = React.memo<any>(({
   const colorGrayToWhite = useColorModeValue(gray900, white);
   const colorFocus = useColorModeValue(gray900, white);
   const colorWhiteToGray = useColorModeValue(white, gray900);
-  console.log({white});
+  const { colorMode, toggleColorMode } = useColorMode();
 
   const _stage = (
     stage === 'sended' ? <Done /> :
@@ -115,7 +115,7 @@ export const CytoReactMessage = React.memo<any>(({
               <Linkify componentDecorator={(decoratedHref: string, decoratedText: string, key: number) => <Link href={decoratedHref} children={decoratedText} key={key} onClick={(event) => {
                 event.stopPropagation();
               }}/>}>
-                <Text fontSize='sm' colorScheme={gray900}>
+                <Text fontSize='sm' color={gray900}>
                   {text}
                 </Text>
               </Linkify>
