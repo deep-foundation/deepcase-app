@@ -1,5 +1,6 @@
 import React from 'react';
-import { Flex, Button } from '../framework';
+import { Flex, Button, useColorModeValue, Box, useColorMode } from '../framework';
+import { useChackraColor } from '../get-color';
 
 
 interface ITab {
@@ -29,18 +30,22 @@ return (<Flex
     >
       <Flex flex="0 0 auto">
         {tabs.map(t =>
-          <Button
-            as="a"
-            href={`#${t.id}`}
-            id={`bar-${t.id}`}
-            variant="ghost"
-            color="black"
-            colorScheme="none"
-          >{t.title}</Button>
+          <EditorTab key={t.id} id={t.id} title={t.title} saved={t.saved} onClick={() => console.log(t.id)} onClose={() => console.log(t.id)} />
         )}
       </Flex>
     </Flex>
   )
+})
+
+export const NonSavedIcon = React.memo(({
+  bg='red.600',
+  borderColor='red.400',
+}:{
+  bg?: string;
+  borderColor?: string;
+}) => {
+  console.log({bg});
+  return (<Box w='0.5rem' h='0.5rem' bg={bg} borderStyle='solid' borderWidth={1} borderColor={borderColor} borderRadius='full' />)
 })
 
 
@@ -51,14 +56,22 @@ export const EditorTab = React.memo(({
   onClick,
   onClose,
 }:ITab) => {
+  
+  const gray900 = useChackraColor('gray.900');
+  const white = useChackraColor('white');
+  const colorBorderSelected = useChackraColor('primary');
+  const colorGrayToWhite = useColorModeValue(gray900, white);
+  const colorFocus = useColorModeValue(gray900, white);
+  const colorWhiteToGray = useColorModeValue(white, gray900);
+  const { colorMode, toggleColorMode } = useColorMode();
+  console.log('gray.700');
+
   return (<Button
-      key={id}
-      as="a"
-      id={`tab-${id}`}
-      variant="ghost"
-      color="black"
-      colorScheme="none"
+      aria-label={`tab-${id}`}
+      // variant="solid"
+      bg={colorMode == 'light' ? white : colorMode == 'dark' ? gray900 : white}
       onClick={() => onClick(id)}
+      rightIcon={<NonSavedIcon />}
     >{title}</Button>
   )
 })

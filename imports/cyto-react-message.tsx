@@ -75,6 +75,7 @@ export const CytoReactMessage = React.memo<any>(({
   const colorGrayToWhite = useColorModeValue(gray900, white);
   const colorFocus = useColorModeValue(gray900, white);
   const colorWhiteToGray = useColorModeValue(white, gray900);
+  console.log({white});
 
   const _stage = (
     stage === 'sended' ? <Done /> :
