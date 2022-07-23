@@ -19,38 +19,28 @@ const tabs = [
     id: 1,
     title: 'много букв',
     saved: true,
-    onClick: () => console.log(1),
-    onClose: () => console.log(1),
   },
   {
     id: 2,
     title: 456,
     saved: false,
     active: true,
-    onClick: () => console.log(2),
-    onClose: () => console.log(2),
   },
   {
     id: 3,
     title: 'буква',
     saved: true,
     loading: true,
-    onClick: () => console.log(3),
-    onClose: () => console.log(3),
   },
   {
     id: 4,
     title: 423,
     saved: true,
-    onClick: () => console.log(4),
-    onClose: () => console.log(4),
   },
   {
     id: 5,
     title: 523,
     saved: false,
-    onClick: () => console.log(5),
-    onClose: () => console.log(5),
   },
 ];
 
@@ -63,11 +53,18 @@ export default function Page() {
   return (<>
     <ChakraProvider theme={themeChakra}>
       <>
-        
         <ColorModeSwitcher/>
         <Box h='5rem' />
         <Box pos='relative' width='100%' height='80vh'>
-          <EditorGrid editorTextAreaElement={<EditorTextArea />} editorTabsElement={<EditorTabs tabs={tabs} />} closeButtonElement={<CloseButton />} />
+          <EditorGrid
+            editorTextAreaElement={<EditorTextArea />}
+            editorTabsElement={<EditorTabs
+              tabs={tabs}
+              onClick={(tab) => console.log(tab)}
+              onClose={(tab) => console.log(tab)}
+            />}
+            closeButtonElement={<CloseButton />}
+          />
         </Box>
       </>
     </ChakraProvider>

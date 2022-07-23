@@ -344,7 +344,7 @@ export default function CytoGraph({
           select: function(ele){
             const id = ele.data('link')?.id;
             if (id) {
-              addTab({ id, title: id, saved: false });
+              addTab({ id, title: `${id}`, saved: false });
               setTab(id);
               setCytoEditor(true);
             }

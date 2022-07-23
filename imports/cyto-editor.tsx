@@ -1,4 +1,4 @@
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button } from '@chakra-ui/react';
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, CloseButton } from '@chakra-ui/react';
 import { useLocalStore } from '@deep-foundation/store/local';
 import { useCallback, useRef } from 'react';
 import { useCytoEditor } from './cyto-graph-hooks';
@@ -47,10 +47,11 @@ export function CytoEditor() {
       <ModalContent style={{ height: '100%' }}>
         <EditorGrid
           editorTextAreaElement={<EditorTextArea />}
-          editorTabsElement={<EditorTabs tabs={tabs.map(tab => () => ({
-            onClick: () => setTab(tab.id),
-            onClose: () => closeTab(tab.id),
-          }))} />}
+          editorTabsElement={<EditorTabs tabs={tabs} onClose={(tab) => {
+            if (tabs.length === 1 && tabs[0].id === tab.id) onClose();
+            closeTab(tab.id);
+          }} onClick={tab => setTab(tab)} />}
+          closeButtonElement={<CloseButton onClick={onClose}/>}
         />
       </ModalContent>
     </Modal>

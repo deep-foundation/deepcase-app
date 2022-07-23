@@ -9,11 +9,17 @@ interface ITab {
   saved?: boolean;
   loading?: boolean;
   active?: boolean;
-  onClick?: (id: number) => void;
-  onClose?: (id: number) => void;
 };
 
-export const EditorTabs = React.memo<any>(({ tabs=[] }: { tabs?: ITab[] }) => {
+export const EditorTabs = React.memo<any>(({
+  tabs=[],
+  onClick,
+  onClose,
+}: {
+  tabs?: ITab[];
+  onClick?: (tab: ITab) => void;
+  onClose?: (tab: ITab) => void;
+}) => {
   const gray900 = useChackraColor('gray.900');
   const white = useChackraColor('white');
   const { colorMode } = useColorMode();
@@ -36,7 +42,7 @@ return (<Flex
     >
       <Flex flex="0 0 auto">
         {tabs.map(t =>
-          <EditorTab key={t.id} id={t.id} title={t.title} active={t.active} saved={t.saved} loading={t.loading} onClick={() => console.log(t.id)} onClose={() => console.log(t.id)} />
+          <EditorTab key={t.id} id={t.id} title={t.title} active={t.active} saved={t.saved} loading={t.loading} onClick={onClick} onClose={onClose} />
         )}
       </Flex>
     </Flex>
@@ -54,23 +60,33 @@ export const NonSavedIcon = React.memo(({
   return (<Box w='0.5rem' h='0.5rem' bg={bg} borderStyle='solid' borderWidth={1} borderColor={borderColor} borderRadius='full' />)
 })
 
-export const CloseButton = React.memo(() => {
+export const CloseButton = React.memo(({
+  onClick,
+}: {
+  onClick?: (event) => void;
+}) => {
   const gray900 = useChackraColor('gray.900');
   const white = useChackraColor('white');
   const { colorMode } = useColorMode();
 
-  return <_CloseButton size='md' bg={colorMode == 'light' ? white : gray900} borderRadius='none' height='100%' borderLeftStyle='solid' borderLeftWidth={1} borderLeftColor={colorMode == 'light' ? gray900 : white} />
+  return <_CloseButton size='md' bg={colorMode == 'light' ? white : gray900} borderRadius='none' height='100%' borderLeftStyle='solid' borderLeftWidth={1} borderLeftColor={colorMode == 'light' ? gray900 : white} onClick={onClick} />
 })
 
-export const EditorTab = React.memo(({
-  id,
-  title,
-  saved = false,
-  loading = false,
-  active = false,
-  onClick,
-  onClose,
-}:ITab) => {
+export interface ITabProps extends ITab {
+  onClick?: (tab: ITab) => void;
+  onClose?: (tab: ITab) => void;
+}
+
+export const EditorTab = React.memo((tab:ITabProps) => {
+  const {
+    id,
+    title,
+    saved = false,
+    loading = false,
+    active = false,
+    onClick,
+    onClose,
+  } = tab;
   const gray900 = useChackraColor('gray.900');
   const white = useChackraColor('white');
   const { colorMode } = useColorMode();
@@ -103,7 +119,7 @@ export const EditorTab = React.memo(({
     _focus={{
       bg: colorMode == 'light' ? 'gray.200' : 'whiteAlpha.300'
     }}
-    onClick={() => onClick(id)}
+    onClick={() => onClick && onClick(tab)}
   >
     <Box flex='1' mr='2'>
       {title}
@@ -112,7 +128,10 @@ export const EditorTab = React.memo(({
       {!saved && <NonSavedIcon /> || loading && <Spinner size='xs' />}
     </Box>
     <Box 
-      onClick={() => onClose(id)} 
+      onClick={(e: any) => {
+        e?.stopPropagation();
+        onClose && onClose(tab);
+      }} 
       as='button' 
       aria-label='close tab button'
       borderRadius='md'
