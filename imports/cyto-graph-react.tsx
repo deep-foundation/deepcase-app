@@ -3,7 +3,7 @@ import edgeConnections from 'cytoscape-edge-connections';
 import { useCallback, useEffect, useRef } from 'react';
 import CytoscapeComponent from 'react-cytoscapejs';
 // import klay from 'cytoscape-klay';
-// import dagre from 'cytoscape-dagre';
+import dagre from 'cytoscape-dagre';
 // import elk from 'cytoscape-elk';
 import { useDeep } from '@deep-foundation/deeplinks/imports/client';
 import { useDebounceCallback } from '@react-hook/debounce';
@@ -11,6 +11,7 @@ import cola from 'cytoscape-cola';
 import COSEBilkent from 'cytoscape-cose-bilkent';
 import cxtmenu from 'cytoscape-cxtmenu';
 import edgehandles from 'cytoscape-edgehandles';
+import d3Force from 'cytoscape-d3-force';
 import { useCytoElements } from './cyto-graph-elements';
 import { useInsertedLink, useLinkReactElements, useCytoEditor } from './cyto-graph-hooks';
 import { CytoGraphProps } from './cyto-graph-props';
@@ -18,16 +19,17 @@ import { layoutCosePreset, layoutColaPreset } from './cyto-layouts-presets';
 import { CytoReactLayout } from './cyto-react-layout';
 import { useColorModeValue } from './framework';
 import { useChackraColor, useChackraGlobal } from './get-color';
-import { useBaseTypes, useContainer, useFocusMethods, useShowExtra, useSpaceId } from './hooks';
+import { useBaseTypes, useContainer, useFocusMethods, useLayout, useShowExtra, useSpaceId } from './hooks';
 import { useRerenderer } from './rerenderer-hook';
 import { CytoEditor } from './cyto-editor';
 
-// cytoscape.use(dagre);
+cytoscape.use(dagre);
 cytoscape.use(cola);
 cytoscape.use(COSEBilkent);
 // cytoscape.use(klay);
 // cytoscape.use(elk);
 // cytoscape.use(euler);
+cytoscape.use(d3Force);
 cytoscape.use(cxtmenu);
 cytoscape.use(edgeConnections);
 cytoscape.use(edgehandles);
@@ -64,9 +66,9 @@ function useCytoFocusMethods(cy, relayoutDebounced) {
         if (id) {
           el._locked = false;
           el.unlock();
+          locking[id] = false;
           unfocus(id);
           relayoutDebounced();
-          locking[id] = false;
         }
       }
     }
@@ -103,6 +105,7 @@ export default function CytoGraph({
         Object: await deep.id('@deep-foundation/core', 'Object'),
         User: await deep.id('@deep-foundation/core', 'User'),
         Any: await deep.id('@deep-foundation/core', 'Any'),
+        Symbol: await deep.id('@deep-foundation/core', 'Symbol'),
       });
     } catch(error) {}
   })()}, []);
@@ -111,6 +114,7 @@ export default function CytoGraph({
   let cy = refCy.current?._cy;
 
   const { elements, reactElements } = useCytoElements(ml, links, baseTypes, cy, spaceId);
+  console.log('elements', elements);
 
   const relayout = useCallback(() => {
     let cy = refCy.current?._cy;
@@ -118,6 +122,7 @@ export default function CytoGraph({
     elements.layout(layout).run();
   }, []);
   const relayoutDebounced = useDebounceCallback(relayout, 500);
+  global.relayoutDebounced = relayoutDebounced;
 
   const { focus, unfocus, lockingRef } = useCytoFocusMethods(cy, relayoutDebounced);
 
@@ -198,7 +203,7 @@ export default function CytoGraph({
   const colorBgInsertNode = useColorModeValue(white, gray900);
   const colorFocus = useColorModeValue(gray900, white);
 
-  const layout = layoutCosePreset;
+  const { layout, setLayout } = useLayout();
 
   const refDragStartedEvent = useRef<any>();
 
@@ -206,7 +211,7 @@ export default function CytoGraph({
     if (!refDragStartedEvent.current) {
       relayoutDebounced();
     }
-  }, [links]);
+  }, [links, extra, layout]);
 
   // has memory about locking of key=linkId
   // undefined - not locked
@@ -416,8 +421,8 @@ export default function CytoGraph({
       }
     });
 
-    // on update link or link value - unlock reposition lock
     const updatedListener = (oldLink, newLink) => {
+      // on update link or link value - unlock reposition lock
       if (
         newLink.type_id === baseTypes.Focus && newLink?.value?.value?.x &&
         
@@ -459,15 +464,17 @@ export default function CytoGraph({
             selector: '.link-node',
             style: {
               color: textColor,
-              width: 24,
-              height: 24,
+              width: 30,
+              height: 30,
               'font-size': 16,
-              'text-margin-y': -4,
+              'text-margin-y': 20, // -4
+              'text-margin-x': -2,
               label: 'data(label)',
               "text-wrap": "wrap",
               // 'background-image': 'https://live.staticflickr.com/3063/2751740612_af11fb090b_b.jpg',
               'background-fit': 'cover',
               'background-opacity': 1,
+              'background-color': '#fff',
             }
           },
           {

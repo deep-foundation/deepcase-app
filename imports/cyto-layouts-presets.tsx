@@ -87,3 +87,22 @@ export const layoutColaPreset = {
   userConstIter: undefined, // initial layout iterations with user-specified constraints
   allConstIter: undefined, // initial layout iterations with all constraints including non-overlap
 };
+export const layoutd3ForcePreset = {
+  name: 'd3-force',
+  animate: false,
+  fit: false,
+  linkId: function id(d) {
+    return d?.id || d?.data?.id;
+  },
+};
+export const layoutDadgePreset = {
+  name: 'dagre',
+  animate: false,
+  fit: false,
+};
+export const layouts = {
+  'cose-bilkent': layoutCosePreset,
+  'cola': layoutColaPreset,
+  'd3-force': layoutd3ForcePreset,
+  'dadge': layoutDadgePreset,
+};
