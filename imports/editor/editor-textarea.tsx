@@ -12,7 +12,6 @@ interface IEditor {
   onChange?: () => void;
 }
 
-
 export const EditorTextArea = React.memo<any>(({
   value, 
   onChange,
