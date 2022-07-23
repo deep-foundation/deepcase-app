@@ -18,7 +18,7 @@ export const EditorTextArea = React.memo<any>(({
   onChange,
 }:IEditor) => {
 
-  const { colorMode, toggleColorMode } = useColorMode();
+  const { colorMode } = useColorMode();
   function handleEditorDidMount(editor, monaco) {
     editor.getModel().updateOptions({ tabSize: 2 });
   }

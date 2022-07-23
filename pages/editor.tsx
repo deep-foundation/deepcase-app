@@ -1,14 +1,11 @@
 
 import { useMinilinksConstruct } from '@deep-foundation/deeplinks/imports/minilinks';
 import dynamic from "next/dynamic";
-import { ConnectionController } from '.';
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
 import { CytoGraphProps } from '../imports/cyto-graph-props';
 import { EditorGrid } from '../imports/editor/editor-grid';
+import { CloseButton, EditorTabs } from '../imports/editor/editor-tabs';
 import { EditorTextArea } from '../imports/editor/editor-textarea';
-import { EditorTabs } from '../imports/editor/editor-tabs';
-import { DeepLoader } from '../imports/loader';
-import { Provider } from '../imports/provider';
 import { Box, ChakraProvider } from '../imports/framework';
 import themeChakra from '../imports/theme/theme';
 
@@ -20,7 +17,7 @@ const CytoGraph = dynamic<CytoGraphProps>(
 const tabs = [
   {
     id: 1,
-    title: 123,
+    title: 'много букв',
     saved: true,
     onClick: () => console.log(1),
     onClose: () => console.log(1),
@@ -28,14 +25,16 @@ const tabs = [
   {
     id: 2,
     title: 456,
-    saved: true,
+    saved: false,
+    active: true,
     onClick: () => console.log(2),
     onClose: () => console.log(2),
   },
   {
     id: 3,
-    title: 789,
+    title: 'буква',
     saved: true,
+    loading: true,
     onClick: () => console.log(3),
     onClose: () => console.log(3),
   },
@@ -49,7 +48,7 @@ const tabs = [
   {
     id: 5,
     title: 523,
-    saved: true,
+    saved: false,
     onClick: () => console.log(5),
     onClose: () => console.log(5),
   },
@@ -68,7 +67,7 @@ export default function Page() {
         <ColorModeSwitcher/>
         <Box h='5rem' />
         <Box pos='relative' width='100%' height='80vh'>
-          <EditorGrid editorTextAreaElement={<EditorTextArea />} editorTabsElement={<EditorTabs tabs={tabs} />} />
+          <EditorGrid editorTextAreaElement={<EditorTextArea />} editorTabsElement={<EditorTabs tabs={tabs} />} closeButtonElement={<CloseButton />} />
         </Box>
       </>
     </ChakraProvider>
