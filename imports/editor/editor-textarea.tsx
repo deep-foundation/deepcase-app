@@ -17,7 +17,7 @@ interface IEditor {
 }
 
 export const EditorTextArea = React.memo<any>(({
-  refEditor,
+  refEditor = { current: undefined },
   value, 
   onChange,
   onSave,
