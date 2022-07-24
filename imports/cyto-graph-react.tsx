@@ -1,6 +1,6 @@
 import cytoscape from 'cytoscape';
 import edgeConnections from 'cytoscape-edge-connections';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import CytoscapeComponent from 'react-cytoscapejs';
 // import klay from 'cytoscape-klay';
 import dagre from 'cytoscape-dagre';
@@ -12,6 +12,7 @@ import COSEBilkent from 'cytoscape-cose-bilkent';
 import cxtmenu from 'cytoscape-cxtmenu';
 import edgehandles from 'cytoscape-edgehandles';
 import d3Force from 'cytoscape-d3-force';
+import fcose from 'cytoscape-fcose';
 import { useCytoElements } from './cyto-graph-elements';
 import { useInsertedLink, useLinkReactElements, useCytoEditor } from './cyto-graph-hooks';
 import { CytoGraphProps } from './cyto-graph-props';
@@ -19,9 +20,10 @@ import { layoutCosePreset, layoutColaPreset } from './cyto-layouts-presets';
 import { CytoReactLayout } from './cyto-react-layout';
 import { useColorModeValue } from './framework';
 import { useChackraColor, useChackraGlobal } from './get-color';
-import { useBaseTypes, useContainer, useFocusMethods, useLayout, useShowExtra, useSpaceId } from './hooks';
+import { useBaseTypes, useContainer, useFocusMethods, useLayout, useRefAutofill, useShowExtra, useSpaceId } from './hooks';
 import { useRerenderer } from './rerenderer-hook';
 import { CytoEditor, useEditorTabs } from './cyto-editor';
+import { useMinilinksHandle } from '@deep-foundation/deeplinks/imports/minilinks';
 
 cytoscape.use(dagre);
 cytoscape.use(cola);
@@ -29,7 +31,7 @@ cytoscape.use(COSEBilkent);
 // cytoscape.use(klay);
 // cytoscape.use(elk);
 // cytoscape.use(euler);
-cytoscape.use(d3Force);
+cytoscape.use(fcose);
 cytoscape.use(cxtmenu);
 cytoscape.use(edgeConnections);
 cytoscape.use(edgehandles);
@@ -85,8 +87,6 @@ export default function CytoGraph({
   const [container, setContainer] = useContainer();
   const [extra, setExtra] = useShowExtra();
 
-  useRerenderer(1000);
-
   const refCy = useRef<any>();
 
   useEffect(() => {(async () => {
@@ -114,12 +114,15 @@ export default function CytoGraph({
   let cy = refCy.current?._cy;
 
   const { elements, reactElements } = useCytoElements(ml, links, baseTypes, cy, spaceId);
+  const elementsRef = useRefAutofill(elements);
+
+  const { layout, setLayout } = useLayout();
 
   const relayout = useCallback(() => {
     let cy = refCy.current?._cy;
     const elements = cy.elements();
-    elements.layout(layout).run();
-  }, []);
+    elements.layout(layout(elementsRef.current, cy)).run();
+  }, [layout]);
   const relayoutDebounced = useDebounceCallback(relayout, 500);
   global.relayoutDebounced = relayoutDebounced;
 
@@ -202,15 +205,13 @@ export default function CytoGraph({
   const colorBgInsertNode = useColorModeValue(white, gray900);
   const colorFocus = useColorModeValue(gray900, white);
 
-  const { layout, setLayout } = useLayout();
-
   const refDragStartedEvent = useRef<any>();
 
   useEffect(() => {
     if (!refDragStartedEvent.current) {
       relayoutDebounced();
     }
-  }, [links, extra, layout]);
+  }, [extra, layout]);
 
   // has memory about locking of key=linkId
   // undefined - not locked
@@ -222,7 +223,7 @@ export default function CytoGraph({
   const [cytoEditor, setCytoEditor] = useCytoEditor();
   const {
     addTab,
-    setTab,
+    activeTab,
   } = useEditorTabs();
 
   const ehDirectionRef = useRef<any>();
@@ -249,9 +250,13 @@ export default function CytoGraph({
       noEdgeEventsInDraw: true, // set events:no to edges during draws, prevents mouseouts on compounds
       disableBrowserGestures: true // during an edge drawing gesture, disable browser gestures such as two-finger trackpad swipe and pinch-to-zoom
     });
+    ncy.on('ehstop', async (event, sourceNode, targetNode, addedEdge) => {
+      let { position } = event;
+      addedEdge?.remove();
+    });
     ncy.on('ehcomplete', async (event, sourceNode, targetNode, addedEdge) => {
       let { position } = event;
-      addedEdge.remove();
+      addedEdge?.remove();
       const sid = sourceNode?.data('link')?.id;
       const tid = targetNode?.data('link')?.id;
       if (sid && tid && ehDirectionRef.current) {
@@ -264,7 +269,6 @@ export default function CytoGraph({
         setInsertingLink({ position: targetNode.position(), from, to });
       }
     });
-
     ncy.on('mouseover', '.link-from, .link-to, .link-type, .link-node', function(e) {
       var node = e.target;
       const id = node?.data('link')?.id;
@@ -344,8 +348,11 @@ export default function CytoGraph({
           select: function(ele){
             const id = ele.data('link')?.id;
             if (id) {
-              addTab({ id, title: id, saved: false });
-              setTab(id);
+              addTab({
+                id, title: `${id}`, saved: true,
+                value: deep.stringify(ml.byId[id]?.value?.value),
+              });
+              activeTab(id);
               setCytoEditor(true);
             }
           }
@@ -453,11 +460,15 @@ export default function CytoGraph({
     };
   }, []);
 
+  useMinilinksHandle(ml, (event, oldLink, newLink) => {
+    relayoutDebounced();
+  });
+
   return (<div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
     <CytoscapeComponent
         ref={refCy}
         elements={elements} 
-        layout={layout}
+        layout={layout()}
         stylesheet={[
           {
             selector: 'node',
@@ -667,7 +678,7 @@ export default function CytoGraph({
             selector: '.link-node.focused',
             style: {
               'border-width': 2,
-              'border-color': colorFocus,
+              'line-color': colorClicked,
             }
           },
           {
@@ -687,7 +698,7 @@ export default function CytoGraph({
         cytoRef={refCy}
         elements={reactElements}
       />
-      <CytoEditor/>
+      <CytoEditor ml={ml}/>
     </div>
   )
 }

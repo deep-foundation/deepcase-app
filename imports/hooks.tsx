@@ -1,7 +1,7 @@
 import { useAuthNode, useDeep } from '@deep-foundation/deeplinks/imports/client';
 import { useLocalStore } from '@deep-foundation/store/local';
 import { useQueryStore } from '@deep-foundation/store/query';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useMemo } from 'react';
 import { layouts } from './cyto-layouts-presets';
 
@@ -156,3 +156,9 @@ export function useLayout() {
     layoutName,
   };
 };
+
+export function useRefAutofill<T>(value: T) {
+  const ref = useRef<T>(value);
+  ref.current = value;
+  return ref;
+}

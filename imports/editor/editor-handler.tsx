@@ -64,8 +64,10 @@ export const EditorHandler = React.memo<any>(({
           </HStack>
 
         </VStack>    
-        <Divider />
-        <Box overflowY='scroll'>{children}</Box>
+        {!!children && <>
+          <Divider />
+          <Box overflowY='scroll'>{children}</Box>
+        </>}
       </VStack>
     </Box>
   )

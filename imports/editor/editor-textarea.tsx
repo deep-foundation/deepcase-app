@@ -9,29 +9,55 @@ const monacoEditorOptions = {
 }
 
 interface IEditor {
+  refEditor?: any;
   value?: '';
-  onChange?: () => void;
+  onChange?: (value: string) => void;
+  onSave?: (value: string) => void;
+  onClose?: () => void;
 }
 
 export const EditorTextArea = React.memo<any>(({
+  refEditor,
   value, 
   onChange,
+  onSave,
+  onClose,
 }:IEditor) => {
+  const refValue = React.useRef(value);
+  refValue.current = value;
 
   const { colorMode } = useColorMode();
   function handleEditorDidMount(editor, monaco) {
+    refEditor.current = { editor, monaco };
     editor.getModel().updateOptions({ tabSize: 2 });
+    editor.addAction({
+      id: "save",
+      label: "Save",
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
+      contextMenuGroupId: "save",
+      run: () => {
+        onSave && onSave(refValue.current);
+      },
+    });
+    editor.addAction({
+      id: "close",
+      label: "close",
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE],
+      contextMenuGroupId: "close",
+      run: () => {
+        onClose && onClose();
+      },
+    });
   }
 
   return (<MonacoEditor
-      options={monacoEditorOptions}
-      height="100%"
-      width="100%"
-      theme={colorMode === 'light' ? 'light' : "vs-dark"}
-      defaultLanguage="javascript"
-      defaultValue={value}
-      onChange={onChange}
-      onMount={handleEditorDidMount}
-    />
-  )
+    options={monacoEditorOptions}
+    height="100%"
+    width="100%"
+    theme={colorMode === 'light' ? 'light' : "vs-dark"}
+    defaultLanguage="javascript"
+    defaultValue={value}
+    onChange={onChange}
+    onMount={handleEditorDidMount}
+  />)
 })
