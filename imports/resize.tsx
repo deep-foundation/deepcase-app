@@ -2,9 +2,13 @@ import React, { useState } from 'react';
 import { Resizable } from 're-resizable';
 import { Hide, Text } from './framework';
 
-export const Resize = ({ 
+export const Resize = React.memo<any>(({ 
+  onResize,
+  defaultSize,
   children 
 }:{ 
+  onResize?: () => any;
+  defaultSize?: any;
   children: any 
 }) => {
   return <>
@@ -15,14 +19,12 @@ export const Resize = ({
     }}>{children}</div></Hide>
     <Hide below='sm'>
       <Resizable
-        defaultSize={{
-          width: 320,
-          height: 568,
-        }}
+        onResize={() => onResize()}
+        defaultSize={defaultSize}
         style={{border: '1px dashed #605c60'}}
       >
         {children}
       </Resizable>
     </Hide>
   </>;
-};
+});

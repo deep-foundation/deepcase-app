@@ -89,16 +89,20 @@ export default function Page() {
   const spaceId = 234;
   const minilinks = useMinilinksConstruct();
   const { ref: mlRef, ml } = minilinks;
-  const [sync, setSync] = useState(false);
+  const [viewSize, setViewSize] = useState({width: 124, height: 123});
 
   return (<>
     <ChakraProvider theme={themeChakra}>
       <>
-        
         <ColorModeSwitcher/>
         <Box h='5rem' />
         <Box pos='relative' width='100%' height='80vh'>
-          <EditorComponentView />
+          <EditorComponentView 
+            defaultSize={viewSize} 
+            onResize={() => {
+              setViewSize(viewSize)
+              console.log(viewSize)
+            }} />
         </Box>
       </>
     </ChakraProvider>

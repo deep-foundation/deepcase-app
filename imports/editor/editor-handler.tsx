@@ -19,7 +19,7 @@ interface IHandler {
   children?: any;
 }
 
-export const EditorHandler = React.memo(({
+export const EditorHandler = React.memo<any>(({
   id,
   avatarElement,
   title,

@@ -3,7 +3,7 @@ import { VscAdd } from 'react-icons/vsc';
 import { Flex, Box, Button, Divider } from '../framework';
 
 
-export const EditorHandlers = React.memo(({
+export const EditorHandlers = React.memo<any>(({
   children,
   onAddHandler,
 }:{
