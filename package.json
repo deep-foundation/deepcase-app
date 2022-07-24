@@ -64,6 +64,7 @@
     "next-env": "^1.1.1",
     "normalize.css": "^8.0.1",
     "promisify-child-process": "^4.1.1",
+    "re-resizable": "^6.9.9",
     "react": "^18",
     "react-cytoscapejs": "^1.2.1",
     "react-dom": "^18",
