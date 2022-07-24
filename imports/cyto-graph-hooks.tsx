@@ -1,5 +1,6 @@
 import { useDeep, useDeepQuery } from "@deep-foundation/deeplinks/imports/client";
-import { useState, useMemo } from "react";
+import { useMinilinksFilter } from "@deep-foundation/deeplinks/imports/minilinks";
+import { useState, useMemo, useCallback } from "react";
 import { useLocalStorage } from "usehooks-ts";
 import { CytoReactLinksCard } from "./cyto-react-links-card";
 import { useContainer } from "./hooks";
@@ -22,54 +23,18 @@ export function useInsertedLink(elements, reactElements, focus, refCy, baseTypes
     }: IInsertedLink) {
       const fromType = ml.byId?.[from]?.type_id;
       const toType = ml.byId?.[to]?.type_id;
-      const { linkId } = useDeep();
-      const { data: types } = useDeepQuery(
-        useMemo(() => ({
-          _or: (!from && !to) ? [
-            { type_id: { _type_of: 1 }, from_id: 0, to_id: 0 },
-            { id: 1, },
-          ] : [
-            { type_id: { _type_of: 1 }, from_id: { _in: [fromType, baseTypes.Any] }, to_id: { _in: [toType, baseTypes.Any] } },
-            { id: 1, },
-          ],
-          can_object: {
-            subject_id: { _eq: linkId },
-            action_id: { _eq: 121 },
-          },
-        }), []),
-        useMemo(() => ({
-          returning: `
-            id
-            valued: out(where: {
-              type_id: { _eq: ${baseTypes.Value} },
-            }) {
-              id
-              to_id
-            }
-            contains: in(where: {
-              type_id: { _eq: ${baseTypes.Contain} },
-            }) {
-              id
-              value
-              from {
-                id
-                value
-              }
-            }
-            symbols: in(where: {
-              type_id: { _eq: ${baseTypes.Symbol} },
-            }) {
-              id
-              value
-            }
-          `,
-        }), [baseTypes]),
-      );
+
+      const types = useMinilinksFilter(
+        ml,
+        useCallback((l) => l?.type_id === 1, []),
+        useCallback((l, links) => (links.byType[1] || []), []),
+      ) || [];
+
       const elements = (types || [])?.map(t => ({
         id: t.id,
-        src: t?.symbols?.[0]?.value?.value || t.id,
-        linkName: t?.contains?.[0]?.value?.value || t.id,
-        containerName: t?.contains?.[0]?.from?.value?.value || '',
+        src:  t?.inByType[baseTypes.Symbol]?.[0]?.value?.value || t.id,
+        linkName: t?.inByType[baseTypes.Contain]?.[0]?.value?.value || t.id,
+        containerName: t?.inByType[baseTypes.Contain]?.[0]?.from?.value?.value || '',
       }));
       return <CytoReactLinksCard
         elements={elements}

@@ -56,6 +56,9 @@ export function useBaseTypes() {
 export function useShowExtra() {
   return useLocalStore<any>('show-extra', false);
 };
+export function useShowTypes() {
+  return useLocalStore('show-types', true);
+}
 export function useBackgroundTransparent() {
   return useQueryStore<any>('bg-transparent', false);
 };

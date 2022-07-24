@@ -88,7 +88,7 @@ export const DeepLoader = memo(function DeepLoader({
   }, [spaceId]);
 
   const typesQuery = useMemo(() => ({ value: { value: {
-    type_id: { _eq: 1 },
+    type_id: { _in: [1, baseTypes.Package] },
   } } }), []);
 
   const additionalQuery = useMemo(() => ({ value: { value: {

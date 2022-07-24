@@ -20,7 +20,7 @@ import { layoutCosePreset, layoutColaPreset } from './cyto-layouts-presets';
 import { CytoReactLayout } from './cyto-react-layout';
 import { useColorModeValue } from './framework';
 import { useChackraColor, useChackraGlobal } from './get-color';
-import { useBaseTypes, useContainer, useFocusMethods, useLayout, useRefAutofill, useShowExtra, useSpaceId } from './hooks';
+import { useBaseTypes, useContainer, useFocusMethods, useLayout, useRefAutofill, useShowExtra, useShowTypes, useSpaceId } from './hooks';
 import { useRerenderer } from './rerenderer-hook';
 import { CytoEditor, useEditorTabs } from './cyto-editor';
 import { useMinilinksHandle } from '@deep-foundation/deeplinks/imports/minilinks';
@@ -86,6 +86,7 @@ export default function CytoGraph({
   const [spaceId, setSpaceId] = useSpaceId();
   const [container, setContainer] = useContainer();
   const [extra, setExtra] = useShowExtra();
+  const [showTypes, setShowTypes] = useShowTypes();
 
   const refCy = useRef<any>();
 
@@ -211,7 +212,7 @@ export default function CytoGraph({
     if (!refDragStartedEvent.current) {
       relayoutDebounced();
     }
-  }, [extra, layout]);
+  }, [extra, layout, showTypes]);
 
   // has memory about locking of key=linkId
   // undefined - not locked
