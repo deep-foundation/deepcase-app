@@ -116,6 +116,7 @@ export function CytoReactLayout({
   }}>
     {elements.map((element) => {
       const cy = cytoRef.current._cy;
+      console.log('element', element, elements);
       const id = getId(element);
       const Component = cy.$(`#${id}`).data('Component');
       const reactElement = Component ? <Component id={id}/> : null;

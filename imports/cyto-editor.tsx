@@ -38,8 +38,10 @@ export function useEditorTabs() {
       }
     }, []),
     closeTab: useCallback((id) => {
-      setTabs(tabsRef.current.filter((tab) => tab.id !== id));
+      const newTabs = tabsRef.current.filter((tab) => tab.id !== id);
+      setTabs(newTabs);
       setValues({ ...valuesRef.current, [id]: undefined });
+      if (newTabs.length) setTab(newTabs[newTabs.length - 1].id);
     }, []),
     tabId: tab,
     tab: tabs.find((t) => +t.id === +tab),
@@ -115,10 +117,6 @@ export function CytoEditor({
             }}
             onClose={() => {
               if (tabs.length === 1 && tabs[0]?.id === tab.id) onClose();
-              // if (tabs.length > 1) {
-              //   console.log(tabs.filter(t => t.id !== tabId)[0].id);
-              //   activeTab(tabs.filter(t => t.id !== tabId)[0].id);
-              // }
               closeTab(tabId);
             }}
             onSave={async (value) => {

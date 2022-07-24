@@ -100,7 +100,12 @@ export const layoutDadgePreset = () => ({
   animate: false,
   fit: false,
 });
-const nodeRepulsion = node => 150000;
+
+const nodeRepulsion = node => 200000;
+const edgeElasticity = edge => {
+  return !!~edge.classes().indexOf('link-type') ? 0 : 0.45
+};
+
 export const layoutFcosePreset = (elements, cy) => {
   return {
     name: 'fcose',
@@ -110,6 +115,7 @@ export const layoutFcosePreset = (elements, cy) => {
     // sampleSize: 500,
     nodeSeparation: 300,
     nodeRepulsion,
+    edgeElasticity,
     // randomize: false,
     // gravity: 0.1,
     // numIter: 999999,

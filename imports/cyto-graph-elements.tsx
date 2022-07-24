@@ -1,7 +1,10 @@
 import json5 from 'json5';
 import { useMemo } from 'react';
+import { useShowTypes } from './hooks';
 
 export function useCytoElements(ml, links, baseTypes, cy, spaceId) {
+  const [showTypes, setShowTypes] = useShowTypes();
+
   const _elements: { [key: string]: any } = {};
   const elements = [];
   const reactElements = [];
@@ -85,16 +88,18 @@ export function useCytoElements(ml, links, baseTypes, cy, spaceId) {
           });
         }
       }
-      if (link.type_id) {
-        if (ml?.byId?.[link.type_id] && _elements[link.type_id]) {
-          elements.push({
-            data: { id: `${link.id}-type`, source: `${link.id}`, target: `${link.type_id}`, link },
-            selectable: false,
-            classes: [
-              'link-type',
-              ...(focus ? ['focused'] : ['unfocused'])
-            ].join(' '),
-          });
+      if (showTypes) {
+        if (link.type_id) {
+          if (ml?.byId?.[link.type_id] && _elements[link.type_id]) {
+            elements.push({
+              data: { id: `${link.id}-type`, source: `${link.id}`, target: `${link.type_id}`, link },
+              selectable: false,
+              classes: [
+                'link-type',
+                ...(focus ? ['focused'] : ['unfocused'])
+              ].join(' '),
+            });
+          }
         }
       }
     }

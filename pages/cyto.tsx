@@ -8,11 +8,12 @@ import { useCallback, useState } from 'react';
 import { ConnectionController } from '.';
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
 import { CytoGraphProps } from '../imports/cyto-graph-props';
-import { useContainer, useLayout, useShowExtra, useSpaceId } from '../imports/hooks';
+import { useContainer, useLayout, useShowExtra, useShowTypes, useSpaceId } from '../imports/hooks';
 import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
 import copy from 'copy-to-clipboard';
 import { layouts } from '../imports/cyto-layouts-presets';
+import { useCytoEditor } from '../imports/cyto-graph-hooks';
 
 const CytoGraph = dynamic<CytoGraphProps>(
   () => import('../imports/cyto-graph-react').then((m) => m.default),
@@ -32,16 +33,17 @@ export function Content({
   global.ml = ml;
   const [container, setContainer] = useContainer();
   const [extra, setExtra] = useShowExtra();
+  const [showTypes, setShowTypes] = useShowTypes();
+  const [cytoEditor, setCytoEditor] = useCytoEditor();
   const { layout, setLayout, layoutName } = useLayout();
   const links: Link<number>[] = useMinilinksFilter(
     ml,
     useCallback((l) => true, []),
     useCallback((l, ml) => (
       extra
-      ? [...ml.links]
+      ? ml.links
       : ml.links.filter(l => (
-        !(l.type_id === 3 && (!l.to || l.to?.type_id === 55 || !l.from)) &&
-        l.type_id !== 1 && l.type_id !== 55
+        !!l._applies.find((a: string) => !!~a.indexOf('query-') || a === 'space')
       ))
     ), [extra]),
   );
@@ -97,8 +99,17 @@ export function Content({
           </FormLabel>
           <Switch id='show-extra-switch' isChecked={extra} onChange={() => setExtra(!extra)}/>
         </FormControl>
+        <FormControl display='flex' alignItems='center'>
+          <FormLabel htmlFor='show-types-switch' mb='0'>
+            show types
+          </FormLabel>
+          <Switch id='show-types-switch' isChecked={showTypes} onChange={() => setShowTypes(!showTypes)}/>
+        </FormControl>
         <ButtonGroup size='sm' isAttached variant='outline'>
           <Button as='a' href={`http${+NEXT_PUBLIC_GQL_SSL ? 's' : ''}://${NEXT_PUBLIC_GQL_PATH}`} target="_blank">gql</Button>
+        </ButtonGroup>
+        <ButtonGroup size='sm' isAttached variant='outline'>
+          <Button onClick={() => setCytoEditor(true)}>editor</Button>
         </ButtonGroup>
       </HStack>
     </Box>
