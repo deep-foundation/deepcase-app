@@ -2,7 +2,7 @@ import React from 'react';
 import { HStack, Button, useColorMode } from '../framework';
 
 
-export const EditorSwitcher = React.memo(({
+export const EditorSwitcher = React.memo<any>(({
   setArea,
   rightArea, 
 }:{
