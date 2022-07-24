@@ -9,21 +9,26 @@ const monacoEditorOptions = {
 }
 
 interface IEditor {
+  refEditor?: any;
   value?: '';
   onChange?: (value: string) => void;
   onSave?: (value: string) => void;
+  onClose?: () => void;
 }
 
 export const EditorTextArea = React.memo<any>(({
+  refEditor,
   value, 
   onChange,
   onSave,
+  onClose,
 }:IEditor) => {
   const refValue = React.useRef(value);
   refValue.current = value;
 
   const { colorMode } = useColorMode();
   function handleEditorDidMount(editor, monaco) {
+    refEditor.current = { editor, monaco };
     editor.getModel().updateOptions({ tabSize: 2 });
     editor.addAction({
       id: "save",
@@ -32,6 +37,15 @@ export const EditorTextArea = React.memo<any>(({
       contextMenuGroupId: "save",
       run: () => {
         onSave && onSave(refValue.current);
+      },
+    });
+    editor.addAction({
+      id: "close",
+      label: "close",
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE],
+      contextMenuGroupId: "close",
+      run: () => {
+        onClose && onClose();
       },
     });
   }

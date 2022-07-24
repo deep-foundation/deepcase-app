@@ -34,7 +34,6 @@ return (<Flex
       flexWrap="nowrap"
       overflowX="auto"
       as="nav"
-      px="2"
       css={{
         WebkitOverflowScrolling: "touch",
         msOverflowStyle: "-ms-autohiding-scrollbar"
@@ -101,7 +100,8 @@ export const EditorTab = React.memo((tab:ITabProps) => {
     lineHeight='1.4'
     transition='all 0.2s cubic-bezier(.08,.52,.52,1)'
     border='none'
-    px='3'
+    pl='3'
+    pr='2'
     py='2'
     borderRadius='none'
     fontSize='xs'
