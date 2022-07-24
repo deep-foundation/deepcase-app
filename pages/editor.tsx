@@ -11,6 +11,8 @@ import { Box, ChakraProvider } from '../imports/framework';
 import themeChakra from '../imports/theme/theme';
 import { CytoReactLinkAvatar } from '../imports/cyto-react-avatar';
 import { useState } from 'react';
+import { EditorSwitcher } from '../imports/editor/editor-switcher';
+import { EditorComponentView } from '../imports/editor/editor-component-view';
 
 const tabs = [
   {
@@ -74,6 +76,8 @@ export default function Page() {
   const minilinks = useMinilinksConstruct();
   const { ref: mlRef, ml } = minilinks;
   const [sync, setSync] = useState(false);
+  const [rightArea, setRightArea] = useState('preview');
+  const [viewSize, setViewSize] = useState({width: 124, height: 123});
 
   return (<>
     <ChakraProvider theme={themeChakra}>
@@ -89,15 +93,22 @@ export default function Page() {
               onClose={(tab) => console.log(tab)}
             />}
             closeButtonElement={<CloseButton />} 
-            editorRight={<EditorHandlers>
-              <EditorHandler 
-                reasons={reasons} 
-                avatarElement={<CytoReactLinkAvatar emoji='💥' />}
-                title='first'
-                sync={sync}
-                onChangeSync={() => setSync(!sync)}
-              >123</EditorHandler>
-            </EditorHandlers>}
+            editorRight={
+              rightArea === 'handlers' && <EditorHandlers>
+                <EditorHandler 
+                  reasons={reasons} 
+                  avatarElement={<CytoReactLinkAvatar emoji='💥' />}
+                  title='first'
+                  sync={sync}
+                  onChangeSync={() => setSync(!sync)}
+                >123</EditorHandler>
+              </EditorHandlers> ||
+              rightArea === 'preview' && <Box pos='relative'><EditorComponentView defaultSize={viewSize}
+              onChangeSize={(viewSize) => setViewSize(viewSize)} /></Box>
+            }
+            editorRightSwitch={<EditorSwitcher setArea={(rightArea) => {
+              setRightArea(rightArea);
+            }} />}
           />
         </Box>
       </>

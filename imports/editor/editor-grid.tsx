@@ -1,8 +1,6 @@
-import { useDeep } from '@deep-foundation/deeplinks/imports/client';
-import { Link } from '@deep-foundation/deeplinks/imports/minilinks';
-import dynamic from 'next/dynamic';
 import React from 'react';
-import { Box, Flex, Center, CloseButton } from '../framework';
+import { Box, Center, Flex, useColorMode } from '../framework';
+import { useChackraColor } from '../get-color';
 
 interface IGrid {
   columns?: any;
@@ -10,6 +8,7 @@ interface IGrid {
   editorTextAreaElement?: any;
   editorRight?: any;
   closeButtonElement?: any;
+  editorRightSwitch?: any;
 }
 
 
@@ -19,16 +18,23 @@ export const EditorGrid = React.memo<any>(({
   editorTextAreaElement,
   editorRight,
   closeButtonElement,
+  editorRightSwitch,
 }:IGrid) => {
+  const gray900 = useChackraColor('gray.900');
+  const white = useChackraColor('white');
+  const { colorMode } = useColorMode();
 
-  return (<Box display='flex' flexDir='column' h={'100%'}>
+  return (<Box display='flex' flexDir='column' h={'100%'} bg={colorMode == 'light' ? white : gray900}>
       <Flex>
         <Box sx={{width: 'calc(100% - 2rem)'}}>{editorTabsElement}</Box>
         <Center>{closeButtonElement}</Center>
       </Flex>
       <Box display='grid' gridTemplateColumns={columns} h={'100%'}>
         {editorTextAreaElement}
-        <Box>{editorRight}</Box>
+        <Box display='grid' gridTemplateRows='1fr max-content'>
+          {editorRight}
+          {editorRightSwitch}
+        </Box>
       </Box>
     </Box>
   )

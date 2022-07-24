@@ -19,10 +19,7 @@ export const Resize = React.memo<any>(({
     }}>{children}</div></Hide>
     <Hide below='sm'>
       <Resizable
-        onResize={(e, direction, ref: any, d) => {
-          onChangeSize({width: ref.offsetWidth, height: ref.offsetHeight});
-          console.log({width: ref.offsetWidth, height: ref.offsetHeight});
-        }}
+        onResize={(e, direction, ref: any, d) => onChangeSize({width: ref.offsetWidth, height: ref.offsetHeight})}
         defaultSize={defaultSize}
         style={{border: '1px dashed #605c60'}}
       >

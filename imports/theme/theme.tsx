@@ -23,6 +23,12 @@ const themeChakra = extendTheme({
     gray: {
       900: '#111720',
     },
+    cyan: {
+      400: '#0080ff',
+    },
+  },
+  space: {
+    4.5: '1.125rem',
   },
   components: {
     Tabs: {

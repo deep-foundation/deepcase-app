@@ -33,6 +33,7 @@ return (<Flex
       alignItems="center"
       flexWrap="nowrap"
       overflowX="auto"
+      borderBottomStyle='solid' borderBottomWidth={1} borderBottomColor={colorMode == 'light' ? 'blackAlpha.200' : 'whiteAlpha.200'}
       as="nav"
       css={{
         WebkitOverflowScrolling: "touch",
@@ -55,7 +56,7 @@ export const NonSavedIcon = React.memo(({
   bg?: string;
   borderColor?: string;
 }) => {
-  console.log({bg});
+  
   return (<Box w='0.5rem' h='0.5rem' bg={bg} borderStyle='solid' borderWidth={1} borderColor={borderColor} borderRadius='full' />)
 })
 
@@ -68,7 +69,7 @@ export const CloseButton = React.memo(({
   const white = useChackraColor('white');
   const { colorMode } = useColorMode();
 
-  return <_CloseButton size='md' bg={colorMode == 'light' ? white : gray900} borderRadius='none' height='100%' borderLeftStyle='solid' borderLeftWidth={1} borderLeftColor={colorMode == 'light' ? gray900 : white} onClick={onClick} />
+  return <_CloseButton size='md' bg={colorMode == 'light' ? white : gray900} borderRadius='none' height='100%' borderStyle='solid' borderWidth={1} borderColor={colorMode == 'light' ? 'blackAlpha.200' : 'whiteAlpha.200'} onClick={onClick} />
 })
 
 export interface ITabProps extends ITab {
