@@ -56,7 +56,7 @@ export const NonSavedIcon = React.memo(({
   bg?: string;
   borderColor?: string;
 }) => {
-  console.log({bg});
+  
   return (<Box w='0.5rem' h='0.5rem' bg={bg} borderStyle='solid' borderWidth={1} borderColor={borderColor} borderRadius='full' />)
 })
 

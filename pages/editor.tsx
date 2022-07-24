@@ -108,7 +108,6 @@ export default function Page() {
             }
             editorRightSwitch={<EditorSwitcher setArea={(rightArea) => {
               setRightArea(rightArea);
-              console.log({rightArea});
             }} />}
           />
         </Box>
