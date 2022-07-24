@@ -32,8 +32,8 @@ export const EditorHandler = React.memo(({
   const { colorMode } = useColorMode();
 
   return (<Box borderStyle='solid' borderWidth={1} borderColor={colorMode == 'light' ? 'blackAlpha.200' : 'whiteAlpha.200'} m={4} >
-      <Flex overflowY='hidden' p='4'>
-        <VStack w='100%' spacing={4}>
+      <VStack overflowY='hidden' p='4' spacing={4}>
+        <VStack w='100%' spacing={4} >
           <HStack
             w='100%'
           >
@@ -54,14 +54,19 @@ export const EditorHandler = React.memo(({
             </HStack>
             <HStack>
               <Text fontSize='sm'>sync</Text>
-              <Switch color='primary' size='md' isChecked={sync} />
+              <Switch 
+                color='primary' 
+                size='md' 
+                isChecked={sync}
+                onChange={() => onChangeSync()}
+              />
             </HStack>
           </HStack>
 
         </VStack>    
+        <Divider />
         <Box overflowY='scroll'>{children}</Box>
-      </Flex>
-      {/* <Divider /> */}
+      </VStack>
     </Box>
   )
 })

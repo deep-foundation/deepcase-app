@@ -10,6 +10,7 @@ import { EditorTextArea } from '../imports/editor/editor-textarea';
 import { Box, ChakraProvider } from '../imports/framework';
 import themeChakra from '../imports/theme/theme';
 import { CytoReactLinkAvatar } from '../imports/cyto-react-avatar';
+import { useState } from 'react';
 
 const CytoGraph = dynamic<CytoGraphProps>(
   () => import('../imports/cyto-graph-react').then((m) => m.default),
@@ -87,6 +88,7 @@ export default function Page() {
   const spaceId = 234;
   const minilinks = useMinilinksConstruct();
   const { ref: mlRef, ml } = minilinks;
+  const [sync, setSync] = useState(false);
 
   return (<>
     <ChakraProvider theme={themeChakra}>
@@ -103,7 +105,9 @@ export default function Page() {
                   reasons={reasons} 
                   avatarElement={<CytoReactLinkAvatar emoji='💥' />}
                   title='first'
-                />
+                  sync={sync}
+                  onChangeSync={() => setSync(!sync)}
+                >123</EditorHandler>
               </EditorHandlers>
             }
           />
