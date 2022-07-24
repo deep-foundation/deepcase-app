@@ -13,6 +13,7 @@ import cxtmenu from 'cytoscape-cxtmenu';
 import edgehandles from 'cytoscape-edgehandles';
 import d3Force from 'cytoscape-d3-force';
 import fcose from 'cytoscape-fcose';
+import cytoscapeLasso from 'cytoscape-lasso';
 import { useCytoElements } from './cyto-graph-elements';
 import { useInsertedLink, useLinkReactElements, useCytoEditor } from './cyto-graph-hooks';
 import { CytoGraphProps } from './cyto-graph-props';
@@ -35,6 +36,7 @@ cytoscape.use(fcose);
 cytoscape.use(cxtmenu);
 cytoscape.use(edgeConnections);
 cytoscape.use(edgehandles);
+cytoscape.use(cytoscapeLasso);
 
 function useCytoFocusMethods(cy, relayoutDebounced) {
   const { focus, unfocus } = useFocusMethods();
