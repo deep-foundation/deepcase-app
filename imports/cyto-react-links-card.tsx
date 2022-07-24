@@ -114,11 +114,19 @@ const ListPanel = React.memo<any>(({
   )
 })
 
+export const NoResults = React.memo<any>(() => {
+  return (<Center height='100%' width='100%'>
+      <Text fontSize='xs'>Not founded</Text>
+    </Center>
+  )
+})
+
 export const CytoReactLinksCard = React.memo<any>(({
   elements = [],
   onSubmit,
   onClose,
-  loading = true,
+  loading = false,
+  noResults,
 }: {
   elements: {
     id: number;
@@ -129,6 +137,7 @@ export const CytoReactLinksCard = React.memo<any>(({
   onSubmit?: (id: number) => any;
   onClose?: () => any;
   loading?: boolean;
+  noResults: any;
 }) => {
   const [switchLayout, setSwitchLayout] = useState('grid');
   const [selectedLink, setSelectedLink] = useState(0);
@@ -232,7 +241,10 @@ export const CytoReactLinksCard = React.memo<any>(({
             <ListPanel data={elements} borderColor={colorWhiteToGray} selectedLink={selectedLink} onSelectLink={selectLink}/>
           </ScaleFade>
         </Box>
-        : <Center height='100%'><DotsLoader /></Center>}
+        : !!noResults 
+        ? <NoResults />
+        : <Center height='100%'><DotsLoader /></Center>
+      }
       </Box>
       <SlideFade in={!!selectedLink} offsetX='-0.5rem' style={{position: 'absolute', bottom: 0, right: '-2.8rem'}}>
         <IconButton

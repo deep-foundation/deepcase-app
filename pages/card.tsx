@@ -82,7 +82,7 @@ export default function Page() {
           />]}
         <ColorModeSwitcher/>
         <Center>
-          <CytoReactLinksCard elements={elements} />
+          <CytoReactLinksCard elements={elements} noResults />
         </Center>
       </>
     </Provider>
