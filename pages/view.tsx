@@ -98,8 +98,9 @@ export default function Page() {
         <Box h='5rem' />
         <Box pos='relative' width='100%' height='80vh'>
           <EditorComponentView 
-            defaultSize={viewSize} 
-            onResize={() => {
+            defaultSize={viewSize}
+            viewSize={viewSize} 
+            onChangeSize={() => {
               setViewSize(viewSize)
               console.log(viewSize)
             }} />

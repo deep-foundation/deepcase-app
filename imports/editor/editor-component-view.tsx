@@ -4,10 +4,12 @@ import { Resize } from '../resize';
 
 
 export const EditorComponentView = React.memo<any>(({
-  onResize,
+  onChangeSize,
+  viewSize,
   defaultSize,
 }:{
-  onResize?: () => any;
+  onChangeSize?: (viewSize: { width: number, height: number }) => any;
+  viewSize?: { width: number, height: number };
   defaultSize?: {width: number, height: number};
 }) => {
   return(<Center position='absolute' top={0} left={0} width='100%'>
@@ -17,8 +19,8 @@ export const EditorComponentView = React.memo<any>(({
         sx={{
           transform: 'rotate(-90deg)'
         }}
-      >{defaultSize.height} px</Text>
-      <Resize defaultSize={defaultSize} onResize={onResize}>
+      >{viewSize.height} px</Text>
+      <Resize defaultSize={defaultSize} onChangeSize={onChangeSize} viewSize={viewSize}>
         <Center>123</Center>
       </Resize>
       <Text
@@ -28,7 +30,7 @@ export const EditorComponentView = React.memo<any>(({
           position: 'absolute',
           top: -7
         }}
-      >{defaultSize.width} px</Text>
+      >{viewSize.width} px</Text>
     </Center>
   )
 })
