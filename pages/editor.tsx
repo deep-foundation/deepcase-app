@@ -9,11 +9,6 @@ import { EditorTextArea } from '../imports/editor/editor-textarea';
 import { Box, ChakraProvider } from '../imports/framework';
 import themeChakra from '../imports/theme/theme';
 
-const CytoGraph = dynamic<CytoGraphProps>(
-  () => import('../imports/cyto-graph-react').then((m) => m.default),
-  { ssr: false }
-);
-
 const tabs = [
   {
     id: 1,

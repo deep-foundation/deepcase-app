@@ -1,4 +1,4 @@
-export const layoutCosePreset = { 
+export const layoutCosePreset = () => ({ 
   name: 'cose-bilkent', 
   animate: true,
   quality: 'default',
@@ -49,8 +49,8 @@ export const layoutCosePreset = {
   //   return !edge.is('.link-type');
   // },
   // rankDir: 'TB',
-};
-export const layoutColaPreset = { 
+});
+export const layoutColaPreset = () => ({ 
   name: 'cola', 
   animate: false, // whether to show the layout as it's running
   refresh: 1, // number of ticks per frame; higher is faster but more jerky
@@ -86,23 +86,40 @@ export const layoutColaPreset = {
   unconstrIter: undefined, // unconstrained initial layout iterations
   userConstIter: undefined, // initial layout iterations with user-specified constraints
   allConstIter: undefined, // initial layout iterations with all constraints including non-overlap
-};
-export const layoutd3ForcePreset = {
+});
+export const layoutd3ForcePreset = () => ({
   name: 'd3-force',
   animate: false,
   fit: false,
   linkId: function id(d) {
     return d?.id || d?.data?.id;
   },
-};
-export const layoutDadgePreset = {
+}); 
+export const layoutDadgePreset = () => ({
   name: 'dagre',
   animate: false,
   fit: false,
+});
+const nodeRepulsion = node => 150000;
+export const layoutFcosePreset = (elements, cy) => {
+  return {
+    name: 'fcose',
+    animate: true,
+    fit: false,
+    quality: 'proof',
+    // sampleSize: 500,
+    nodeSeparation: 300,
+    nodeRepulsion,
+    // randomize: false,
+    // gravity: 0.1,
+    // numIter: 999999,
+    // fixedNodeConstraint: elements ? elements.filter(e => !!e.focused && !!e.position).map(e => ({ nodeId: e.id, position: e.position })) : [],
+  };
 };
 export const layouts = {
   'cose-bilkent': layoutCosePreset,
   'cola': layoutColaPreset,
   'd3-force': layoutd3ForcePreset,
   'dadge': layoutDadgePreset,
+  'fcose': layoutFcosePreset,
 };

@@ -19,6 +19,9 @@ const CytoGraph = dynamic<CytoGraphProps>(
   { ssr: false }
 );
 
+const NEXT_PUBLIC_GQL_PATH = process.env.NEXT_PUBLIC_GQL_PATH || 'localhost:3006/gql';
+const NEXT_PUBLIC_GQL_SSL = process.env.NEXT_PUBLIC_GQL_SSL || '0';
+
 export function Content({
 }: {
 }) {
@@ -26,6 +29,7 @@ export function Content({
   const deep = useDeep();
   const minilinks = useMinilinksConstruct();
   const { ref: mlRef, ml } = minilinks;
+  global.ml = ml;
   const [container, setContainer] = useContainer();
   const [extra, setExtra] = useShowExtra();
   const { layout, setLayout, layoutName } = useLayout();
@@ -80,7 +84,7 @@ export function Content({
             copy(deep.token);
           }}>copy token</Button>
         </ButtonGroup>
-        <Select placeholder='layouts' size='sm' onChange={(event) => {
+        <Select placeholder='layouts' size='sm' value={layoutName} onChange={(event) => {
           setLayout(event.target.value);
         }}>
           {Object.keys(layouts).map(name => (
@@ -93,6 +97,9 @@ export function Content({
           </FormLabel>
           <Switch id='show-extra-switch' isChecked={extra} onChange={() => setExtra(!extra)}/>
         </FormControl>
+        <ButtonGroup size='sm' isAttached variant='outline'>
+          <Button as='a' href={`http${+NEXT_PUBLIC_GQL_SSL ? 's' : ''}://${NEXT_PUBLIC_GQL_PATH}`} target="_blank">gql</Button>
+        </ButtonGroup>
       </HStack>
     </Box>
     <ColorModeSwitcher/>

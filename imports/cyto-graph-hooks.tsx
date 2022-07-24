@@ -22,6 +22,7 @@ export function useInsertedLink(elements, reactElements, focus, refCy, baseTypes
     }: IInsertedLink) {
       const fromType = ml.byId?.[from]?.type_id;
       const toType = ml.byId?.[to]?.type_id;
+      const { linkId } = useDeep();
       const { data: types } = useDeepQuery(
         useMemo(() => ({
           _or: (!from && !to) ? [
@@ -32,7 +33,7 @@ export function useInsertedLink(elements, reactElements, focus, refCy, baseTypes
             { id: 1, },
           ],
           can_object: {
-            subject_id: { _eq: 352 },
+            subject_id: { _eq: linkId },
             action_id: { _eq: 121 },
           },
         }), []),

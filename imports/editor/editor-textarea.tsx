@@ -10,28 +10,40 @@ const monacoEditorOptions = {
 
 interface IEditor {
   value?: '';
-  onChange?: () => void;
+  onChange?: (value: string) => void;
+  onSave?: (value: string) => void;
 }
 
 export const EditorTextArea = React.memo<any>(({
   value, 
   onChange,
+  onSave,
 }:IEditor) => {
+  const refValue = React.useRef(value);
+  refValue.current = value;
 
   const { colorMode } = useColorMode();
   function handleEditorDidMount(editor, monaco) {
     editor.getModel().updateOptions({ tabSize: 2 });
+    editor.addAction({
+      id: "save",
+      label: "Save",
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
+      contextMenuGroupId: "save",
+      run: () => {
+        onSave && onSave(refValue.current);
+      },
+    });
   }
 
   return (<MonacoEditor
-      options={monacoEditorOptions}
-      height="100%"
-      width="100%"
-      theme={colorMode === 'light' ? 'light' : "vs-dark"}
-      defaultLanguage="javascript"
-      defaultValue={value}
-      onChange={onChange}
-      onMount={handleEditorDidMount}
-    />
-  )
+    options={monacoEditorOptions}
+    height="100%"
+    width="100%"
+    theme={colorMode === 'light' ? 'light' : "vs-dark"}
+    defaultLanguage="javascript"
+    defaultValue={value}
+    onChange={onChange}
+    onMount={handleEditorDidMount}
+  />)
 })

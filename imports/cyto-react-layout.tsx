@@ -122,7 +122,7 @@ export function CytoReactLayout({
       return <div style={{
         position: 'absolute',
         left: 0, top: 0,
-      }} id={generateId(element)}>
+      }} id={generateId(element)} key={id}>
         <ReactResizeDetector handleWidth handleHeight onResize={(width, height) => {
           cy.$(`#${id}`).data('react-element-size', { width, height });
           cy.$(`#${id}`).style({
