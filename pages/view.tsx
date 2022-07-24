@@ -99,10 +99,7 @@ export default function Page() {
         <Box pos='relative' width='100%' height='80vh'>
           <EditorComponentView 
             defaultSize={viewSize}
-            onChangeSize={(viewSize) => {
-              setViewSize(viewSize)
-              console.log({viewSize});
-            }} />
+            onChangeSize={(viewSize) => setViewSize(viewSize)} />
         </Box>
       </>
     </ChakraProvider>
