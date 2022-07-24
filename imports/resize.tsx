@@ -5,11 +5,9 @@ import { Hide, Text } from './framework';
 export const Resize = React.memo<any>(({ 
   onChangeSize,
   defaultSize,
-  viewSize,
   children 
 }:{ 
-  onChangeSize?: (viewSize: { width: number, height: number }) => any;
-  viewSize?: any;
+  onChangeSize?: (size: { width: number, height: number }) => any;
   defaultSize?: any;
   children: any 
 }) => {
@@ -21,9 +19,11 @@ export const Resize = React.memo<any>(({
     }}>{children}</div></Hide>
     <Hide below='sm'>
       <Resizable
-        onResize={(e: any) => onChangeSize(e.target.value)}
+        onResize={(e, direction, ref: any, d) => {
+          onChangeSize({width: ref.offsetWidth, height: ref.offsetHeight});
+          console.log({width: ref.offsetWidth, height: ref.offsetHeight});
+        }}
         defaultSize={defaultSize}
-        size={viewSize}
         style={{border: '1px dashed #605c60'}}
       >
         {children}
