@@ -14,6 +14,51 @@ const CytoGraph = dynamic<CytoGraphProps>(
   { ssr: false }
 );
 
+const elements = [
+  {
+    id: 1,
+    src: '🥸',
+    linkName: 'Massage',
+    containerName: '@deepcase/massage',
+  },
+  {
+    id: 2,
+    src: '🥳',
+    linkName: 'Massage',
+    containerName: '@deepcase/massage',
+  },
+  {
+    id: 3,
+    src: '💀',
+    linkName: 'Massage',
+    containerName: '@deepcase/massage',
+  },
+  {
+    id: 4,
+    src: '💩',
+    linkName: 'Massage',
+    containerName: '@deepcase/massage',
+  },
+  {
+    id: 5,
+    src: '❤️‍🔥',
+    linkName: 'Massage',
+    containerName: '@deepcase/massage',
+  },
+  {
+    id: 6,
+    src: '💩',
+    linkName: 'Massage',
+    containerName: '@deepcase/massage',
+  },
+  {
+    id: 7,
+    src: '❤️‍🔥',
+    linkName: 'Massage',
+    containerName: '@deepcase/massage',
+  }
+]
+
 export default function Page() {
   // const [spaceId, setSpaceId] = useSpaceId();
   const spaceId = 234;
@@ -35,7 +80,7 @@ export default function Page() {
           // onUpdateScreenQuery={query => console.log('updateScreenQuery', query)}
           />]}
         <ColorModeSwitcher/>
-        <CytoReactLinksCard />
+        <CytoReactLinksCard elements={elements} />
       </>
     </Provider>
   </>);
