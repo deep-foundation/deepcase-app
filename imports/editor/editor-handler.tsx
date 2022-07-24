@@ -1,7 +1,7 @@
 import React from 'react';
 import { VscAdd } from 'react-icons/vsc';
 import { CytoReactLinkAvatar } from '../cyto-react-avatar';
-import { Flex, Box, HStack, Text, Divider, VStack, Select } from '../framework';
+import { Flex, Box, HStack, Text, Divider, VStack, Select, useColorMode, Container, Switch } from '../framework';
 
 interface IReason {
   id?: number;
@@ -19,7 +19,7 @@ interface IHandler {
   children?: any;
 }
 
-export const EditorHandlers = React.memo(({
+export const EditorHandler = React.memo(({
   id,
   avatarElement,
   title,
@@ -29,30 +29,39 @@ export const EditorHandlers = React.memo(({
   onChangeSync,
   children,
 }:IHandler) => {
-  return (<Flex overflowY='hidden'>
-      <VStack>
-        <HStack
-          w='100%'
-        >
-          {avatarElement}
-          <Text fontSize='sm'>{title}</Text>
-        </HStack>
-        <HStack
-          w='100%'
-        >
-          <Select variant='outline' placeholder='type'>
-            {reasons.map(r => (
-              <option key={r.id} value={r.id}>{r.name}</option>
-            ))}
-          </Select>
-          <Text fontSize='sm'>{title}</Text>
-        </HStack>
+  const { colorMode } = useColorMode();
 
-      </VStack>    
-      <Divider />
-      <Box
-        overflowY='scroll'
-      >{children}</Box>
-    </Flex>
+  return (<Box borderStyle='solid' borderWidth={1} borderColor={colorMode == 'light' ? 'blackAlpha.200' : 'whiteAlpha.200'} m={4} >
+      <Flex overflowY='hidden' p='4'>
+        <VStack w='100%' spacing={4}>
+          <HStack
+            w='100%'
+          >
+            {avatarElement}
+            <Text fontSize='sm'>{title}</Text>
+          </HStack>
+          <HStack
+            w='100%'
+            spacing={6}
+          >
+            <HStack>
+              <Text fontSize='sm'>on</Text>
+              <Select size='sm' variant='outline' placeholder='type'>
+                {reasons.map(r => (
+                  <option key={r.id} value={r.id}>{r.name}</option>
+                ))}
+              </Select>
+            </HStack>
+            <HStack>
+              <Text fontSize='sm'>sync</Text>
+              <Switch color='primary' size='md' isChecked={sync} />
+            </HStack>
+          </HStack>
+
+        </VStack>    
+        <Box overflowY='scroll'>{children}</Box>
+      </Flex>
+      {/* <Divider /> */}
+    </Box>
   )
 })
