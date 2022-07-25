@@ -49,7 +49,7 @@ return (<Flex
   )
 })
 
-export const NonSavedIcon = React.memo(({
+export const NonSavedIcon = React.memo<any>(({
   bg='primary',
   borderColor='red.200',
 }:{
@@ -60,7 +60,7 @@ export const NonSavedIcon = React.memo(({
   return (<Box w='0.5rem' h='0.5rem' bg={bg} borderStyle='solid' borderWidth={1} borderColor={borderColor} borderRadius='full' />)
 })
 
-export const CloseButton = React.memo(({
+export const CloseButton = React.memo<any>(({
   onClick,
 }: {
   onClick?: (event) => void;
@@ -77,7 +77,7 @@ export interface ITabProps extends ITab {
   onClose?: (tab: ITab) => void;
 }
 
-export const EditorTab = React.memo((tab:ITabProps) => {
+export const EditorTab = React.memo<any>((tab:ITabProps) => {
   const {
     id,
     title,

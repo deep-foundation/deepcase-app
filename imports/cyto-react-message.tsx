@@ -11,7 +11,7 @@ import { useChackraColor, useChackraGlobal } from './get-color';
 import { Provider } from './provider';
 
 
-const Done = React.memo(() => {
+const Done = React.memo<any>(() => {
   return(<IconContext.Provider value={{ color: "blue", className: 'done-icon' }}>
       <div>
         <BsCheck2 />
@@ -19,7 +19,7 @@ const Done = React.memo(() => {
     </IconContext.Provider>
   )
 })
-const DoneAllOpacity = React.memo(() => {
+const DoneAllOpacity = React.memo<any>(() => {
   return(<IconContext.Provider value={{ color: "blue", className: 'done-icon' }}>
       <div>
         <BsCheck2All />
@@ -27,7 +27,7 @@ const DoneAllOpacity = React.memo(() => {
     </IconContext.Provider>
   )
 })
-const DoneAll = React.memo(() => {
+const DoneAll = React.memo<any>(() => {
   return(<IconContext.Provider value={{ color: "primary", className: 'done-all-icon' }}>
       <div>
         <BsCheck2All />

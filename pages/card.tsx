@@ -8,6 +8,7 @@ import { CytoGraphProps } from '../imports/cyto-graph-props';
 import { CytoReactLinksCard } from '../imports/cyto-react-links-card';
 import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
+import { Center } from '../imports/framework';
 
 const CytoGraph = dynamic<CytoGraphProps>(
   () => import('../imports/cyto-graph-react').then((m) => m.default),
@@ -80,7 +81,9 @@ export default function Page() {
           // onUpdateScreenQuery={query => console.log('updateScreenQuery', query)}
           />]}
         <ColorModeSwitcher/>
-        <CytoReactLinksCard elements={elements} />
+        <Center>
+          <CytoReactLinksCard elements={elements} noResults />
+        </Center>
       </>
     </Provider>
   </>);
