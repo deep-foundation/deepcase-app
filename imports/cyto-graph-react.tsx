@@ -226,7 +226,7 @@ export default function CytoGraph({
   // false - unlocked
   const refHTMLNode = useRef<any>();
   
-  const { linkReactElements, toggleLinkReactElement } = useLinkReactElements(elements, reactElements, refCy);
+  const { linkReactElements, toggleLinkReactElement } = useLinkReactElements(elements, reactElements, refCy, ml);
   const [cytoEditor, setCytoEditor] = useCytoEditor();
   const {
     addTab,

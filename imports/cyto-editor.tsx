@@ -1,16 +1,19 @@
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button } from '@chakra-ui/react';
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, Box } from '@chakra-ui/react';
 import { useDeep } from '@deep-foundation/deeplinks/imports/client';
 import { Link, MinilinksInstance, MinilinksResult } from '@deep-foundation/deeplinks/imports/minilinks';
 import { delay } from '@deep-foundation/deeplinks/imports/promise';
 import { useLocalStore } from '@deep-foundation/store/local';
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useCytoEditor } from './cyto-graph-hooks';
 import { CytoReactLinkAvatar } from './cyto-react-avatar';
+import { EditorComponentView } from './editor/editor-component-view';
 import { EditorGrid } from './editor/editor-grid';
 import { EditorHandler } from './editor/editor-handler';
 import { EditorHandlers } from './editor/editor-handlers';
+import { EditorSwitcher } from './editor/editor-switcher';
 import { CloseButton, EditorTabs } from './editor/editor-tabs';
 import { EditorTextArea } from './editor/editor-textarea';
+import json5 from 'json5';
 
 export interface EditorTab {
   id: number;
@@ -102,6 +105,9 @@ export function CytoEditor({
 
   const refEditor = useRef();
 
+  const [rightArea, setRightArea] = useState('preview');
+  const [viewSize, setViewSize] = useState({width: 124, height: 123});
+
   return <>
     <Modal isOpen={cytoEditor} onClose={onClose} size='full'>
       <ModalOverlay />
@@ -123,13 +129,13 @@ export function CytoEditor({
               const type = typeof(ml.byId[tab.id]?.value?.value);
               setTab({ ...tab, loading: true, saved: false });
               console.log('onSave', { link_id: { _eq: tab.id } }, {
-                value: type === 'string' ? value : type === 'number' ? parseFloat(value) : type === 'object' ? JSON.parse(value) : undefined,
+                value: type === 'string' ? value : type === 'number' ? parseFloat(value) : type === 'object' ? json5.parse(value) : undefined,
               }, {
                 table: `${type}s`,
               });
               if (type !== 'undefined') {
                 await deep.update({ link_id: { _eq: tab.id } }, {
-                  value: type === 'string' ? value : type === 'number' ? parseFloat(value) : type === 'object' ? JSON.parse(value) : undefined,
+                  value: type === 'string' ? value : type === 'number' ? parseFloat(value) : type === 'object' ? json5.parse(value) : undefined,
                 }, {
                   table: `${type}s`,
                 });
@@ -154,7 +160,8 @@ export function CytoEditor({
             }}
           />}
           closeButtonElement={<CloseButton onClick={onClose}/>}
-          editorRight={<EditorHandlers>
+          editorRight={
+            rightArea === 'handlers' && <EditorHandlers>
             <EditorHandler
               reasons={reasons} 
               avatarElement={<CytoReactLinkAvatar emoji='💥' />}
@@ -162,7 +169,13 @@ export function CytoEditor({
               sync={false}
               onChangeSync={() => {}}
             ></EditorHandler>
-          </EditorHandlers>}
+            </EditorHandlers> ||
+            rightArea === 'preview' && <Box pos='relative'><EditorComponentView defaultSize={viewSize}
+            onChangeSize={(viewSize) => setViewSize(viewSize)} /></Box>
+        }
+          editorRightSwitch={<EditorSwitcher setArea={(rightArea) => {
+            setRightArea(rightArea);
+          }} />}
         />
       </ModalContent>
     </Modal>

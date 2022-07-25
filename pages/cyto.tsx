@@ -46,7 +46,7 @@ export function Content({
         !!l._applies.find((a: string) => !!~a.indexOf('query-') || a === 'space')
       ))
     ), [extra]),
-  );
+  ) || [];
 
   return (<>
     {[<DeepLoader

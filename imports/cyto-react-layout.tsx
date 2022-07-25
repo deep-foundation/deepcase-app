@@ -116,13 +116,12 @@ export function CytoReactLayout({
   }}>
     {elements.map((element) => {
       const cy = cytoRef.current._cy;
-      console.log('element', element, elements);
       const id = getId(element);
       const Component = cy.$(`#${id}`).data('Component');
       const reactElement = Component ? <Component id={id}/> : null;
       return <div style={{
         position: 'absolute',
-        left: 0, top: 0,
+        left: 0, top: -5,
       }} id={generateId(element)} key={id}>
         <ReactResizeDetector handleWidth handleHeight onResize={(width, height) => {
           cy.$(`#${id}`).data('react-element-size', { width, height });
@@ -130,7 +129,8 @@ export function CytoReactLayout({
             'shape': 'rectangle',
             'background': 'transparent',
             width,
-            height,
+            height: height + 10,
+            'border-width': 0,
           });
         }}/>
         {reactElement}

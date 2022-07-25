@@ -1,7 +1,13 @@
 import { Box, useColorModeValue } from "@chakra-ui/react";
 import { useChackraColor, useChackraGlobal } from "../get-color";
 
-export function LinkClientHandlerDefault() {
+export function LinkClientHandlerDefault({
+  id,
+  ml,
+}: {
+  id: number;
+  ml: any;
+}) {
   const globalStyle = useChackraGlobal();
   const textColor = useChackraColor(globalStyle.body.color);
   const gray900 = useChackraColor('gray.900');
@@ -10,6 +16,8 @@ export function LinkClientHandlerDefault() {
   const colorGrayToWhite = useColorModeValue(white, gray900);
   const colorFocus = useColorModeValue(white, gray900);
   const colorWhiteToGray = useColorModeValue(gray900, white);
+
+  const { type_id, from_id, to_id } = ml.byId[id];
 
   return <Box
     maxW='sm'
@@ -21,6 +29,13 @@ export function LinkClientHandlerDefault() {
     borderColor={colorWhiteToGray}
     color={colorWhiteToGray}
   >
-    <div style={{ width: 150, height: 150 }}></div>
+    <div style={{ width: 150, height: 150 }}>
+      {JSON.stringify({
+        id,
+        type_id,
+        from_id,
+        to_id,
+      })}
+    </div>
   </Box>;
 }

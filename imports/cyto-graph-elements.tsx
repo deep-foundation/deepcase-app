@@ -62,7 +62,32 @@ export function useCytoElements(ml, links, baseTypes, cy, spaceId) {
     };
     _elements[link?.id] = element;
     elements.push(element);
+  }
+  for (let i = 0; i < links.length; i++) {
+    const link = links[i];
+    const focus = link?.inByType?.[baseTypes.Focus]?.find(f => f.from_id === spaceId);
 
+    let _value = '';
+    let _name = '';
+    let _type = '';
+    let _symbol = '';
+    if (/*labelsConfig?.values && */link?.value?.value) {
+      let json;
+      try { json = json5.stringify(link?.value.value); } catch(error) {}
+      _value = (
+        typeof(link?.value.value) === 'object' && json
+        ? json : link?.value.value
+      );
+    }
+    if (link?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value) {
+      _name = `name:${link?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value}`;
+    }
+    if (link?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value) {
+      _type = `type:${link?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value}`;
+    }
+    if (link?.type?.inByType?.[baseTypes?.Symbol]?.[0]?.value?.value) {
+      _symbol = link?.type?.inByType?.[baseTypes?.Symbol]?.[0]?.value?.value;
+    }
     if (!!cy) {
       if (link.from_id) {
         if (ml?.byId?.[link.from_id] && _elements[link.from_id]) {
@@ -104,6 +129,8 @@ export function useCytoElements(ml, links, baseTypes, cy, spaceId) {
       }
     }
   }
+
+
   return {
     elements, reactElements,
   };

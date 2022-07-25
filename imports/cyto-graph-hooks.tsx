@@ -100,7 +100,7 @@ export function useInsertedLink(elements, reactElements, focus, refCy, baseTypes
   }), []);
 }
 
-export function useLinkReactElements(elements, reactElements, refCy) {
+export function useLinkReactElements(elements, reactElements, refCy, ml) {
   const [linkReactElements, setLinkReactElements] = useState<{ [key: string]: boolean }>({});
   const linkReactElementsIds = useMemo(() => Object.keys(linkReactElements).filter(key => !!linkReactElements[key]), [linkReactElements]).map(key => parseInt(key), [linkReactElements]);
 
@@ -126,6 +126,7 @@ export function useLinkReactElements(elements, reactElements, refCy) {
           width: null,
           height: null,
           'background-opacity': null,
+          'border-width': 0,
         });
       }
       return {
@@ -146,7 +147,7 @@ export function useLinkReactElements(elements, reactElements, refCy) {
         <CatchErrors errorRenderer={(error, reset) => {
           return <div>{String(error)}</div>;
         }}>
-          <LinkClientHandlerDefault/>
+          <LinkClientHandlerDefault id={id} ml={ml}/>
         </CatchErrors>
       </div>;
     };
