@@ -100,26 +100,52 @@ export const layoutDadgePreset = () => ({
   animate: false,
   fit: false,
 });
+export const layoutEulerPreset = () => ({
+  name: 'euler',
+  animate: false,
+  fit: false,
+});
+export const layoutElkPreset = () => ({
+  name: 'elk',
+  animate: false,
+  fit: false,
+  elk: {
+    // All options are available at http://www.eclipse.org/elk/reference.html
+    //
+    // 'org.eclipse.' can be dropped from the identifier. The subsequent identifier has to be used as property key in quotes.
+    // E.g. for 'org.eclipse.elk.direction' use:
+    // 'elk.direction'
+    //
+    // Enums use the name of the enum as string e.g. instead of Direction.DOWN use:
+    // 'elk.direction': 'DOWN'
+    //
+    // The main field to set is `algorithm`, which controls which particular layout algorithm is used.
+    // Example (downwards layered layout):
+    'algorithm': 'force',
+  },
+});
 
 const nodeRepulsion = node => 200000;
 const edgeElasticity = edge => {
-  return !!~edge.classes().indexOf('link-type') ? 0 : 0.45
+  return !!~edge.classes().indexOf('link-type') ? 0 : 1
 };
 
 export const layoutFcosePreset = (elements, cy) => {
+  console.log((elements || []).filter(e => !!e.focused && !!e.position).map(e => ({ nodeId: e.id, position: e.position })));
   return {
     name: 'fcose',
     animate: true,
     fit: false,
     quality: 'proof',
     // sampleSize: 500,
+    samplingType: true,
     nodeSeparation: 300,
     nodeRepulsion,
     edgeElasticity,
     // randomize: false,
     // gravity: 0.1,
-    // numIter: 999999,
-    // fixedNodeConstraint: elements ? elements.filter(e => !!e.focused && !!e.position).map(e => ({ nodeId: e.id, position: e.position })) : [],
+    // numIter: 2500,
+    // fixedNodeConstraint: (elements || []).filter(e => !!e.focused && !!e.position).map(e => ({ nodeId: e.id, position: e.position })),
   };
 };
 export const layouts = {
@@ -128,4 +154,5 @@ export const layouts = {
   'd3-force': layoutd3ForcePreset,
   'dadge': layoutDadgePreset,
   'fcose': layoutFcosePreset,
+  'elk': layoutElkPreset,
 };

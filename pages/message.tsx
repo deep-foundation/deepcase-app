@@ -22,17 +22,9 @@ export default function Page() {
 
   return (<>
     <Provider chakra>
-      <ConnectionController>
-        {[<DeepLoader
-          key={spaceId}
-          spaceId={spaceId}
-          minilinks={minilinks}
-          // onUpdateScreenQuery={query => console.log('updateScreenQuery', query)}
-          />]}
-        <ColorModeSwitcher/>
-        <CytoReactMessage />
-        <MessageTextArea />
-      </ConnectionController>
+      <ColorModeSwitcher/>
+      <CytoReactMessage />
+      <MessageTextArea />
     </Provider>
   </>);
 }

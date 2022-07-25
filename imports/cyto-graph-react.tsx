@@ -13,6 +13,8 @@ import cxtmenu from 'cytoscape-cxtmenu';
 import edgehandles from 'cytoscape-edgehandles';
 import d3Force from 'cytoscape-d3-force';
 import fcose from 'cytoscape-fcose';
+import euler from 'cytoscape-euler';
+import elk from 'cytoscape-elk';
 import cytoscapeLasso from 'cytoscape-lasso';
 import { useCytoElements } from './cyto-graph-elements';
 import { useInsertedLink, useLinkReactElements, useCytoEditor } from './cyto-graph-hooks';
@@ -25,13 +27,15 @@ import { useBaseTypes, useContainer, useFocusMethods, useLayout, useRefAutofill,
 import { useRerenderer } from './rerenderer-hook';
 import { CytoEditor, useEditorTabs } from './cyto-editor';
 import { useMinilinksHandle } from '@deep-foundation/deeplinks/imports/minilinks';
+import { CytoDropZone } from './cyto-drop-zone';
 
 cytoscape.use(dagre);
 cytoscape.use(cola);
 cytoscape.use(COSEBilkent);
 // cytoscape.use(klay);
-// cytoscape.use(elk);
-// cytoscape.use(euler);
+cytoscape.use(elk);
+cytoscape.use(euler);
+cytoscape.use(d3Force);
 cytoscape.use(fcose);
 cytoscape.use(cxtmenu);
 cytoscape.use(edgeConnections);
@@ -458,6 +462,7 @@ export default function CytoGraph({
       }
     };
     ml.emitter.on('updated', updatedListener);
+    // ncy.lassoSelectionEnabled(true);
     return () => {
       ml.emitter.removeListener('updated', updatedListener);
     };
@@ -468,240 +473,259 @@ export default function CytoGraph({
   });
 
   return (<div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
-    <CytoscapeComponent
-        ref={refCy}
-        elements={elements} 
-        layout={layout()}
-        stylesheet={[
-          {
-            selector: 'node',
-            style: {
-              'background-opacity': 0,
+    <CytoDropZone refCy={refCy}>
+      <CytoscapeComponent
+          ref={refCy}
+          elements={elements} 
+          layout={layout(elementsRef.current, refCy?.current?._cy)}
+          stylesheet={[
+            {
+              selector: 'node',
+              style: {
+                'background-opacity': 0,
+              },
             },
-          },
-          {
-            selector: '.link-node',
-            style: {
-              color: textColor,
-              width: 30,
-              height: 30,
-              'font-size': 16,
-              'text-margin-y': 20, // -4
-              'text-margin-x': -2,
-              label: 'data(label)',
-              "text-wrap": "wrap",
-              // 'background-image': 'https://live.staticflickr.com/3063/2751740612_af11fb090b_b.jpg',
-              'background-fit': 'cover',
-              'background-opacity': 1,
-              'background-color': '#fff',
-            }
-          },
-          {
-            selector: '.link-node.hover',
-            style: {
-              'z-compound-depth': 'top',
-              'overlay-opacity': 0,
-              // @ts-ignore
-              'underlay-opacity': 0.8,
-              'underlay-padding': 2,
-              'underlay-color': '#0080ff',
-              'underlay-shape': 'ellipse',
-            }
-          },
-          {
-            selector: '.link-to',
-            style: {
-              'target-arrow-shape': 'triangle',
-            }
-          },
-          {
-            selector: '.link-from',
-            style: {
-              'target-arrow-shape': 'tee',
-            }
-          },
-          {
-            selector: '.link-type',
-            style: {
-              'target-arrow-shape': 'triangle',
-              'line-style': 'dashed',
-              'line-dash-pattern': [5, 5]
-            }
-          },
-          {
-            selector: 'edge',
-            style: {
-              width: 1,
-              'curve-style': 'bezier',
-              'target-distance-from-node': 8,
-              'source-distance-from-node': 1,
-            }
-          },
-          {
-            selector: '.eh-ghost-edge,edge.eh-preview',
-            style: {
-              'width': 2,
-              'line-color': colorClicked,
-              'target-arrow-color': colorClicked,
-              'source-arrow-color': colorClicked,
+            {
+              selector: '.file',
+              style: {
+                color: textColor,
+                width: 30,
+                height: 30,
+                'font-size': 16,
+                'text-margin-y': 20, // -4
+                'text-margin-x': -2,
+                label: 'data(label)',
+                "text-wrap": "wrap",
+                // 'background-image': 'https://live.staticflickr.com/3063/2751740612_af11fb090b_b.jpg',
+                'background-fit': 'cover',
+                'background-opacity': 1,
+                'background-color': '#fff',
+              }
             },
-          },
-          {
-            selector: '.query-link-node',
-            style: {
-              color: textColor,
-              'background-color': colorBgInsertNode,
-              'border-color': textColor,
-              'border-width': 1,
-              'border-style': 'solid',
-              width: 16,
-              height: 16,
-              'font-size': 16,
-              'text-margin-y': -4,
-            }
-          },
-          {
-            selector: '.query-link-from-node',
-            style: {
-              color: textColor,
-              'background-color': colorBgInsertNode,
-              'border-color': textColor,
-              'border-width': 1,
-              'border-style': 'solid',
-              width: 8,
-              height: 8,
-              'font-size': 16,
-              'text-margin-y': -4,
-            }
-          },
-          {
-            selector: '.query-link-to-node',
-            style: {
-              color: textColor,
-              'background-color': colorBgInsertNode,
-              'border-color': textColor,
-              'border-width': 1,
-              'border-style': 'solid',
-              width: 8,
-              height: 8,
-              'font-size': 16,
-              'text-margin-y': -4,
-            }
-          },
-          {
-            selector: '.query-link-type-node',
-            style: {
-              color: textColor,
-              'background-color': colorBgInsertNode,
-              'border-color': textColor,
-              'border-width': 1,
-              'border-style': 'solid',
-              width: 8,
-              height: 8,
-              'font-size': 16,
-              'text-margin-y': -4,
-            }
-          },
-          {
-            selector: '.query-link-in-node',
-            style: {
-              color: textColor,
-              'background-color': colorBgInsertNode,
-              'border-color': textColor,
-              'border-width': 1,
-              'border-style': 'solid',
-              width: 8,
-              height: 8,
-              'font-size': 16,
-              'text-margin-y': -4,
-            }
-          },
-          {
-            selector: '.query-link-out-node',
-            style: {
-              color: textColor,
-              'background-color': colorBgInsertNode,
-              'border-color': textColor,
-              'border-width': 1,
-              'border-style': 'solid',
-              width: 8,
-              height: 8,
-              'font-size': 16,
-              'text-margin-y': -4,
-            }
-          },
-          {
-            selector: '.query-link-out-edge',
-            style: {
-              'target-arrow-shape': 'tee',
-            }
-          },
-          {
-            selector: '.query-link-from-edge',
-            style: {
-              'target-arrow-shape': 'tee',
-            }
-          },
-          {
-            selector: '.query-link-in-edge',
-            style: {
-              'target-arrow-shape': 'triangle',
-            }
-          },
-          {
-            selector: '.query-link-to-edge',
-            style: {
-              'target-arrow-shape': 'triangle',
-            }
-          },
-          {
-            selector: '.query-link-type-edge',
-            style: {
-              'target-arrow-shape': 'triangle',
-              'line-style': 'dashed',
-              'line-dash-pattern': [5, 5],
-            }
-          },
-          {
-            selector: '.link-from.focused, .link-to.focused, .link-type.focused',
-            style: {
-              'width': 2,
-              'line-color': colorFocus,
-            }
-          },
-          {
-            selector: '.link-from.clicked, .link-to.clicked, .link-type.clicked',
-            style: {
-              'line-color': colorClicked,
-              'target-arrow-color': colorClicked,
-              width: 2,
-            }
-          },
-          {
-            selector: '.link-node.focused',
-            style: {
-              'border-width': 2,
-              'line-color': colorClicked,
-            }
-          },
-          {
-            selector: '.link-node.clicked',
-            style: {
-              color: colorClicked,
-              'background-color': colorClicked, 
-            }
-          },
-        ]}
-        panningEnabled={true}
-        
-        pan={ { x: 200, y: 200 } }
-        style={ { width: '100%', height: '100vh' } } 
-      />
-      <CytoReactLayout
-        cytoRef={refCy}
-        elements={reactElements}
-      />
-      <CytoEditor ml={ml}/>
+            {
+              selector: '.link-node',
+              style: {
+                color: textColor,
+                width: 30,
+                height: 30,
+                'font-size': 16,
+                'text-margin-y': 20, // -4
+                'text-margin-x': -2,
+                label: 'data(label)',
+                "text-wrap": "wrap",
+                // 'background-image': 'https://live.staticflickr.com/3063/2751740612_af11fb090b_b.jpg',
+                'background-fit': 'cover',
+                'background-opacity': 1,
+                'background-color': '#fff',
+              }
+            },
+            {
+              selector: '.link-node.hover',
+              style: {
+                'z-compound-depth': 'top',
+                'overlay-opacity': 0,
+                // @ts-ignore
+                'underlay-opacity': 0.8,
+                'underlay-padding': 2,
+                'underlay-color': '#0080ff',
+                'underlay-shape': 'ellipse',
+              }
+            },
+            {
+              selector: '.link-to',
+              style: {
+                'target-arrow-shape': 'triangle',
+              }
+            },
+            {
+              selector: '.link-from',
+              style: {
+                'target-arrow-shape': 'tee',
+              }
+            },
+            {
+              selector: '.link-type',
+              style: {
+                'target-arrow-shape': 'triangle',
+                'line-style': 'dashed',
+                'line-dash-pattern': [5, 5]
+              }
+            },
+            {
+              selector: 'edge',
+              style: {
+                width: 1,
+                'curve-style': 'bezier',
+                'target-distance-from-node': 8,
+                'source-distance-from-node': 1,
+              }
+            },
+            {
+              selector: '.eh-ghost-edge,edge.eh-preview',
+              style: {
+                'width': 2,
+                'line-color': colorClicked,
+                'target-arrow-color': colorClicked,
+                'source-arrow-color': colorClicked,
+              },
+            },
+            {
+              selector: '.query-link-node',
+              style: {
+                color: textColor,
+                'background-color': colorBgInsertNode,
+                'border-color': textColor,
+                'border-width': 1,
+                'border-style': 'solid',
+                width: 16,
+                height: 16,
+                'font-size': 16,
+                'text-margin-y': -4,
+              }
+            },
+            {
+              selector: '.query-link-from-node',
+              style: {
+                color: textColor,
+                'background-color': colorBgInsertNode,
+                'border-color': textColor,
+                'border-width': 1,
+                'border-style': 'solid',
+                width: 8,
+                height: 8,
+                'font-size': 16,
+                'text-margin-y': -4,
+              }
+            },
+            {
+              selector: '.query-link-to-node',
+              style: {
+                color: textColor,
+                'background-color': colorBgInsertNode,
+                'border-color': textColor,
+                'border-width': 1,
+                'border-style': 'solid',
+                width: 8,
+                height: 8,
+                'font-size': 16,
+                'text-margin-y': -4,
+              }
+            },
+            {
+              selector: '.query-link-type-node',
+              style: {
+                color: textColor,
+                'background-color': colorBgInsertNode,
+                'border-color': textColor,
+                'border-width': 1,
+                'border-style': 'solid',
+                width: 8,
+                height: 8,
+                'font-size': 16,
+                'text-margin-y': -4,
+              }
+            },
+            {
+              selector: '.query-link-in-node',
+              style: {
+                color: textColor,
+                'background-color': colorBgInsertNode,
+                'border-color': textColor,
+                'border-width': 1,
+                'border-style': 'solid',
+                width: 8,
+                height: 8,
+                'font-size': 16,
+                'text-margin-y': -4,
+              }
+            },
+            {
+              selector: '.query-link-out-node',
+              style: {
+                color: textColor,
+                'background-color': colorBgInsertNode,
+                'border-color': textColor,
+                'border-width': 1,
+                'border-style': 'solid',
+                width: 8,
+                height: 8,
+                'font-size': 16,
+                'text-margin-y': -4,
+              }
+            },
+            {
+              selector: '.query-link-out-edge',
+              style: {
+                'target-arrow-shape': 'tee',
+              }
+            },
+            {
+              selector: '.query-link-from-edge',
+              style: {
+                'target-arrow-shape': 'tee',
+              }
+            },
+            {
+              selector: '.query-link-in-edge',
+              style: {
+                'target-arrow-shape': 'triangle',
+              }
+            },
+            {
+              selector: '.query-link-to-edge',
+              style: {
+                'target-arrow-shape': 'triangle',
+              }
+            },
+            {
+              selector: '.query-link-type-edge',
+              style: {
+                'target-arrow-shape': 'triangle',
+                'line-style': 'dashed',
+                'line-dash-pattern': [5, 5],
+              }
+            },
+            {
+              selector: '.link-from.focused, .link-to.focused, .link-type.focused',
+              style: {
+                'width': 2,
+                'line-color': colorFocus,
+              }
+            },
+            {
+              selector: '.link-from.clicked, .link-to.clicked, .link-type.clicked',
+              style: {
+                'line-color': colorClicked,
+                'target-arrow-color': colorClicked,
+                width: 2,
+              }
+            },
+            {
+              selector: '.link-node.focused',
+              style: {
+                'border-width': 2,
+                'line-color': colorClicked,
+              }
+            },
+            {
+              selector: '.link-node.clicked',
+              style: {
+                color: colorClicked,
+                'background-color': colorClicked, 
+              }
+            },
+          ]}
+          panningEnabled={true}
+          
+          pan={ { x: 200, y: 200 } }
+          style={ { width: '100%', height: '100vh' } } 
+        />
+        <CytoReactLayout
+          cytoRef={refCy}
+          elements={reactElements}
+        />
+        <CytoEditor ml={ml}/>
+      </CytoDropZone>
     </div>
   )
 }

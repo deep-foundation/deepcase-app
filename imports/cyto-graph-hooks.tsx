@@ -57,7 +57,7 @@ export function useInsertedLink(elements, reactElements, focus, refCy, baseTypes
             to_id: to || 0,
           });
           setInsertLink((insertLink) => {
-            focus(linkId, insertLink);
+            focus(linkId, insertLink.position);
             return undefined;
           })
         }}
