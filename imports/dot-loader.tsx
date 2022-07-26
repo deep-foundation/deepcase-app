@@ -56,7 +56,8 @@ export const DotsLoader = React.memo<any>(() => {
         '& > *:nth-child(-n+3)': {
           marginRight: '0.2rem',
         }
-    }}>
+      }}
+    >
       <Box animation={anim1} />
       <Box animation={anim2} />
       <Box animation={anim3} />

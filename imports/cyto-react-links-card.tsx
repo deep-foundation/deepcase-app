@@ -1,7 +1,7 @@
-import React, { useCallback, useState } from 'react';
-import { BsCheck2, BsDoorClosed, BsGrid3X2Gap, BsListUl } from 'react-icons/bs';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { BsCheck2, BsDoorClosed, BsGrid3X2Gap, BsListUl, BsSearch } from 'react-icons/bs';
 import { DotsLoader } from './dot-loader';
-import { Box, Center, Flex, IconButton, ScaleFade, SlideFade, Spacer, Text, useColorModeValue } from './framework';
+import { Box, Center, Flex, IconButton, ScaleFade, SlideFade, Spacer, Text, useColorModeValue, InputGroup, Input, InputRightElement, Divider } from './framework';
 import { useChackraColor, useChackraGlobal } from './get-color';
 
 interface IGridPanel {
@@ -127,6 +127,8 @@ export const CytoReactLinksCard = React.memo<any>(({
   onClose,
   loading = false,
   noResults,
+  search, 
+  setSearch,
 }: {
   elements: {
     id: number;
@@ -138,9 +140,12 @@ export const CytoReactLinksCard = React.memo<any>(({
   onClose?: () => any;
   loading?: boolean;
   noResults: any;
+  search?: any;
+  setSearch?: any;
 }) => {
   const [switchLayout, setSwitchLayout] = useState('grid');
   const [selectedLink, setSelectedLink] = useState(0);
+  const inputRef = useRef(null);
 
   const globalStyle = useChackraGlobal();
   const textColor = useChackraColor(globalStyle.body.color);
@@ -150,6 +155,10 @@ export const CytoReactLinksCard = React.memo<any>(({
   const colorGrayToWhite = useColorModeValue(white, gray900);
   const colorFocus = useColorModeValue(white, gray900);
   const colorWhiteToGray = useColorModeValue(gray900, white);
+
+  useEffect(() => {
+    inputRef.current.focus();
+  })
 
   const selectLink = useCallback((linkId) => {
     setSelectedLink((prevLinkId) => prevLinkId == linkId ? 0 : linkId);
@@ -171,7 +180,18 @@ export const CytoReactLinksCard = React.memo<any>(({
         display='flex'
         flexDir='column'
       >
-        <Flex minWidth='max-content' alignItems='center' gap='2'>
+        <Flex minWidth='max-content' alignItems='center' gap='2' borderBottomStyle='solid' borderBottomWidth='1px' borderBottomColor='gray.200'>
+          <InputGroup size='xs' pl='2'>
+            <Input 
+              ref={inputRef}
+              placeholder='search' 
+              sx={{borderRadius: 'full'}}
+              focusBorderColor='primary'
+              value={search}
+              onChange={setSearch}
+            />
+            <InputRightElement children={<BsSearch color='green.500' />} />
+          </InputGroup>
           <Spacer />
           <IconButton 
             aria-label='grid layout' 
@@ -210,7 +230,7 @@ export const CytoReactLinksCard = React.memo<any>(({
             style={{
               pointerEvents: switchLayout === 'grid' ? 'initial' : 'none',
               position: 'absolute',
-              top: 0,
+              top: '0.4rem',
               left: 0,
               width: '100%',
               height: '100%',
@@ -231,7 +251,7 @@ export const CytoReactLinksCard = React.memo<any>(({
             style={{
               pointerEvents: switchLayout === 'list' ? 'initial' : 'none',
               position: 'absolute',
-              top: 0,
+              top: '0.4rem',
               left: 0,
               width: '100%',
               height: '100%',
