@@ -51,10 +51,10 @@ export const layoutCosePreset = () => ({
   // rankDir: 'TB',
 });
 export const layoutColaPreset = () => ({ 
-  name: 'cola', 
+  name: 'cola',
   animate: false, // whether to show the layout as it's running
-  refresh: 1, // number of ticks per frame; higher is faster but more jerky
-  maxSimulationTime: 4000, // max length in ms to run the layout
+  refresh: 10, // number of ticks per frame; higher is faster but more jerky
+  maxSimulationTime: 100, // max length in ms to run the layout
   ungrabifyWhileSimulating: false, // so you can't drag nodes during layout
   fit: false, // on every layout reposition of nodes, fit the viewport
   // padding: 30, // padding around the simulation
@@ -67,10 +67,10 @@ export const layoutColaPreset = () => ({
 
   // positioning options
   randomize: false, // use random node positions at beginning of layout
-  avoidOverlap: true, // if true, prevents overlap of node bounding boxes
+  avoidOverlap: false, // if true, prevents overlap of node bounding boxes
   handleDisconnected: true, // if true, avoids disconnected components from overlapping
   convergenceThreshold: 0.01, // when the alpha value (system energy) falls below this value, the layout stops
-  nodeSpacing: function( node ){ return 50; }, // extra spacing around nodes
+  // nodeSpacing: function( node ){ return 50; }, // extra spacing around nodes
   flow: undefined, // use DAG/tree flow layout if specified, e.g. { axis: 'y', minSeparation: 30 }
   alignment: undefined, // relative alignment constraints on nodes, e.g. {vertical: [[{node: node1, offset: 0}, {node: node2, offset: 5}]], horizontal: [[{node: node3}, {node: node4}], [{node: node5}, {node: node6}]]}
   gapInequalities: undefined, // list of inequality constraints for the gap between the nodes, e.g. [{"axis":"y", "left":node1, "right":node2, "gap":25}]

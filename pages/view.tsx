@@ -1,7 +1,7 @@
 import { useMinilinksConstruct } from '@deep-foundation/deeplinks/imports/minilinks';
 import dynamic from "next/dynamic";
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
-import { CytoGraphProps } from '../imports/cyto-graph-props';
+import { CytoGraphProps } from '../imports/cyto/types';
 import { EditorGrid } from '../imports/editor/editor-grid';
 import { EditorHandlers } from '../imports/editor/editor-handlers';
 import { EditorHandler } from '../imports/editor/editor-handler';
@@ -14,7 +14,7 @@ import { useState } from 'react';
 import { EditorComponentView } from '../imports/editor/editor-component-view';
 
 const CytoGraph = dynamic<CytoGraphProps>(
-  () => import('../imports/cyto-graph-react').then((m) => m.default),
+  () => import('../imports/cyto/graph').then((m) => m.default),
   { ssr: false }
 );
 

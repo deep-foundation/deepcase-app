@@ -16,18 +16,19 @@ import fcose from 'cytoscape-fcose';
 import euler from 'cytoscape-euler';
 import elk from 'cytoscape-elk';
 import cytoscapeLasso from 'cytoscape-lasso';
-import { useCytoElements } from './cyto-graph-elements';
-import { useInsertedLink, useLinkReactElements, useCytoEditor } from './cyto-graph-hooks';
-import { CytoGraphProps } from './cyto-graph-props';
-import { layoutCosePreset, layoutColaPreset } from './cyto-layouts-presets';
-import { CytoReactLayout } from './cyto-react-layout';
-import { useColorModeValue } from './framework';
-import { useChackraColor, useChackraGlobal } from './get-color';
-import { useBaseTypes, useContainer, useFocusMethods, useLayout, useRefAutofill, useShowExtra, useShowTypes, useSpaceId } from './hooks';
-import { useRerenderer } from './rerenderer-hook';
-import { CytoEditor, useEditorTabs } from './cyto-editor';
+import { useCytoElements } from './elements';
+import { useInsertedLink, useLinkReactElements, useCytoEditor } from './hooks';
+import { CytoGraphProps } from './types';
+import { layoutCosePreset, layoutColaPreset } from './layouts';
+import { CytoReactLayout } from './react';
+import { useColorModeValue, useToast, Spinner } from '../framework';
+import { useChackraColor, useChackraGlobal } from '../get-color';
+import { useBaseTypes, useContainer, useFocusMethods, useInserting, useLayout, useRefAutofill, useShowExtra, useShowTypes, useSpaceId } from '../hooks';
+import { useRerenderer } from '../rerenderer-hook';
+import { CytoEditor, useEditorTabs } from './editor';
 import { useMinilinksHandle } from '@deep-foundation/deeplinks/imports/minilinks';
-import { CytoDropZone } from './cyto-drop-zone';
+import { CytoDropZone } from './drop-zone';
+import { useCytoStylesheets } from './stylesheets';
 
 cytoscape.use(dagre);
 cytoscape.use(cola);
@@ -87,12 +88,16 @@ export default function CytoGraph({
   links = [],
   ml,
 }: CytoGraphProps){
+  console.time('CytoGraph');
   const deep = useDeep();
   const [baseTypes, setBaseTypes] = useBaseTypes();
   const [spaceId, setSpaceId] = useSpaceId();
   const [container, setContainer] = useContainer();
   const [extra, setExtra] = useShowExtra();
   const [showTypes, setShowTypes] = useShowTypes();
+  const [inserting, setInserting] = useInserting();
+  const insertingRef = useRefAutofill(inserting);
+  const toast = useToast()
 
   const refCy = useRef<any>();
 
@@ -113,6 +118,7 @@ export default function CytoGraph({
         User: await deep.id('@deep-foundation/core', 'User'),
         Any: await deep.id('@deep-foundation/core', 'Any'),
         Symbol: await deep.id('@deep-foundation/core', 'Symbol'),
+        GeneratedFrom: await deep.id('@deep-foundation/core', 'GeneratedFrom'),
       });
     } catch(error) {}
   })()}, []);
@@ -203,14 +209,8 @@ export default function CytoGraph({
   // });
 
   const { setInsertingLink } = useInsertedLink(elements, reactElements, focus, refCy, baseTypes, ml);
-  
-  const globalStyle = useChackraGlobal();
-  const textColor = useChackraColor(globalStyle.body.color);
-  const gray900 = useChackraColor('gray.900');
-  const white = useChackraColor('white');
-  const colorClicked = useChackraColor('primary');
-  const colorBgInsertNode = useColorModeValue(white, gray900);
-  const colorFocus = useColorModeValue(gray900, white);
+
+  const stylesheets = useCytoStylesheets();
 
   const refDragStartedEvent = useRef<any>();
 
@@ -257,6 +257,12 @@ export default function CytoGraph({
       noEdgeEventsInDraw: true, // set events:no to edges during draws, prevents mouseouts on compounds
       disableBrowserGestures: true // during an edge drawing gesture, disable browser gestures such as two-finger trackpad swipe and pinch-to-zoom
     });
+    ncy.on('layoutstart', () => {
+      console.time('layout');
+    })
+    ncy.on('layoutstop', () => {
+      console.timeEnd('layout');
+    })
     ncy.on('ehstop', async (event, sourceNode, targetNode, addedEdge) => {
       let { position } = event;
       addedEdge?.remove();
@@ -280,7 +286,6 @@ export default function CytoGraph({
       var node = e.target;
       const id = node?.data('link')?.id;
       if (id) {
-        console.log('mouseover ' + id, e, ml.byId[id]);
         ncy.$(`node, edge`).not(`#${id},#${id}-from,#${id}-to,#${id}-type`).removeClass('hover');
         ncy.$(`#${id},#${id}-from,#${id}-to,#${id}-type`).not(`.unhoverable`).addClass('hover');
       }
@@ -293,7 +298,6 @@ export default function CytoGraph({
       var node = e.target;
       const id = node?.data('link')?.id;
       if (id) {
-        console.log('mouseout ' + id, e, ml.byId[id]);
         ncy.$(`node, edge`).removeClass('hover');
       }
       if (node.mouseHoverDragging) {
@@ -305,7 +309,6 @@ export default function CytoGraph({
       var node = e.target;
       const id = node?.data('link')?.id;
       if (id) {
-        console.log('click ' + id, e, ml.byId[id]);
         ncy.$(`node, edge`).not(`#${id},#${id}-from,#${id}-to,#${id}-type`).removeClass('clicked');
         ncy.$(`#${id},#${id}-from,#${id}-to,#${id}-type`).toggleClass('clicked');
       }
@@ -313,13 +316,11 @@ export default function CytoGraph({
 
     ncy.on('tapstart', 'node', function(evt){
       var node = evt.target;
-      console.log( 'tapstart ' + node.id() , evt);
       refDragStartedEvent.current = evt;
     });
     let dragendData: any = undefined;
     ncy.on('tapend', 'node', function(evt){
       var node = evt.target;
-      console.log('tapend ' + node.id(), evt);
       if (refDragStartedEvent?.current?.position?.x !== evt.position?.x && refDragStartedEvent?.current?.position?.y !== evt.position?.y) {
         refDragStartedEvent.current = undefined;
         dragendData = { position: evt.position };
@@ -330,7 +331,6 @@ export default function CytoGraph({
       var node = evt.target;
       const id = node?.data('link')?.id;
       if (id) {
-        console.log('dragend ' + id, evt, dragendData);
         focus(node, dragendData?.position);
         dragendData = undefined;
         ncy.$(`#${id},#${id}-from,#${id}-to,#${id}-type`).addClass('focused');
@@ -356,8 +356,8 @@ export default function CytoGraph({
             const id = ele.data('link')?.id;
             if (id) {
               addTab({
-                id, title: `${id}`, saved: true,
-                value: deep.stringify(ml.byId[id]?.value?.value),
+                id, saved: true,
+                initialValue: deep.stringify(ml.byId[id]?.value?.value),
               });
               activeTab(id);
               setCytoEditor(true);
@@ -384,6 +384,39 @@ export default function CytoGraph({
           }
         },
         {
+          content: 'Insert',
+          select: async function(ele){ 
+            const id = ele.data('link')?.id;
+            if (id) {
+              const link = ml.byId[id];
+              const isNode = !link.from_id && !link.to_id;
+              //   let insert = {};
+              //   if (!link.from_id && !link.to_id) insert = { type_id: +id };
+              
+              //   setInserting(insert);
+              const TypeName = link?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value || id;
+              const FromName = ml.byId[link.from_id]?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value || link.from_id;
+              const ToName = ml.byId[link.to_id]?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value || link.to_id;
+              const t = toast({
+                title: `Inserting link type of: ${TypeName}`,
+                description: `This ${isNode ? `is node type, just click somewhere for insert.` : `is link type, connect two links from typeof ${FromName} to typeof ${ToName} for insert.`}`,
+                position: 'bottom-left',
+                duration: null,
+                icon: <Spinner />,
+                isClosable: true,
+                onCloseComplete: () => {
+                  if (insertingRef?.current?.type_id) setInserting({});
+                },
+              });
+              setInserting({
+                isNode,
+                type_id: id,
+                toast: t,
+              });
+            }
+          }
+        },
+        {
           content: '+out',
           select: function(ele){ 
             const id = ele.data('link')?.id;
@@ -400,6 +433,15 @@ export default function CytoGraph({
             if (id) {
               ehDirectionRef.current = 'in';
               eh.start(ele);
+            }
+          }
+        },
+        {
+          content: 'login',
+          select: async function(ele){ 
+            const id = ele.data('link')?.id;
+            if (id) {
+              deep.login({ linkId: +id });
             }
           }
         },
@@ -434,8 +476,34 @@ export default function CytoGraph({
       ]
     });
     
-    ncy.on('tap', function(event){
+    ncy.on('tap', async function(event){
       if(event.target === ncy){
+        if (insertingRef.current.type_id) {
+          if (insertingRef.current.isNode) {
+            await deep.insert({
+              type_id: insertingRef.current.type_id,
+              in: { data: [
+                {
+                  from_id: container,
+                  type_id: baseTypes?.Contain,
+                },
+                {
+                  from_id: container,
+                  type_id: baseTypes?.Focus,
+                  object: { data: { value: event.position } },
+                  in: { data: {
+                    type_id: baseTypes.Contain,
+                    from_id: container
+                  } },
+                },
+              ] },
+            });
+            toast.close(insertingRef.current.toast);
+            setInserting({});
+          } else {
+            setInserting({});
+          }
+        }
         setInsertingLink(undefined);
       }
     });
@@ -457,7 +525,6 @@ export default function CytoGraph({
           node.position(newLink?.value?.value);
           relayoutDebounced();
           node.lock();
-          console.log('updated focus (unlock, pos, lock)', locking[newLink.to_id]);
         }
       }
     };
@@ -468,253 +535,18 @@ export default function CytoGraph({
     };
   }, []);
 
-  useMinilinksHandle(ml, (event, oldLink, newLink) => {
-    relayoutDebounced();
-  });
+  // useMinilinksHandle(ml, (event, oldLink, newLink) => {
+  //   relayoutDebounced();
+  // });
 
-  return (<div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
-    <CytoDropZone refCy={refCy}>
-      <CytoscapeComponent
+  const returning = (
+    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
+      <CytoDropZone refCy={refCy}>
+        <CytoscapeComponent
           ref={refCy}
           elements={elements} 
           layout={layout(elementsRef.current, refCy?.current?._cy)}
-          stylesheet={[
-            {
-              selector: 'node',
-              style: {
-                'background-opacity': 0,
-              },
-            },
-            {
-              selector: '.file',
-              style: {
-                color: textColor,
-                width: 30,
-                height: 30,
-                'font-size': 16,
-                'text-margin-y': 20, // -4
-                'text-margin-x': -2,
-                label: 'data(label)',
-                "text-wrap": "wrap",
-                // 'background-image': 'https://live.staticflickr.com/3063/2751740612_af11fb090b_b.jpg',
-                'background-fit': 'cover',
-                'background-opacity': 1,
-                'background-color': '#fff',
-              }
-            },
-            {
-              selector: '.link-node',
-              style: {
-                color: textColor,
-                width: 30,
-                height: 30,
-                'font-size': 16,
-                'text-margin-y': 20, // -4
-                'text-margin-x': -2,
-                label: 'data(label)',
-                "text-wrap": "wrap",
-                // 'background-image': 'https://live.staticflickr.com/3063/2751740612_af11fb090b_b.jpg',
-                'background-fit': 'cover',
-                'background-opacity': 1,
-                'background-color': '#fff',
-              }
-            },
-            {
-              selector: '.link-node.hover',
-              style: {
-                'z-compound-depth': 'top',
-                'overlay-opacity': 0,
-                // @ts-ignore
-                'underlay-opacity': 0.8,
-                'underlay-padding': 2,
-                'underlay-color': '#0080ff',
-                'underlay-shape': 'ellipse',
-              }
-            },
-            {
-              selector: '.link-to',
-              style: {
-                'target-arrow-shape': 'triangle',
-              }
-            },
-            {
-              selector: '.link-from',
-              style: {
-                'target-arrow-shape': 'tee',
-              }
-            },
-            {
-              selector: '.link-type',
-              style: {
-                'target-arrow-shape': 'triangle',
-                'line-style': 'dashed',
-                'line-dash-pattern': [5, 5]
-              }
-            },
-            {
-              selector: 'edge',
-              style: {
-                width: 1,
-                'curve-style': 'bezier',
-                'target-distance-from-node': 8,
-                'source-distance-from-node': 1,
-              }
-            },
-            {
-              selector: '.eh-ghost-edge,edge.eh-preview',
-              style: {
-                'width': 2,
-                'line-color': colorClicked,
-                'target-arrow-color': colorClicked,
-                'source-arrow-color': colorClicked,
-              },
-            },
-            {
-              selector: '.query-link-node',
-              style: {
-                color: textColor,
-                'background-color': colorBgInsertNode,
-                'border-color': textColor,
-                'border-width': 1,
-                'border-style': 'solid',
-                width: 16,
-                height: 16,
-                'font-size': 16,
-                'text-margin-y': -4,
-              }
-            },
-            {
-              selector: '.query-link-from-node',
-              style: {
-                color: textColor,
-                'background-color': colorBgInsertNode,
-                'border-color': textColor,
-                'border-width': 1,
-                'border-style': 'solid',
-                width: 8,
-                height: 8,
-                'font-size': 16,
-                'text-margin-y': -4,
-              }
-            },
-            {
-              selector: '.query-link-to-node',
-              style: {
-                color: textColor,
-                'background-color': colorBgInsertNode,
-                'border-color': textColor,
-                'border-width': 1,
-                'border-style': 'solid',
-                width: 8,
-                height: 8,
-                'font-size': 16,
-                'text-margin-y': -4,
-              }
-            },
-            {
-              selector: '.query-link-type-node',
-              style: {
-                color: textColor,
-                'background-color': colorBgInsertNode,
-                'border-color': textColor,
-                'border-width': 1,
-                'border-style': 'solid',
-                width: 8,
-                height: 8,
-                'font-size': 16,
-                'text-margin-y': -4,
-              }
-            },
-            {
-              selector: '.query-link-in-node',
-              style: {
-                color: textColor,
-                'background-color': colorBgInsertNode,
-                'border-color': textColor,
-                'border-width': 1,
-                'border-style': 'solid',
-                width: 8,
-                height: 8,
-                'font-size': 16,
-                'text-margin-y': -4,
-              }
-            },
-            {
-              selector: '.query-link-out-node',
-              style: {
-                color: textColor,
-                'background-color': colorBgInsertNode,
-                'border-color': textColor,
-                'border-width': 1,
-                'border-style': 'solid',
-                width: 8,
-                height: 8,
-                'font-size': 16,
-                'text-margin-y': -4,
-              }
-            },
-            {
-              selector: '.query-link-out-edge',
-              style: {
-                'target-arrow-shape': 'tee',
-              }
-            },
-            {
-              selector: '.query-link-from-edge',
-              style: {
-                'target-arrow-shape': 'tee',
-              }
-            },
-            {
-              selector: '.query-link-in-edge',
-              style: {
-                'target-arrow-shape': 'triangle',
-              }
-            },
-            {
-              selector: '.query-link-to-edge',
-              style: {
-                'target-arrow-shape': 'triangle',
-              }
-            },
-            {
-              selector: '.query-link-type-edge',
-              style: {
-                'target-arrow-shape': 'triangle',
-                'line-style': 'dashed',
-                'line-dash-pattern': [5, 5],
-              }
-            },
-            {
-              selector: '.link-from.focused, .link-to.focused, .link-type.focused',
-              style: {
-                'width': 2,
-                'line-color': colorFocus,
-              }
-            },
-            {
-              selector: '.link-from.clicked, .link-to.clicked, .link-type.clicked',
-              style: {
-                'line-color': colorClicked,
-                'target-arrow-color': colorClicked,
-                width: 2,
-              }
-            },
-            {
-              selector: '.link-node.focused',
-              style: {
-                'border-width': 2,
-                'line-color': colorClicked,
-              }
-            },
-            {
-              selector: '.link-node.clicked',
-              style: {
-                color: colorClicked,
-                'background-color': colorClicked, 
-              }
-            },
-          ]}
+          stylesheet={stylesheets}
           panningEnabled={true}
           
           pan={ { x: 200, y: 200 } }
@@ -727,5 +559,9 @@ export default function CytoGraph({
         <CytoEditor ml={ml}/>
       </CytoDropZone>
     </div>
-  )
+  );
+
+  console.timeEnd('CytoGraph');
+
+  return returning;
 }

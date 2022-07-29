@@ -3,14 +3,14 @@ import { Link, useMinilinksConstruct, useMinilinksFilter } from '@deep-foundatio
 import dynamic from "next/dynamic";
 import { ConnectionController } from '.';
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
-import { CytoGraphProps } from '../imports/cyto-graph-props';
+import { CytoGraphProps } from '../imports/cyto/types';
 import { MessageTextArea } from '../imports/cyto-message-textarea';
 import { CytoReactMessage } from '../imports/cyto-react-message';
 import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
 
 const CytoGraph = dynamic<CytoGraphProps>(
-  () => import('../imports/cyto-graph-react').then((m) => m.default),
+  () => import('../imports/cyto/graph').then((m) => m.default),
   { ssr: false }
 );
 

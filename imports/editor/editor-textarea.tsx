@@ -14,6 +14,7 @@ interface IEditor {
   onChange?: (value: string) => void;
   onSave?: (value: string) => void;
   onClose?: () => void;
+  onExit?: () => void;
 }
 
 export const EditorTextArea = React.memo<any>(({
@@ -22,6 +23,7 @@ export const EditorTextArea = React.memo<any>(({
   onChange,
   onSave,
   onClose,
+  onExit,
 }:IEditor) => {
   const refValue = React.useRef(value);
   refValue.current = value;
@@ -46,6 +48,15 @@ export const EditorTextArea = React.memo<any>(({
       contextMenuGroupId: "close",
       run: () => {
         onClose && onClose();
+      },
+    });
+    editor.addAction({
+      id: "exit",
+      label: "exit",
+      keybindings: [monaco.KeyCode.KeyEscape],
+      contextMenuGroupId: "exit",
+      run: () => {
+        onExit && onExit();
       },
     });
   }

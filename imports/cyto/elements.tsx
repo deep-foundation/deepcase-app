@@ -1,9 +1,11 @@
 import json5 from 'json5';
 import { useMemo } from 'react';
-import { useShowTypes } from './hooks';
+import { useShowTypes } from '../hooks';
 
 export function useCytoElements(ml, links, baseTypes, cy, spaceId) {
   const [showTypes, setShowTypes] = useShowTypes();
+
+  console.time('useCytoElements');
 
   const _elements: { [key: string]: any } = {};
   const elements = [];
@@ -24,6 +26,8 @@ export function useCytoElements(ml, links, baseTypes, cy, spaceId) {
         typeof(link?.value.value) === 'object' && json
         ? json : link?.value.value
       );
+      _value = _value.split('\n')[0];
+      if (_value.length > 15) _value = _value.slice(0, 15)+'...';
     }
     if (link?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value) {
       _name = `name:${link?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value}`;
@@ -130,6 +134,7 @@ export function useCytoElements(ml, links, baseTypes, cy, spaceId) {
     }
   }
 
+  console.timeEnd('useCytoElements');
 
   return {
     elements, reactElements,

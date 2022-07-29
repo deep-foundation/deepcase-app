@@ -2,10 +2,10 @@ import { useDeep, useDeepQuery } from "@deep-foundation/deeplinks/imports/client
 import { useMinilinksFilter } from "@deep-foundation/deeplinks/imports/minilinks";
 import { useState, useMemo, useCallback } from "react";
 import { useLocalStorage } from "usehooks-ts";
-import { CytoReactLinksCard } from "./cyto-react-links-card";
-import { useContainer } from "./hooks";
-import { LinkClientHandlerDefault } from "./link-client-handlers/default";
-import { CatchErrors } from "./react-errors";
+import { CytoReactLinksCard } from "../cyto-react-links-card";
+import { useContainer } from "../hooks";
+import { LinkClientHandlerDefault } from "../link-client-handlers/default";
+import { CatchErrors } from "../react-errors";
 
 export interface IInsertedLink {
   position: { x: number; y: number; };
@@ -26,8 +26,8 @@ export function useInsertedLink(elements, reactElements, focus, refCy, baseTypes
 
       const types = useMinilinksFilter(
         ml,
-        useCallback((l) => l?.type_id === 1, []),
-        useCallback((l, links) => (links.byType[1] || []), []),
+        useCallback(() => true, []),
+        useCallback((l, ml) => (ml.links.filter(l => l._applies.includes('insertable-types'))), []),
       ) || [];
 
       const elements = (types || [])?.map(t => ({

@@ -68,33 +68,57 @@ export const DeepLoader = memo(function DeepLoader({
   spaceId?: number;
   minilinks?: any;
 }) {
+  const { linkId: userId } = useDeep();
   const [baseTypes, setBaseTypes] = useBaseTypes();
-
-  const types = useMinilinksFilter(
-    minilinks.ml,
-    useCallback((l) => l?.type_id === 1, []),
-    useCallback((l, links) => (links.byType[1] || []), []),
-  ) || [];
 
   const spaceQuery = useMemo(() => ({ value: { value: { _by_item: {
     group_id: { _eq: baseTypes.containTree },
     path_item_id: { _eq: spaceId },
   } } } }), []);
 
-  const onlyActiveQueries = useMemo(() => {
-    return minilinks.ml.byId?.[spaceId]?.out?.filter(out => (
-      out.type_id === baseTypes.Active && out?.to?.type_id === baseTypes.Query && out?.to && out?.to?.value
-    ))?.map(l => l?.to) || [];
-  }, [spaceId]);
+  const queries = useMinilinksFilter(
+    minilinks.ml,
+    useCallback((l) => {
+      return l?.type_id === baseTypes.Query && !!l?.inByType?.[baseTypes.Active]?.find(a => a?.from_id === spaceId);
+    }, [spaceId]),
+    useCallback((l, ml) => {
+      return ml.byType[baseTypes.Query]?.filter(l => l?.type_id === baseTypes.Query && !!l?.inByType?.[baseTypes.Active]?.find(a => a?.from_id === spaceId));
+    }, [spaceId]),
+  ) || [];
 
-  const typesQuery = useMemo(() => ({ value: { value: {
-    type_id: { _in: [1, baseTypes.Package] },
-  } } }), []);
+  const insertableTypesQuery = useMemo(() => ({ value: { value: {
+    can_object: {
+      action_id: { _eq: 121 },
+      subject_id: { _eq: userId }
+    }
+  } } }), [userId]);
+
+  const typeIds = useMinilinksFilter(
+    minilinks.ml,
+    useCallback((l) => true, []),
+    useCallback((l, ml) => {
+      return Object.keys(ml.byType).map(type => parseInt(type));
+    }, []),
+  ) || [];
+
+  const insertableTypes = useMinilinksFilter(
+    minilinks.ml,
+    useCallback((l) => !!l?._applies?.includes('insertable-types'), [spaceId]),
+    useCallback((l, ml) => (ml.links.filter(l => l._applies.includes('insertable-types')).map(l => l.id)), [spaceId]),
+  ) || [];
 
   const additionalQuery = useMemo(() => ({ value: { value: {
-    to_id: { _in: types.map(t => t.id) },
-    type_id: { _in: [baseTypes.Contain, baseTypes.Symbol] },
-  } } }), [types]);
+    _or: [
+      {
+        to_id: { _in: [...typeIds, ...insertableTypes] },
+        type_id: { _in: [baseTypes.Contain, baseTypes.Symbol] },
+      },
+      {
+        from_id: { _in: [...typeIds, ...insertableTypes] },
+        type_id: { _in: [baseTypes.Value] },
+      },
+    ]
+  } } }), [typeIds, insertableTypes]);
 
   return <>
     <DeepLoaderActive
@@ -103,7 +127,7 @@ export const DeepLoader = memo(function DeepLoader({
         minilinks.ml.apply(r, 'space');
       }}
     />
-    {onlyActiveQueries?.map((f, i) => (<DeepLoaderActive
+    {queries?.map((f, i) => (<DeepLoaderActive
       key={f.id}
       query={f}
       onChange={(r) => {
@@ -111,12 +135,12 @@ export const DeepLoader = memo(function DeepLoader({
       }}
     />))}
     <DeepLoaderActive
-      query={typesQuery}
+      query={insertableTypesQuery}
       onChange={(r) => {
-        minilinks.ml.apply(r, 'types');
+        minilinks.ml.apply(r, 'insertable-types');
       }}
     />
-    {!!types?.length && <DeepLoaderActive
+    {!!typeIds && <DeepLoaderActive
       query={additionalQuery}
       onChange={(r) => {
         minilinks.ml.apply(r, 'additional');

@@ -1,7 +1,7 @@
 import { useMinilinksConstruct } from '@deep-foundation/deeplinks/imports/minilinks';
 import dynamic from "next/dynamic";
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
-import { CytoGraphProps } from '../imports/cyto-graph-props';
+import { CytoGraphProps } from '../imports/cyto/types';
 import { EditorGrid } from '../imports/editor/editor-grid';
 import { EditorHandlers } from '../imports/editor/editor-handlers';
 import { EditorHandler } from '../imports/editor/editor-handler';

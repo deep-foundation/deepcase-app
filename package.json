@@ -16,7 +16,7 @@
     "@capacitor/core": "^3.2.3",
     "@chakra-ui/icons": "^2.0.2",
     "@chakra-ui/react": "^2.2.1",
-    "@deep-foundation/deeplinks": "0.0.80",
+    "@deep-foundation/deeplinks": "0.0.82",
     "@deep-foundation/hasura": "0.0.16",
     "@deep-foundation/materialized-path": "^0.0.11",
     "@deep-foundation/react-hasura": "0.0.5",
@@ -83,7 +83,6 @@
     "three-bmfont-text": "^3.0.1",
     "three-spritetext": "^1.6.2",
     "typescript": "^4.4.4",
-    "use-debounce": "^6.0.1",
     "usehooks-ts": "^2.2.0",
     "web-worker": "^1.2.0",
     "ws": "^7.5.6"

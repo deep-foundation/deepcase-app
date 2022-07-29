@@ -5,7 +5,6 @@ import { Clear, LocationOnOutlined as Unfocused, LocationOn as Focused } from '@
 import { Button, ButtonGroup, IconButton, InputAdornment, Link as MuiLink, TextField } from '@material-ui/core';
 import { useDebounceCallback } from '@react-hook/debounce';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useDebounce, useDebouncedCallback } from 'use-debounce';
 import { useDeepGraph, useSelectedLinks, useSelectedLinksMethods } from '../../pages';
 import { deleteBoolExp, insertBoolExp, updateBoolExp } from '../gql';
 import { Card, CardActions, CardContent, Divider, Grid, Typography, Dialog } from '../ui';
@@ -127,7 +126,7 @@ export function LinkCard({
 
   const active = useMinilinksFilter(
     ml,
-    useCallback((l) => l?.type_id === baseTypes?.Activelink, []),
+    useCallback((ol, nl) => nl?.type_id === baseTypes?.Activelink, []),
     useCallback(l => link?.inByType?.[baseTypes?.Active]?.find(f => f?.from_id === spaceId), []),
   );
 

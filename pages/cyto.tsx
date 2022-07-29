@@ -7,16 +7,16 @@ import dynamic from "next/dynamic";
 import { useCallback, useState } from 'react';
 import { ConnectionController } from '.';
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
-import { CytoGraphProps } from '../imports/cyto-graph-props';
+import { CytoGraphProps } from '../imports/cyto/types';
 import { useContainer, useLayout, useShowExtra, useShowTypes, useSpaceId } from '../imports/hooks';
 import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
 import copy from 'copy-to-clipboard';
-import { layouts } from '../imports/cyto-layouts-presets';
-import { useCytoEditor } from '../imports/cyto-graph-hooks';
+import { layouts } from '../imports/cyto/layouts';
+import { useCytoEditor } from '../imports/cyto/hooks';
 
 const CytoGraph = dynamic<CytoGraphProps>(
-  () => import('../imports/cyto-graph-react').then((m) => m.default),
+  () => import('../imports/cyto/graph').then((m) => m.default),
   { ssr: false }
 );
 
@@ -28,6 +28,7 @@ export function Content({
 }) {
   const [spaceId, setSpaceId] = useSpaceId();
   const deep = useDeep();
+  global.deep = deep;
   const minilinks = useMinilinksConstruct();
   const { ref: mlRef, ml } = minilinks;
   global.ml = ml;

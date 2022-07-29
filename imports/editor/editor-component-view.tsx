@@ -6,11 +6,14 @@ import { Resize } from '../resize';
 export const EditorComponentView = React.memo<any>(({
   onChangeSize,
   defaultSize,
+  children,
 }:{
   onChangeSize?: (size: { width: number, height: number }) => any;
   defaultSize?: {width: number, height: number};
+  children?: any;
 }) => {
-  return(<Center position='absolute' top={0} left={0} width='100%' height='100%'>
+  return(
+    <Center position='absolute' top={0} left={0} width='100%' height='100%'>
       <Box pos='relative'>
         <Text
           fontSize='xs'
@@ -23,7 +26,7 @@ export const EditorComponentView = React.memo<any>(({
           }}
         >{defaultSize.height} px</Text>
         <Resize defaultSize={defaultSize} onChangeSize={onChangeSize}>
-          <Center>123</Center>
+          {children}
         </Resize>
         <Text
           fontSize='xs'

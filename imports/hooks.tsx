@@ -3,7 +3,7 @@ import { useLocalStore } from '@deep-foundation/store/local';
 import { useQueryStore } from '@deep-foundation/store/query';
 import React, { useRef, useState } from 'react';
 import { useMemo } from 'react';
-import { layouts } from './cyto-layouts-presets';
+import { layouts } from './cyto/layouts';
 
 export const defaultLeftWidth = 10;
 export const defaultCardWidth = 300;

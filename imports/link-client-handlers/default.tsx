@@ -17,7 +17,7 @@ export function LinkClientHandlerDefault({
   const colorFocus = useColorModeValue(white, gray900);
   const colorWhiteToGray = useColorModeValue(gray900, white);
 
-  const { type_id, from_id, to_id } = ml.byId[id];
+  const { type_id, from_id, to_id, value } = ml.byId[id];
 
   return <Box
     maxW='sm'
@@ -35,6 +35,7 @@ export function LinkClientHandlerDefault({
         type_id,
         from_id,
         to_id,
+        value,
       })}
     </div>
   </Box>;
