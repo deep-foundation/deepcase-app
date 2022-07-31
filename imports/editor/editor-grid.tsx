@@ -24,7 +24,7 @@ export const EditorGrid = React.memo<any>(({
   const white = useChackraColor('white');
   const { colorMode } = useColorMode();
 
-  return (<Box display='flex' flexDir='column' h={'100%'} bg={colorMode == 'light' ? white : gray900}>
+  return (<Box display='flex' flexDir='column' h={'100%'} bg={colorMode == 'light' ? white : gray900} style={{ opacity: 0.98 }}>
       <Flex>
         <Box sx={{width: 'calc(100% - 2rem)'}}>{editorTabsElement}</Box>
         <Center>{closeButtonElement}</Center>

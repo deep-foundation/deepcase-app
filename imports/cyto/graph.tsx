@@ -445,6 +445,16 @@ export default function CytoGraph({
             }
           }
         },
+        {
+          content: 'space',
+          select: async function(ele){ 
+            const id = ele.data('link')?.id;
+            if (id) {
+              setSpaceId(+id);
+              setContainer(+id);
+            }
+          }
+        },
       ]
     });
   
