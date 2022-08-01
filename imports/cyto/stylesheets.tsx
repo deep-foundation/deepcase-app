@@ -248,7 +248,7 @@ export function useCytoStylesheets(): any {
         'background-color': colorClicked, 
       }
     },
-  ]), []);
+  ]), [globalStyle, textColor, gray900, blue500, white, colorClicked, colorBgInsertNode, colorFocus]);
 
   return stylesheets;
 }
