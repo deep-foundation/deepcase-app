@@ -54,15 +54,12 @@ export function useInsertLinkCard(elements, reactElements, focus, refCy, baseTyp
       return undefined;
     })
   }, [types, container, baseTypes]);
+  const insertLinkRef = useRefAutofill(insertLink);
 
   const InsertLinkCardComponent = useMemo(() => {
     return function CytoReactLinksCardInsertNode({
       from, to
     }: IInsertedLink) {
-      const fromType = ml.byId?.[from]?.type_id;
-      const toType = ml.byId?.[to]?.type_id;
-      const [container, setContainer] = useContainer();
-      const deep = useDeep();
       const [search, setSearch] = useState('');
 
       const types = useMinilinksFilter(
@@ -78,7 +75,7 @@ export function useInsertLinkCard(elements, reactElements, focus, refCy, baseTyp
         containerName: t?.inByType[baseTypes.Contain]?.[0]?.from?.value?.value || '',
       }));
       return <CytoReactLinksCard
-        elements={elements.filter(el => (el.linkName.includes(search) || el.containerName.includes(search)))}
+        elements={elements.filter(el => (el?.linkName?.includes(search) || el?.containerName?.includes(search)))}
         search={search}
         onSearch={e => setSearch(e.target.value)}
         onSubmit={async (id) => {
@@ -90,7 +87,7 @@ export function useInsertLinkCard(elements, reactElements, focus, refCy, baseTyp
             ehRef?.current?.enableDrawMode();
             returning.startInsertingOfType(id);
           } else {
-            insertLink(id, from, to);
+            insertLinkRef.current(id, from, to);
           }
         }}
       />;
@@ -162,7 +159,7 @@ export function useInsertLinkCard(elements, reactElements, focus, refCy, baseTyp
       const cy = refCy.current._cy;
       cy.$('.eh-ghost,.eh-preview').remove();
       if (ins.type_id) {
-        insertLink(ins.type_id, +from, +to);
+        insertLinkRef.current(ins.type_id, +from, +to);
       } else {
         returning.openInsertCard({
           position, from, to
