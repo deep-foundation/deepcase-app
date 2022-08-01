@@ -69,7 +69,7 @@
     "json5": "^2.2.0",
     "jsonwebtoken": "^8.5.1",
     "leven-sort": "^3.0.0",
-    "next": "^10.2.3",
+    "next": "^12.2.3",
     "next-env": "^1.1.1",
     "normalize.css": "^8.0.1",
     "promisify-child-process": "^4.1.1",
