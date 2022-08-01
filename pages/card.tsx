@@ -2,13 +2,12 @@
 import { Link, useMinilinksConstruct, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
 import dynamic from "next/dynamic";
 import { useCallback } from 'react';
-import { ConnectionController } from '.';
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
-import { CytoGraphProps } from '../imports/cyto/types';
 import { CytoReactLinksCard } from '../imports/cyto-react-links-card';
+import { CytoGraphProps } from '../imports/cyto/types';
+import { Center } from '../imports/framework';
 import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
-import { Center } from '../imports/framework';
 
 const CytoGraph = dynamic<CytoGraphProps>(
   () => import('../imports/cyto/graph').then((m) => m.default),
