@@ -13,11 +13,12 @@
   "dependencies": {
     "@apollo/client": "^3.5.8",
     "@capacitor-community/electron": "^4.0.3",
+    "@capacitor/cli": "^3.2.3",
     "@capacitor/core": "^3.2.3",
     "@chakra-ui/icons": "^2.0.2",
     "@chakra-ui/react": "^2.2.1",
-    "@deep-foundation/deeplinks": "0.0.82",
-    "@deep-foundation/hasura": "0.0.16",
+    "@deep-foundation/deeplinks": "0.0.83",
+    "@deep-foundation/hasura": "0.0.17",
     "@deep-foundation/materialized-path": "^0.0.11",
     "@deep-foundation/react-hasura": "0.0.5",
     "@deep-foundation/store": "0.0.6",
@@ -31,7 +32,10 @@
     "@monaco-editor/react": "^4.3.1",
     "@react-hook/debounce": "^3.0.0",
     "@types/electron": "^1.6.10",
+    "@types/react": "^17.0.48",
     "@types/react-cytoscapejs": "^1.2.2",
+    "@types/react-dom": "^17.0.3",
+    "atob": "^2.1.2",
     "axios": "^0.21.4",
     "classnames": "^2.3.1",
     "copy-to-clipboard": "^3.3.1",
@@ -54,8 +58,10 @@
     "deep-diff": "^1.0.2",
     "dotenv": "^8.2.0",
     "dotenv-load": "^2.0.0",
+    "dotenv-webpack": "^7.0.2",
     "fix-path": "^3.0.0",
     "fkill": "^8.0.0",
+    "fkill-cli": "^6.2.0",
     "framer-motion": "^6.3.11",
     "gists": "^2.0.0",
     "graphiql": "^1.4.2",
@@ -82,20 +88,13 @@
     "react-yandex-metrika": "^2.6.0",
     "three-bmfont-text": "^3.0.1",
     "three-spritetext": "^1.6.2",
-    "typescript": "^4.4.4",
+    "typescript": "^4.7.4",
     "usehooks-ts": "^2.2.0",
     "web-worker": "^1.2.0",
+    "webpack": "^5.28.0",
     "ws": "^7.5.6"
   },
   "engines": {
     "node": "^14.15.0"
-  },
-  "devDependencies": {
-    "@capacitor/cli": "^3.2.3",
-    "@types/react": "^17.0.3",
-    "@types/react-dom": "^17.0.3",
-    "dotenv-webpack": "^7.0.2",
-    "fkill-cli": "^6.2.0",
-    "webpack": "^5.28.0"
   }
 }

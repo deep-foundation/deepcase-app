@@ -30,8 +30,8 @@ export function useContainer() {
 export function useForceGraph() {
   return useQueryStore('force-graph-type', '2d');
 }
-export function useInserting() {
-  return useQueryStore<any>('dc-dg-ins', {});
+export function useInsertingCytoStore<P = any>() {
+  return useQueryStore<P>('dc-dg-ins', {});
 }
 export function useScreenFind() {
   return useQueryStore<any>('screen-find', '');
@@ -150,9 +150,9 @@ export function useActiveMethods() {
 };
 
 export function useLayout() {
-  const [layoutName, setLayoutName] = useLocalStore('layout', 'cose-bilkent');
+  const [layoutName, setLayoutName] = useLocalStore('layout', 'cola');
   return {
-    setLayout(name: 'cose-bilkent' | 'cola') {
+    setLayout(name: 'cola') {
       setLayoutName(name);
     },
     layout: layouts[layoutName],

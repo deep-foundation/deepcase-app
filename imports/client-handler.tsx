@@ -1,4 +1,4 @@
-import { DeepClient } from "@deep-foundation/deeplinks/imports/client";
+import { DeepClient, useDeep } from "@deep-foundation/deeplinks/imports/client";
 import { evalClientHandler as deepclientEvalClientHandler } from '@deep-foundation/deeplinks/imports/client-handler';
 import * as chakra from '@chakra-ui/react';
 import * as React from 'react';
@@ -44,4 +44,15 @@ export function ClientHandlerRenderer({
   Component: any
 }) {
   return <>{!!Component && <Component />}</>;
+}
+
+export function ClientHandler({
+}: {
+}) {
+  const [Component, setComponent] = React.useState<any>(null);
+  const deep = useDeep();
+  React.useEffect(() => {
+    evalClientHandler();
+  }, []);
+  return <ClientHandlerRenderer Component={Component} />;
 }

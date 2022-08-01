@@ -26,7 +26,7 @@ export function useCytoStylesheets(): any {
         width: 30,
         height: 30,
         'font-size': 16,
-        'text-margin-y': 20, // -4
+        'text-margin-y': 23, // -4
         'text-margin-x': -2,
         label: 'data(label)',
         "text-wrap": "wrap",
@@ -43,7 +43,7 @@ export function useCytoStylesheets(): any {
         width: 30,
         height: 30,
         'font-size': 16,
-        'text-margin-y': 20, // -4
+        'text-margin-y': 23, // -4
         'text-margin-x': -2,
         label: 'data(label)',
         "text-wrap": "wrap",

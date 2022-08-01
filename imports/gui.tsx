@@ -16,7 +16,7 @@ import { LinkCard } from './link-card/index';
 import { Button, ButtonGroup, Grid, IconButton, makeStyles, Paper, TextField } from './ui';
 import { ScreenFind } from './screen-find';
 import { CatchErrors } from './react-errors';
-import { useBaseTypes, useFocusMethods, useSpaceId, useActiveMethods, useInserting, useWindowSize, useGraphiqlHeight, useClickSelect, useContainer, useForceGraph } from './hooks';
+import { useBaseTypes, useFocusMethods, useSpaceId, useActiveMethods, useInsertingCytoStore, useWindowSize, useGraphiqlHeight, useClickSelect, useContainer, useForceGraph } from './hooks';
 
 const NEXT_PUBLIC_GQL_PATH = process.env.NEXT_PUBLIC_GQL_PATH || 'localhost:3006/gql';
 const NEXT_PUBLIC_GQL_SSL = process.env.NEXT_PUBLIC_GQL_SSL || '0';
@@ -140,7 +140,7 @@ export function GUI({ ml, graphDataRef }: { ml: MinilinksResult<any>, graphDataR
   const [container, setContainer] = useContainer();
   // const [containerVisible, setContainerVisible] = useContainerVisible();
   const [forceGraph, setForceGraph] = useForceGraph();
-  const [inserting, setInserting] = useInserting();
+  const [inserting, setInserting] = useInsertingCytoStore();
   // const [labelsConfig, setLabelsConfig] = useLabelsConfig();
   const [spaceId, setSpaceId] = useSpaceId();
 

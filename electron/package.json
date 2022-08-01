@@ -28,8 +28,8 @@
   },
   "dependencies": {
     "@capacitor-community/electron": "^4.0.1",
-    "@deep-foundation/deeplinks": "0.0.82",
-    "@deep-foundation/hasura": "0.0.16",
+    "@deep-foundation/deeplinks": "0.0.83",
+    "@deep-foundation/hasura": "0.0.17",
     "@deep-foundation/materialized-path": "^0.0.11",
     "@deep-foundation/react-hasura": "0.0.5",
     "@deep-foundation/store": "0.0.6",

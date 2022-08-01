@@ -128,7 +128,7 @@ export const CytoReactLinksCard = React.memo<any>(({
   loading = false,
   noResults,
   search, 
-  setSearch,
+  onSearch,
 }: {
   elements: {
     id: number;
@@ -141,7 +141,7 @@ export const CytoReactLinksCard = React.memo<any>(({
   loading?: boolean;
   noResults: any;
   search?: any;
-  setSearch?: any;
+  onSearch?: any;
 }) => {
   const [switchLayout, setSwitchLayout] = useState('grid');
   const [selectedLink, setSelectedLink] = useState(0);
@@ -188,7 +188,7 @@ export const CytoReactLinksCard = React.memo<any>(({
               sx={{borderRadius: 'full'}}
               focusBorderColor='primary'
               value={search}
-              onChange={setSearch}
+              onChange={onSearch}
             />
             <InputRightElement children={<BsSearch color='green.500' />} />
           </InputGroup>

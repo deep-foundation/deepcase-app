@@ -53,7 +53,7 @@ export const EditorTextArea = React.memo<any>(({
     editor.addAction({
       id: "exit",
       label: "exit",
-      keybindings: [monaco.KeyCode.KeyEscape],
+      keybindings: [monaco.KeyCode.Escape],
       contextMenuGroupId: "exit",
       run: () => {
         onExit && onExit();

@@ -4,7 +4,7 @@ import { Box, Button, ButtonGroup, Flex, FormControl, FormLabel, HStack, IconBut
 import { useDeep } from '@deep-foundation/deeplinks/imports/client';
 import { Link, useMinilinksConstruct, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
 import dynamic from "next/dynamic";
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ConnectionController } from '.';
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
 import { CytoGraphProps } from '../imports/cyto/types';
@@ -37,6 +37,19 @@ export function Content({
   const [showTypes, setShowTypes] = useShowTypes();
   const [cytoEditor, setCytoEditor] = useCytoEditor();
   const { layout, setLayout, layoutName } = useLayout();
+
+  const [pastError, setPastError] = useState(false);
+  const [valid, setValid] = useState<any>(undefined);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPastError(false);
+      setValid(undefined);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [pastError, valid]);
+
+
   const links: Link<number>[] = useMinilinksFilter(
     ml,
     useCallback((l) => true, []),
@@ -86,14 +99,17 @@ export function Content({
           <Button onClick={() => {
             copy(deep.token);
           }}>copy token</Button>
+          <Button colorScheme={pastError ? 'red' : valid ? 'blue' : undefined} onClick={async () => {
+          if (valid) await deep.login({ token: valid });
+          else {
+            setPastError(false);
+            const token: string = await navigator?.clipboard?.readText();
+            const { linkId, error } = await deep.jwt({ token });
+            if (error && !linkId) setPastError(true);
+            else if (linkId) setValid(token);
+          }
+          }}>{valid ? 'login token' : 'past token'}</Button>
         </ButtonGroup>
-        <Select placeholder='layouts' size='sm' value={layoutName} onChange={(event) => {
-          setLayout(event.target.value);
-        }}>
-          {Object.keys(layouts).map(name => (
-            <option value={name}>{name}</option>
-          ))}
-        </Select>
         <FormControl display='flex' alignItems='center'>
           <FormLabel htmlFor='show-extra-switch' mb='0'>
             show extra

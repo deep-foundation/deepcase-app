@@ -32,11 +32,11 @@ export function useCytoElements(ml, links, baseTypes, cy, spaceId) {
     if (link?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value) {
       _name = `name:${link?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value}`;
     }
-    if (link?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value) {
-      _type = `type:${link?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value}`;
+    if (ml.byTo[link?.type_id]?.find(l => l.type_id === baseTypes?.Contain)?.value?.value) {
+      _type = `type:${ml.byTo[link?.type_id]?.find(l => l.type_id === baseTypes?.Contain)?.value?.value}`;
     }
-    if (link?.type?.inByType?.[baseTypes?.Symbol]?.[0]?.value?.value) {
-      _symbol = link?.type?.inByType?.[baseTypes?.Symbol]?.[0]?.value?.value;
+    if (ml.byTo[link?.type_id]?.find(l => l.type_id === baseTypes?.Symbol)?.value?.value) {
+      _symbol = ml.byTo[link?.type_id]?.find(l => l.type_id === baseTypes?.Symbol)?.value?.value;
     }
 
     const element = {

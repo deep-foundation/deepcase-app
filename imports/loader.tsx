@@ -76,15 +76,17 @@ export const DeepLoader = memo(function DeepLoader({
     path_item_id: { _eq: spaceId },
   } } } }), []);
 
-  const queries = useMinilinksFilter(
+  let queries = useMinilinksFilter(
     minilinks.ml,
     useCallback((l) => {
-      return l?.type_id === baseTypes.Query && !!l?.inByType?.[baseTypes.Active]?.find(a => a?.from_id === spaceId);
+      return [baseTypes.Query, baseTypes.Active].includes(l.type_id);
     }, [spaceId]),
     useCallback((l, ml) => {
       return ml.byType[baseTypes.Query]?.filter(l => l?.type_id === baseTypes.Query && !!l?.inByType?.[baseTypes.Active]?.find(a => a?.from_id === spaceId));
     }, [spaceId]),
-  ) || [];
+  );
+  console.log('queries', queries);
+  queries = queries || [];
 
   const insertableTypesQuery = useMemo(() => ({ value: { value: {
     can_object: {
@@ -103,22 +105,31 @@ export const DeepLoader = memo(function DeepLoader({
 
   const insertableTypes = useMinilinksFilter(
     minilinks.ml,
-    useCallback((l) => !!l?._applies?.includes('insertable-types'), [spaceId]),
-    useCallback((l, ml) => (ml.links.filter(l => l._applies.includes('insertable-types')).map(l => l.id)), [spaceId]),
+    useCallback((l) => !!l?._applies?.includes('insertable-types'), []),
+    useCallback((l, ml) => (ml.links.filter(l => l._applies.includes('insertable-types')).map(l => l.id)), []),
   ) || [];
 
-  const additionalQuery = useMemo(() => ({ value: { value: {
-    _or: [
-      {
-        to_id: { _in: [...typeIds, ...insertableTypes] },
-        type_id: { _in: [baseTypes.Contain, baseTypes.Symbol] },
-      },
-      {
-        from_id: { _in: [...typeIds, ...insertableTypes] },
-        type_id: { _in: [baseTypes.Value] },
-      },
-    ]
-  } } }), [typeIds, insertableTypes]);
+  const queryAndSpaceLoadedIds = useMinilinksFilter(
+    minilinks.ml,
+    useCallback((l) => !!l?._applies?.find(a => a.includes('query-') || a.includes('space')), []),
+    useCallback((l, ml) => (ml.links.filter(l => l._applies?.find(a => a.includes('query-') || a.includes('space'))).map(l => l.id)), []),
+  ) || [];
+
+  const additionalQuery = useMemo(() => {
+    const ids = [...typeIds, ...insertableTypes, ...queryAndSpaceLoadedIds];
+    return { value: { value: {
+      _or: [
+        {
+          to_id: { _in: ids },
+          type_id: { _in: [baseTypes.Contain, baseTypes.Symbol] },
+        },
+        {
+          from_id: { _in: ids },
+          type_id: { _in: [baseTypes.Value] },
+        },
+      ]
+    } } };
+  }, [typeIds, insertableTypes, queryAndSpaceLoadedIds]);
 
   return <>
     <DeepLoaderActive

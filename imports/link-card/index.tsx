@@ -14,7 +14,7 @@ import { LinkCardSubject } from './types/subject';
 import json5 from 'json5';
 import { Link, MinilinksResult, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
 import { isString, isNumber, isObject } from 'lodash';
-import { useBaseTypes, useFocusMethods, useSpaceId, useActiveMethods, useInserting } from '../hooks';
+import { useBaseTypes, useFocusMethods, useSpaceId, useActiveMethods, useInsertingCytoStore } from '../hooks';
 import LineTo from 'react-lineto';
 import dynamic from 'next/dynamic';
 import CodeIcon from '@material-ui/icons/Code';
@@ -120,7 +120,7 @@ export function LinkCard({
   const focusMethods = useFocusMethods();
   const activeMethods = useActiveMethods();
   const [spaceId, setSpaceId] = useSpaceId();
-  const [inserting, setInserting] = useInserting();
+  const [inserting, setInserting] = useInsertingCytoStore();
 
   // NeedPackerTypeNaming
 

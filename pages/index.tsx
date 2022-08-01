@@ -17,7 +17,7 @@ import { useClickEmitter } from '../imports/click-emitter';
 import { EngineWindow, useEngineConnected } from '../imports/engine';
 import { ForceGraph, ForceGraph2D, ForceGraph3D, ForceGraphVR, SpriteText } from '../imports/graph';
 import { 
-  useBackgroundTransparent, useBaseTypes, useClickSelect, useContainer, useFocusMethods, useForceGraph, useGraphiqlHeight, useInserting, useScreenFind, useSpaceId, useWindowSize,
+  useBackgroundTransparent, useBaseTypes, useClickSelect, useContainer, useFocusMethods, useForceGraph, useGraphiqlHeight, useInsertingCytoStore, useScreenFind, useSpaceId, useWindowSize,
   // useShowMP, useShowTypes, useContainerVisible, useLabelsConfig
 } from '../imports/hooks';
 import { 
@@ -188,7 +188,7 @@ export function PageContent() {
   const [container, setContainer] = useContainer();
   // const [containerVisible, setContainerVisible] = useContainerVisible();
   const [forceGraph, setForceGraph] = useForceGraph();
-  const [inserting, setInserting] = useInserting();
+  const [inserting, setInserting] = useInsertingCytoStore();
   const [screenFind, setScreenFind] = useScreenFind();
   // const [labelsConfig, setLabelsConfig] = useLabelsConfig();
   const [spaceId, setSpaceId] = useSpaceId();

@@ -17,13 +17,13 @@ import euler from 'cytoscape-euler';
 import elk from 'cytoscape-elk';
 import cytoscapeLasso from 'cytoscape-lasso';
 import { useCytoElements } from './elements';
-import { useInsertedLink, useLinkReactElements, useCytoEditor } from './hooks';
+import { useInsertLinkCard, useLinkReactElements, useCytoEditor } from './hooks';
 import { CytoGraphProps } from './types';
 import { layoutCosePreset, layoutColaPreset } from './layouts';
 import { CytoReactLayout } from './react';
 import { useColorModeValue, useToast, Spinner } from '../framework';
 import { useChackraColor, useChackraGlobal } from '../get-color';
-import { useBaseTypes, useContainer, useFocusMethods, useInserting, useLayout, useRefAutofill, useShowExtra, useShowTypes, useSpaceId } from '../hooks';
+import { useBaseTypes, useContainer, useFocusMethods, useInsertingCytoStore, useLayout, useRefAutofill, useShowExtra, useShowTypes, useSpaceId } from '../hooks';
 import { useRerenderer } from '../rerenderer-hook';
 import { CytoEditor, useEditorTabs } from './editor';
 import { useMinilinksHandle } from '@deep-foundation/deeplinks/imports/minilinks';
@@ -95,8 +95,8 @@ export default function CytoGraph({
   const [container, setContainer] = useContainer();
   const [extra, setExtra] = useShowExtra();
   const [showTypes, setShowTypes] = useShowTypes();
-  const [inserting, setInserting] = useInserting();
-  const insertingRef = useRefAutofill(inserting);
+  const [insertingCyto, setInsertingCyto] = useInsertingCytoStore();
+  const insertingCytoRef = useRefAutofill(insertingCyto);
   const toast = useToast()
 
   const refCy = useRef<any>();
@@ -141,74 +141,9 @@ export default function CytoGraph({
 
   const { focus, unfocus, lockingRef } = useCytoFocusMethods(cy, relayoutDebounced);
 
-  // elements.push({ 
-  //   id: 'demo-query-link-node',
-  //   data: { id: 'demo-query-link-node', label: 'Node big' }, 
-  //   selectable: false,
-  //   classes: 'query-link-node',
-  // });
-  // elements.push({ 
-  //   id: 'demo-query-link-from-node',
-  //   data: { id: 'demo-query-link-from-node', label: 'From' }, 
-  //   selectable: false,
-  //   classes: 'query-link-from-node',
-  // });
-  // elements.push({ 
-  //   id: 'demo-query-link-to-node',
-  //   data: { id: 'demo-query-link-to-node', label: 'To' }, 
-  //   selectable: false,
-  //   classes: 'query-link-to-node',
-  // });
-  // elements.push({ 
-  //   id: 'demo-query-link-type-node',
-  //   data: { id: 'demo-query-link-type-node', label: 'Type' }, 
-  //   selectable: false,
-  //   classes: 'query-link-type-node',
-  // });
-  // elements.push({ 
-  //   id: 'demo-query-link-in-node',
-  //   data: { id: 'demo-query-link-in-node', label: 'In' }, 
-  //   selectable: false,
-  //   classes: 'query-link-in-node',
-  // });
-  // elements.push({ 
-  //   id: 'demo-query-link-out-node',
-  //   data: { id: 'demo-query-link-out-node', label: 'Out' }, 
-  //   selectable: false,
-  //   classes: 'query-link-out-node',
-  // });
-  // elements.push({ 
-  //   id: 'demo-query-link-out-edge',
-  //   data: { id: 'demo-query-link-out-edge', source: 'demo-query-link-out-node', target: 'demo-query-link-node' }, 
-  //   selectable: false,
-  //   classes: 'query-link-out-edge',
-  // });
-  // elements.push({ 
-  //   id: 'demo-query-link-in-edge',
-  //   data: { id: 'demo-query-link-in-edge', source: 'demo-query-link-in-node', target: 'demo-query-link-node' }, 
-  //   selectable: false,
-  //   classes: 'query-link-in-edge',
-  // });
-  // elements.push({ 
-  //   id: 'demo-query-link-type-edge',
-  //   data: { id: 'demo-query-link-type-edge', source: 'demo-query-link-node', target: 'demo-query-link-type-node' }, 
-  //   selectable: false,
-  //   classes: 'query-link-type-edge',
-  // });
-  // elements.push({ 
-  //   id: 'demo-query-link-from-edge',
-  //   data: { id: 'demo-query-link-from-edge', source: 'demo-query-link-node', target: 'demo-query-link-from-node' }, 
-  //   selectable: false,
-  //   classes: 'query-link-from-edge',
-  // });
-  // elements.push({ 
-  //   id: 'demo-query-link-to-edge',
-  //   data: { id: 'demo-query-link-to-edge', source: 'demo-query-link-node', target: 'demo-query-link-to-node' }, 
-  //   selectable: false,
-  //   classes: 'query-link-to-edge',
-  // });
+  const ehRef = useRef<any>();
 
-  const { setInsertingLink } = useInsertedLink(elements, reactElements, focus, refCy, baseTypes, ml);
+  const { startInsertingOfType, openInsertCard, insertLink, drawendInserting } = useInsertLinkCard(elements, reactElements, focus, refCy, baseTypes, ml, ehRef);
 
   const stylesheets = useCytoStylesheets();
 
@@ -240,7 +175,7 @@ export default function CytoGraph({
 
     let ncy = refCy.current?._cy;
 
-    let eh = ncy.edgehandles({
+    let eh = ehRef.current = ncy.edgehandles({
       // canConnect: function( sourceNode, targetNode ){
       //   // whether an edge can be created between source and target
       //   return !sourceNode.same(targetNode); // e.g. disallow loops
@@ -263,25 +198,6 @@ export default function CytoGraph({
     ncy.on('layoutstop', () => {
       console.timeEnd('layout');
     })
-    ncy.on('ehstop', async (event, sourceNode, targetNode, addedEdge) => {
-      let { position } = event;
-      addedEdge?.remove();
-    });
-    ncy.on('ehcomplete', async (event, sourceNode, targetNode, addedEdge) => {
-      let { position } = event;
-      addedEdge?.remove();
-      const sid = sourceNode?.data('link')?.id;
-      const tid = targetNode?.data('link')?.id;
-      if (sid && tid && ehDirectionRef.current) {
-        let from, to;
-        if (ehDirectionRef.current === 'out') {
-          from = sid; to = tid;
-        } else if (ehDirectionRef.current === 'in') {
-          from = tid; to = sid;
-        }
-        setInsertingLink({ position: targetNode.position(), from, to });
-      }
-    });
     ncy.on('mouseover', '.link-from, .link-to, .link-type, .link-node', function(e) {
       var node = e.target;
       const id = node?.data('link')?.id;
@@ -365,7 +281,7 @@ export default function CytoGraph({
           }
         },
         {
-          content: 'Unlock',
+          content: 'unlock',
           select: function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
@@ -375,7 +291,7 @@ export default function CytoGraph({
           }
         },
         {
-          content: 'Delete',
+          content: 'delete',
           select: async function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
@@ -384,55 +300,11 @@ export default function CytoGraph({
           }
         },
         {
-          content: 'Insert',
+          content: 'insert',
           select: async function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
-              const link = ml.byId[id];
-              const isNode = !link.from_id && !link.to_id;
-              //   let insert = {};
-              //   if (!link.from_id && !link.to_id) insert = { type_id: +id };
-              
-              //   setInserting(insert);
-              const TypeName = link?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value || id;
-              const FromName = ml.byId[link.from_id]?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value || link.from_id;
-              const ToName = ml.byId[link.to_id]?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value || link.to_id;
-              const t = toast({
-                title: `Inserting link type of: ${TypeName}`,
-                description: `This ${isNode ? `is node type, just click somewhere for insert.` : `is link type, connect two links from typeof ${FromName} to typeof ${ToName} for insert.`}`,
-                position: 'bottom-left',
-                duration: null,
-                icon: <Spinner />,
-                isClosable: true,
-                onCloseComplete: () => {
-                  if (insertingRef?.current?.type_id) setInserting({});
-                },
-              });
-              setInserting({
-                isNode,
-                type_id: id,
-                toast: t,
-              });
-            }
-          }
-        },
-        {
-          content: '+out',
-          select: function(ele){ 
-            const id = ele.data('link')?.id;
-            if (id) {
-              ehDirectionRef.current = 'out';
-              eh.start(ele);
-            }
-          }
-        },
-        {
-          content: '+in',
-          select: async function(ele){ 
-            const id = ele.data('link')?.id;
-            if (id) {
-              ehDirectionRef.current = 'in';
-              eh.start(ele);
+              startInsertingOfType(id);
             }
           }
         },
@@ -441,7 +313,11 @@ export default function CytoGraph({
           select: async function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
-              deep.login({ linkId: +id });
+              const { linkId } = await deep.login({ linkId: +id });
+              if (linkId) {
+                setSpaceId(+id);
+                setContainer(+id);
+              }
             }
           }
         },
@@ -463,24 +339,9 @@ export default function CytoGraph({
       outsideMenuCancel: 10,
       commands: [
         {
-          content: '+query',
-          select: async function(){
-            const { data: [{ id: queryId }] } = await deep.insert({
-              type_id: await deep.id('@deep-foundation/core', 'Query'),
-              object: { data: { value: {} } },
-            });
-            if (container) await deep.insert([{
-              from_id: container,
-              to_id: queryId,
-              type_id: await deep.id('@deep-foundation/core', 'Contain'),
-            }]);
-          }
-        },
-  
-        {
           content: '+link',
           select: function(el, ev){
-            setInsertingLink({ position: ev.position, from: 0, to: 0 });
+            openInsertCard({ position: ev.position, from: 0, to: 0 });
           }
         }
       ]
@@ -488,10 +349,10 @@ export default function CytoGraph({
     
     ncy.on('tap', async function(event){
       if(event.target === ncy){
-        if (insertingRef.current.type_id) {
-          if (insertingRef.current.isNode) {
+        if (insertingCytoRef.current.type_id) {
+          if (insertingCytoRef.current.isNode) {
             await deep.insert({
-              type_id: insertingRef.current.type_id,
+              type_id: insertingCytoRef.current.type_id,
               in: { data: [
                 {
                   from_id: container,
@@ -508,14 +369,19 @@ export default function CytoGraph({
                 },
               ] },
             });
-            toast.close(insertingRef.current.toast);
-            setInserting({});
+            toast.close(insertingCytoRef.current.toast);
+            setInsertingCyto({});
           } else {
-            setInserting({});
+            setInsertingCyto({});
           }
         }
-        setInsertingLink(undefined);
+        openInsertCard(undefined);
       }
+    });
+
+    // edgehandles bug fix, clear previous edgehandles
+    ncy.on('cxttapstart', async function(event){
+      ncy.$('.eh-ghost,.eh-preview').remove();
     });
 
     const updatedListener = (oldLink, newLink) => {
@@ -545,9 +411,12 @@ export default function CytoGraph({
     };
   }, []);
 
-  // useMinilinksHandle(ml, (event, oldLink, newLink) => {
-  //   relayoutDebounced();
-  // });
+  useMinilinksHandle(ml, (event, oldLink, newLink) => {
+    relayoutDebounced();
+  });
+  useEffect(() => {
+    relayoutDebounced();
+  }, [extra, showTypes]);
 
   const returning = (
     <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
