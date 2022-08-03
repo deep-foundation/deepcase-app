@@ -13,15 +13,55 @@ export interface IInsertedLink {
   from: number; to: number;
 };
 
+export interface IInsertedLinkProps {
+  insertingLink?: IInsertedLink;
+  ml?: any;
+  ehRef?: any;
+  returningRef?: any;
+  insertLinkRef?: any;
+}
+
+export function CytoReactLinksCardInsertNode({
+  insertingLink, ml, ehRef, returningRef, insertLinkRef,
+}: IInsertedLinkProps) {
+  const [search, setSearch] = useState('');
+  const deep = useDeep();
+  const [baseTypes, setBaseTypes] = useBaseTypes();
+  const [insertingCyto, setInsertingCyto] = useInsertingCytoStore();
+
+  const types = useMinilinksFilter(
+    ml,
+    useCallback(() => true, []),
+    useCallback((l, ml) => (ml.links.filter(l => l._applies.includes('insertable-types'))), []),
+  ) || [];
+
+  const elements = (types || [])?.map(t => ({
+    id: t.id,
+    src:  t?.inByType[baseTypes.Symbol]?.[0]?.value?.value || t.id,
+    linkName: t?.inByType[baseTypes.Contain]?.[0]?.value?.value || t.id,
+    containerName: t?.inByType[baseTypes.Contain]?.[0]?.from?.value?.value || '',
+  }));
+  return <CytoReactLinksCard
+    elements={elements.filter(el => (!!el?.linkName && el?.linkName?.includes(search) || el?.containerName && el?.containerName?.includes(search)))}
+    search={search}
+    onSearch={e => setSearch(e.target.value)}
+    onSubmit={async (id) => {
+      const insertable = ml.links.filter(l => l._applies.includes('insertable-types'));
+      const type = insertable?.find(t => t.id === id);
+      const isNode = !type.from_id && !type.to_id;
+      setInsertingCyto({});
+      returningRef?.current.startInsertingOfType(id);
+    }}
+  />;
+};
+
 export function useInsertLinkCard(elements, reactElements, focus, refCy, baseTypes, ml, ehRef) {
   const [insertingLink, setInsertingLink] = useState<IInsertedLink>();
   const [container, setContainer] = useContainer();
+  const containerRef = useRefAutofill(container);
   const deep = useDeep();
-  const [insertingCyto, setInsertingCyto] = useInsertingCytoStore<{
-    isNode?: boolean;
-    type_id?: number;
-    toast?: any;
-  }>();
+  const deepRef = useRefAutofill(deep);
+  const [insertingCyto, setInsertingCyto] = useInsertingCytoStore();
   const insertingCytoRef = useRefAutofill(insertingCyto);
   const toast = useToast()
 
@@ -53,48 +93,17 @@ export function useInsertLinkCard(elements, reactElements, focus, refCy, baseTyp
       if (!from && !to && !!insertLink) focus(linkId, insertLink.position);
       return undefined;
     })
-  }, [types, container, baseTypes]);
+  }, [types, container, baseTypes, deep.linkId]);
   const insertLinkRef = useRefAutofill(insertLink);
 
-  const InsertLinkCardComponent = useMemo(() => {
-    return function CytoReactLinksCardInsertNode({
-      from, to
-    }: IInsertedLink) {
-      const [search, setSearch] = useState('');
-
-      const types = useMinilinksFilter(
-        ml,
-        useCallback(() => true, []),
-        useCallback((l, ml) => (ml.links.filter(l => l._applies.includes('insertable-types'))), []),
-      ) || [];
-
-      const elements = (types || [])?.map(t => ({
-        id: t.id,
-        src:  t?.inByType[baseTypes.Symbol]?.[0]?.value?.value || t.id,
-        linkName: t?.inByType[baseTypes.Contain]?.[0]?.value?.value || t.id,
-        containerName: t?.inByType[baseTypes.Contain]?.[0]?.from?.value?.value || '',
-      }));
-      return <CytoReactLinksCard
-        elements={elements.filter(el => (el?.linkName?.includes(search) || el?.containerName?.includes(search)))}
-        search={search}
-        onSearch={e => setSearch(e.target.value)}
-        onSubmit={async (id) => {
-          const insertable = ml.links.filter(l => l._applies.includes('insertable-types'));
-          const type = insertable?.find(t => t.id === id);
-          const isNode = !type.from_id && !type.to_id;
-          setInsertingCyto({});
-          if (!from && !to && !isNode) {
-            ehRef?.current?.enableDrawMode();
-            returning.startInsertingOfType(id);
-          } else {
-            insertLinkRef.current(id, from, to);
-          }
-        }}
-      />;
-    };
-  }, []);
   const TempComponent = useMemo(() => {
-    return () => <InsertLinkCardComponent {...insertingLink}/>;
+    return () => <CytoReactLinksCardInsertNode
+      insertingLink={insertingLink}
+      ml={ml}
+      ehRef={ehRef}
+      returningRef={returningRef}
+      insertLinkRef={insertLinkRef}
+    />;
   }, [insertingLink]);
   if (insertingLink) {
     const element = {
@@ -143,6 +152,9 @@ export function useInsertLinkCard(elements, reactElements, focus, refCy, baseTyp
         isClosable: true,
         onCloseComplete: () => {
           if (insertingCytoRef?.current?.type_id) setInsertingCyto({});
+          ehRef?.current?.disableDrawMode();
+          const cy = refCy.current._cy;
+          cy.$('.eh-ghost,.eh-preview').remove();
         },
       });
       if (!isNode) {
@@ -167,6 +179,7 @@ export function useInsertLinkCard(elements, reactElements, focus, refCy, baseTyp
       }
     },
   };
+  const returningRef = useRefAutofill(returning);
 
   useEffect(() => {
     const cy = refCy.current._cy;
@@ -174,19 +187,52 @@ export function useInsertLinkCard(elements, reactElements, focus, refCy, baseTyp
       let { position } = event;
       addedEdge?.remove();
       ehRef?.current?.disableDrawMode();
+      const ins = insertingCytoRef.current;
+      setInsertingCyto({});
+      toast.close(ins.toast);
     });
     cy.on('ehcomplete', async (event, sourceNode, targetNode, addedEdge) => {
       let { position } = event;
       addedEdge?.remove();
       const from = sourceNode?.data('link')?.id;
       const to = targetNode?.data('link')?.id;
-      returning.drawendInserting(position, from, to);
+      if (from && to) returning.drawendInserting(position, from, to);
     });
     cy.on('tap', async function(event){
       ehRef?.current?.disableDrawMode();
       const ins = insertingCytoRef.current;
       setInsertingCyto({});
       toast.close(ins.toast);
+      const ncy = refCy.current._cy;
+      if(event.target === ncy){
+        if (insertingCytoRef.current.type_id) {
+          if (insertingCytoRef.current.isNode) {
+            await deepRef.current.insert({
+              type_id: insertingCytoRef.current.type_id,
+              in: { data: [
+                {
+                  from_id: containerRef.current,
+                  type_id: baseTypes?.Contain,
+                },
+                {
+                  from_id: containerRef.current,
+                  type_id: baseTypes?.Focus,
+                  object: { data: { value: event.position } },
+                  in: { data: {
+                    type_id: baseTypes.Contain,
+                    from_id: containerRef.current
+                  } },
+                },
+              ] },
+            });
+            toast.close(insertingCytoRef.current.toast);
+            setInsertingCyto({});
+          } else {
+            setInsertingCyto({});
+          }
+        }
+        returningRef.current?.openInsertCard(undefined);
+      }
     });
   }, []);
 

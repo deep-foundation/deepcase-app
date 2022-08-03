@@ -154,6 +154,9 @@ export default function CytoGraph({
       relayoutDebounced();
     }
   }, [extra, layout, showTypes]);
+  useMinilinksHandle(ml, (event, oldLink, newLink) => {
+    relayoutDebounced();
+  });
 
   // has memory about locking of key=linkId
   // undefined - not locked
@@ -346,38 +349,6 @@ export default function CytoGraph({
         }
       ]
     });
-    
-    ncy.on('tap', async function(event){
-      if(event.target === ncy){
-        if (insertingCytoRef.current.type_id) {
-          if (insertingCytoRef.current.isNode) {
-            await deep.insert({
-              type_id: insertingCytoRef.current.type_id,
-              in: { data: [
-                {
-                  from_id: container,
-                  type_id: baseTypes?.Contain,
-                },
-                {
-                  from_id: container,
-                  type_id: baseTypes?.Focus,
-                  object: { data: { value: event.position } },
-                  in: { data: {
-                    type_id: baseTypes.Contain,
-                    from_id: container
-                  } },
-                },
-              ] },
-            });
-            toast.close(insertingCytoRef.current.toast);
-            setInsertingCyto({});
-          } else {
-            setInsertingCyto({});
-          }
-        }
-        openInsertCard(undefined);
-      }
-    });
 
     // edgehandles bug fix, clear previous edgehandles
     ncy.on('cxttapstart', async function(event){
@@ -410,13 +381,6 @@ export default function CytoGraph({
       ml.emitter.removeListener('updated', updatedListener);
     };
   }, []);
-
-  useMinilinksHandle(ml, (event, oldLink, newLink) => {
-    relayoutDebounced();
-  });
-  useEffect(() => {
-    relayoutDebounced();
-  }, [extra, showTypes]);
 
   const returning = (
     <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>

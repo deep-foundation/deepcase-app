@@ -1,6 +1,7 @@
 import { useColorModeValue } from '@chakra-ui/react';
 import { useMemo } from 'react';
 import { useChackraColor, useChackraGlobal } from '../get-color';
+import { useInsertingCytoStore } from '../hooks';
 
 export function useCytoStylesheets(): any {
   const globalStyle = useChackraGlobal();
@@ -11,6 +12,8 @@ export function useCytoStylesheets(): any {
   const colorClicked = useChackraColor('primary');
   const colorBgInsertNode = useColorModeValue(white, gray900);
   const colorFocus = blue500;
+
+  const [insertingCyto, setInsertingCyto] = useInsertingCytoStore();
 
   const stylesheets = useMemo(() => ([
     {
@@ -51,6 +54,12 @@ export function useCytoStylesheets(): any {
         'background-fit': 'cover',
         'background-opacity': 1,
         'background-color': '#fff',
+      }
+    },
+    {
+      selector: '.link-disabled',
+      style: {
+        opacity: 0.5,
       }
     },
     {

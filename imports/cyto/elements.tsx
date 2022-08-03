@@ -1,9 +1,10 @@
 import json5 from 'json5';
 import { useMemo } from 'react';
-import { useShowTypes } from '../hooks';
+import { useInsertingCytoStore, useShowTypes } from '../hooks';
 
 export function useCytoElements(ml, links, baseTypes, cy, spaceId) {
   const [showTypes, setShowTypes] = useShowTypes();
+  const [insertingCyto, setInsertingCyto] = useInsertingCytoStore();
 
   console.time('useCytoElements');
 
@@ -55,7 +56,7 @@ export function useCytoElements(ml, links, baseTypes, cy, spaceId) {
       selectable: false,
       classes: [
         'link-node',
-        ...(focus ? ['focused'] : ['unfocused'])
+        ...(focus ? ['focused'] : ['unfocused']),
       ].join(' '),
       
       ...(focus?.value?.value?.x ? {
@@ -63,6 +64,8 @@ export function useCytoElements(ml, links, baseTypes, cy, spaceId) {
         locked: !!focus,
       } : {}),
       focused: !!focus,
+      // locked: true,
+      // focused: true,
     };
     _elements[link?.id] = element;
     elements.push(element);

@@ -30,8 +30,18 @@ export function useContainer() {
 export function useForceGraph() {
   return useQueryStore('force-graph-type', '2d');
 }
-export function useInsertingCytoStore<P = any>() {
-  return useQueryStore<P>('dc-dg-ins', {});
+
+export interface IInsertingCytoStore{
+  isNode?: boolean;
+  type_id?: number;
+  toast?: any;
+}
+
+export function useInsertingCytoStore() {
+  return useQueryStore<IInsertingCytoStore>(
+    'dc-dg-ins',
+    {},
+  );
 }
 export function useScreenFind() {
   return useQueryStore<any>('screen-find', '');

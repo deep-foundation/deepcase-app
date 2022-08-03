@@ -1,4 +1,4 @@
-import { DeepClient, GLOBAL_ID_NUMBER, GLOBAL_ID_OBJECT, GLOBAL_ID_STRING, useDeep, useDeepQuery } from '@deep-foundation/deeplinks/imports/client';
+import { DeepClient, _ids, useDeep, useDeepQuery } from '@deep-foundation/deeplinks/imports/client';
 import { Packager } from '@deep-foundation/deeplinks/imports/packager';
 import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client';
 import { Clear, LocationOnOutlined as Unfocused, LocationOn as Focused } from '@material-ui/icons';
@@ -339,22 +339,21 @@ export function LinkCard({
                     from_id: link?.type_id
                   },
                 });
-                console.log({ id, link, GLOBAL_ID_OBJECT, GLOBAL_ID_STRING, GLOBAL_ID_NUMBER });
                 const table = (
-                  GLOBAL_ID_STRING === id
+                  _ids?.['@deep-foundation/core']?.String === id
                   ? 'strings'
-                  : GLOBAL_ID_NUMBER === id
+                  : _ids?.['@deep-foundation/core']?.Number === id
                   ? 'numbers'
-                  : GLOBAL_ID_OBJECT === id
+                  : _ids?.['@deep-foundation/core']?.Object === id
                   ? 'objects'
                   : ''
                 );
                 const value = (
-                  GLOBAL_ID_STRING === id
+                  _ids?.['@deep-foundation/core']?.String === id
                   ? ''
-                  : GLOBAL_ID_NUMBER === id
+                  : _ids?.['@deep-foundation/core']?.Number === id
                   ? 0
-                  : GLOBAL_ID_OBJECT === id
+                  : _ids?.['@deep-foundation/core']?.Object === id
                   ? {}
                   : ''
                 );
