@@ -42,7 +42,7 @@ export function CytoReactLinksCardInsertNode({
     containerName: t?.inByType[baseTypes.Contain]?.[0]?.from?.value?.value || '',
   }));
   return <CytoReactLinksCard
-    elements={elements.filter(el => (!!el?.linkName && el?.linkName?.includes(search) || el?.containerName && el?.containerName?.includes(search)))}
+    elements={elements.filter(el => (!!el?.linkName?.includes && el?.linkName?.includes(search) || el?.containerName?.includes && el?.containerName?.includes(search)))}
     search={search}
     onSearch={e => setSearch(e.target.value)}
     onSubmit={async (id) => {
