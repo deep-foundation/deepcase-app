@@ -38,7 +38,7 @@ export function AutoGuest({
       if (g.error) setConnected(false);
     })();
     setIsAuth(isAuth);
-  }, [token]);
+  }, [token, deep.linkId]);
   return <>
     {isAuth ? children : null}
   </>
