@@ -1,6 +1,6 @@
 import { useDeep } from "@deep-foundation/deeplinks/imports/client";
 import { useTokenController } from "@deep-foundation/deeplinks/imports/react-token";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Debug from 'debug';
 import { useSpaceId } from "./hooks";
 import { useEngineConnected } from "./engine";
@@ -16,7 +16,7 @@ export function AutoGuest({
   const [token] = useTokenController();
   const [spaceId, setSpaceId] = useSpaceId();
   const [connected, setConnected] = useEngineConnected();
-  const isAuth = !!(deep.linkId && token && token === deep.token);
+  const [isAuth, setIsAuth] = useState(false);
   useEffect(() => {
     // const isAuth = !!(deep.linkId && token && token === deep.token);
     // We use as axiom - deep.token already synced with token
@@ -37,6 +37,7 @@ export function AutoGuest({
       const g = await deep.guest();
       if (g.error) setConnected(false);
     })();
+    setIsAuth(isAuth);
   }, [token]);
   return <>
     {isAuth ? children : null}
