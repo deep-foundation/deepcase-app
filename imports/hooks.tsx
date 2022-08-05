@@ -60,9 +60,6 @@ export function useWindowSize() {
 export function useGraphiqlHeight() {
   return useLocalStore('graphiql-height', defaultGraphiqlHeight);
 };
-export function useBaseTypes() {
-  return useLocalStore<any>('base-types', {});
-};
 export function useShowExtra() {
   return useLocalStore<any>('show-extra', false);
 };
@@ -73,20 +70,19 @@ export function useBackgroundTransparent() {
   return useQueryStore<any>('bg-transparent', false);
 };
 export function useFocusMethods() {
-  const [baseTypes] = useBaseTypes();
   const [spaceId] = useSpaceId();
   const deep = useDeep();
   return useMemo(() => {
     return {
       unfocus: async (id) => {
         console.log('unfocus', { spaceId, id });
-        const where = { type_id: baseTypes.Focus, from_id: spaceId, to_id: id };
+        const where = { type_id: deep.idSync('@deep-foundation/core', 'Focus'), from_id: spaceId, to_id: id };
         console.log('unfocused', await deep.delete(where));
       },
       focus: async (id, value: { x: number; y: number; z: number; }) => {
         console.log('focus', { spaceId, id, value });
         const q = await deep.select({
-          type_id: baseTypes.Focus,
+          type_id: deep.idSync('@deep-foundation/core', 'Focus'),
           from_id: spaceId,
           to_id: id,
         });
@@ -94,12 +90,12 @@ export function useFocusMethods() {
         let focusId = focus?.id;
         if (!focusId) {
           const { data: [{ id: newFocusId }] } = await deep.insert({
-            type_id: baseTypes.Focus,
+            type_id: deep.idSync('@deep-foundation/core', 'Focus'),
             from_id: spaceId,
             to_id: id,
             object: { data: { value } },
             in: { data: {
-              type_id: baseTypes.Contain,
+              type_id: deep.idSync('@deep-foundation/core', 'Contain'),
               from_id: spaceId
             } },
           });
@@ -121,17 +117,16 @@ export function useFocusMethods() {
   }, [spaceId]);
 };
 export function useActiveMethods() {
-  const [baseTypes] = useBaseTypes();
   const [spaceId] = useSpaceId();
   const deep = useDeep();
   return useMemo(() => {
     return {
       deactive: async function(id: number) {
-        console.log(await deep.delete({ type_id: baseTypes.Active, from_id: spaceId, to_id: id }));
+        console.log(await deep.delete({ type_id: deep.idSync('@deep-foundation/core', 'Active'), from_id: spaceId, to_id: id }));
       },
       find: async function(id: number) {
         const q = await deep.select({
-          type_id: baseTypes.Active,
+          type_id: deep.idSync('@deep-foundation/core', 'Active'),
           from_id: spaceId,
           to_id: id,
         });
@@ -140,11 +135,11 @@ export function useActiveMethods() {
       active: async function(id: number) {
         const active = await this.find(id);
         const { data: [{ id: newId }] } = await deep.insert({
-          type_id: baseTypes.Active,
+          type_id: deep.idSync('@deep-foundation/core', 'Active'),
           from_id: spaceId,
           to_id: id,
           in: { data: {
-            type_id: baseTypes.Contain,
+            type_id: deep.idSync('@deep-foundation/core', 'Contain'),
             from_id: spaceId
           } },
         });

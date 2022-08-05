@@ -1,10 +1,12 @@
+import { useDeep } from '@deep-foundation/deeplinks/imports/client';
 import json5 from 'json5';
 import { useMemo } from 'react';
 import { useInsertingCytoStore, useShowTypes } from '../hooks';
 
-export function useCytoElements(ml, links, baseTypes, cy, spaceId) {
+export function useCytoElements(ml, links, cy, spaceId) {
   const [showTypes, setShowTypes] = useShowTypes();
   const [insertingCyto, setInsertingCyto] = useInsertingCytoStore();
+  const deep = useDeep();
 
   console.time('useCytoElements');
 
@@ -14,7 +16,7 @@ export function useCytoElements(ml, links, baseTypes, cy, spaceId) {
 
   for (let i = 0; i < links.length; i++) {
     const link = links[i];
-    const focus = link?.inByType?.[baseTypes.Focus]?.find(f => f.from_id === spaceId);
+    const focus = link?.inByType?.[deep.idSync('@deep-foundation/core', 'Focus')]?.find(f => f.from_id === spaceId);
 
     let _value = '';
     let _name = '';
@@ -30,14 +32,14 @@ export function useCytoElements(ml, links, baseTypes, cy, spaceId) {
       _value = _value.split('\n')[0];
       if (_value.length > 15) _value = _value.slice(0, 15)+'...';
     }
-    if (link?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value) {
-      _name = `name:${link?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value}`;
+    if (link?.inByType?.[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value) {
+      _name = `name:${link?.inByType?.[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value}`;
     }
-    if (ml.byTo[link?.type_id]?.find(l => l.type_id === baseTypes?.Contain)?.value?.value) {
-      _type = `type:${ml.byTo[link?.type_id]?.find(l => l.type_id === baseTypes?.Contain)?.value?.value}`;
+    if (ml.byTo[link?.type_id]?.find(l => l.type_id === deep.idSync('@deep-foundation/core', 'Contain'))?.value?.value) {
+      _type = `type:${ml.byTo[link?.type_id]?.find(l => l.type_id === deep.idSync('@deep-foundation/core', 'Contain'))?.value?.value}`;
     }
-    if (ml.byTo[link?.type_id]?.find(l => l.type_id === baseTypes?.Symbol)?.value?.value) {
-      _symbol = ml.byTo[link?.type_id]?.find(l => l.type_id === baseTypes?.Symbol)?.value?.value;
+    if (ml.byTo[link?.type_id]?.find(l => l.type_id === deep.idSync('@deep-foundation/core', 'Symbol'))?.value?.value) {
+      _symbol = ml.byTo[link?.type_id]?.find(l => l.type_id === deep.idSync('@deep-foundation/core', 'Symbol'))?.value?.value;
     }
 
     const element = {
@@ -72,7 +74,7 @@ export function useCytoElements(ml, links, baseTypes, cy, spaceId) {
   }
   for (let i = 0; i < links.length; i++) {
     const link = links[i];
-    const focus = link?.inByType?.[baseTypes.Focus]?.find(f => f.from_id === spaceId);
+    const focus = link?.inByType?.[deep.idSync('@deep-foundation/core', 'Focus')]?.find(f => f.from_id === spaceId);
 
     let _value = '';
     let _name = '';
@@ -86,14 +88,14 @@ export function useCytoElements(ml, links, baseTypes, cy, spaceId) {
         ? json : link?.value.value
       );
     }
-    if (link?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value) {
-      _name = `name:${link?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value}`;
+    if (link?.inByType?.[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value) {
+      _name = `name:${link?.inByType?.[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value}`;
     }
-    if (link?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value) {
-      _type = `type:${link?.type?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value}`;
+    if (link?.type?.inByType?.[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value) {
+      _type = `type:${link?.type?.inByType?.[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value}`;
     }
-    if (link?.type?.inByType?.[baseTypes?.Symbol]?.[0]?.value?.value) {
-      _symbol = link?.type?.inByType?.[baseTypes?.Symbol]?.[0]?.value?.value;
+    if (link?.type?.inByType?.[deep.idSync('@deep-foundation/core', 'Symbol')]?.[0]?.value?.value) {
+      _symbol = link?.type?.inByType?.[deep.idSync('@deep-foundation/core', 'Symbol')]?.[0]?.value?.value;
     }
     if (!!cy) {
       if (link.from_id) {

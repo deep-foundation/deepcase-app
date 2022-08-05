@@ -1,5 +1,5 @@
 
-import { useDeep } from '@deep-foundation/deeplinks/imports/client';
+import { DeepProvider, useDeep } from '@deep-foundation/deeplinks/imports/client';
 import { Link, useMinilinksConstruct, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
 import dynamic from "next/dynamic";
 import { useCallback } from 'react';
@@ -8,6 +8,7 @@ import { CytoGraphProps } from '../imports/cyto/types';
 import { useShowExtra, useSpaceId } from '../imports/hooks';
 import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
+import { AutoGuest } from '../imports/auto-guest';
 
 const CytoGraph = dynamic<CytoGraphProps>(
   () => import('../imports/cyto/graph').then((m) => m.default),
@@ -58,7 +59,11 @@ export function Content({
 export default function Page() {
   return (<>
     <Provider chakra>
-      <Content/>
+      <DeepProvider>
+        <AutoGuest>
+          <Content/>
+        </AutoGuest>
+      </DeepProvider>
     </Provider>
   </>);
 }

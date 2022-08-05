@@ -14,7 +14,6 @@ import { EditorSwitcher } from '../editor/editor-switcher';
 import { CloseButton, EditorTabs } from '../editor/editor-tabs';
 import { EditorTextArea } from '../editor/editor-textarea';
 import json5 from 'json5';
-import { useBaseTypes } from '../hooks';
 import { useDebounceCallback } from '@react-hook/debounce';
 import { CatchErrors } from '../react-errors';
 
@@ -97,7 +96,6 @@ export function CytoEditor({
   ml: MinilinksResult<Link<number>>;
 }) {
   const [cytoEditor, setCytoEditor] = useCytoEditor();
-  const [baseTypes, setBaseTypes] = useBaseTypes();
   const onClose = useCallback(() => {
     setCytoEditor(false);
   }, []);
@@ -121,10 +119,10 @@ export function CytoEditor({
   const generatedLink = useMinilinksFilter(
     ml,
     (link) => {
-      return link?.outByType[baseTypes.GeneratedFrom]?.[0]?.to_id === tabId;
+      return link?.outByType[deep.idSync('@deep-foundation/core', 'GeneratedFrom')]?.[0]?.to_id === tabId;
     },
     (link, ml) => {
-      return ml.byId[tabId]?.inByType[baseTypes.GeneratedFrom]?.[0]?.from;
+      return ml.byId[tabId]?.inByType[deep.idSync('@deep-foundation/core', 'GeneratedFrom')]?.[0]?.from;
     },
   )
 
@@ -169,9 +167,9 @@ export function CytoEditor({
               setValue(tabId, undefined);
             }}
             onSave={async (value) => {
-              const Value = ml.byId[tab.id]?.type?.outByType?.[baseTypes.Value]?.[0]?.to_id;
-              const table = Value === baseTypes.String ? 'strings' : Value === baseTypes.Number ? 'numbers' : Value === baseTypes.Object ? 'objects' : undefined;
-              const type = Value === baseTypes.String ? 'string' : Value === baseTypes.Number ? 'number' : Value === baseTypes.Object ? 'object' : 'undefined';
+              const Value = ml.byId[tab.id]?.type?.outByType?.[deep.idSync('@deep-foundation/core', 'Value')]?.[0]?.to_id;
+              const table = Value === deep.idSync('@deep-foundation/core', 'String') ? 'strings' : Value === deep.idSync('@deep-foundation/core', 'Number') ? 'numbers' : Value === deep.idSync('@deep-foundation/core', 'Object') ? 'objects' : undefined;
+              const type = Value === deep.idSync('@deep-foundation/core', 'String') ? 'string' : Value === deep.idSync('@deep-foundation/core', 'Number') ? 'number' : Value === deep.idSync('@deep-foundation/core', 'Object') ? 'object' : 'undefined';
 
               const _value = table === 'strings' ? value : table === 'numbers' ? parseFloat(value) : table === 'objects' ? json5.parse(value) : undefined;
 
@@ -197,7 +195,7 @@ export function CytoEditor({
           editorTabsElement={<EditorTabs
             tabs={tabs.map((tab) => ({
               ...tab,
-              title: ml.byId[tab.id]?.inByType?.[baseTypes?.Contain]?.[0]?.value?.value || tab.id,
+              title: ml.byId[tab.id]?.inByType?.[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || tab.id,
               active: tabId === tab.id,
             }))}
             onClose={(tab) => {

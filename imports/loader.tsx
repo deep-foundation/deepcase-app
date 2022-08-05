@@ -1,21 +1,20 @@
 import { useQuery, useSubscription } from "@apollo/client";
 import { useDeep } from "@deep-foundation/deeplinks/imports/client";
 import { generateQuery, generateQueryData } from "@deep-foundation/deeplinks/imports/gql";
-import { Link, LinkRelations, MinilinkCollection, MinilinksGeneratorOptionsDefault, useMinilinksFilter } from "@deep-foundation/deeplinks/imports/minilinks";
-import { useLocalStore } from "@deep-foundation/store/local";
-import { useDebounceCallback } from "@react-hook/debounce";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useBaseTypes } from "./hooks";
-import { useInterval } from 'usehooks-ts';
+import { Link, useMinilinksFilter } from "@deep-foundation/deeplinks/imports/minilinks";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDelayedInterval } from "./use-delayed-interval";
-import { useCallback, memo } from "react";
 
 export function DeepLoaderActive({
+  name,
   query: queryLink,
   onChange,
+  debounce = 1000,
 }: {
+  name: string;
   query: any;
   onChange: (results: Link<number>[]) => any;
+  debounce?: number;
 }) {
   const deep = useDeep();
   const subQuery = useMemo(() => {
@@ -32,7 +31,7 @@ export function DeepLoaderActive({
         ? { ...variables, where: variables?.where }
         : { where: {}, limit: 0 },
       })],
-      name: 'DEEPCASE',
+      name: name,
     });
   }, [queryLink, queryLink?.value?.value]);
   const subQueryResults = useQuery(subQuery.query, { variables: subQuery.variables });
@@ -46,7 +45,7 @@ export function DeepLoaderActive({
       setSintSubQueryResults(r);
       res(undefined);
     });
-  }), [queryLink, queryLink?.value?.value]));
+  }), [queryLink, queryLink?.value?.value]), debounce);
 
   useEffect(() => {
     if (subQueryPrimary?.data?.q0) onChange && onChange(subQueryPrimary?.data?.q0);
@@ -68,21 +67,23 @@ export const DeepLoader = memo(function DeepLoader({
   spaceId?: number;
   minilinks?: any;
 }) {
-  const { linkId: userId } = useDeep();
-  const [baseTypes, setBaseTypes] = useBaseTypes();
+  const deep = useDeep();
+  const userId = deep.linkId;
 
   const spaceQuery = useMemo(() => ({ value: { value: { _by_item: {
-    group_id: { _eq: baseTypes.containTree },
+    group_id: { _eq: deep.idSync('@deep-foundation/core', 'containTree') },
     path_item_id: { _eq: spaceId },
   } } } }), []);
 
   let queries = useMinilinksFilter(
     minilinks.ml,
     useCallback((l) => {
-      return [baseTypes.Query, baseTypes.Active].includes(l.type_id);
+      return [deep.idSync('@deep-foundation/core', 'Query'), deep.idSync('@deep-foundation/core', 'Active')].includes(l.type_id);
     }, [spaceId]),
     useCallback((l, ml) => {
-      return ml.byType[baseTypes.Query]?.filter(l => l?.type_id === baseTypes.Query && !!l?.inByType?.[baseTypes.Active]?.find(a => a?.from_id === spaceId));
+      return ml.byType[deep.idSync('@deep-foundation/core', 'Query')]?.filter((l) => {
+        return l?.type_id === deep.idSync('@deep-foundation/core', 'Query') && !!l?.inByType?.[deep.idSync('@deep-foundation/core', 'Active')]?.find(a => a?.from_id === spaceId) && l?.value?.value;
+      });
     }, [spaceId]),
   );
   console.log('queries', queries);
@@ -115,30 +116,32 @@ export const DeepLoader = memo(function DeepLoader({
     useCallback((l, ml) => (ml.links.filter(l => l._applies?.find(a => a.includes('query-') || a.includes('space'))).map(l => l.id)), []),
   ) || [];
 
-  const additionalQuery = useMemo(() => {
+  const containsAndSymbolsQuery = useMemo(() => {
     const ids = [...typeIds, ...insertableTypes, ...queryAndSpaceLoadedIds];
     return { value: { value: {
-      _or: [
-        {
-          to_id: { _in: ids },
-          type_id: { _in: [baseTypes.Contain, baseTypes.Symbol] },
-        },
-        {
-          from_id: { _in: ids },
-          type_id: { _in: [baseTypes.Value] },
-        },
-      ]
+      to_id: { _in: ids },
+      type_id: { _in: [deep.idSync('@deep-foundation/core', 'Contain'), deep.idSync('@deep-foundation/core', 'Symbol')] },
+    } } };
+  }, [typeIds, insertableTypes, queryAndSpaceLoadedIds]);
+
+  const valuesQuery = useMemo(() => {
+    const ids = [...typeIds, ...insertableTypes, ...queryAndSpaceLoadedIds];
+    return { value: { value: {
+      from_id: { _in: ids },
+      type_id: { _in: [deep.idSync('@deep-foundation/core', 'Value')] },
     } } };
   }, [typeIds, insertableTypes, queryAndSpaceLoadedIds]);
 
   return <>
     <DeepLoaderActive
+      name="DEEPCASE_SPACE"
       query={spaceQuery}
       onChange={(r) => {
         minilinks.ml.apply(r, 'space');
       }}
     />
     {queries?.map((f, i) => (<DeepLoaderActive
+      name={`DEEPCASE_QUERY_${f.id}`}
       key={f.id}
       query={f}
       onChange={(r) => {
@@ -146,15 +149,27 @@ export const DeepLoader = memo(function DeepLoader({
       }}
     />))}
     <DeepLoaderActive
+      name={`DEEPCASE_TYPES`}
       query={insertableTypesQuery}
+      debounce={10000}
       onChange={(r) => {
         minilinks.ml.apply(r, 'insertable-types');
       }}
     />
     {!!typeIds && <DeepLoaderActive
-      query={additionalQuery}
+      name={`DEEPCASE_CONTAINS_AND_SYMBOLS`}
+      query={containsAndSymbolsQuery}
+      debounce={2000}
       onChange={(r) => {
-        minilinks.ml.apply(r, 'additional');
+        minilinks.ml.apply(r, 'contains_and_symbols');
+      }}
+    />}
+    {!!typeIds && <DeepLoaderActive
+      name={`DEEPCASE_VALUES`}
+      query={valuesQuery}
+      debounce={2000}
+      onChange={(r) => {
+        minilinks.ml.apply(r, 'values');
       }}
     />}
   </>;

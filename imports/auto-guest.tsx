@@ -5,13 +5,18 @@ import Debug from 'debug';
 import { useSpaceId } from "./hooks";
 import { useEngineConnected } from "./engine";
 
-const debug = Debug('deepcase:use-check-auth');
+const debug = Debug('deepcase:auto-guest');
 
-export function useCheckAuth() {
+export function AutoGuest({
+  children,
+}: {
+  children: any;
+}) {
   const deep = useDeep();
   const [token] = useTokenController();
   const [spaceId, setSpaceId] = useSpaceId();
   const [connected, setConnected] = useEngineConnected();
+  const isAuth = !!(deep.linkId && token && token === deep.token);
   useEffect(() => {
     // const isAuth = !!(deep.linkId && token && token === deep.token);
     // We use as axiom - deep.token already synced with token
@@ -33,4 +38,7 @@ export function useCheckAuth() {
       if (g.error) setConnected(false);
     })();
   }, [token]);
+  return <>
+    {isAuth ? children : null}
+  </>
 }

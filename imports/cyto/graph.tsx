@@ -23,7 +23,7 @@ import { layoutCosePreset, layoutColaPreset } from './layouts';
 import { CytoReactLayout } from './react';
 import { useColorModeValue, useToast, Spinner } from '../framework';
 import { useChackraColor, useChackraGlobal } from '../get-color';
-import { useBaseTypes, useContainer, useFocusMethods, useInsertingCytoStore, useLayout, useRefAutofill, useShowExtra, useShowTypes, useSpaceId } from '../hooks';
+import { useContainer, useFocusMethods, useInsertingCytoStore, useLayout, useRefAutofill, useShowExtra, useShowTypes, useSpaceId } from '../hooks';
 import { useRerenderer } from '../rerenderer-hook';
 import { CytoEditor, useEditorTabs } from './editor';
 import { useMinilinksHandle } from '@deep-foundation/deeplinks/imports/minilinks';
@@ -90,7 +90,6 @@ export default function CytoGraph({
 }: CytoGraphProps){
   console.time('CytoGraph');
   const deep = useDeep();
-  const [baseTypes, setBaseTypes] = useBaseTypes();
   const [spaceId, setSpaceId] = useSpaceId();
   const [container, setContainer] = useContainer();
   const [extra, setExtra] = useShowExtra();
@@ -101,32 +100,10 @@ export default function CytoGraph({
 
   const refCy = useRef<any>();
 
-  useEffect(() => {(async () => {
-    try {
-      setBaseTypes({
-        Package: await deep.id('@deep-foundation/core', 'Package'),
-        containTree: await deep.id('@deep-foundation/core', 'containTree'),
-        Contain: await deep.id('@deep-foundation/core', 'Contain'),
-        Focus: await deep.id('@deep-foundation/core', 'Focus'),
-        Active: await deep.id('@deep-foundation/core', 'Active'),
-        Query: await deep.id('@deep-foundation/core', 'Query'),
-        Space: await deep.id('@deep-foundation/core', 'Space'),
-        Value: await deep.id('@deep-foundation/core', 'Value'),
-        String: await deep.id('@deep-foundation/core', 'String'),
-        Number: await deep.id('@deep-foundation/core', 'Number'),
-        Object: await deep.id('@deep-foundation/core', 'Object'),
-        User: await deep.id('@deep-foundation/core', 'User'),
-        Any: await deep.id('@deep-foundation/core', 'Any'),
-        Symbol: await deep.id('@deep-foundation/core', 'Symbol'),
-        GeneratedFrom: await deep.id('@deep-foundation/core', 'GeneratedFrom'),
-      });
-    } catch(error) {}
-  })()}, []);
-
   // links visualization
   let cy = refCy.current?._cy;
 
-  const { elements, reactElements } = useCytoElements(ml, links, baseTypes, cy, spaceId);
+  const { elements, reactElements } = useCytoElements(ml, links, cy, spaceId);
   const elementsRef = useRefAutofill(elements);
 
   const { layout, setLayout } = useLayout();
@@ -143,7 +120,7 @@ export default function CytoGraph({
 
   const ehRef = useRef<any>();
 
-  const { startInsertingOfType, openInsertCard, insertLink, drawendInserting } = useInsertLinkCard(elements, reactElements, focus, refCy, baseTypes, ml, ehRef);
+  const { startInsertingOfType, openInsertCard, insertLink, drawendInserting } = useInsertLinkCard(elements, reactElements, focus, refCy, ml, ehRef);
 
   const stylesheets = useCytoStylesheets();
 
@@ -358,7 +335,7 @@ export default function CytoGraph({
     const updatedListener = (oldLink, newLink) => {
       // on update link or link value - unlock reposition lock
       if (
-        newLink.type_id === baseTypes.Focus && newLink?.value?.value?.x &&
+        newLink.type_id === deep.idSync('@deep-foundation/core', 'Focus') && newLink?.value?.value?.x &&
         
         // if true - we remember how WE lock it, ok, we have updatefrom db...
         // if undefined - we not know lock/not lock... just update from db...
