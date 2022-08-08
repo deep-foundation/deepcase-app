@@ -42,6 +42,8 @@ export function useCytoElements(ml, links, cy, spaceId) {
       _symbol = ml.byTo[link?.type_id]?.find(l => l.type_id === deep.idSync('@deep-foundation/core', 'Symbol'))?.value?.value;
     }
 
+    // const parent = link?._applies?.find(q => q.includes('query-'));
+
     const element = {
       id: link.id,
       data: {
@@ -53,6 +55,7 @@ export function useCytoElements(ml, links, cy, spaceId) {
           +(_value ? '\n'+`${_value}` : '')
           +`\n\n ${_symbol || '📍'}`
         ),
+        // parent,
         link,
       },
       selectable: false,
@@ -71,6 +74,35 @@ export function useCytoElements(ml, links, cy, spaceId) {
     };
     _elements[link?.id] = element;
     elements.push(element);
+    // if (link.type_id === deep.idSync('@deep-foundation/core', 'Query')) {
+    //   const id = `query-${link.id}`;
+    //   {
+    //     const element = {
+    //       id,
+    //       data: {
+    //         id,
+    //       },
+    //       pannable: false,
+    //       events: false,
+    //     };
+    //     _elements[id] = element;
+    //     elements.push(element);
+    //   }
+    //   {
+    //     const _id = `${id}-connector`;
+    //     const element = {
+    //       id: _id,
+    //       data: {
+    //         id: _id,
+    //         source: link.id,
+    //         target: id,
+    //       },
+    //       classes: ['query-compound-connector'],
+    //     };
+    //     _elements[_id] = element;
+    //     elements.push(element);
+    //   }
+    // }
   }
   for (let i = 0; i < links.length; i++) {
     const link = links[i];

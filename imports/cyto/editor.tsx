@@ -174,7 +174,7 @@ export function CytoEditor({
               const _value = table === 'strings' ? value : table === 'numbers' ? parseFloat(value) : table === 'objects' ? json5.parse(value) : undefined;
 
               // setSavedValue(value);
-
+              
               if (!ml.byId[tab.id]?.value) {
                 await deep.insert({ link_id: tab.id, value: _value }, {
                   table: table,

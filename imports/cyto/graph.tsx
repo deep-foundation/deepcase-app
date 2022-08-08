@@ -172,58 +172,61 @@ export default function CytoGraph({
       noEdgeEventsInDraw: true, // set events:no to edges during draws, prevents mouseouts on compounds
       disableBrowserGestures: true // during an edge drawing gesture, disable browser gestures such as two-finger trackpad swipe and pinch-to-zoom
     });
-    ncy.on('layoutstart', () => {
+    const layoutstart = () => {
       console.time('layout');
-    })
-    ncy.on('layoutstop', () => {
+    };
+    const layoutstop = () => {
       console.timeEnd('layout');
-    })
-    ncy.on('mouseover', '.link-from, .link-to, .link-type, .link-node', function(e) {
+    };
+    const mouseover = function(e) {
       var node = e.target;
-      const id = node?.data('link')?.id;
-      if (id) {
-        ncy.$(`node, edge`).not(`#${id},#${id}-from,#${id}-to,#${id}-type`).removeClass('hover');
-        ncy.$(`#${id},#${id}-from,#${id}-to,#${id}-type`).not(`.unhoverable`).addClass('hover');
+      if (!node.is(':parent')) {
+        const id = node?.data('link')?.id;
+        if (id) {
+          ncy.$(`node, edge`).not(`#${id},#${id}-from,#${id}-to,#${id}-type`).removeClass('hover');
+          ncy.$(`#${id},#${id}-from,#${id}-to,#${id}-type`).not(`.unhoverable`).addClass('hover');
+        }
+        if (node.locked) {
+          node.unlock();
+          node.mouseHoverDragging = true;
+        }
       }
-      if (node.locked) {
-        node.unlock();
-        node.mouseHoverDragging = true;
-      }
-    });
-    ncy.on('mouseout', '.link-from, .link-to, .link-type, .link-node', function(e) {
+    };
+    const mouseout = function(e) {
       var node = e.target;
-      const id = node?.data('link')?.id;
-      if (id) {
-        ncy.$(`node, edge`).removeClass('hover');
+      if (!node.is(':parent')) {
+        const id = node?.data('link')?.id;
+        if (id) {
+          ncy.$(`node, edge`).removeClass('hover');
+        }
+        if (node.mouseHoverDragging) {
+          node.lock();
+          node.mouseHoverDragging = false;
+        }
       }
-      if (node.mouseHoverDragging) {
-        node.lock();
-        node.mouseHoverDragging = false;
-      }
-    });
-    ncy.on('click', '.link-from, .link-to, .link-type, .link-node', function(e) {
+    };
+    const click = function(e) {
       var node = e.target;
       const id = node?.data('link')?.id;
       if (id) {
         ncy.$(`node, edge`).not(`#${id},#${id}-from,#${id}-to,#${id}-type`).removeClass('clicked');
         ncy.$(`#${id},#${id}-from,#${id}-to,#${id}-type`).toggleClass('clicked');
       }
-    });
-
-    ncy.on('tapstart', 'node', function(evt){
+    };
+    const tapstart = function(evt){
       var node = evt.target;
       refDragStartedEvent.current = evt;
-    });
+    };
     let dragendData: any = undefined;
-    ncy.on('tapend', 'node', function(evt){
+    const tapend = function(evt){
       var node = evt.target;
       if (refDragStartedEvent?.current?.position?.x !== evt.position?.x && refDragStartedEvent?.current?.position?.y !== evt.position?.y) {
         refDragStartedEvent.current = undefined;
         dragendData = { position: evt.position };
         evt.target.emit('dragend');
       }
-    });
-    ncy.on('dragend', 'node', function(evt){
+    };
+    const dragend = function(evt){
       var node = evt.target;
       const id = node?.data('link')?.id;
       if (id) {
@@ -231,8 +234,8 @@ export default function CytoGraph({
         dragendData = undefined;
         ncy.$(`#${id},#${id}-from,#${id}-to,#${id}-type`).addClass('focused');
       }
-    });
-    
+    };
+
     ncy.cxtmenu({
       selector: '.link-node',
       outsideMenuCancel: 10,
@@ -328,9 +331,9 @@ export default function CytoGraph({
     });
 
     // edgehandles bug fix, clear previous edgehandles
-    ncy.on('cxttapstart', async function(event){
+    const cxttapstart = async function(event){
       ncy.$('.eh-ghost,.eh-preview').remove();
-    });
+    };
 
     const updatedListener = (oldLink, newLink) => {
       // on update link or link value - unlock reposition lock
@@ -352,9 +355,30 @@ export default function CytoGraph({
         }
       }
     };
+
+    ncy.on('cxttapstart', cxttapstart);
+    ncy.on('dragend', 'node', dragend);
+    ncy.on('tapend', 'node', tapend);
+    ncy.on('tapstart', 'node', tapstart);
+    ncy.on('click', '.link-from, .link-to, .link-type, .link-node', click);
+    ncy.on('mouseout', '.link-from, .link-to, .link-type, .link-node', mouseout);
+    ncy.on('mouseover', '.link-from, .link-to, .link-type, .link-node', mouseover);
+    ncy.on('layoutstart', layoutstart);
+    ncy.on('layoutstop', layoutstop);
+    
     ml.emitter.on('updated', updatedListener);
     // ncy.lassoSelectionEnabled(true);
     return () => {
+      ncy.removeListener('cxttapstart', cxttapstart);
+      ncy.removeListener('dragend', 'node', dragend);
+      ncy.removeListener('tapend', 'node', tapend);
+      ncy.removeListener('tapstart', 'node', tapstart);
+      ncy.removeListener('click', '.link-from, .link-to, .link-type, .link-node', click);
+      ncy.removeListener('mouseout', '.link-from, .link-to, .link-type, .link-node', mouseout);
+      ncy.removeListener('mouseover', '.link-from, .link-to, .link-type, .link-node', mouseover);
+      ncy.removeListener('layoutstart', layoutstart);
+      ncy.removeListener('layoutstop', layoutstop);
+      
       ml.emitter.removeListener('updated', updatedListener);
     };
   }, []);

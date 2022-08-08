@@ -128,9 +128,15 @@ export const DeepLoader = memo(function DeepLoader({
     const ids = [...typeIds, ...insertableTypes, ...queryAndSpaceLoadedIds];
     return { value: { value: {
       from_id: { _in: ids },
-      type_id: { _in: [deep.idSync('@deep-foundation/core', 'Value')] },
+      type_id: { _eq: deep.idSync('@deep-foundation/core', 'Value') },
     } } };
   }, [typeIds, insertableTypes, queryAndSpaceLoadedIds]);
+
+  const typesQuery = useMemo(() => {
+    return { value: { value: {
+      id: { _in: typeIds },
+    } } };
+  }, [typeIds]);
 
   return <>
     <DeepLoaderActive
@@ -149,11 +155,17 @@ export const DeepLoader = memo(function DeepLoader({
       }}
     />))}
     <DeepLoaderActive
-      name={`DEEPCASE_TYPES`}
+      name={`DEEPCASE_INSERTABLE_TYPES`}
       query={insertableTypesQuery}
-      debounce={10000}
       onChange={(r) => {
         minilinks.ml.apply(r, 'insertable-types');
+      }}
+    />
+    <DeepLoaderActive
+      name={`DEEPCASE_TYPES`}
+      query={typesQuery}
+      onChange={(r) => {
+        minilinks.ml.apply(r, 'types');
       }}
     />
     {!!typeIds && <DeepLoaderActive
@@ -167,7 +179,6 @@ export const DeepLoader = memo(function DeepLoader({
     {!!typeIds && <DeepLoaderActive
       name={`DEEPCASE_VALUES`}
       query={valuesQuery}
-      debounce={2000}
       onChange={(r) => {
         minilinks.ml.apply(r, 'values');
       }}

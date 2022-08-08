@@ -182,22 +182,22 @@ export function useInsertLinkCard(elements, reactElements, focus, refCy, ml, ehR
 
   useEffect(() => {
     const cy = refCy.current._cy;
-    cy.on('ehstop', async (event, sourceNode, targetNode, addedEdge) => {
+    const ehstop = async (event, sourceNode, targetNode, addedEdge) => {
       let { position } = event;
       addedEdge?.remove();
       ehRef?.current?.disableDrawMode();
       const ins = insertingCytoRef.current;
       setInsertingCyto({});
       toast.close(ins.toast);
-    });
-    cy.on('ehcomplete', async (event, sourceNode, targetNode, addedEdge) => {
+    };
+    const ehcomplete = async (event, sourceNode, targetNode, addedEdge) => {
       let { position } = event;
       addedEdge?.remove();
       const from = sourceNode?.data('link')?.id;
       const to = targetNode?.data('link')?.id;
       if (from && to) returning.drawendInserting(position, from, to);
-    });
-    cy.on('tap', async function(event){
+    };
+    const tap = async function(event){
       ehRef?.current?.disableDrawMode();
       const ins = insertingCytoRef.current;
       setInsertingCyto({});
@@ -232,7 +232,15 @@ export function useInsertLinkCard(elements, reactElements, focus, refCy, ml, ehR
         }
         returningRef.current?.openInsertCard(undefined);
       }
-    });
+    };
+    cy.on('ehstop', ehstop);
+    cy.on('ehcomplete', ehcomplete);
+    cy.on('tap', tap);
+    return () => {
+      cy.removeListener('ehstop', ehstop);
+      cy.removeListener('ehcomplete', ehcomplete);
+      cy.removeListener('tap', tap);
+    };
   }, []);
 
   return returning;

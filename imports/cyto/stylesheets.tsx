@@ -8,6 +8,7 @@ export function useCytoStylesheets(): any {
   const textColor = useChackraColor(globalStyle.body.color);
   const gray900 = useChackraColor('gray.900');
   const blue500 = useChackraColor('blue.500');
+  const gray500 = useChackraColor('gray.500');
   const white = useChackraColor('white');
   const colorClicked = useChackraColor('primary');
   const colorBgInsertNode = useColorModeValue(white, gray900);
@@ -256,6 +257,26 @@ export function useCytoStylesheets(): any {
         color: colorClicked,
         'background-color': colorClicked, 
       }
+    },
+    {
+      selector: ':parent',
+      style: {
+        'background-color': gray500,
+        'background-opacity': 0.1,
+        'border-width': 0,
+        label: '',
+      }
+    },
+    {
+      selector: '.query-compound-connector',
+      style: {
+        width: 1,
+        'curve-style': 'bezier',
+        'target-distance-from-node': 0,
+        'source-distance-from-node': 0,
+        'line-style': 'dashed',
+        'line-dash-pattern': [1, 5]
+      },
     },
   ]), [globalStyle, textColor, gray900, blue500, white, colorClicked, colorBgInsertNode, colorFocus]);
 
