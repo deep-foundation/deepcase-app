@@ -29,7 +29,7 @@ export function useCytoElements(ml, links, cy, spaceId) {
         typeof(link?.value.value) === 'object' && json
         ? json : link?.value.value
       );
-      _value = _value.split('\n')[0];
+      if (typeof(_value) === 'string') _value = _value.split('\n')[0];
       if (_value.length > 15) _value = _value.slice(0, 15)+'...';
     }
     if (link?.inByType?.[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value) {
