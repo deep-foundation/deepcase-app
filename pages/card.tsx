@@ -5,7 +5,7 @@ import { useCallback } from 'react';
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
 import { CytoReactLinksCard } from '../imports/cyto-react-links-card';
 import { CytoGraphProps } from '../imports/cyto/types';
-import { Center } from '../imports/framework';
+import { Center } from '@chakra-ui/react';
 import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
 
@@ -71,7 +71,7 @@ export default function Page() {
   );
 
   return (<>
-    <Provider chakra>
+    <Provider>
       <>
         {[<DeepLoader
           key={spaceId}

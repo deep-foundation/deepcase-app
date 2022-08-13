@@ -1,5 +1,5 @@
 import React from 'react';
-import { Avatar } from './framework';
+import { Avatar } from '@chakra-ui/react';
 
 
 export const CytoReactLinkAvatar = React.memo<any>(({

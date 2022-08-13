@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { BsCheck2, BsDoorClosed, BsGrid3X2Gap, BsListUl, BsSearch } from 'react-icons/bs';
 import { DotsLoader } from './dot-loader';
-import { Box, Center, Flex, IconButton, ScaleFade, SlideFade, Spacer, Text, useColorModeValue, InputGroup, Input, InputRightElement, Divider } from './framework';
+import { Box, Center, Flex, IconButton, ScaleFade, SlideFade, Spacer, Text, useColorModeValue, InputGroup, Input, InputRightElement, Divider } from '@chakra-ui/react';
 import { useChackraColor, useChackraGlobal } from './get-color';
 
 interface IGridPanel {
@@ -129,6 +129,8 @@ export const CytoReactLinksCard = React.memo<any>(({
   noResults,
   search, 
   onSearch,
+  fillSize=false,
+  selectedLinkId = 0,
 }: {
   elements: {
     id: number;
@@ -142,9 +144,11 @@ export const CytoReactLinksCard = React.memo<any>(({
   noResults: any;
   search?: any;
   onSearch?: any;
+  fillSize?: boolean;
+  selectedLinkId?: number;
 }) => {
   const [switchLayout, setSwitchLayout] = useState('grid');
-  const [selectedLink, setSelectedLink] = useState(0);
+  const [selectedLink, setSelectedLink] = useState(selectedLinkId);
   const inputRef = useRef(null);
 
   const globalStyle = useChackraGlobal();
@@ -164,13 +168,12 @@ export const CytoReactLinksCard = React.memo<any>(({
     setSelectedLink((prevLinkId) => prevLinkId == linkId ? 0 : linkId);
   }, []);
 
-  return (<Box pos='relative'>
+  return (<>
       <Box
         bg={colorGrayToWhite} 
         maxW='md'
         maxH='lg'
-        h='72'
-        w='96'
+        {...(fillSize ? { h: '100%', w: '100%' } : { h: 72, w: 96 })}
         overflowY='hidden'
         borderWidth='1px' 
         borderColor={colorWhiteToGray} 
@@ -287,6 +290,6 @@ export const CytoReactLinksCard = React.memo<any>(({
           onClick={() => onClose && onClose()}
         />
       </Box>}
-    </Box>
+    </>
   );
 })

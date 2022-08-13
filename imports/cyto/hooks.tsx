@@ -1,8 +1,11 @@
-import { Spinner, useToast } from "@chakra-ui/react";
+import { Flex, HStack, IconButton, Popover, PopoverContent, PopoverTrigger, Spacer, Spinner, useDisclosure, useToast } from "@chakra-ui/react";
 import { useDeep, useDeepQuery } from "@deep-foundation/deeplinks/imports/client";
 import { useMinilinksFilter } from "@deep-foundation/deeplinks/imports/minilinks";
 import { useState, useMemo, useCallback, useEffect } from "react";
+import { TiArrowBackOutline } from "react-icons/ti";
+import { VscChromeClose, VscVersions } from "react-icons/vsc";
 import { useLocalStorage } from "usehooks-ts";
+import { ClientHandler } from "../client-handler";
 import { CytoReactLinksCard } from "../cyto-react-links-card";
 import { useContainer, useInsertingCytoStore, useRefAutofill } from "../hooks";
 import { LinkClientHandlerDefault } from "../link-client-handlers/default";
@@ -284,16 +287,97 @@ export function useLinkReactElements(elements, reactElements, refCy, ml) {
 
   const AnyLinkComponent = useMemo(() => {
     return function AnyLinkComponent({ id }: { id: number }) {
-      return <div
-        style={{}}
-        onClick={() => {
-          toggleLinkReactElement(id)
-        }}
-      >
+      const deep = useDeep();
+      const [handlerId, setHandlerId] = useState();
+      const { onOpen, onClose, isOpen } = useDisclosure();
+      const [search, setSearch] = useState('');
+
+      let handlers = useMinilinksFilter(
+        ml,
+        useCallback((l) => true, []),
+        useCallback((l, ml) => {
+          return ml.byType[deep.idSync('@deep-foundation/core', 'Handler')]?.filter(l => (
+            !!l?.inByType?.[deep.idSync('@deep-foundation/core', 'HandleClient')]?.filter(l => (
+              l?.from_id === id || l?.from_id === ml.byId[id]?.type_id
+            ))?.length
+          ));
+        }, [id]),
+      ) || [];
+
+      useEffect(() => {
+        if (!handlerId) {
+          const handler = handlers?.[0];
+          if (handler) {
+            setHandlerId(handler.id);
+          }
+        }
+      }, [handlers]);
+
+      const handler = handlers?.find(h => h.id === handlerId);
+      const elements = handlers.map(t => ({
+        id: t?.id,
+        src:  t?.inByType[deep.idSync('@deep-foundation/core', 'Symbol')]?.[0]?.value?.value || t.id,
+        linkName: t?.inByType[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || t.id,
+        containerName: t?.inByType[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.from?.value?.value || '',
+      }));
+      console.log({ elements });
+
+      return <div>
         <CatchErrors errorRenderer={(error, reset) => {
           return <div>{String(error)}</div>;
         }}>
-          <LinkClientHandlerDefault id={id} ml={ml}/>
+          <Flex>
+            <Popover
+              isLazy
+              isOpen={isOpen}
+              onOpen={onOpen}
+              onClose={onClose}
+              placement='right-start'
+            >
+              <PopoverTrigger>
+                <IconButton 
+                  aria-label='replay to message button'
+                  isRound
+                  size={'xs'}
+                  sx={{
+                    _hover: {
+                      transform: 'scale(1.2)',
+                    }
+                  }}
+                  icon={<VscVersions />}
+                  // onClick={() => console.log('replay')}
+                />
+              </PopoverTrigger>
+              <PopoverContent h={72}>
+                <CytoReactLinksCard
+                  selectedLinkId={handlerId}
+                  elements={elements.filter(el => (!!el?.linkName?.includes && el?.linkName?.includes(search) || el?.containerName?.includes && el?.containerName?.includes(search)))}
+                  search={search}
+                  onSearch={e => setSearch(e.target.value)}
+                  onSubmit={async (id) => {
+                    setHandlerId(id);
+                    onClose();
+                  }}
+                  fillSize
+                />
+              </PopoverContent>
+            </Popover>
+            <Spacer />
+            <IconButton
+              isRound
+              aria-label='close client handler'
+              size={'xs'}
+              sx={{
+                _hover: {
+                  transform: 'scale(1.2)',
+                }
+              }}
+              icon={<VscChromeClose />}
+              onClick={() => toggleLinkReactElement(id)}
+            />
+          </Flex>
+          {!handler?.id && <div>234</div>}
+          {!!handler?.id && <ClientHandler handlerId={handler?.id} linkId={id} ml={ml}/>}
         </CatchErrors>
       </div>;
     };

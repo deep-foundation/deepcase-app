@@ -6,7 +6,7 @@ import { BubbleArrowLeft } from '../icons/chat-bubble-left';
 import { BubbleArrowRight } from '../icons/chat-bubble-right';
 import { MessageTextArea } from './cyto-message-textarea';
 import { CytoReactLinkAvatar } from './cyto-react-avatar';
-import { Box, Flex, HStack, Link, Text, useColorModeValue, useColorMode } from './framework';
+import { Box, Flex, HStack, Link, Text, useColorModeValue, useColorMode } from '@chakra-ui/react';
 import { useChackraColor, useChackraGlobal } from './get-color';
 import { Provider } from './provider';
 

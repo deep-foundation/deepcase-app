@@ -3,7 +3,7 @@ import {
   useColorModeValue,
   IconButton,
   IconButtonProps,
-} from "./framework";
+} from "@chakra-ui/react";
 import { SunIcon, MoonIcon } from '@chakra-ui/icons'
 
 type ColorModeSwitcherProps = Omit<IconButtonProps, "aria-label">

@@ -61,10 +61,13 @@ export function useGraphiqlHeight() {
   return useLocalStore('graphiql-height', defaultGraphiqlHeight);
 };
 export function useShowExtra() {
-  return useLocalStore<any>('show-extra', false);
+  return useQueryStore<any>('show-extra', false);
+};
+export function useShowFocus() {
+  return useQueryStore<any>('show-focus', false);
 };
 export function useShowTypes() {
-  return useLocalStore('show-types', true);
+  return useQueryStore('show-types', true);
 }
 export function useBackgroundTransparent() {
   return useQueryStore<any>('bg-transparent', false);

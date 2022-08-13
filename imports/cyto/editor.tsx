@@ -138,9 +138,11 @@ export function CytoEditor({
   const refEditor = useRef();
 
   const [rightArea, setRightArea] = useState('preview');
+  const [generated, setGenerated] = useState('src');
+  const [fillSize, setFillSize] = useState(false);
   const [viewSize, setViewSize] = useState({width: 124, height: 123});
 
-  const [Component, setComponent] = useState();
+  const [Component, setComponent] = useState({});
 
   const errorRenderer = useMemo(() => {
     return (error, reset) => {
@@ -153,9 +155,8 @@ export function CytoEditor({
       <ModalOverlay />
       <ModalContent style={{ height: '100%' }}>
         <EditorGrid
-          editorTextAreaElement={<>{[<EditorTextArea
+          editorTextAreaElement={<>{[<div key={tabId}><EditorTextArea
             refEditor={refEditor}
-            key={tabId}
             value={currentValue}
             onChange={(value) => {
               setValue(tabId, value);
@@ -191,7 +192,7 @@ export function CytoEditor({
                 setTab({ ...tab, initialValue: value, loading: false, saved: false });
               }
             }}
-          />]}</>}
+          /></div>]}</>}
           editorTabsElement={<EditorTabs
             tabs={tabs.map((tab) => ({
               ...tab,
@@ -211,7 +212,7 @@ export function CytoEditor({
           />}
           closeButtonElement={<CloseButton onClick={onClose}/>}
           editorRight={
-            rightArea === 'handlers' && <EditorHandlers>
+            rightArea === 'handlers' && <EditorHandlers generated={generated} setGenerated={setGenerated}>
             <EditorHandler
               reasons={reasons} 
               avatarElement={<CytoReactLinkAvatar emoji='💥' />}
@@ -222,18 +223,28 @@ export function CytoEditor({
             </EditorHandlers> ||
             rightArea === 'preview' && <Box pos='relative'>
               <EditorComponentView
-                defaultSize={viewSize}
+                size={viewSize}
                 onChangeSize={(viewSize) => setViewSize(viewSize)}
+                fillSize={fillSize}
+                setFillSize={setFillSize}
               >
-                <CatchErrors errorRenderer={errorRenderer}>
-                  <ClientHandlerRenderer Component={Component}/>
-                </CatchErrors>
+                {typeof(Component) === 'function' && [<CatchErrors key={Component.toString()} errorRenderer={() => <div></div>}>
+                  <ClientHandlerRenderer Component={Component} fillSize={fillSize}/>
+                </CatchErrors>]}
               </EditorComponentView>
             </Box>
         }
-          editorRightSwitch={<EditorSwitcher setArea={(rightArea) => {
-            setRightArea(rightArea);
-          }} />}
+          editorRightSwitch={<EditorSwitcher
+            fillSize={fillSize}
+            setFillSize={(newFillSize) => {
+              setFillSize(newFillSize);
+              if (!fillSize) setViewSize({ width: 250, height: 250 });
+            }}
+            area={rightArea}
+            setArea={(rightArea) => {
+              setRightArea(rightArea);
+            }}
+          />}
         />
       </ModalContent>
     </Modal>

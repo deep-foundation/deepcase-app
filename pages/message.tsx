@@ -13,16 +13,14 @@ const CytoGraph = dynamic<CytoGraphProps>(
 );
 
 export default function Page() {
-  // const [spaceId, setSpaceId] = useSpaceId();
-  const spaceId = 234;
   const minilinks = useMinilinksConstruct();
   const { ref: mlRef, ml } = minilinks;
 
   return (<>
-    <Provider chakra><>
+    <Provider><>
       <ColorModeSwitcher/>
       <CytoReactMessage />
       <MessageTextArea />
-      </></Provider>
+    </></Provider>
   </>);
 }

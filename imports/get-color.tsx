@@ -1,4 +1,4 @@
-import { useTheme, useColorMode } from "./framework";
+import { useTheme, useColorMode } from '@chakra-ui/react';
 
 export function useChackraColor(color: string) {
   const theme = useTheme();

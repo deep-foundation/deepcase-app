@@ -70,10 +70,21 @@ export const DeepLoader = memo(function DeepLoader({
   const deep = useDeep();
   const userId = deep.linkId;
 
-  const spaceQuery = useMemo(() => ({ value: { value: { _by_item: {
-    group_id: { _eq: deep.idSync('@deep-foundation/core', 'containTree') },
-    path_item_id: { _eq: spaceId },
-  } } } }), []);
+  const spaceQuery = useMemo(() => ({ value: { value: {
+    up: {
+      tree_id: { _eq: deep.idSync('@deep-foundation/core', 'containTree') },
+      parent_id: { _eq: spaceId },
+    },
+    type_id: {
+      _nin: [
+        deep.idSync('@deep-foundation/core', 'Then'),
+        deep.idSync('@deep-foundation/core', 'Promise'),
+        deep.idSync('@deep-foundation/core', 'Resolved'),
+        deep.idSync('@deep-foundation/core', 'Rejected'),
+        deep.idSync('@deep-foundation/core', 'PromiseResult'),
+      ],
+    },
+  } } }), []);
 
   let queries = useMinilinksFilter(
     minilinks.ml,
@@ -90,10 +101,16 @@ export const DeepLoader = memo(function DeepLoader({
   queries = queries || [];
 
   const insertableTypesQuery = useMemo(() => ({ value: { value: {
-    can_object: {
-      action_id: { _eq: 121 },
-      subject_id: { _eq: userId }
-    }
+    _or: [
+      {
+        can_object: {
+          action_id: { _eq: 121 },
+          subject_id: { _eq: userId }
+        }
+      }, {
+        type_id: { _eq: 1 }
+      },
+    ],
   } } }), [userId]);
 
   const typeIds = useMinilinksFilter(
@@ -138,12 +155,35 @@ export const DeepLoader = memo(function DeepLoader({
     } } };
   }, [typeIds]);
 
+  const clientHandlersQuery = useMemo(() => {
+    const ids = [...typeIds, ...queryAndSpaceLoadedIds];
+    return { value: { value: {
+      in: {
+        type_id: deep.idSync('@deep-foundation/core', 'Handler'),
+        from_id: deep.idSync('@deep-foundation/core', 'clientSupportsJs'),
+        in: {
+          type_id: deep.idSync('@deep-foundation/core', 'HandleClient'),
+          from_id: {
+            _in: ids,
+          },
+        },
+      }
+    } } };
+  }, [typeIds, queryAndSpaceLoadedIds]);
+
   return <>
     <DeepLoaderActive
       name="DEEPCASE_SPACE"
       query={spaceQuery}
       onChange={(r) => {
         minilinks.ml.apply(r, 'space');
+      }}
+    />
+    <DeepLoaderActive
+      name="DEEPCASE_CLIENT_HANDLERS"
+      query={clientHandlersQuery}
+      onChange={(r) => {
+        minilinks.ml.apply(r, 'client-handlers');
       }}
     />
     {queries?.map((f, i) => (<DeepLoaderActive

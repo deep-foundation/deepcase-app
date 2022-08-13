@@ -7,7 +7,7 @@ import { EditorHandlers } from '../imports/editor/editor-handlers';
 import { EditorHandler } from '../imports/editor/editor-handler';
 import { CloseButton, EditorTabs } from '../imports/editor/editor-tabs';
 import { EditorTextArea } from '../imports/editor/editor-textarea';
-import { Box, ChakraProvider } from '../imports/framework';
+import { Box, ChakraProvider } from '@chakra-ui/react';
 import themeChakra from '../imports/theme/theme';
 import { CytoReactLinkAvatar } from '../imports/cyto-react-avatar';
 import { useState } from 'react';
@@ -98,7 +98,7 @@ export default function Page() {
         <Box h='5rem' />
         <Box pos='relative' width='100%' height='80vh'>
           <EditorComponentView 
-            defaultSize={viewSize}
+            size={viewSize}
             onChangeSize={(viewSize) => setViewSize(viewSize)} />
         </Box>
       </>

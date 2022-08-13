@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { IconButton, useColorModeValue, Popover, PopoverBody, PopoverCloseButton, PopoverContent, PopoverTrigger, Textarea, Spinner } from './framework';
+import { IconButton, useColorModeValue, Popover, PopoverBody, PopoverCloseButton, PopoverContent, PopoverTrigger, Textarea, Spinner } from '@chakra-ui/react';
 import { TiArrowBackOutline } from 'react-icons/ti';
 import { IoIosSend } from 'react-icons/io';
 import { BsCheck2 } from 'react-icons/bs';
@@ -24,8 +24,8 @@ export const MessageTextArea = React.memo<any>(() => {
   return (<Popover 
     isLazy
     placement='right-start'
-    initialFocusRef={initialFocusRef} 
-    colorScheme={colorGrayToWhite} 
+    initialFocusRef={initialFocusRef}
+    colorScheme={colorGrayToWhite}
     // styleConfig={{borderColor: 'none'}}
   >
     <PopoverTrigger>
@@ -40,7 +40,7 @@ export const MessageTextArea = React.memo<any>(() => {
             transform: 'scale(1.2)',
           }
         }}
-        icon={<TiArrowBackOutline />} 
+        icon={<TiArrowBackOutline />}
         // onClick={() => console.log('replay')} 
       />
     </PopoverTrigger>

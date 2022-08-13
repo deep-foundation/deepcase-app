@@ -1,15 +1,19 @@
 import React from 'react';
-import { Center, Text, Box } from '../framework';
+import { Center, Text, Box } from '@chakra-ui/react';
 import { Resize } from '../resize';
-
+import ReactResizeDetector from 'react-resize-detector';
 
 export const EditorComponentView = React.memo<any>(({
   onChangeSize,
-  defaultSize,
+  size,
+  fillSize,
+  setFillSize,
   children,
 }:{
   onChangeSize?: (size: { width: number, height: number }) => any;
-  defaultSize?: {width: number, height: number};
+  size?: {width: number, height: number};
+  setFillSize?: (fillSize: boolean) => any;
+  fillSize: boolean;
   children?: any;
 }) => {
   return(
@@ -24,10 +28,14 @@ export const EditorComponentView = React.memo<any>(({
             top: 3,
             left: -7,
           }}
-        >{defaultSize.height} px</Text>
-        <Resize defaultSize={defaultSize} onChangeSize={onChangeSize}>
+        >{size.height} px</Text>
+        {!!fillSize && <Resize size={size} onChangeSize={onChangeSize}>
           {children}
-        </Resize>
+        </Resize>}
+        {!fillSize && <div>
+          <ReactResizeDetector handleWidth handleHeight onResize={(w, h) => onChangeSize({width: w, height: h})} />
+          {children}
+        </div>}
         <Text
           fontSize='xs'
           color='#605c60'
@@ -35,7 +43,7 @@ export const EditorComponentView = React.memo<any>(({
             position: 'absolute',
             top: -4.5
           }}
-        >{defaultSize.width} px</Text>
+        >{size.width} px</Text>
       </Box>
     </Center>
   )

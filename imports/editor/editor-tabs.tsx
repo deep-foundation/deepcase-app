@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Button, Flex, useColorMode, CloseButton as _CloseButton, ButtonGroup, IconButton, Spinner, Center } from '../framework';
+import { Box, Button, Flex, useColorMode, CloseButton as _CloseButton, ButtonGroup, IconButton, Spinner, Center } from '@chakra-ui/react';
 import { useChackraColor } from '../get-color';
 import { VscChromeClose } from 'react-icons/vsc';
 

@@ -1,6 +1,6 @@
 import { generateQuery } from '@deep-foundation/deeplinks/imports/gql';
 import React from 'react';
-import { usePrefersReducedMotion, keyframes, Box, Center } from './framework';
+import { usePrefersReducedMotion, keyframes, Box, Center } from '@chakra-ui/react';
 
 
 const anim = keyframes`

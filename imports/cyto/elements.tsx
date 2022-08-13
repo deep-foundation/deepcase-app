@@ -1,10 +1,11 @@
 import { useDeep } from '@deep-foundation/deeplinks/imports/client';
 import json5 from 'json5';
 import { useMemo } from 'react';
-import { useInsertingCytoStore, useShowTypes } from '../hooks';
+import { useInsertingCytoStore, useShowFocus, useShowTypes } from '../hooks';
 
 export function useCytoElements(ml, links, cy, spaceId) {
   const [showTypes, setShowTypes] = useShowTypes();
+  const [showFocus, setShowFocus] = useShowFocus();
   const [insertingCyto, setInsertingCyto] = useInsertingCytoStore();
   const deep = useDeep();
 
@@ -17,6 +18,7 @@ export function useCytoElements(ml, links, cy, spaceId) {
   for (let i = 0; i < links.length; i++) {
     const link = links[i];
     const focus = link?.inByType?.[deep.idSync('@deep-foundation/core', 'Focus')]?.find(f => f.from_id === spaceId);
+    const isFocusSpace = (link.type_id === deep.idSync('@deep-foundation/core', 'Focus') && link._applies.includes('space')) || (link?.to?.type_id === deep.idSync('@deep-foundation/core', 'Focus') && link._applies.includes('space'));
 
     let _value = '';
     let _name = '';
@@ -72,8 +74,11 @@ export function useCytoElements(ml, links, cy, spaceId) {
       // locked: true,
       // focused: true,
     };
-    _elements[link?.id] = element;
-    elements.push(element);
+
+    if ((isFocusSpace && showFocus) || !isFocusSpace) {
+      _elements[link?.id] = element;
+      elements.push(element);
+    }
     // if (link.type_id === deep.idSync('@deep-foundation/core', 'Query')) {
     //   const id = `query-${link.id}`;
     //   {
@@ -107,6 +112,7 @@ export function useCytoElements(ml, links, cy, spaceId) {
   for (let i = 0; i < links.length; i++) {
     const link = links[i];
     const focus = link?.inByType?.[deep.idSync('@deep-foundation/core', 'Focus')]?.find(f => f.from_id === spaceId);
+    const isFocusSpace = (link.type_id === deep.idSync('@deep-foundation/core', 'Focus') && link._applies.includes('space')) || (link?.to?.type_id === deep.idSync('@deep-foundation/core', 'Focus') && link._applies.includes('space'));
 
     let _value = '';
     let _name = '';
@@ -130,41 +136,43 @@ export function useCytoElements(ml, links, cy, spaceId) {
       _symbol = link?.type?.inByType?.[deep.idSync('@deep-foundation/core', 'Symbol')]?.[0]?.value?.value;
     }
     if (!!cy) {
-      if (link.from_id) {
-        if (ml?.byId?.[link.from_id] && _elements[link.from_id]) {
-          elements.push({
-            data: { id: `${link.id}-from`, source: `${link.id}`, target: `${link.from_id}`, link },
-            selectable: false,
-            classes: [
-              'link-from',
-              ...(focus ? ['focused'] : ['unfocused'])
-            ].join(' '),
-          });
-        }
-      }
-      if (link.to_id) {
-        if (ml?.byId?.[link.to_id] && _elements[link.to_id]) {
-          elements.push({
-            data: { id: `${link.id}-to`, source: `${link.id}`, target: `${link.to_id}`, link },
-            selectable: false,
-            classes: [
-              'link-to',
-              ...(focus ? ['focused'] : ['unfocused'])
-            ].join(' '),
-          });
-        }
-      }
-      if (showTypes) {
-        if (link.type_id) {
-          if (ml?.byId?.[link.type_id] && _elements[link.type_id]) {
+      if ((isFocusSpace && showFocus) || !isFocusSpace) {
+        if (link.from_id) {
+          if (ml?.byId?.[link.from_id] && _elements[link.from_id]) {
             elements.push({
-              data: { id: `${link.id}-type`, source: `${link.id}`, target: `${link.type_id}`, link },
+              data: { id: `${link.id}-from`, source: `${link.id}`, target: `${link.from_id}`, link },
               selectable: false,
               classes: [
-                'link-type',
+                'link-from',
                 ...(focus ? ['focused'] : ['unfocused'])
               ].join(' '),
             });
+          }
+        }
+        if (link.to_id) {
+          if (ml?.byId?.[link.to_id] && _elements[link.to_id]) {
+            elements.push({
+              data: { id: `${link.id}-to`, source: `${link.id}`, target: `${link.to_id}`, link },
+              selectable: false,
+              classes: [
+                'link-to',
+                ...(focus ? ['focused'] : ['unfocused'])
+              ].join(' '),
+            });
+          }
+        }
+        if (showTypes) {
+          if (link.type_id) {
+            if (ml?.byId?.[link.type_id] && _elements[link.type_id]) {
+              elements.push({
+                data: { id: `${link.id}-type`, source: `${link.id}`, target: `${link.type_id}`, link },
+                selectable: false,
+                classes: [
+                  'link-type',
+                  ...(focus ? ['focused'] : ['unfocused'])
+                ].join(' '),
+              });
+            }
           }
         }
       }

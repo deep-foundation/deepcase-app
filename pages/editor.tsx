@@ -7,7 +7,7 @@ import { EditorHandlers } from '../imports/editor/editor-handlers';
 import { EditorHandler } from '../imports/editor/editor-handler';
 import { CloseButton, EditorTabs } from '../imports/editor/editor-tabs';
 import { EditorTextArea } from '../imports/editor/editor-textarea';
-import { Box, ChakraProvider } from '../imports/framework';
+import { Box, ChakraProvider } from '@chakra-ui/react';
 import themeChakra from '../imports/theme/theme';
 import { CytoReactLinkAvatar } from '../imports/cyto-react-avatar';
 import { useState } from 'react';
@@ -103,8 +103,10 @@ export default function Page() {
                   onChangeSync={() => setSync(!sync)}
                 >123</EditorHandler>
               </EditorHandlers> ||
-              rightArea === 'preview' && <Box pos='relative'><EditorComponentView defaultSize={viewSize}
-              onChangeSize={(viewSize) => setViewSize(viewSize)} /></Box>
+              rightArea === 'preview' && <Box pos='relative'><EditorComponentView
+                size={viewSize}
+                onChangeSize={(viewSize) => setViewSize(viewSize)}
+              /></Box>
             }
             editorRightSwitch={<EditorSwitcher setArea={(rightArea) => {
               setRightArea(rightArea);

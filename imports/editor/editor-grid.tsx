@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Center, Flex, useColorMode } from '../framework';
+import { Box, Center, Flex, useColorMode } from '@chakra-ui/react';
 import { useChackraColor } from '../get-color';
 
 interface IGrid {

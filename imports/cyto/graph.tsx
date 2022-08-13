@@ -21,7 +21,7 @@ import { useInsertLinkCard, useLinkReactElements, useCytoEditor } from './hooks'
 import { CytoGraphProps } from './types';
 import { layoutCosePreset, layoutColaPreset } from './layouts';
 import { CytoReactLayout } from './react';
-import { useColorModeValue, useToast, Spinner } from '../framework';
+import { useColorModeValue, useToast, Spinner } from '@chakra-ui/react';
 import { useChackraColor, useChackraGlobal } from '../get-color';
 import { useContainer, useFocusMethods, useInsertingCytoStore, useLayout, useRefAutofill, useShowExtra, useShowTypes, useSpaceId } from '../hooks';
 import { useRerenderer } from '../rerenderer-hook';
@@ -110,8 +110,10 @@ export default function CytoGraph({
 
   const relayout = useCallback(() => {
     let cy = refCy.current?._cy;
-    const elements = cy.elements();
-    elements.layout(layout(elementsRef.current, cy)).run();
+    if (cy.elements) {
+      const elements = cy.elements();
+      elements.layout(layout(elementsRef.current, cy)).run();
+    }
   }, [layout]);
   const relayoutDebounced = useDebounceCallback(relayout, 500);
   global.relayoutDebounced = relayoutDebounced;

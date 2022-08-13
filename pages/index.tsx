@@ -58,7 +58,7 @@ export function Content({
 
 export default function Page() {
   return (<>
-    <Provider chakra>
+    <Provider>
       <DeepProvider>
         <AutoGuest>
           <Content/>

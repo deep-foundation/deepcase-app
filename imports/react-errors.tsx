@@ -16,7 +16,11 @@ export class CatchErrors extends React.Component<{
   }
 
   static getDerivedStateFromError(error) {
+    console.log('getDerivedStateFromError', error);
     return { error };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.log('componentDidCatch', error, errorInfo);
   }
 
   render() {
