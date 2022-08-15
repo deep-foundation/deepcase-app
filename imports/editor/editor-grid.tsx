@@ -31,7 +31,7 @@ export const EditorGrid = React.memo<any>(({
       </Flex>
       <Box display='grid' gridTemplateColumns={columns} h={'100%'}>
         {editorTextAreaElement}
-        <Box display='grid' gridTemplateRows='1fr max-content'>
+        <Box display='grid' gridTemplateRows='1fr max-content' h={'100%'} position="relative">
           {editorRight}
           {editorRightSwitch}
         </Box>

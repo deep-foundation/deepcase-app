@@ -6,6 +6,7 @@ import * as axios from 'axios';
 import * as classnames from 'classnames';
 import React, { useCallback, useEffect, useRef } from 'react';
 import * as reacticons from 'react-icons/all';
+import reactHotkeysHook from 'react-hotkeys-hook';
 
 const r = (path) => {
   if (r.list[path]) return r.list[path];
@@ -17,6 +18,7 @@ r.list = {
   'axios': axios,
   'classnames': classnames,
   'react-icons/all': reacticons,
+  'react-hotkeys-hook': reactHotkeysHook,
 };
 
 export async function evalClientHandler({

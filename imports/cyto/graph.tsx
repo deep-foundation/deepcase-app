@@ -1,6 +1,6 @@
 import cytoscape from 'cytoscape';
 import edgeConnections from 'cytoscape-edge-connections';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import CytoscapeComponent from 'react-cytoscapejs';
 // import klay from 'cytoscape-klay';
 import dagre from 'cytoscape-dagre';
@@ -21,14 +21,16 @@ import { useInsertLinkCard, useLinkReactElements, useCytoEditor } from './hooks'
 import { CytoGraphProps } from './types';
 import { layoutCosePreset, layoutColaPreset } from './layouts';
 import { CytoReactLayout } from './react';
-import { useColorModeValue, useToast, Spinner } from '@chakra-ui/react';
+import { useColorModeValue, useToast, Spinner, Text } from '@chakra-ui/react';
 import { useChackraColor, useChackraGlobal } from '../get-color';
-import { useContainer, useFocusMethods, useInsertingCytoStore, useLayout, useRefAutofill, useShowExtra, useShowTypes, useSpaceId } from '../hooks';
+import { useContainer, useCytoViewport, useFocusMethods, useInsertingCytoStore, useLayout, useRefAutofill, useShowExtra, useShowTypes, useSpaceId } from '../hooks';
 import { useRerenderer } from '../rerenderer-hook';
 import { CytoEditor, useEditorTabs } from './editor';
 import { useMinilinksHandle } from '@deep-foundation/deeplinks/imports/minilinks';
 import { CytoDropZone } from './drop-zone';
 import { useCytoStylesheets } from './stylesheets';
+import { Refstater, useRefstarter } from '../refstater';
+import pckg from '../../package.json';
 
 cytoscape.use(dagre);
 cytoscape.use(cola);
@@ -94,6 +96,7 @@ export default function CytoGraph({
   const [container, setContainer] = useContainer();
   const [extra, setExtra] = useShowExtra();
   const [showTypes, setShowTypes] = useShowTypes();
+  const cytoViewportRef = useRefstarter<{ pan: { x: number; y: number; }; zoom: number }>();
   const [insertingCyto, setInsertingCyto] = useInsertingCytoStore();
   const insertingCytoRef = useRefAutofill(insertingCyto);
   const toast = useToast()
@@ -137,20 +140,12 @@ export default function CytoGraph({
     relayoutDebounced();
   });
 
-  // has memory about locking of key=linkId
-  // undefined - not locked
-  // true - locked
-  // false - unlocked
-  const refHTMLNode = useRef<any>();
-  
   const { linkReactElements, toggleLinkReactElement } = useLinkReactElements(elements, reactElements, refCy, ml);
   const [cytoEditor, setCytoEditor] = useCytoEditor();
   const {
     addTab,
     activeTab,
   } = useEditorTabs();
-
-  const ehDirectionRef = useRef<any>();
 
   useEffect(() => {
     const locking = lockingRef.current;
@@ -285,6 +280,20 @@ export default function CytoGraph({
           }
         },
         {
+          content: 'delete down',
+          select: async function(ele){ 
+            const id = ele.data('link')?.id;
+            if (id) {
+              await deep.delete({
+                up: {
+                  tree_id: { _eq: deep.idSync('@deep-foundation/core', 'containTree') },
+                  parent_id: { _eq: +id },
+                },
+              });
+            }
+          }
+        },
+        {
           content: 'insert',
           select: async function(ele){ 
             const id = ele.data('link')?.id;
@@ -324,7 +333,7 @@ export default function CytoGraph({
       outsideMenuCancel: 10,
       commands: [
         {
-          content: '+link',
+          content: 'insert',
           select: function(el, ev){
             openInsertCard({ position: ev.position, from: 0, to: 0 });
           }
@@ -358,6 +367,10 @@ export default function CytoGraph({
       }
     };
 
+    const viewport = (event) => {
+      cytoViewportRef?.current?.setValue({ pan: ncy.pan(), zoom: ncy.zoom() });
+    }
+
     ncy.on('cxttapstart', cxttapstart);
     ncy.on('dragend', 'node', dragend);
     ncy.on('tapend', 'node', tapend);
@@ -367,6 +380,7 @@ export default function CytoGraph({
     ncy.on('mouseover', '.link-from, .link-to, .link-type, .link-node', mouseover);
     ncy.on('layoutstart', layoutstart);
     ncy.on('layoutstop', layoutstop);
+    ncy.on('viewport', viewport);
     
     ml.emitter.on('updated', updatedListener);
     // ncy.lassoSelectionEnabled(true);
@@ -380,12 +394,14 @@ export default function CytoGraph({
       ncy.removeListener('mouseover', '.link-from, .link-to, .link-type, .link-node', mouseover);
       ncy.removeListener('layoutstart', layoutstart);
       ncy.removeListener('layoutstop', layoutstop);
+      ncy.removeListener('viewport', viewport);
       
       ml.emitter.removeListener('updated', updatedListener);
     };
   }, []);
 
-  const returning = (
+  const returning = (<>
+    <Refstater useHook={useCytoViewport as any} stateRef={cytoViewportRef}/>
     <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
       <CytoDropZone refCy={refCy}>
         <CytoscapeComponent
@@ -395,7 +411,8 @@ export default function CytoGraph({
           stylesheet={stylesheets}
           panningEnabled={true}
           
-          pan={ { x: 200, y: 200 } }
+          pan={cytoViewportRef?.current?.value?.pan}
+          zoom={cytoViewportRef?.current?.value?.zoom}
           style={ { width: '100%', height: '100vh' } } 
         />
         <CytoReactLayout
@@ -404,8 +421,11 @@ export default function CytoGraph({
         />
         <CytoEditor ml={ml}/>
       </CytoDropZone>
+      <Text position="fixed" left={0} bottom={0} p={4}>
+        {pckg.version}
+      </Text>
     </div>
-  );
+  </>);
 
   console.timeEnd('CytoGraph');
 

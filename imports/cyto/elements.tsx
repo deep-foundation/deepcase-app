@@ -3,11 +3,13 @@ import json5 from 'json5';
 import { useMemo } from 'react';
 import { useInsertingCytoStore, useShowFocus, useShowTypes } from '../hooks';
 
-export function useCytoElements(ml, links, cy, spaceId) {
+export function useCytoElements(ml, _links, cy, spaceId) {
   const [showTypes, setShowTypes] = useShowTypes();
   const [showFocus, setShowFocus] = useShowFocus();
   const [insertingCyto, setInsertingCyto] = useInsertingCytoStore();
   const deep = useDeep();
+
+  const links = _links.slice(0, 200);
 
   console.time('useCytoElements');
 

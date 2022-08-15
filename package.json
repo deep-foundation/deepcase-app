@@ -1,6 +1,6 @@
 {
   "name": "@deep-foundation/deepcase",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0-beta.1",
   "scripts": {
     "dev": "next dev",
     "build": "rm -rf app && next build",
@@ -17,7 +17,7 @@
     "@capacitor/core": "^3.2.3",
     "@chakra-ui/icons": "^2.0.2",
     "@chakra-ui/react": "^2.2.1",
-    "@deep-foundation/deeplinks": "0.0.92",
+    "@deep-foundation/deeplinks": "0.0.93",
     "@deep-foundation/hasura": "0.0.17",
     "@deep-foundation/materialized-path": "^0.0.11",
     "@deep-foundation/react-hasura": "0.0.5",
@@ -78,6 +78,7 @@
     "react-dropzone": "^14.2.2",
     "react-force-graph": "1.41.12",
     "react-ga": "^3.3.0",
+    "react-hotkeys-hook": "^3.4.7",
     "react-icons": "^4.4.0",
     "react-lineto": "^3.3.0",
     "react-linkify": "^1.0.0-alpha",

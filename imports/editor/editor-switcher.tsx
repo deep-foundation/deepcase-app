@@ -8,12 +8,16 @@ export const EditorSwitcher = React.memo<any>(({
   rightArea,
   fillSize,
   setFillSize,
+  generated,
+  setGenerated,
 }:{
   area?: string;
   setArea?: (e: any) => any; 
   rightArea?: string;
   setFillSize?: (fillSize: boolean) => any;
   fillSize: boolean;
+  generated?: boolean;
+  setGenerated?: (generated: boolean) => any;
 }) => {
   const { colorMode } = useColorMode();
 
@@ -34,6 +38,22 @@ export const EditorSwitcher = React.memo<any>(({
           </FormLabel>
           <Switch id='show-extra-switch' isChecked={fillSize} onChange={() => setFillSize(!fillSize)}/>
         </FormControl>
+      </>}
+      {area == 'handlers' && <>
+        <ButtonGroup size='sm' isAttached variant='outline'>
+          <Button 
+            aria-label='Src'
+            value='src'
+            isDisabled={!generated}
+            onClick={() => setGenerated(false)}
+          >src</Button>
+          <Button 
+            aria-label='Dist'
+            value='Dist'
+            isDisabled={generated}
+            onClick={() => setGenerated(true)}
+          >dist</Button>
+        </ButtonGroup>
       </>}
       <ButtonGroup size='sm' isAttached variant='outline'>
         <Button 

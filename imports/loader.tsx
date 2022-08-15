@@ -108,10 +108,21 @@ export const DeepLoader = memo(function DeepLoader({
           subject_id: { _eq: userId }
         }
       }, {
-        type_id: { _eq: 1 }
+        type_id: { _in: [
+          deep.idSync('@deep-foundation/core', 'Type'),
+          deep.idSync('@deep-foundation/core', 'HandleOperation'),
+          deep.idSync('@deep-foundation/core', 'Operation'),
+          deep.idSync('@deep-foundation/core', 'TreeInclude'),
+        ] }
       },
     ],
   } } }), [userId]);
+
+  const insertableTypes = useMinilinksFilter(
+    minilinks.ml,
+    useCallback((l) => !!l?._applies?.includes('insertable-types'), []),
+    useCallback((l, ml) => (ml.links.filter(l => l._applies.includes('insertable-types')).map(l => l.id)), []),
+  ) || [];
 
   const typeIds = useMinilinksFilter(
     minilinks.ml,
@@ -119,12 +130,6 @@ export const DeepLoader = memo(function DeepLoader({
     useCallback((l, ml) => {
       return Object.keys(ml.byType).map(type => parseInt(type));
     }, []),
-  ) || [];
-
-  const insertableTypes = useMinilinksFilter(
-    minilinks.ml,
-    useCallback((l) => !!l?._applies?.includes('insertable-types'), []),
-    useCallback((l, ml) => (ml.links.filter(l => l._applies.includes('insertable-types')).map(l => l.id)), []),
   ) || [];
 
   const queryAndSpaceLoadedIds = useMinilinksFilter(

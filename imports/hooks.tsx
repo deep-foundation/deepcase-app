@@ -63,6 +63,9 @@ export function useGraphiqlHeight() {
 export function useShowExtra() {
   return useQueryStore<any>('show-extra', false);
 };
+export function useCytoViewport<S extends { pan: { x: number; y: number; }; zoom: number }>() {
+  return useLocalStore<S>('cyto-viewport', { pan: { x: 0, y: 0 }, zoom: 1 } as S);
+};
 export function useShowFocus() {
   return useQueryStore<any>('show-focus', false);
 };

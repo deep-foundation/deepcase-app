@@ -16,6 +16,7 @@ import { EditorTextArea } from '../editor/editor-textarea';
 import json5 from 'json5';
 import { useDebounceCallback } from '@react-hook/debounce';
 import { CatchErrors } from '../react-errors';
+import { CytoEditorHandlers } from './handlers';
 
 // global._callClientHandler = callClientHandler;
 export interface EditorTab {
@@ -212,15 +213,18 @@ export function CytoEditor({
           />}
           closeButtonElement={<CloseButton onClick={onClose}/>}
           editorRight={
-            rightArea === 'handlers' && <EditorHandlers generated={generated} setGenerated={setGenerated}>
-            <EditorHandler
-              reasons={reasons} 
-              avatarElement={<CytoReactLinkAvatar emoji='💥' />}
-              title='first'
-              sync={false}
-              onChangeSync={() => {}}
-            ></EditorHandler>
-            </EditorHandlers> ||
+            // rightArea === 'handlers' && (<EditorHandlers generated={generated} setGenerated={setGenerated}>
+            // <EditorHandler
+            //   reasons={reasons} 
+            //   avatarElement={<CytoReactLinkAvatar emoji='💥' />}
+            //   title='first'
+            //   sync={false}
+            //   onChangeSync={() => {}}
+            // ></EditorHandler>
+            // </EditorHandlers>) ||
+            rightArea === 'handlers' && (
+              <CytoEditorHandlers ml={ml} linkId={generated && generatedLink ? generatedLink?.id : tab.id}/>
+            ) ||
             rightArea === 'preview' && <Box pos='relative'>
               <EditorComponentView
                 size={viewSize}
@@ -240,6 +244,7 @@ export function CytoEditor({
               setFillSize(newFillSize);
               if (!fillSize) setViewSize({ width: 250, height: 250 });
             }}
+            generated={generated} setGenerated={setGenerated}
             area={rightArea}
             setArea={(rightArea) => {
               setRightArea(rightArea);

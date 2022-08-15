@@ -3,6 +3,7 @@ import { BsCheck2, BsDoorClosed, BsGrid3X2Gap, BsListUl, BsSearch } from 'react-
 import { DotsLoader } from './dot-loader';
 import { Box, Center, Flex, IconButton, ScaleFade, SlideFade, Spacer, Text, useColorModeValue, InputGroup, Input, InputRightElement, Divider } from '@chakra-ui/react';
 import { useChackraColor, useChackraGlobal } from './get-color';
+import { useHotkeys } from 'react-hotkeys-hook'
 
 interface IGridPanel {
   id?: number;
@@ -168,21 +169,48 @@ export const CytoReactLinksCard = React.memo<any>(({
     setSelectedLink((prevLinkId) => prevLinkId == linkId ? 0 : linkId);
   }, []);
 
+  useHotkeys('up,right,down,left', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    let index = elements.findIndex(e => e.id == selectedLink);
+    if (index === -1) {
+      index = 0;
+    }
+    let next = elements[index];
+    if (!selectedLink) {
+      setSelectedLink(next.id);
+    } else if (e.key == 'ArrowUp' || e.key == 'ArrowLeft') {
+      next = elements[index == 0 ? elements.length - 1 : index - 1];
+      setSelectedLink(next.id);
+    } else if (e.key == 'ArrowDown' || e.key == 'ArrowRight') {
+      next = elements[index == elements.length - 1 ? 0 : index + 1];
+      setSelectedLink(next.id);
+    }
+  }, { enableOnTags: ["TEXTAREA", "INPUT"] });
+
+  useHotkeys('enter', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (selectedLink) {
+      onSubmit && onSubmit(selectedLink);
+    }
+  }, { enableOnTags: ["TEXTAREA", "INPUT"] });
+
   return (<>
-      <Box
-        bg={colorGrayToWhite} 
-        maxW='md'
-        maxH='lg'
-        {...(fillSize ? { h: '100%', w: '100%' } : { h: 72, w: 96 })}
-        overflowY='hidden'
-        borderWidth='1px' 
-        borderColor={colorWhiteToGray} 
-        color={colorWhiteToGray} 
-        borderRadius='lg' 
-        overflow='hidden'
-        display='flex'
-        flexDir='column'
-      >
+    <Box
+      bg={colorGrayToWhite} 
+      maxW='md'
+      maxH='lg'
+      {...(fillSize ? { h: '100%', w: '100%' } : { h: 72, w: 96 })}
+      overflowY='hidden'
+      borderWidth='1px' 
+      borderColor={colorWhiteToGray} 
+      color={colorWhiteToGray} 
+      borderRadius='lg' 
+      overflow='hidden'
+      display='flex'
+      flexDir='column'
+    >
         <Flex minWidth='max-content' alignItems='center' gap='2' borderBottomStyle='solid' borderBottomWidth='1px' borderBottomColor='gray.200'>
           <InputGroup size='xs' pl='2'>
             <Input 
@@ -289,7 +317,6 @@ export const CytoReactLinksCard = React.memo<any>(({
           icon={<BsDoorClosed />}
           onClick={() => onClose && onClose()}
         />
-      </Box>}
-    </>
-  );
+    </Box>}
+  </>);
 })

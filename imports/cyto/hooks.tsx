@@ -2,6 +2,7 @@ import { Flex, HStack, IconButton, Popover, PopoverContent, PopoverTrigger, Spac
 import { useDeep, useDeepQuery } from "@deep-foundation/deeplinks/imports/client";
 import { useMinilinksFilter } from "@deep-foundation/deeplinks/imports/minilinks";
 import { useState, useMemo, useCallback, useEffect } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 import { TiArrowBackOutline } from "react-icons/ti";
 import { VscChromeClose, VscVersions } from "react-icons/vsc";
 import { useLocalStorage } from "usehooks-ts";
@@ -18,6 +19,7 @@ export interface IInsertedLink {
 
 export interface IInsertedLinkProps {
   insertingLink?: IInsertedLink;
+  setInsertingLink?: (insertingLink: IInsertedLink) => void;
   ml?: any;
   ehRef?: any;
   returningRef?: any;
@@ -25,11 +27,12 @@ export interface IInsertedLinkProps {
 }
 
 export function CytoReactLinksCardInsertNode({
-  insertingLink, ml, ehRef, returningRef, insertLinkRef,
+  insertingLink, setInsertingLink, ml, ehRef, returningRef, insertLinkRef,
 }: IInsertedLinkProps) {
   const [search, setSearch] = useState('');
   const deep = useDeep();
   const [insertingCyto, setInsertingCyto] = useInsertingCytoStore();
+  const [container, setContainer] = useContainer();
 
   const types = useMinilinksFilter(
     ml,
@@ -44,7 +47,7 @@ export function CytoReactLinksCardInsertNode({
     containerName: t?.inByType[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.from?.value?.value || '',
   }));
   return <CytoReactLinksCard
-    elements={elements.filter(el => (!!el?.linkName?.includes && el?.linkName?.includes(search) || el?.containerName?.includes && el?.containerName?.includes(search)))}
+    elements={elements.filter(el => (!!el?.linkName?.includes && el?.linkName?.toLocaleLowerCase()?.includes(search) || el?.containerName?.includes && el?.containerName?.toLocaleLowerCase()?.includes(search)))}
     search={search}
     onSearch={e => setSearch(e.target.value)}
     onSubmit={async (id) => {
@@ -52,7 +55,29 @@ export function CytoReactLinksCardInsertNode({
       const type = insertable?.find(t => t.id === id);
       const isNode = !type.from_id && !type.to_id;
       setInsertingCyto({});
-      returningRef?.current.startInsertingOfType(id);
+      if (isNode) {
+        await deep.insert({
+          type_id: id,
+          in: { data: [
+            {
+              from_id: container,
+              type_id: deep.idSync('@deep-foundation/core', 'Contain'),
+            },
+            {
+              from_id: container,
+              type_id: deep.idSync('@deep-foundation/core', 'Focus'),
+              object: { data: { value: insertingLink.position } },
+              in: { data: {
+                type_id: deep.idSync('@deep-foundation/core', 'Contain'),
+                from_id: container
+              } },
+            },
+          ] },
+        });
+        setInsertingLink(undefined);
+      } else {
+        returningRef?.current.startInsertingOfType(id);
+      }
     }}
   />;
 };
@@ -65,7 +90,15 @@ export function useInsertLinkCard(elements, reactElements, focus, refCy, ml, ehR
   const deepRef = useRefAutofill(deep);
   const [insertingCyto, setInsertingCyto] = useInsertingCytoStore();
   const insertingCytoRef = useRefAutofill(insertingCyto);
-  const toast = useToast()
+  const toast = useToast();
+
+  useHotkeys('esc', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (insertingCyto?.type_id) {
+      setInsertingCyto(undefined);
+    }
+  }, { enableOnTags: ["TEXTAREA", "INPUT"] });
 
   const types = useMinilinksFilter(
     ml,
@@ -101,6 +134,7 @@ export function useInsertLinkCard(elements, reactElements, focus, refCy, ml, ehR
   const TempComponent = useMemo(() => {
     return () => <CytoReactLinksCardInsertNode
       insertingLink={insertingLink}
+      setInsertingLink={setInsertingLink}
       ml={ml}
       ehRef={ehRef}
       returningRef={returningRef}
@@ -351,7 +385,7 @@ export function useLinkReactElements(elements, reactElements, refCy, ml) {
               <PopoverContent h={72}>
                 <CytoReactLinksCard
                   selectedLinkId={handlerId}
-                  elements={elements.filter(el => (!!el?.linkName?.includes && el?.linkName?.includes(search) || el?.containerName?.includes && el?.containerName?.includes(search)))}
+                  elements={elements.filter(el => (!!el?.linkName?.includes && el?.linkName?.toLocaleLowerCase()?.includes(search) || el?.containerName?.includes && el?.containerName?.toLocaleLowerCase()?.includes(search)))}
                   search={search}
                   onSearch={e => setSearch(e.target.value)}
                   onSubmit={async (id) => {
