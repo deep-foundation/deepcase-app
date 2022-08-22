@@ -151,6 +151,10 @@ export function CytoEditor({
     };
   }, []);
 
+  useEffect(() => {
+    import('@monaco-editor/react').then(m => {});
+  }, []);
+
   return <>
     <Modal isOpen={cytoEditor} onClose={onClose} size='full'>
       <ModalOverlay />
@@ -169,7 +173,7 @@ export function CytoEditor({
               setValue(tabId, undefined);
             }}
             onSave={async (value) => {
-              const Value = ml.byId[tab.id]?.type?.outByType?.[deep.idSync('@deep-foundation/core', 'Value')]?.[0]?.to_id;
+              const Value = await deep.id({ in: { type_id: { _id: ['@deep-foundation/core', 'Value'] }, from: { typed: { id: { _eq: tab.id } } } } });
               const table = Value === deep.idSync('@deep-foundation/core', 'String') ? 'strings' : Value === deep.idSync('@deep-foundation/core', 'Number') ? 'numbers' : Value === deep.idSync('@deep-foundation/core', 'Object') ? 'objects' : undefined;
               const type = Value === deep.idSync('@deep-foundation/core', 'String') ? 'string' : Value === deep.idSync('@deep-foundation/core', 'Number') ? 'number' : Value === deep.idSync('@deep-foundation/core', 'Object') ? 'object' : 'undefined';
 
@@ -177,6 +181,9 @@ export function CytoEditor({
 
               // setSavedValue(value);
               
+              console.log({ table, value, Value, type, ValueQuery: { in: { type_id: { _id: ['@deep-foundation/core', 'Value'] }, from: { typed: { id: { _eq: tab.id } } } } } }, { link_id: tab.id, value: _value }, {
+                table: table,
+              });
               if (!ml.byId[tab.id]?.value) {
                 await deep.insert({ link_id: tab.id, value: _value }, {
                   table: table,

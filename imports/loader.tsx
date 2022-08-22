@@ -3,6 +3,7 @@ import { useDeep } from "@deep-foundation/deeplinks/imports/client";
 import { generateQuery, generateQueryData } from "@deep-foundation/deeplinks/imports/gql";
 import { Link, useMinilinksFilter } from "@deep-foundation/deeplinks/imports/minilinks";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { CatchErrors } from "./react-errors";
 import { useDelayedInterval } from "./use-delayed-interval";
 
 export function DeepLoaderActive({
@@ -177,56 +178,56 @@ export const DeepLoader = memo(function DeepLoader({
   }, [typeIds, queryAndSpaceLoadedIds]);
 
   return <>
-    <DeepLoaderActive
+    <><DeepLoaderActive
       name="DEEPCASE_SPACE"
       query={spaceQuery}
       onChange={(r) => {
         minilinks.ml.apply(r, 'space');
       }}
-    />
-    <DeepLoaderActive
+    /></>
+    <><DeepLoaderActive
       name="DEEPCASE_CLIENT_HANDLERS"
       query={clientHandlersQuery}
       onChange={(r) => {
         minilinks.ml.apply(r, 'client-handlers');
       }}
-    />
-    {queries?.map((f, i) => (<DeepLoaderActive
+    /></>
+    {queries?.map((f, i) => (<><DeepLoaderActive
       name={`DEEPCASE_QUERY_${f.id}`}
       key={f.id}
       query={f}
       onChange={(r) => {
         minilinks.ml.apply(r, `query-${f.id}`);
       }}
-    />))}
-    <DeepLoaderActive
+    /></>))}
+    <><DeepLoaderActive
       name={`DEEPCASE_INSERTABLE_TYPES`}
       query={insertableTypesQuery}
       onChange={(r) => {
         minilinks.ml.apply(r, 'insertable-types');
       }}
-    />
-    <DeepLoaderActive
+    /></>
+    <><DeepLoaderActive
       name={`DEEPCASE_TYPES`}
       query={typesQuery}
       onChange={(r) => {
         minilinks.ml.apply(r, 'types');
       }}
-    />
-    {!!typeIds && <DeepLoaderActive
+    /></>
+    {!!typeIds && <><DeepLoaderActive
       name={`DEEPCASE_CONTAINS_AND_SYMBOLS`}
       query={containsAndSymbolsQuery}
       debounce={2000}
       onChange={(r) => {
         minilinks.ml.apply(r, 'contains_and_symbols');
       }}
-    />}
-    {!!typeIds && <DeepLoaderActive
+    /></>}
+    {!!typeIds && <><DeepLoaderActive
       name={`DEEPCASE_VALUES`}
       query={valuesQuery}
       onChange={(r) => {
         minilinks.ml.apply(r, 'values');
       }}
-    />}
+    /></>}
   </>;
 });

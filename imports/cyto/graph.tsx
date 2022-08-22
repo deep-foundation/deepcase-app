@@ -19,7 +19,6 @@ import cytoscapeLasso from 'cytoscape-lasso';
 import { useCytoElements } from './elements';
 import { useInsertLinkCard, useLinkReactElements, useCytoEditor } from './hooks';
 import { CytoGraphProps } from './types';
-import { layoutCosePreset, layoutColaPreset } from './layouts';
 import { CytoReactLayout } from './react';
 import { useColorModeValue, useToast, Spinner, Text } from '@chakra-ui/react';
 import { useChackraColor, useChackraGlobal } from '../get-color';
