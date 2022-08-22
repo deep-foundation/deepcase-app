@@ -78,6 +78,7 @@ export default function Page() {
   const [sync, setSync] = useState(false);
   const [rightArea, setRightArea] = useState('preview');
   const [viewSize, setViewSize] = useState({width: 124, height: 123});
+  const [selectedTab, setSelectedTab] = useState(tabs[0]);
 
   return (<>
     <ChakraProvider theme={themeChakra}>
@@ -89,7 +90,7 @@ export default function Page() {
             editorTextAreaElement={<EditorTextArea />} 
             editorTabsElement={<EditorTabs
               tabs={tabs}
-              onClick={(tab) => console.log(tab)}
+              onClick={(tab) => setSelectedTab(tab)}
               onClose={(tab) => console.log(tab)}
             />}
             closeButtonElement={<CloseButton />} 
