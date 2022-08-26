@@ -38,7 +38,7 @@ jobs:
       - name: ci
         run: npm ci
       - name: pull dl
-        run: cd node_modules/@deep-foundation && rm -rf deeplinks && git clone https://github.com/deep-foundation/deeplinks.git && cd deeplinks && npm run package:build
+        run: cd node_modules/@deep-foundation && rm -rf deeplinks && git clone https://github.com/deep-foundation/deeplinks.git && cd deeplinks && npm run package:build 
       - name: build next
         run: npm run build
       - name: Log in to Docker Hub
