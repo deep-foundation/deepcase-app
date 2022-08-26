@@ -35,6 +35,10 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: '14.15'
+      - name: Configure Node caching
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules-dockerize
       - name: ci
         run: npm ci
       - name: pull dl
