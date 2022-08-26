@@ -39,6 +39,13 @@ jobs:
         uses: actions/cache@v2
         env:
           cache-name: cache-node-modules-dockerize
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
       - name: ci
         run: npm ci
       - name: pull dl
