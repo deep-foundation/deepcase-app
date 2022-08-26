@@ -69,7 +69,8 @@ export const DeepLoader = memo(function DeepLoader({
   minilinks?: any;
 }) {
   const deep = useDeep();
-  const userId = deep.linkId;
+  const userId = deep?.linkId;
+  console.log('debugggg', userId);
 
   const spaceQuery = useMemo(() => ({ value: { value: {
     up: {
