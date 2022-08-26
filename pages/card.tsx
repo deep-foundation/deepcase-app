@@ -1,5 +1,6 @@
 
 import { Link, useMinilinksConstruct, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
+import { DeepProvider } from '@deep-foundation/deeplinks/imports/client';
 import dynamic from "next/dynamic";
 import { useCallback } from 'react';
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
@@ -69,21 +70,23 @@ export default function Page() {
     useCallback((l) => true, []),
     useCallback((l, ml) => [...ml.links], []),
   );
-
+  
   return (<>
     <Provider>
-      <>
-        {[<DeepLoader
-          key={spaceId}
-          spaceId={spaceId}
-          minilinks={minilinks}
-          // onUpdateScreenQuery={query => console.log('updateScreenQuery', query)}
-          />]}
-        <ColorModeSwitcher/>
-        <Center>
-          <CytoReactLinksCard elements={elements} noResults />
-        </Center>
-      </>
+      <DeepProvider>
+        <>
+          {[<DeepLoader
+            key={spaceId}
+            spaceId={spaceId}
+            minilinks={minilinks}
+            // onUpdateScreenQuery={query => console.log('updateScreenQuery', query)}
+            />]}
+          <ColorModeSwitcher/>
+          <Center>
+            <CytoReactLinksCard elements={elements} noResults />
+          </Center>
+        </>
+      </DeepProvider>
     </Provider>
   </>);
 }
