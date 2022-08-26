@@ -36,6 +36,9 @@ jobs:
         run: >
           git config --global url."https://github.com/".insteadOf
           ssh://git@github.com/
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '14.15'
       - name: Configure Node caching
         uses: actions/cache@v2
         env:
