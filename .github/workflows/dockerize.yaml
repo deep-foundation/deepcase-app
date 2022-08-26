@@ -38,11 +38,11 @@ jobs:
       - name: ci
         run: npm ci
       - name: pull dl
-        run: cd node_modules/@deep-foundation && rm -rf deeplinks && git clone https://github.com/deep-foundation/deeplinks.git && cd deeplinks && npm run package:build && rm -rf node_modules
+        run: cd node_modules/@deep-foundation && rm -rf deeplinks && git clone https://github.com/deep-foundation/deeplinks.git && cd deeplinks && npm ci && npm run package:build && rm -rf node_modules
       - name: pull hasura
-        run: cd node_modules/@deep-foundation && rm -rf hasura && git clone https://github.com/deep-foundation/hasura.git && cd hasura && npm run package:build  && rm -rf node_modules
+        run: cd node_modules/@deep-foundation && rm -rf hasura && git clone https://github.com/deep-foundation/hasura.git && cd hasura && npm ci && npm run package:build  && rm -rf node_modules
       - name: pull store
-        run: cd node_modules/@deep-foundation && rm -rf store && git clone https://github.com/deep-foundation/store.git && cd store && npm run package:build && rm -rf node_modules
+        run: cd node_modules/@deep-foundation && rm -rf store && git clone https://github.com/deep-foundation/store.git && cd store && npm ci && npm run package:build && rm -rf node_modules
       - name: build next
         run: npm run build
       - name: Log in to Docker Hub
