@@ -163,7 +163,7 @@ export default function CytoGraph({
       // },
       hoverDelay: 150, // time spent hovering over a target node before it is considered selected
       snap: true, // when enabled, the edge can be drawn by just moving close to a target node (can be confusing on compound graphs)
-      snapThreshold: 50, // the target node must be less than or equal to this many pixels away from the cursor/finger
+      snapThreshold: 0, // the target node must be less than or equal to this many pixels away from the cursor/finger
       snapFrequency: 15, // the number of times per second (Hz) that snap checks done (lower is less expensive)
       noEdgeEventsInDraw: true, // set events:no to edges during draws, prevents mouseouts on compounds
       disableBrowserGestures: true // during an edge drawing gesture, disable browser gestures such as two-finger trackpad swipe and pinch-to-zoom
@@ -216,11 +216,9 @@ export default function CytoGraph({
     let dragendData: any = undefined;
     const tapend = function(evt){
       var node = evt.target;
-      if (refDragStartedEvent?.current?.position?.x !== evt.position?.x && refDragStartedEvent?.current?.position?.y !== evt.position?.y) {
-        refDragStartedEvent.current = undefined;
-        dragendData = { position: evt.position };
-        evt.target.emit('dragend');
-      }
+      refDragStartedEvent.current = undefined;
+      dragendData = { position: evt.position };
+      evt.target.emit('dragend');
     };
     const dragend = function(evt){
       var node = evt.target;
@@ -320,6 +318,15 @@ export default function CytoGraph({
             const id = ele.data('link')?.id;
             if (id) {
               setSpaceId(+id);
+              setContainer(+id);
+            }
+          }
+        },
+        {
+          content: 'container',
+          select: async function(ele){ 
+            const id = ele.data('link')?.id;
+            if (id) {
               setContainer(+id);
             }
           }
