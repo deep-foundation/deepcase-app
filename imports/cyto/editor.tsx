@@ -69,6 +69,7 @@ export function useEditorTabs() {
     setTab: useCallback((tab) => {
       setTabs(tabsRef.current.map((t) => (t.id === tab.id ? tab : t)));
     }, []),
+    setTabs,
   };
 }
 
@@ -109,6 +110,7 @@ export function CytoEditor({
     setTab,
     activeTab,
     tabId,
+    setTabs,
   } = useEditorTabs();
 
   const {
@@ -207,6 +209,7 @@ export function CytoEditor({
               title: ml.byId[tab.id]?.inByType?.[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || tab.id,
               active: tabId === tab.id,
             }))}
+            setTabs={(tabs) => setTabs(tabs)}
             onClose={(tab) => {
               if (tabs.length === 1 && tabs[0]?.id === tab.id) onClose();
               closeTab(tab.id);

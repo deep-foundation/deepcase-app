@@ -43,7 +43,7 @@ return (<Flex
     >
       <Flex flex="0 0 auto">
         {tabs.map(t =>
-          <EditorTab key={t.id} id={t.id} title={t.title} active={t.active} saved={t.saved} loading={t.loading} onClick={onClick} onClose={onClose} />
+          <EditorTab key={t.id} tab={t} onClick={onClick} onClose={onClose} />
         )}
       </Flex>
     </Flex>
@@ -73,20 +73,23 @@ export const CloseButton = React.memo<any>(({
   return <_CloseButton size='md' bg={colorMode == 'light' ? white : gray900} borderRadius='none' height='100%' borderStyle='solid' borderWidth={1} borderColor={colorMode == 'light' ? 'blackAlpha.200' : 'whiteAlpha.200'} onClick={onClick} />
 })
 
-export interface ITabProps extends ITab {
+export interface ITabProps {
+  tab: ITab;
   onClick?: (tab: ITab) => void;
   onClose?: (tab: ITab) => void;
 }
 
-export const EditorTab = React.memo<any>((tab:ITabProps) => {
+export const EditorTab = React.memo<any>(({
+  tab,
+  onClick,
+  onClose,
+}:ITabProps) => {
   const {
     id,
     title,
     saved = false,
     loading = false,
     active = false,
-    onClick,
-    onClose,
   } = tab;
   const gray900 = useChackraColor('gray.900');
   const white = useChackraColor('white');
@@ -100,12 +103,12 @@ export const EditorTab = React.memo<any>((tab:ITabProps) => {
       initial={{ opacity: 0, y: 30 }}
       animate={{
         opacity: 1,
-        backgroundColor: active ? "#f3f3f3" : "#fff",
+        // backgroundColor: active ? "#f3f3f3" : "#fff",
         y: 0,
         transition: { duration: 0.15 }
       }}
       exit={{ opacity: 0, y: 20, transition: { duration: 0.3 } }}
-      whileDrag={{ backgroundColor: "#e3e3e3" }}
+      // whileDrag={{ backgroundColor: "#e3e3e3" }}
       className='tab'
       onPointerDown={() => onClick && onClick(tab)}
     >
@@ -168,10 +171,12 @@ export const EditorTab = React.memo<any>((tab:ITabProps) => {
 
 export const EditorTabs = React.memo<any>(({
   tabs=[],
+  setTabs,
   onClick,
   onClose,
 }: {
   tabs?: ITab[];
+  setTabs?: (tabs: ITab[]) => void;
   onClick?: (tab: ITab) => void;
   onClose?: (tab: ITab) => void;
 }) => {
@@ -179,7 +184,6 @@ export const EditorTabs = React.memo<any>(({
   const white = useChackraColor('white');
   const { colorMode } = useColorMode();
 
-  const [tab, setTabs] = useState(tabs);
   const [selectedTab, setSelectedTab] = useState(tabs[0]);
 
   // const remove = (item: Ingredient) => {
@@ -207,7 +211,7 @@ return (<Reorder.Group
       display: 'flex',
       position: "sticky",
       top: 0,
-      background: colorMode == 'light' ? white : gray900,
+      // background: colorMode == 'light' ? white : gray900,
       zIndex: "sticky",
       height: "max-content",
       alignItems :"center",
@@ -219,11 +223,11 @@ return (<Reorder.Group
       WebkitOverflowScrolling: "touch",
       msOverflowStyle: "-ms-autohiding-scrollbar",
     }}
-    values={tab}
+    values={tabs}
   >
     <AnimatePresence initial={false}>
         {tabs.map(t =>
-          <EditorTab key={t.id} id={t.id} title={t.title} active={t.active} saved={t.saved} loading={t.loading} onClick={onClick} onClose={onClose} />
+          <EditorTab key={t} tab={t} onClick={onClick} onClose={onClose} />
         )}
       </AnimatePresence>
     </Reorder.Group>
