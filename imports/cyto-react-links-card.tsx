@@ -1,9 +1,9 @@
+import { Box, Center, Flex, IconButton, Input, InputGroup, InputRightElement, ScaleFade, SlideFade, Spacer, Text, useColorModeValue } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useHotkeys } from 'react-hotkeys-hook';
 import { BsCheck2, BsDoorClosed, BsGrid3X2Gap, BsListUl, BsSearch } from 'react-icons/bs';
 import { DotsLoader } from './dot-loader';
-import { Box, Center, Flex, IconButton, ScaleFade, SlideFade, Spacer, Text, useColorModeValue, InputGroup, Input, InputRightElement, Divider } from '@chakra-ui/react';
-import { useChackraColor, useChackraGlobal } from './get-color';
-import { useHotkeys } from 'react-hotkeys-hook'
+import { useChackraColor } from './get-color';
 
 interface IGridPanel {
   id?: number;
@@ -17,6 +17,40 @@ interface IListPanel {
   linkName?: string;
   containerName?: string;
 }
+
+export interface ITypeIcon {
+  src: string;
+  borderColor?: any;
+  borderWidth?: any;
+  boxSize?: string;
+  [key: string]: any;
+}
+
+export const TypeIcon = React.memo<any>(({
+  src,
+  borderColor = 'black',
+  borderWidth = '1px',
+  boxSize = '1.5rem',
+  ...props
+}:ITypeIcon) => {
+  return <Box 
+      as='button' 
+      arial-label='type button' 
+      mr={2} 
+      ml={2} 
+      borderRadius='full' 
+      boxSize={boxSize}
+      borderWidth={borderWidth} 
+      borderStyle='solid' 
+      borderColor={borderColor} 
+      display='flex' 
+      justifyContent='center' 
+      alignItems='center'
+      {...props}
+    >
+      {src}
+    </Box>
+})
 
 const GridPanel = React.memo<any>(({
   borderColor,
@@ -33,25 +67,16 @@ const GridPanel = React.memo<any>(({
 }) => {
   return (
     <Box display='grid' gridTemplateColumns='repeat( auto-fill, minmax(.5rem, 1.5rem) )' pl='2' pr='2' columnGap={2} rowGap={2}>
-      {data.map(d => (<Box
-        as='button'
-        arial-label='type button'
+      {data.map(d => (<TypeIcon
         key={d.id}
-        borderRadius='full'
-        boxSize='1.5rem'
         borderWidth={selectedLink === d.id ? 2 : 1}
-        borderStyle='solid'
         borderColor={selectedLink === d.id ? borderColorSelected : borderColor}
-        display='flex'
-        justifyContent='center'
-        alignItems='center'
         _hover={{
           borderColor: 'primary'
         }}
         onClick={() => { onSelectLink && onSelectLink(d.id); }}
-      >
-        {d.src}
-      </Box>))}
+        src={d.src}
+      />))}
     </Box>
   )
 })
@@ -86,9 +111,7 @@ const CytoListItem = React.memo<any>(({
       }}
       bg={selectedLink === id ? 'primary' : 'none'}
     >
-      <Box as='button' arial-label='type button' mr={2} ml={2} borderRadius='full' boxSize='1.5rem' borderWidth='1px' borderStyle='solid' borderColor={borderColor} display='flex' justifyContent='center' alignItems='center'>
-        {src}
-      </Box>
+      <TypeIcon borderColor={borderColor} src={src} />
       <Flex direction='column' align='flex-start'>
         <Text fontSize='sm'>{linkName}</Text>
         <Text fontSize='xs'>{containerName}</Text>
@@ -152,13 +175,10 @@ export const CytoReactLinksCard = React.memo<any>(({
   const [selectedLink, setSelectedLink] = useState(selectedLinkId);
   const inputRef = useRef(null);
 
-  const globalStyle = useChackraGlobal();
-  const textColor = useChackraColor(globalStyle.body.color);
   const gray900 = useChackraColor('gray.900');
   const white = useChackraColor('white');
   const colorBorderSelected = useChackraColor('primary');
   const colorGrayToWhite = useColorModeValue(white, gray900);
-  const colorFocus = useColorModeValue(white, gray900);
   const colorWhiteToGray = useColorModeValue(gray900, white);
 
   useEffect(() => {

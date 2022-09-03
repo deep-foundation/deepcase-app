@@ -6,6 +6,7 @@ import { ColorModeSwitcher } from '../imports/color-mode-toggle';
 import { CytoGraphProps } from '../imports/cyto/types';
 import { AllText } from '../imports/popover-text/popover-text';
 import { Provider } from '../imports/provider';
+import { elements } from './card';
 
 const CytoGraph = dynamic<CytoGraphProps>(
   () => import('../imports/cyto/graph').then((m) => m.default),
@@ -20,7 +21,7 @@ export default function Page() {
     <Provider><>
       <ColorModeSwitcher/>
       <Box w='100%' h='4rem' />
-      <AllText />
+      <AllText data={elements} />
     </></Provider>
   </>);
 }

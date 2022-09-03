@@ -15,7 +15,7 @@ const CytoGraph = dynamic<CytoGraphProps>(
   { ssr: false }
 );
 
-const elements = [
+export const elements = [
   {
     id: 1,
     src: '🥸',
@@ -57,7 +57,25 @@ const elements = [
     src: '❤️‍🔥',
     linkName: 'Massage',
     containerName: '@deepcase/massage',
-  }
+  },
+  {
+    id: 8,
+    src: '❤️‍🔥',
+    linkName: 'Massage',
+    containerName: '@deepcase/massage',
+  },
+  {
+    id: 9,
+    src: '❤️‍🔥',
+    linkName: 'Massage',
+    containerName: '@deepcase/massage',
+  },
+  {
+    id: 10,
+    src: '❤️‍🔥',
+    linkName: 'Massage',
+    containerName: '@deepcase/massage',
+  },
 ]
 
 export default function Page() {
