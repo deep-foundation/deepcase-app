@@ -12,7 +12,6 @@ export const MessageTextArea = React.memo<any>(() => {
   const whiteAlpha = useChackraColor('whiteAlpha.400');
   const colorGrayToWhite = useColorModeValue(gray900, white);
   const colorWhiteToGray = useColorModeValue(white, gray900);
-  console.log({colorWhiteToGray});
   const initialFocusRef = useRef();
   const [value, setValue] = useState('');
 

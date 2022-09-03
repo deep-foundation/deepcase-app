@@ -146,15 +146,7 @@ export const CytoReactMessage = React.memo<any>(({
   answerButton,
 }:IMessage) => {
 
-  const globalStyle = useChackraGlobal();
-  const textColor = useChackraColor(globalStyle.body.color);
   const gray900 = useChackraColor('gray.900');
-  const white = useChackraColor('white');
-  const colorBorderSelected = useChackraColor('primary');
-  const colorGrayToWhite = useColorModeValue(gray900, white);
-  const colorFocus = useColorModeValue(gray900, white);
-  const colorWhiteToGray = useColorModeValue(white, gray900);
-  const { colorMode, toggleColorMode } = useColorMode();
 
   const _stage = (
     stage === 'sended' ? <Done /> :
