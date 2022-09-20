@@ -11,18 +11,21 @@ export function DeepLoaderActive({
   query: queryLink,
   onChange,
   debounce = 1000,
+  subscription = true,
 }: {
   name: string;
   query: any;
   onChange: (results: Link<number>[]) => any;
   debounce?: number;
+  subscription?: boolean;
 }) {
+  const useApolloLoader = subscription ? useSubscription : useQuery;
   const deep = useDeep();
   const subQuery = useMemo(() => {
     const v = (queryLink?.value?.value);
     const variables = deep.serializeQuery(v);
     return generateQuery({
-      operation: 'query',
+      operation: subscription ? 'subscription' : 'query',
       queries: [generateQueryData({
         tableName: 'links',
         returning: `
@@ -35,14 +38,16 @@ export function DeepLoaderActive({
       name: name,
     });
   }, [queryLink, queryLink?.value?.value]);
-  const subQueryResults = useQuery(subQuery.query, { variables: subQuery.variables });
+  const subQueryResults = useApolloLoader(subQuery.query, { variables: subQuery.variables });
   const [sintSubQueryResults, setSintSubQueryResults] = useState<any>(subQueryResults);
-  const subQueryPrimary = sintSubQueryResults || subQueryResults;
+  const subQueryPrimary = subscription ? subQueryResults : sintSubQueryResults || subQueryResults;
 
   const delayedSubQueryRef = useRef<any>();
   delayedSubQueryRef.current = subQuery;
-  useDelayedInterval(useCallback(() => new Promise((res) => {
-    subQueryResults.refetch(delayedSubQueryRef.current.variables).then((r) => {
+  useDelayedInterval(useCallback(() => new Promise((res, rej) => {
+    if (subscription) rej();
+    // @ts-ignore
+    else subQueryResults?.refetch(delayedSubQueryRef.current.variables).then((r) => {
       setSintSubQueryResults(r);
       res(undefined);
     });

@@ -1,55 +1,3 @@
-export const layoutCosePreset = () => ({ 
-  name: 'cose-bilkent', 
-  animate: true,
-  quality: 'default',
-  // Whether to include labels in node dimensions. Useful for avoiding label overlap
-  nodeDimensionsIncludeLabels: false,
-  // number of ticks per frame; higher is faster but more jerky
-  refresh: 30,
-  // Whether to fit the network view after when done
-  fit: false,
-  // Padding on fit
-  // padding: 10,
-  // Whether to enable incremental mode
-  randomize: true,
-  // Node repulsion (non overlapping) multiplier
-  nodeRepulsion: 4500,
-  // Ideal (intra-graph) edge length
-  idealEdgeLength: 100,
-  // Divisor to compute edge forces
-  edgeElasticity: 0.7,
-  // Nesting factor (multiplier) to compute ideal edge length for inter-graph edges
-  nestingFactor: 0.1,
-  // Gravity force (constant)
-  gravity: 0.7,
-  // Maximum number of iterations to perform
-  numIter: 2500,
-  // Whether to tile disconnected nodes
-  tile: true,
-  // Type of layout animation. The option set is {'during', 'end', false}
-  // Duration for animate:end
-  animationDuration: 500,
-  // Amount of vertical space to put between degree zero nodes during tiling (can also be a function)
-  tilingPaddingVertical: 10,
-  // Amount of horizontal space to put between degree zero nodes during tiling (can also be a function)
-  tilingPaddingHorizontal: 10,
-  // Gravity range (constant) for compounds
-  gravityRangeCompound: 1.5,
-  // Gravity force (constant) for compounds
-  gravityCompound: 1.0,
-  // Gravity range (constant)
-  gravityRange: 3,
-  // Initial cooling factor for incremental layout
-  initialEnergyOnIncremental: 0.5
-  // convergenceThreshold: 1000,
-  // animateFilter: (node) => {
-  //   return !node.focused;
-  // },
-  // edgeWeight: (edge) => {
-  //   return !edge.is('.link-type');
-  // },
-  // rankDir: 'TB',
-});
 export const layoutColaPreset = () => ({ 
   name: 'cola',
   animate: false, // whether to show the layout as it's running
@@ -59,7 +7,7 @@ export const layoutColaPreset = () => ({
   fit: false, // on every layout reposition of nodes, fit the viewport
   // padding: 30, // padding around the simulation
   boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
-  nodeDimensionsIncludeLabels: false, // whether labels should be included in determining the space used by a node
+  nodeDimensionsIncludeLabels: true, // whether labels should be included in determining the space used by a node
 
   // layout event callbacks
   ready: function(){}, // on layoutready
@@ -87,72 +35,6 @@ export const layoutColaPreset = () => ({
   userConstIter: undefined, // initial layout iterations with user-specified constraints
   allConstIter: undefined, // initial layout iterations with all constraints including non-overlap
 });
-export const layoutd3ForcePreset = () => ({
-  name: 'd3-force',
-  animate: false,
-  fit: false,
-  linkId: function id(d) {
-    return d?.id || d?.data?.id;
-  },
-}); 
-export const layoutDadgePreset = () => ({
-  name: 'dagre',
-  animate: false,
-  fit: false,
-});
-export const layoutEulerPreset = () => ({
-  name: 'euler',
-  animate: false,
-  fit: false,
-});
-export const layoutElkPreset = () => ({
-  name: 'elk',
-  animate: false,
-  fit: false,
-  elk: {
-    // All options are available at http://www.eclipse.org/elk/reference.html
-    //
-    // 'org.eclipse.' can be dropped from the identifier. The subsequent identifier has to be used as property key in quotes.
-    // E.g. for 'org.eclipse.elk.direction' use:
-    // 'elk.direction'
-    //
-    // Enums use the name of the enum as string e.g. instead of Direction.DOWN use:
-    // 'elk.direction': 'DOWN'
-    //
-    // The main field to set is `algorithm`, which controls which particular layout algorithm is used.
-    // Example (downwards layered layout):
-    'algorithm': 'force',
-  },
-});
-
-const nodeRepulsion = node => 200000;
-const edgeElasticity = edge => {
-  return !!~edge.classes().indexOf('link-type') ? 0 : 1
-};
-
-export const layoutFcosePreset = (elements, cy) => {
-  console.log((elements || []).filter(e => !!e.focused && !!e.position).map(e => ({ nodeId: e.id, position: e.position })));
-  return {
-    name: 'fcose',
-    animate: true,
-    fit: false,
-    quality: 'proof',
-    // sampleSize: 500,
-    samplingType: true,
-    nodeSeparation: 300,
-    nodeRepulsion,
-    edgeElasticity,
-    // randomize: false,
-    // gravity: 0.1,
-    // numIter: 2500,
-    // fixedNodeConstraint: (elements || []).filter(e => !!e.focused && !!e.position).map(e => ({ nodeId: e.id, position: e.position })),
-  };
-};
 export const layouts = {
-  'cose-bilkent': layoutCosePreset,
   'cola': layoutColaPreset,
-  'd3-force': layoutd3ForcePreset,
-  'dadge': layoutDadgePreset,
-  'fcose': layoutFcosePreset,
-  'elk': layoutElkPreset,
 };

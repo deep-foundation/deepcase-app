@@ -9,11 +9,12 @@ import { useShowExtra, useSpaceId } from '../imports/hooks';
 import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
 import { AutoGuest } from '../imports/auto-guest';
+import CytoGraph from '../imports/cyto/graph';
 
-const CytoGraph = dynamic<CytoGraphProps>(
-  () => import('../imports/cyto/graph').then((m) => m.default),
-  { ssr: false }
-);
+// const CytoGraph = dynamic<CytoGraphProps>(
+//   () => import('../imports/cyto/graph').then((m) => m.default),
+//   { ssr: false }
+// );
 const CytoMenu = dynamic<any>(
   () => import('../imports/cyto/menu').then((m) => m.CytoMenu),
   { ssr: false }
@@ -42,6 +43,8 @@ export function Content({
       ))
     ), [extra]),
   ) || [];
+
+  console.log('index', { links });
 
   return (<>
     {[<DeepLoader

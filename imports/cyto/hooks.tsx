@@ -1,7 +1,7 @@
 import { Flex, HStack, IconButton, Popover, PopoverContent, PopoverTrigger, Spacer, Spinner, useDisclosure, useToast } from "@chakra-ui/react";
 import { useDeep, useDeepQuery } from "@deep-foundation/deeplinks/imports/client";
 import { useMinilinksFilter } from "@deep-foundation/deeplinks/imports/minilinks";
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { TiArrowBackOutline } from "react-icons/ti";
 import { VscChromeClose, VscVersions } from "react-icons/vsc";
@@ -82,7 +82,7 @@ export function CytoReactLinksCardInsertNode({
   />;
 };
 
-export function useInsertLinkCard(elements, reactElements, focus, refCy, ml, ehRef) {
+export function useInsertLinkCard(elements, reactElements, focus, cy, ml, ehRef) {
   const [insertingLink, setInsertingLink] = useState<IInsertedLink>();
   const [container, setContainer] = useContainer();
   const containerRef = useRefAutofill(container);
@@ -128,7 +128,7 @@ export function useInsertLinkCard(elements, reactElements, focus, refCy, ml, ehR
       if (!from && !to && !!insertLink) focus(linkId, insertLink.position);
       return undefined;
     })
-  }, [types, container, deep.linkId]);
+  }, [cy, types, container, deep.linkId]);
   const insertLinkRef = useRefAutofill(insertLink);
 
   const TempComponent = useMemo(() => {
@@ -160,13 +160,14 @@ export function useInsertLinkCard(elements, reactElements, focus, refCy, ml, ehR
     insertLink,
     openInsertCard: (insertedLink: IInsertedLink) => {
       if (insertedLink) {
-        const cy = refCy.current._cy;
         setInsertingLink(insertedLink);
-        const el = cy.$('#insert-link-card');
-        el.unlock();
-        if (!insertedLink.from && !insertedLink.to) {
-          el.position(insertedLink.position);
-          el.lock();
+        if (cy) {
+          const el = cy.$('#insert-link-card');
+          el.unlock();
+          if (!insertedLink.from && !insertedLink.to) {
+            el.position(insertedLink.position);
+            el.lock();
+          }
         }
       } else {
         setInsertingLink(undefined);
@@ -189,7 +190,6 @@ export function useInsertLinkCard(elements, reactElements, focus, refCy, ml, ehR
         onCloseComplete: () => {
           if (insertingCytoRef?.current?.type_id) setInsertingCyto({});
           ehRef?.current?.disableDrawMode();
-          const cy = refCy.current._cy;
           cy.$('.eh-ghost,.eh-preview').remove();
         },
       });
@@ -204,7 +204,6 @@ export function useInsertLinkCard(elements, reactElements, focus, refCy, ml, ehR
       setInsertingCyto({});
       toast.close(ins.toast);
       ehRef?.current?.disableDrawMode();
-      const cy = refCy.current._cy;
       cy.$('.eh-ghost,.eh-preview').remove();
       if (ins.type_id) {
         insertLinkRef.current(ins.type_id, +from, +to);
@@ -217,8 +216,10 @@ export function useInsertLinkCard(elements, reactElements, focus, refCy, ml, ehR
   };
   const returningRef = useRefAutofill(returning);
 
+  const cyHandledRef = useRef(false);
   useEffect(() => {
-    const cy = refCy.current._cy;
+    if (!cy || cyHandledRef.current) return;
+    cyHandledRef.current = true;
     const ehstop = async (event, sourceNode, targetNode, addedEdge) => {
       let { position } = event;
       addedEdge?.remove();
@@ -239,8 +240,7 @@ export function useInsertLinkCard(elements, reactElements, focus, refCy, ml, ehR
       const ins = insertingCytoRef.current;
       setInsertingCyto({});
       toast.close(ins.toast);
-      const ncy = refCy.current._cy;
-      if(event.target === ncy){
+      if(event.target === cy){
         if (insertingCytoRef.current.type_id) {
           if (insertingCytoRef.current.isNode) {
             await deepRef.current.insert({
@@ -278,12 +278,12 @@ export function useInsertLinkCard(elements, reactElements, focus, refCy, ml, ehR
       cy.removeListener('ehcomplete', ehcomplete);
       cy.removeListener('tap', tap);
     };
-  }, []);
+  }, [cy]);
 
   return returning;
 }
 
-export function useLinkReactElements(elements, reactElements, refCy, ml) {
+export function useLinkReactElements(elements, reactElements, cy, ml) {
   const [linkReactElements, setLinkReactElements] = useState<{ [key: string]: boolean }>({});
   const linkReactElementsIds = useMemo(() => Object.keys(linkReactElements).filter(key => !!linkReactElements[key]), [linkReactElements]).map(key => parseInt(key), [linkReactElements]);
 
@@ -292,7 +292,6 @@ export function useLinkReactElements(elements, reactElements, refCy, ml) {
   const toggleLinkReactElement = useMemo(() => (id: number) => {
     console.log('useLinkReactElements', 'toggleLinkReactElement', id);
     setLinkReactElements((linkReactElements) => {
-      const cy = refCy.current._cy;
       const isEnabling = !linkReactElements[id];
       if (isEnabling) {
         cy.$(`#${id}`).data('Component', AnyLinkComponent);
@@ -317,7 +316,7 @@ export function useLinkReactElements(elements, reactElements, refCy, ml) {
         [id]: !linkReactElements[id],
       };
     });
-  }, []);
+  }, [cy]);
 
   const AnyLinkComponent = useMemo(() => {
     return function AnyLinkComponent({ id }: { id: number }) {
@@ -415,7 +414,7 @@ export function useLinkReactElements(elements, reactElements, refCy, ml) {
         </CatchErrors>
       </div>;
     };
-  }, []);
+  }, [cy]);
 
   return {
     toggleLinkReactElement,

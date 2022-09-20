@@ -1,21 +1,21 @@
 import cytoscape from 'cytoscape';
 import edgeConnections from 'cytoscape-edge-connections';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import CytoscapeComponent from 'react-cytoscapejs';
+import { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+// import CytoscapeComponent from 'react-cytoscapejs';
 // import klay from 'cytoscape-klay';
 import dagre from 'cytoscape-dagre';
 // import elk from 'cytoscape-elk';
 import { useDeep } from '@deep-foundation/deeplinks/imports/client';
 import { useDebounceCallback } from '@react-hook/debounce';
 import cola from 'cytoscape-cola';
-import COSEBilkent from 'cytoscape-cose-bilkent';
+// import COSEBilkent from 'cytoscape-cose-bilkent';
+// import d3Force from 'cytoscape-d3-force';
+// import fcose from 'cytoscape-fcose';
+// import euler from 'cytoscape-euler';
+// import elk from 'cytoscape-elk';
 import cxtmenu from 'cytoscape-cxtmenu';
 import edgehandles from 'cytoscape-edgehandles';
-import d3Force from 'cytoscape-d3-force';
-import fcose from 'cytoscape-fcose';
-import euler from 'cytoscape-euler';
-import elk from 'cytoscape-elk';
-import cytoscapeLasso from 'cytoscape-lasso';
+// import cytoscapeLasso from 'cytoscape-lasso';
 import { useCytoElements } from './elements';
 import { useInsertLinkCard, useLinkReactElements, useCytoEditor } from './hooks';
 import { CytoGraphProps } from './types';
@@ -30,19 +30,25 @@ import { CytoDropZone } from './drop-zone';
 import { useCytoStylesheets } from './stylesheets';
 import { Refstater, useRefstarter } from '../refstater';
 import pckg from '../../package.json';
+import dynamic from 'next/dynamic';
+import { useRefEffect } from 'react-use-ref-effect';
+
+const CytoscapeComponent = dynamic<any>(
+  () => import('react-cytoscapejs').then((m) => m.default),
+  { ssr: false }
+);
 
 cytoscape.use(dagre);
 cytoscape.use(cola);
-cytoscape.use(COSEBilkent);
+// cytoscape.use(COSEBilkent);
 // cytoscape.use(klay);
-cytoscape.use(elk);
-cytoscape.use(euler);
-cytoscape.use(d3Force);
-cytoscape.use(fcose);
+// cytoscape.use(elk);
+// cytoscape.use(euler);
+// cytoscape.use(d3Force);
+// cytoscape.use(fcose);
 cytoscape.use(cxtmenu);
 cytoscape.use(edgeConnections);
 cytoscape.use(edgehandles);
-cytoscape.use(cytoscapeLasso);
 
 function useCytoFocusMethods(cy, relayoutDebounced) {
   const { focus, unfocus } = useFocusMethods();
@@ -98,25 +104,28 @@ export default function CytoGraph({
   const cytoViewportRef = useRefstarter<{ pan: { x: number; y: number; }; zoom: number }>();
   const [insertingCyto, setInsertingCyto] = useInsertingCytoStore();
   const insertingCytoRef = useRefAutofill(insertingCyto);
-  const toast = useToast()
+  const toast = useToast();
 
-  const refCy = useRef<any>();
-
-  // links visualization
-  let cy = refCy.current?._cy;
+  const [cy, setCy] = useState<any>();
 
   const { elements, reactElements } = useCytoElements(ml, links, cy, spaceId);
   const elementsRef = useRefAutofill(elements);
 
   const { layout, setLayout } = useLayout();
 
+  const { linkReactElements, toggleLinkReactElement } = useLinkReactElements(elements, reactElements, cy, ml);
+  const [cytoEditor, setCytoEditor] = useCytoEditor();
+  const {
+    addTab,
+    activeTab,
+  } = useEditorTabs();
+
   const relayout = useCallback(() => {
-    let cy = refCy.current?._cy;
-    if (cy.elements) {
+    if (cy && cy.elements) {
       const elements = cy.elements();
       elements.layout(layout(elementsRef.current, cy)).run();
     }
-  }, [layout]);
+  }, [cy, layout]);
   const relayoutDebounced = useDebounceCallback(relayout, 500);
   global.relayoutDebounced = relayoutDebounced;
 
@@ -124,7 +133,7 @@ export default function CytoGraph({
 
   const ehRef = useRef<any>();
 
-  const { startInsertingOfType, openInsertCard, insertLink, drawendInserting } = useInsertLinkCard(elements, reactElements, focus, refCy, ml, ehRef);
+  const { startInsertingOfType, openInsertCard, insertLink, drawendInserting } = useInsertLinkCard(elements, reactElements, focus, cy, ml, ehRef);
 
   const stylesheets = useCytoStylesheets();
 
@@ -139,17 +148,10 @@ export default function CytoGraph({
     relayoutDebounced();
   });
 
-  const { linkReactElements, toggleLinkReactElement } = useLinkReactElements(elements, reactElements, refCy, ml);
-  const [cytoEditor, setCytoEditor] = useCytoEditor();
-  const {
-    addTab,
-    activeTab,
-  } = useEditorTabs();
-
-  useEffect(() => {
+  const onLoaded = (ncy) => {
     const locking = lockingRef.current;
 
-    let ncy = refCy.current?._cy;
+    // ncy.use(cytoscapeLasso);
 
     let eh = ehRef.current = ncy.edgehandles({
       // canConnect: function( sourceNode, targetNode ){
@@ -390,6 +392,9 @@ export default function CytoGraph({
     
     ml.emitter.on('updated', updatedListener);
     // ncy.lassoSelectionEnabled(true);
+
+    setCy(ncy);
+
     return () => {
       ncy.removeListener('cxttapstart', cxttapstart);
       ncy.removeListener('dragend', 'node', dragend);
@@ -404,27 +409,28 @@ export default function CytoGraph({
       
       ml.emitter.removeListener('updated', updatedListener);
     };
-  }, []);
+  };
 
   const returning = (<>
     <Refstater useHook={useCytoViewport as any} stateRef={cytoViewportRef}/>
     <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
-      <CytoDropZone refCy={refCy}>
+      <CytoDropZone cy={cy}>
         <CytoscapeComponent
-          ref={refCy}
+          cy={(cy) => {
+            onLoaded(cy);
+          }}
           elements={elements} 
-          layout={layout(elementsRef.current, refCy?.current?._cy)}
+          layout={layout(elementsRef.current, cy)}
           stylesheet={stylesheets}
           panningEnabled={true}
-          
           pan={cytoViewportRef?.current?.value?.pan}
           zoom={cytoViewportRef?.current?.value?.zoom}
-          style={ { width: '100%', height: '100vh' } } 
+          style={ { width: '100%', height: '100vh' } }
         />
-        <CytoReactLayout
-          cytoRef={refCy}
+        {!!cy && <CytoReactLayout
+          cy={cy}
           elements={reactElements}
-        />
+        />}
         <CytoEditor ml={ml}/>
       </CytoDropZone>
       <Text position="fixed" left={0} bottom={0} p={4}>

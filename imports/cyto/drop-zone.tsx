@@ -6,7 +6,7 @@ import { useDropzone } from 'react-dropzone';
 let counter = 0;
 
 export function CytoDropZone({
-  refCy,
+  cy,
   children,
   render=({
     getRootProps,
@@ -26,14 +26,13 @@ export function CytoDropZone({
     </Box>
   ),
 }: {
-  refCy?: any;
+  cy?: any;
   render?: any;
   children?: any;
 }) {
   const deep = useDeep();
 
   const onDrop = (files, a, event) => {
-    const cy = refCy.current._cy;
     const pan = cy.pan();
     const zoom = cy.zoom();
     console.log(event, cy, pan, zoom);

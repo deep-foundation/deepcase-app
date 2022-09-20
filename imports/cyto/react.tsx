@@ -31,11 +31,11 @@ const aligns = [
 ];
 
 export function CytoReactLayout({
-  cytoRef,
+  cy,
   elements = [],
   generateId = defaultGenerateId,
 }: {
-  cytoRef: any;
+  cy: any;
   elements: any[];
   generateId?: (id: string) => string;
 }) {
@@ -97,7 +97,6 @@ export function CytoReactLayout({
     const handleUpdate = (e) => renderPosition(e.target, getNodePosition(e.target));
     const handleRender = (e) => updatePanZoom({ pan: cy.pan(), zoom: cy.zoom() });
 
-    const cy = cytoRef.current._cy;
     cy.on("render", handleRender);
     cy.on("add", handleUpdate);
     cy.on("layoutstop", ({cy}: any) => {
@@ -115,7 +114,6 @@ export function CytoReactLayout({
     left: 0, top: 0,
   }}>
     {elements.map((element) => {
-      const cy = cytoRef.current._cy;
       const id = getId(element);
       const Component = element?.data?.Component || cy.$(`#${id}`).data('Component');
       const reactElement = Component ? <Component id={id}/> : null;
