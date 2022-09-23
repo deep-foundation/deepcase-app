@@ -1,9 +1,19 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ITypeData } from '../popover-text/popover-text';
 import { useChackraColor } from '../get-color';
-import { useColorModeValue, Box, Textarea } from '@chakra-ui/react';
+import { useColorModeValue, Box, Textarea, Text, Tooltip } from '@chakra-ui/react';
 import { TypeIcon } from '../cyto-react-links-card';
+import { AnimatePresence, motion } from 'framer-motion';
 
+
+const variants = {
+  opened: {
+      opacity: 1
+  },
+  exited: {
+      opacity: 0
+  }
+};
 
 export const TextInput = React.memo<any>(() => {
   const [value, setValue] = useState('');
@@ -16,29 +26,14 @@ export const TextInput = React.memo<any>(() => {
   }
   
   useEffect(() => {
-    let position = inputRef.current.selectionStart;
-    // function getCaretIndex(element) {
-    //   let position = 0;
-    //   const isSupported = typeof window.getSelection !== "undefined";
-    //   if (isSupported) {
-    //     const selection = window.getSelection();
-    //     if (selection.rangeCount !== 0) {
-    //       const range = window.getSelection().getRangeAt(0);
-    //       const preCaretRange = range.cloneRange();
-    //       preCaretRange.selectNodeContents(element);
-    //       preCaretRange.setEnd(range.endContainer, range.endOffset);
-    //       position = preCaretRange.toString().length;
-    //     }
-    //   }
-    //   console.log(position);
-    //   return position;
-    // }
+    let position = inputRef?.current?.selectionStart;
+    console.log(position);
   })
 
   return (<Textarea
     ref={inputRef}
     value={value}
-    onChange={handleInputChange}
+    onChange={(e) => handleInputChange(e)}
     placeholder='Here is a sample placeholder'
     size='sm'
   />)
@@ -46,8 +41,10 @@ export const TextInput = React.memo<any>(() => {
 
 export const TooltipEmoji = React.memo<any>(({
   selectedLinkId = 0,
+  children,
   data,
 }:{
+  children: any;
   selectedLinkId?: number;
   data: ITypeData[];
 }) => {
@@ -62,23 +59,57 @@ export const TooltipEmoji = React.memo<any>(({
     setSelectedLink((prevLinkId) => prevLinkId == linkId ? 0 : linkId);
   }, []);
 
-  return (<Box
-      display='flex'
-      overflowX='scroll'
-      width='100rem'
-      pos='absolute'
-      h='100%'
-    >
-      {data.map((t) => <TypeIcon 
-        key={t.id} 
-        src={t.src} 
-        borderWidth={selectedLink === t.id ? 2 : 1}
-        borderColor={selectedLink === t.id ? borderColorSelected : colorGrayToWhite}
-        _hover={{
-          borderColor: 'primary'
-        }}
-        onClick={selectLink}/>
-      )}
-    </Box>
+  return (<AnimatePresence>
+      <Tooltip 
+        as={motion.div}
+        initial="exited"
+        animate="opened"
+        exit="exited"
+        variants={variants}
+        sx={{position: 'relative'}}
+        label={<Box
+          display='flex'
+          overflowX='scroll'
+          width='100rem'
+          // pos='absolute'
+          h='100%'
+        >
+          {data.map((t) => <TypeIcon 
+            key={t.id} 
+            src={t.src} 
+            borderWidth={selectedLink === t.id ? 2 : 1}
+            borderColor={selectedLink === t.id ? borderColorSelected : colorGrayToWhite}
+            _hover={{
+              borderColor: 'primary'
+            }}
+            onClick={selectLink}/>
+          )}
+        </Box>}
+      >
+        {/* <Box
+          display='flex'
+          overflowX='scroll'
+          width='100rem'
+          pos='absolute'
+          h='100%'
+        >
+          {data.map((t) => <TypeIcon 
+            key={t.id} 
+            src={t.src} 
+            borderWidth={selectedLink === t.id ? 2 : 1}
+            borderColor={selectedLink === t.id ? borderColorSelected : colorGrayToWhite}
+            _hover={{
+              borderColor: 'primary'
+            }}
+            onClick={selectLink}/>
+          )}
+        </Box> */}
+        {children}
+      </Tooltip>
+    </AnimatePresence>
   )
+})
+
+export const TooltipExample = React.memo(({data}:{data: ITypeData[];}) => {
+  return (<TooltipEmoji data={data}><Text as='div' fontSize='xl'>Tooltip</Text></TooltipEmoji>)
 })

@@ -4,9 +4,9 @@ import { useMinilinksConstruct } from '@deep-foundation/deeplinks/imports/minili
 import dynamic from "next/dynamic";
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
 import { CytoGraphProps } from '../imports/cyto/types';
-import { AllText } from '../imports/popover-text/popover-text';
+import { Example } from '../imports/popover-text/popover-text';
 import { Provider } from '../imports/provider';
-import { TextInput } from '../imports/text-cursor-tooltip/text-cursor-tooltip';
+import { TextInput, TooltipExample } from '../imports/text-cursor-tooltip/text-cursor-tooltip';
 import { elements } from './card';
 
 const CytoGraph = dynamic<CytoGraphProps>(
@@ -22,9 +22,10 @@ export default function Page() {
     <Provider><>
       <ColorModeSwitcher/>
       <Box w='100%' h='4rem' />
-      <AllText data={elements} />
+      <Example />
       <Box w='100%' h='10rem' />
       <TextInput />
+      <TooltipExample data={elements} />
     </></Provider>
   </>);
 }
