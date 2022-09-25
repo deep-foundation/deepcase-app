@@ -38,6 +38,10 @@ export interface IInsertingCytoStore{
   isNode?: boolean;
   type_id?: number;
   toast?: any;
+  From?: number;
+  To?: number;
+  from?: number;
+  to?: number;
 }
 
 export function useInsertingCytoStore() {

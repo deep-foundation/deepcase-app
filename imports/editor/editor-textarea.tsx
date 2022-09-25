@@ -32,32 +32,14 @@ export const EditorTextArea = React.memo<any>(({
   function handleEditorDidMount(editor, monaco) {
     refEditor.current = { editor, monaco };
     editor.getModel().updateOptions({ tabSize: 2 });
-    editor.addAction({
-      id: "save",
-      label: "Save",
-      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
-      contextMenuGroupId: "save",
-      run: () => {
-        onSave && onSave(refValue.current);
-      },
+    editor.addCommand([monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS], () => {
+      onSave && onSave(refValue.current);
     });
-    editor.addAction({
-      id: "close",
-      label: "close",
-      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE],
-      contextMenuGroupId: "close",
-      run: () => {
+    editor.addCommand([monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE], () => {
         onClose && onClose();
-      },
     });
-    editor.addAction({
-      id: "exit",
-      label: "exit",
-      keybindings: [monaco.KeyCode.Escape],
-      contextMenuGroupId: "exit",
-      run: () => {
-        onExit && onExit();
-      },
+    editor.addCommand([monaco.KeyMod.CtrlCmd | monaco.KeyCode.Escape], () => {
+      onExit && onExit();
     });
   }
 

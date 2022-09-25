@@ -179,10 +179,12 @@ export function CytoEditor({
               const table = Value === deep.idSync('@deep-foundation/core', 'String') ? 'strings' : Value === deep.idSync('@deep-foundation/core', 'Number') ? 'numbers' : Value === deep.idSync('@deep-foundation/core', 'Object') ? 'objects' : undefined;
               const type = Value === deep.idSync('@deep-foundation/core', 'String') ? 'string' : Value === deep.idSync('@deep-foundation/core', 'Number') ? 'number' : Value === deep.idSync('@deep-foundation/core', 'Object') ? 'object' : 'undefined';
 
-              const _value = table === 'strings' ? value : table === 'numbers' ? parseFloat(value) : table === 'objects' ? json5.parse(value) : undefined;
+              let _value;
+              try {
+                _value = table === 'strings' ? value : table === 'numbers' ? parseFloat(value) : table === 'objects' ? json5.parse(value) : undefined;
+              } catch(error) {}
 
               // setSavedValue(value);
-              
               console.log({ table, value, Value, type, ValueQuery: { in: { type_id: { _id: ['@deep-foundation/core', 'Value'] }, from: { typed: { id: { _eq: tab.id } } } } } }, { link_id: tab.id, value: _value }, {
                 table: table,
               });

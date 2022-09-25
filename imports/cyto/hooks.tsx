@@ -79,13 +79,14 @@ export function CytoReactLinksCardInsertNode({
         });
         setInsertingLink(undefined);
       } else {
-        returningRef?.current.startInsertingOfType(id);
+        returningRef?.current.startInsertingOfType(id, type.from_id, type.to_id);
+        setInsertingLink(undefined);
       }
     }}
   />;
 };
 
-export function useInsertLinkCard(elements, reactElements, focus, cy, ml, ehRef) {
+export function useLinkInserting(elements = [], reactElements = [], focus, cy, ml, ehRef) {
   const [insertingLink, setInsertingLink] = useState<IInsertedLink>();
   const [container, setContainer] = useContainer();
   const containerRef = useRefAutofill(container);
@@ -127,6 +128,7 @@ export function useInsertLinkCard(elements, reactElements, focus, cy, ml, ehRef)
       from_id: from || 0,
       to_id: to || 0,
     });
+
     setInsertingLink((insertLink) => {
       if (!from && !to && !!insertLink) focus(linkId, insertLink.position);
       return undefined;
@@ -176,8 +178,9 @@ export function useInsertLinkCard(elements, reactElements, focus, cy, ml, ehRef)
         setInsertingLink(undefined);
       }
     },
+    insertingCytoRef,
     insertingCyto,
-    startInsertingOfType: (id: number) => {
+    startInsertingOfType: (id: number, From: number, To: number) => {
       const link = ml.byId[id];
       const isNode = !link.from_id && !link.to_id;
       const TypeName = link?.inByType?.[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || link?.id;
@@ -200,7 +203,7 @@ export function useInsertLinkCard(elements, reactElements, focus, cy, ml, ehRef)
         ehRef?.current?.enableDrawMode();
       }
       setInsertingLink(undefined);
-      setInsertingCyto({ isNode, type_id: id, toast: t });
+      setInsertingCyto({ isNode, type_id: id, toast: t, From, To });
     },
     drawendInserting: (position, from, to) => {
       const ins = insertingCytoRef.current;
@@ -228,7 +231,12 @@ export function useInsertLinkCard(elements, reactElements, focus, cy, ml, ehRef)
       addedEdge?.remove();
       ehRef?.current?.disableDrawMode();
       const ins = insertingCytoRef.current;
-      setInsertingCyto({});
+      if (sourceNode?.id() && !targetNode?.id()) {
+        insertingCytoRef.current.from = +sourceNode?.id();
+        setInsertingCyto({ ...ins, from: +sourceNode?.id() });
+      } else {
+        setInsertingCyto({});
+      }
       toast.close(ins.toast);
     };
     const ehcomplete = async (event, sourceNode, targetNode, addedEdge) => {
@@ -244,10 +252,10 @@ export function useInsertLinkCard(elements, reactElements, focus, cy, ml, ehRef)
       setInsertingCyto({});
       toast.close(ins.toast);
       if(event.target === cy){
-        if (insertingCytoRef.current.type_id) {
-          if (insertingCytoRef.current.isNode) {
+        if (ins.type_id) {
+          if (ins.isNode) {
             await deepRef.current.insert({
-              type_id: insertingCytoRef.current.type_id,
+              type_id: ins.type_id,
               in: { data: [
                 {
                   from_id: containerRef.current,
@@ -264,9 +272,30 @@ export function useInsertLinkCard(elements, reactElements, focus, cy, ml, ehRef)
                 },
               ] },
             });
-            toast.close(insertingCytoRef.current.toast);
+            toast.close(ins.toast);
             setInsertingCyto({});
           } else {
+            const Any = deep.idSync('@deep-foundation/core', 'Any');
+            if (ins.From === Any && ins.To === Any) {
+              await deep.insert({
+                type_id: ins.type_id,
+                in: { data: [
+                  {
+                    from_id: container,
+                    type_id: deep.idSync('@deep-foundation/core', 'Contain'),
+                  },
+                  {
+                    from_id: container,
+                    type_id: deep.idSync('@deep-foundation/core', 'Focus'),
+                    object: { data: { value: ins?.position } },
+                    in: { data: {
+                      type_id: deep.idSync('@deep-foundation/core', 'Contain'),
+                      from_id: container
+                    } },
+                  },
+                ] },
+              });
+            }
             setInsertingCyto({});
           }
         }
@@ -293,7 +322,6 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
   reactElements.push(...linkReactElementsIds.map(id => (elements.find(e => e.id === id))));
 
   const toggleLinkReactElement = useMemo(() => (id: number) => {
-    console.log('useLinkReactElements', 'toggleLinkReactElement', id);
     setLinkReactElements((linkReactElements) => {
       const isEnabling = !linkReactElements[id];
       if (isEnabling) {
@@ -356,7 +384,6 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
         linkName: t?.inByType[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || t.id,
         containerName: t?.inByType[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.from?.value?.value || '',
       }));
-      console.log({ elements });
 
       return <div>
         <CatchErrors errorRenderer={(error, reset) => {
@@ -439,14 +466,14 @@ export function useCyInitializer({
   ehRef,
   cytoViewportRef,
 }: {
-  elementsRef?: any;
-  elements?: any;
-  reactElements?: any;
-  cy?: any;
-  setCy?: any;
-  ml?: any;
-  ehRef?: any;
-  cytoViewportRef?: any;
+  elementsRef: any;
+  elements: any;
+  reactElements: any;
+  cy: any;
+  setCy: any;
+  ml: any;
+  ehRef: any;
+  cytoViewportRef: any;
 }) {
   const deep = useDeep();
   const { layout, setLayout } = useLayout();
@@ -455,6 +482,7 @@ export function useCyInitializer({
   const [container, setContainer] = useContainer();
   const [showTypes, setShowTypes] = useShowTypes();
   const [cytoEditor, setCytoEditor] = useCytoEditor();
+  const containerRef = useRefAutofill(container);
 
   const {
     addTab,
@@ -468,7 +496,11 @@ export function useCyInitializer({
   const relayout = useCallback(() => {
     if (cy && cy.elements) {
       const elements = cy.elements();
-      elements.layout(layout(elementsRef.current, cy)).run();
+      try {
+        elements.layout(layout(elementsRef.current, cy)).run();
+      } catch(error) {
+        console.log('relayout error', error);
+      }
     }
   }, [cy, layout]);
   const relayoutDebounced = useDebounceCallback(relayout, 500);
@@ -484,7 +516,7 @@ export function useCyInitializer({
   });
 
   const { focus, unfocus, lockingRef } = useCytoFocusMethods(cy, relayoutDebounced);
-  const { startInsertingOfType, openInsertCard, insertLink, drawendInserting } = useInsertLinkCard(elements, reactElements, focus, cy, ml, ehRef);
+  const { startInsertingOfType, openInsertCard, insertLink, drawendInserting, insertingCyto, insertingCytoRef } = useLinkInserting(elements, reactElements, focus, cy, ml, ehRef);
 
   const onLoaded = (ncy) => {
     const locking = lockingRef.current;
@@ -563,14 +595,27 @@ export function useCyInitializer({
     const dragend = function(evt){
       var node = evt.target;
       const id = node?.data('link')?.id;
-      if (id) {
+      const ins = insertingCytoRef.current;
+      if (ins?.from) {
+        deep.insert({
+          type_id: ins.type_id,
+          from_id: ins?.from,
+          to_id: ins?.from,
+          in: { data: [
+            {
+              from_id: containerRef.current,
+              type_id: deep.idSync('@deep-foundation/core', 'Contain'),
+            },
+          ] },
+        });
+      } else if (id) {
         focus(node, dragendData?.position);
         dragendData = undefined;
         ncy.$(`#${id},#${id}-from,#${id}-to,#${id}-type`).addClass('focused');
       }
     };
 
-    ncy.cxtmenu({
+    const nodeMenu = ncy.cxtmenu({
       selector: '.link-node',
       outsideMenuCancel: 10,
       commands: [
@@ -637,7 +682,7 @@ export function useCyInitializer({
           select: async function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
-              startInsertingOfType(id);
+              startInsertingOfType(id, 0, 0);
             }
           }
         },
@@ -676,7 +721,7 @@ export function useCyInitializer({
       ]
     });
   
-    ncy.cxtmenu({
+    const bodyMenu = ncy.cxtmenu({
       selector: 'core',
       outsideMenuCancel: 10,
       commands: [
@@ -736,7 +781,7 @@ export function useCyInitializer({
     ncy.on('layoutstart', layoutstart);
     ncy.on('layoutstop', layoutstop);
     ncy.on('viewport', viewport);
-    
+
     ml.emitter.on('updated', updatedListener);
     // ncy.lassoSelectionEnabled(true);
 
@@ -755,6 +800,9 @@ export function useCyInitializer({
       ncy.removeListener('viewport', viewport);
       
       ml.emitter.removeListener('updated', updatedListener);
+
+      nodeMenu.destroy();
+      bodyMenu.destroy();
     };
   };
   return {

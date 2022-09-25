@@ -108,7 +108,7 @@ export default function CytoGraph({
   const elementsRef = useRefAutofill(elements);
 
   const { onLoaded, relayoutDebounced } = useCyInitializer({
-    elementsRef, cy, setCy, ml, ehRef, cytoViewportRef
+    elementsRef, elements, reactElements, cy, setCy, ml, ehRef, cytoViewportRef
   });
 
   const { layout, setLayout } = useLayout();
@@ -120,8 +120,8 @@ export default function CytoGraph({
     <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
       <CytoDropZone cy={cy}>
         <CytoscapeComponent
-          cy={(cy) => {
-            onLoaded(cy);
+          cy={(_cy) => {
+            if (!cy) onLoaded(_cy);
           }}
           elements={elements} 
           layout={layout(elementsRef.current, cy)}
