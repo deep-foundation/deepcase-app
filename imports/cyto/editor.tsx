@@ -153,6 +153,11 @@ export function CytoEditor({
     };
   }, []);
 
+  const focusEditor = useCallback(() => {
+    // @ts-ignore
+    refEditor?.current?.editor?.focus();
+  }, []);
+
   useEffect(() => {
     import('@monaco-editor/react').then(m => {});
   }, []);
@@ -173,6 +178,7 @@ export function CytoEditor({
               if (tabs.length === 1 && tabs[0]?.id === tab.id) onClose();
               closeTab(tabId);
               setValue(tabId, undefined);
+              focusEditor();
             }}
             onSave={async (value) => {
               const Value = await deep.id({ in: { type_id: { _id: ['@deep-foundation/core', 'Value'] }, from: { typed: { id: { _eq: tab.id } } } } });
@@ -216,11 +222,11 @@ export function CytoEditor({
               if (tabs.length === 1 && tabs[0]?.id === tab.id) onClose();
               closeTab(tab.id);
               setValue(tabId, undefined);
+              focusEditor();
             }}
             onClick={(tab) => {
               activeTab(tab.id);
-              // @ts-ignore
-              refEditor?.current?.editor?.focus();
+              focusEditor();
             }}
           />}
           closeButtonElement={<CloseButton onClick={onClose}/>}
