@@ -42,6 +42,7 @@ export interface IInsertingCytoStore{
   To?: number;
   from?: number;
   to?: number;
+  _selfLink?: boolean;
 }
 
 export function useInsertingCytoStore() {

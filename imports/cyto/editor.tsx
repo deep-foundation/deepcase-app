@@ -190,10 +190,6 @@ export function CytoEditor({
                 _value = table === 'strings' ? value : table === 'numbers' ? parseFloat(value) : table === 'objects' ? json5.parse(value) : undefined;
               } catch(error) {}
 
-              // setSavedValue(value);
-              console.log({ table, value, Value, type, ValueQuery: { in: { type_id: { _id: ['@deep-foundation/core', 'Value'] }, from: { typed: { id: { _eq: tab.id } } } } } }, { link_id: tab.id, value: _value }, {
-                table: table,
-              });
               if (!ml.byId[tab.id]?.value) {
                 await deep.insert({ link_id: tab.id, value: _value }, {
                   table: table,

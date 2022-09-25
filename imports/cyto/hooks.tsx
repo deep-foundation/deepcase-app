@@ -231,9 +231,11 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, m
       addedEdge?.remove();
       ehRef?.current?.disableDrawMode();
       const ins = insertingCytoRef.current;
-      if (sourceNode?.id() && !targetNode?.id()) {
-        insertingCytoRef.current.from = +sourceNode?.id();
-        setInsertingCyto({ ...ins, from: +sourceNode?.id() });
+      if (sourceNode?.id() && !targetNode?.id() && ins._selfLink !== false) {
+        ins.from = +sourceNode?.id();
+        ins.to = +targetNode?.id();
+        ins._selfLink = true;
+        setInsertingCyto({ ...ins, from: +sourceNode?.id(), to: +targetNode?.id(), _selfLink: true });
       } else {
         setInsertingCyto({});
       }
@@ -241,6 +243,7 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, m
     };
     const ehcomplete = async (event, sourceNode, targetNode, addedEdge) => {
       let { position } = event;
+      insertingCytoRef.current._selfLink = false;
       addedEdge?.remove();
       const from = sourceNode?.data('link')?.id;
       const to = targetNode?.data('link')?.id;
@@ -277,7 +280,7 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, m
           } else {
             const Any = deep.idSync('@deep-foundation/core', 'Any');
             if (ins.From === Any && ins.To === Any) {
-              await deep.insert({
+              await deepRef.current.insert({
                 type_id: ins.type_id,
                 in: { data: [
                   {
@@ -592,12 +595,12 @@ export function useCyInitializer({
       dragendData = { position: evt.position };
       evt.target.emit('dragend');
     };
-    const dragend = function(evt){
+    const dragend = async function(evt){
       var node = evt.target;
       const id = node?.data('link')?.id;
       const ins = insertingCytoRef.current;
-      if (ins?.from) {
-        deep.insert({
+      if (ins?.from && !ins?.to && ins._selfLink) {
+        await deep.insert({
           type_id: ins.type_id,
           from_id: ins?.from,
           to_id: ins?.from,
