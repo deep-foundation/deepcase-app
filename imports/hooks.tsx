@@ -19,6 +19,9 @@ const defaultGraphiqlHeight = 300;
 export function useClickSelect() {
   return useLocalStore('click-select', true);
 }
+export function usePromiseLoader() {
+  return useQueryStore('promise-loader', false);
+}
 export function useContainer() {
   const [spaceId] = useSpaceId();
   const store = useQueryStore('container', 0);

@@ -3,6 +3,7 @@ import { useDeep } from "@deep-foundation/deeplinks/imports/client";
 import { generateQuery, generateQueryData } from "@deep-foundation/deeplinks/imports/gql";
 import { Link, useMinilinksFilter } from "@deep-foundation/deeplinks/imports/minilinks";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePromiseLoader } from "./hooks";
 import { CatchErrors } from "./react-errors";
 import { useDelayedInterval } from "./use-delayed-interval";
 
@@ -75,22 +76,25 @@ export const DeepLoader = memo(function DeepLoader({
 }) {
   const deep = useDeep();
   const userId = deep.linkId;
+  const [promiseLoader, setPromiseLoader] = usePromiseLoader();
 
   const spaceQuery = useMemo(() => ({ value: { value: {
     up: {
       tree_id: { _eq: deep.idSync('@deep-foundation/core', 'containTree') },
       parent_id: { _eq: spaceId },
     },
-    type_id: {
-      _nin: [
-        deep.idSync('@deep-foundation/core', 'Then'),
-        deep.idSync('@deep-foundation/core', 'Promise'),
-        deep.idSync('@deep-foundation/core', 'Resolved'),
-        deep.idSync('@deep-foundation/core', 'Rejected'),
-        deep.idSync('@deep-foundation/core', 'PromiseResult'),
-      ],
-    },
-  } } }), []);
+    ...(!promiseLoader ? {
+      type_id: {
+        _nin: [
+          deep.idSync('@deep-foundation/core', 'Then'),
+          deep.idSync('@deep-foundation/core', 'Promise'),
+          deep.idSync('@deep-foundation/core', 'Resolved'),
+          deep.idSync('@deep-foundation/core', 'Rejected'),
+          deep.idSync('@deep-foundation/core', 'PromiseResult'),
+        ],
+      },
+    } : {}),
+  } } }), [promiseLoader]);
 
   let queries = useMinilinksFilter(
     minilinks.ml,
