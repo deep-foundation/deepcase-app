@@ -9,9 +9,10 @@ import { VscChromeClose, VscVersions } from "react-icons/vsc";
 import { useLocalStorage } from "usehooks-ts";
 import { ClientHandler } from "../client-handler";
 import { CytoReactLinksCard } from "../cyto-react-links-card";
-import { useContainer, useInsertingCytoStore, useLayout, useRefAutofill, useShowExtra, useShowTypes } from "../hooks";
+import { useContainer, useInsertingCytoStore, useLayout, useRefAutofill, useShowExtra, useShowTypes, useSpaceId } from "../hooks";
 import { LinkClientHandlerDefault } from "../link-client-handlers/default";
 import { CatchErrors } from "../react-errors";
+import { useEditorTabs } from "./editor";
 import { useCytoFocusMethods } from "./graph";
 
 export interface IInsertedLink {
@@ -285,7 +286,7 @@ export function useInsertLinkCard(elements, reactElements, focus, cy, ml, ehRef)
   return returning;
 }
 
-export function useLinkReactElements(elements, reactElements, cy, ml) {
+export function useLinkReactElements(elements = [], reactElements = [], cy, ml) {
   const [linkReactElements, setLinkReactElements] = useState<{ [key: string]: boolean }>({});
   const linkReactElementsIds = useMemo(() => Object.keys(linkReactElements).filter(key => !!linkReactElements[key]), [linkReactElements]).map(key => parseInt(key), [linkReactElements]);
 
@@ -436,6 +437,7 @@ export function useCyInitializer({
   setCy,
   ml,
   ehRef,
+  cytoViewportRef,
 }: {
   elementsRef?: any;
   elements?: any;
@@ -444,12 +446,24 @@ export function useCyInitializer({
   setCy?: any;
   ml?: any;
   ehRef?: any;
+  cytoViewportRef?: any;
 }) {
+  const deep = useDeep();
   const { layout, setLayout } = useLayout();
   const [extra, setExtra] = useShowExtra();
+  const [spaceId, setSpaceId] = useSpaceId();
+  const [container, setContainer] = useContainer();
   const [showTypes, setShowTypes] = useShowTypes();
+  const [cytoEditor, setCytoEditor] = useCytoEditor();
+
+  const {
+    addTab,
+    activeTab,
+  } = useEditorTabs();
 
   const refDragStartedEvent = useRef<any>();
+
+  const { linkReactElements, toggleLinkReactElement } = useLinkReactElements(elements, reactElements, cy, ml);
 
   const relayout = useCallback(() => {
     if (cy && cy.elements) {
@@ -675,7 +689,8 @@ export function useCyInitializer({
         {
           content: 'center',
           select: function(el, ev){
-            
+            ncy.pan({ x: 0, y: 0 });
+            ncy.zoom(1);
           }
         }
       ]

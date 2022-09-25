@@ -1,12 +1,11 @@
 import cytoscape from 'cytoscape';
 import edgeConnections from 'cytoscape-edge-connections';
-import { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 // import CytoscapeComponent from 'react-cytoscapejs';
 // import klay from 'cytoscape-klay';
 import dagre from 'cytoscape-dagre';
 // import elk from 'cytoscape-elk';
 import { useDeep } from '@deep-foundation/deeplinks/imports/client';
-import { useDebounceCallback } from '@react-hook/debounce';
 import cola from 'cytoscape-cola';
 // import COSEBilkent from 'cytoscape-cose-bilkent';
 // import d3Force from 'cytoscape-d3-force';
@@ -16,22 +15,18 @@ import cola from 'cytoscape-cola';
 import cxtmenu from 'cytoscape-cxtmenu';
 import edgehandles from 'cytoscape-edgehandles';
 // import cytoscapeLasso from 'cytoscape-lasso';
-import { useCytoElements } from './elements';
-import { useInsertLinkCard, useLinkReactElements, useCytoEditor, useCyInitializer } from './hooks';
-import { CytoGraphProps } from './types';
-import { CytoReactLayout } from './react';
-import { useColorModeValue, useToast, Spinner, Text } from '@chakra-ui/react';
-import { useChackraColor, useChackraGlobal } from '../get-color';
-import { useContainer, useCytoViewport, useFocusMethods, useInsertingCytoStore, useLayout, useRefAutofill, useShowExtra, useShowTypes, useSpaceId } from '../hooks';
-import { useRerenderer } from '../rerenderer-hook';
-import { CytoEditor, useEditorTabs } from './editor';
-import { useMinilinksHandle } from '@deep-foundation/deeplinks/imports/minilinks';
-import { CytoDropZone } from './drop-zone';
-import { useCytoStylesheets } from './stylesheets';
-import { Refstater, useRefstarter } from '../refstater';
-import pckg from '../../package.json';
+import { Text, useToast } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
-import { useRefEffect } from 'react-use-ref-effect';
+import pckg from '../../package.json';
+import { useContainer, useCytoViewport, useFocusMethods, useInsertingCytoStore, useLayout, useRefAutofill, useShowExtra, useShowTypes, useSpaceId } from '../hooks';
+import { Refstater } from '../refstater';
+import { CytoDropZone } from './drop-zone';
+import { CytoEditor } from './editor';
+import { useCytoElements } from './elements';
+import { useCyInitializer } from './hooks';
+import { CytoReactLayout } from './react';
+import { useCytoStylesheets } from './stylesheets';
+import { CytoGraphProps } from './types';
 
 const CytoscapeComponent = dynamic<any>(
   () => import('react-cytoscapejs').then((m) => m.default),
@@ -113,17 +108,10 @@ export default function CytoGraph({
   const elementsRef = useRefAutofill(elements);
 
   const { onLoaded, relayoutDebounced } = useCyInitializer({
-    elementsRef, cy, setCy, ml, ehRef
+    elementsRef, cy, setCy, ml, ehRef, cytoViewportRef
   });
 
   const { layout, setLayout } = useLayout();
-
-  const { linkReactElements, toggleLinkReactElement } = useLinkReactElements(elements, reactElements, cy, ml);
-  const [cytoEditor, setCytoEditor] = useCytoEditor();
-  const {
-    addTab,
-    activeTab,
-  } = useEditorTabs();
 
   const stylesheets = useCytoStylesheets();
 
