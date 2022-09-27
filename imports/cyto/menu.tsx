@@ -15,7 +15,7 @@ export function CytoMenu() {
   const [cytoEditor, setCytoEditor] = useCytoEditor();
   const { layout, setLayout, layoutName } = useLayout();
 
-  const [pastError, setPastError] = useState(false);
+  const [pasteError, setPasteError] = useState(false);
   const [valid, setValid] = useState<any>(undefined);
   const [container, setContainer] = useContainer();
   const [extra, setExtra] = useShowExtra();
@@ -24,11 +24,11 @@ export function CytoMenu() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setPastError(false);
+      setPasteError(false);
       setValid(undefined);
     }, 3000);
     return () => clearTimeout(timer);
-  }, [pastError, valid]);
+  }, [pasteError, valid]);
 
   return <Box pos='absolute' left={0} top={0}>
     <VStack spacing='1rem' m='1rem' align={'flex-start'}>
@@ -61,16 +61,16 @@ export function CytoMenu() {
           <Button onClick={() => {
             copy(deep.token);
           }}>copy token</Button>
-          <Button colorScheme={pastError ? 'red' : valid ? 'blue' : undefined} onClick={async () => {
+          <Button colorScheme={pasteError ? 'red' : valid ? 'blue' : undefined} onClick={async () => {
           if (valid) await deep.login({ token: valid });
           else {
-            setPastError(false);
+            setPasteError(false);
             const token: string = await navigator?.clipboard?.readText();
             const { linkId, error } = await deep.jwt({ token });
-            if (error && !linkId) setPastError(true);
+            if (error && !linkId) setPasteError(true);
             else if (linkId) setValid(token);
           }
-          }}>{valid ? 'login token' : 'past token'}</Button>
+          }}>{valid ? 'login token' : 'paste token'}</Button>
         </ButtonGroup>
         <ButtonGroup size='sm' isAttached variant='outline'>
           <Button as='a' href={`http${+NEXT_PUBLIC_GQL_SSL ? 's' : ''}://${NEXT_PUBLIC_GQL_PATH}`} target="_blank">gql</Button>
