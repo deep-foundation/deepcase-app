@@ -27,8 +27,9 @@ export interface EditorTab {
   initialValue?: string;
 }
 
-export function useEditorValues(tab) {
+export function useEditorValueSaver(tab) {
   const [values, setValues] = useLocalStore<any>('editor-values', {});
+  const tempValueRef = useRef<any>();
   const valuesRef = useRef<any>();
   valuesRef.current = values;
   const setValuesDebounced = useDebounceCallback((value) => {
@@ -36,8 +37,10 @@ export function useEditorValues(tab) {
   }, 500);
   return {
     valuesRef,
+    tempValueRef,
     value: values[tab],
     setValue: useCallback((id, value) => {
+      tempValueRef.current = { ...valuesRef.current, [id]: value };
       setValuesDebounced({ ...valuesRef.current, [id]: value });
     }, []),
   };
@@ -93,9 +96,7 @@ const reasons = [
 ];
 
 export function CytoEditor({
-  ml
 }: {
-  ml: MinilinksResult<Link<number>>;
 }) {
   const [cytoEditor, setCytoEditor] = useCytoEditor();
   const onClose = useCallback(() => {
@@ -114,13 +115,14 @@ export function CytoEditor({
   } = useEditorTabs();
 
   const {
+    tempValueRef,
     valuesRef,
     value,
     setValue,
-  } = useEditorValues(tabId);
+  } = useEditorValueSaver(tabId);
 
   const generatedLink = useMinilinksFilter(
-    ml,
+    deep.minilinks,
     (link) => {
       return link?.outByType[deep.idSync('@deep-foundation/core', 'GeneratedFrom')]?.[0]?.to_id === tabId;
     },
@@ -180,7 +182,8 @@ export function CytoEditor({
               setValue(tabId, undefined);
               focusEditor();
             }}
-            onSave={async (value) => {
+            onSave={async (savedValue) => {
+              const value = tempValueRef?.current?.[tabId] || savedValue;
               const Value = await deep.id({ in: { type_id: { _id: ['@deep-foundation/core', 'Value'] }, from: { typed: { id: { _eq: tab.id } } } } });
               const table = Value === deep.idSync('@deep-foundation/core', 'String') ? 'strings' : Value === deep.idSync('@deep-foundation/core', 'Number') ? 'numbers' : Value === deep.idSync('@deep-foundation/core', 'Object') ? 'objects' : undefined;
               const type = Value === deep.idSync('@deep-foundation/core', 'String') ? 'string' : Value === deep.idSync('@deep-foundation/core', 'Number') ? 'number' : Value === deep.idSync('@deep-foundation/core', 'Object') ? 'object' : 'undefined';
@@ -190,7 +193,7 @@ export function CytoEditor({
                 _value = table === 'strings' ? value : table === 'numbers' ? parseFloat(value) : table === 'objects' ? json5.parse(value) : undefined;
               } catch(error) {}
 
-              if (!ml.byId[tab.id]?.value) {
+              if (!deep.minilinks.byId[tab.id]?.value) {
                 await deep.insert({ link_id: tab.id, value: _value }, {
                   table: table,
                 });
@@ -210,7 +213,7 @@ export function CytoEditor({
           editorTabsElement={<EditorTabs
             tabs={tabs.map((tab) => ({
               ...tab,
-              title: ml.byId[tab.id]?.inByType?.[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || tab.id,
+              title: `${tab.id} ${deep.minilinks.byId[tab.id]?.inByType?.[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || ''}`.trim(),
               active: tabId === tab.id,
             }))}
             setTabs={(tabs) => setTabs(tabs)}
@@ -229,7 +232,7 @@ export function CytoEditor({
           editorRight={
             // rightArea === 'handlers' && (<EditorHandlers generated={generated} setGenerated={setGenerated}>
             // <EditorHandler
-            //   reasons={reasons} 
+            //   reasons={reasons}
             //   avatarElement={<CytoReactLinkAvatar emoji='💥' />}
             //   title='first'
             //   sync={false}
@@ -237,7 +240,7 @@ export function CytoEditor({
             // ></EditorHandler>
             // </EditorHandlers>) ||
             rightArea === 'handlers' && (
-              <CytoEditorHandlers ml={ml} linkId={generated && generatedLink ? generatedLink?.id : tab.id}/>
+              <CytoEditorHandlers linkId={generated && generatedLink ? generatedLink?.id : tab.id}/>
             ) ||
             rightArea === 'preview' && <Box pos='relative'>
               <EditorComponentView

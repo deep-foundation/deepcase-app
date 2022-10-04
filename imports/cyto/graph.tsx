@@ -88,7 +88,6 @@ export function useCytoFocusMethods(cy, relayoutDebounced) {
 
 export default function CytoGraph({
   links = [],
-  ml,
   cytoViewportRef,
 }: CytoGraphProps){
   console.time('CytoGraph');
@@ -104,11 +103,11 @@ export default function CytoGraph({
   const [cy, setCy] = useState<any>();
   const ehRef = useRef<any>();
 
-  const { elements, reactElements } = useCytoElements(ml, links, cy, spaceId);
+  const { elements, reactElements } = useCytoElements(deep.minilinks, links, cy, spaceId);
   const elementsRef = useRefAutofill(elements);
 
   const { onLoaded, relayoutDebounced } = useCyInitializer({
-    elementsRef, elements, reactElements, cy, setCy, ml, ehRef, cytoViewportRef
+    elementsRef, elements, reactElements, cy, setCy, ehRef, cytoViewportRef
   });
 
   const { layout, setLayout } = useLayout();
@@ -135,7 +134,7 @@ export default function CytoGraph({
           cy={cy}
           elements={reactElements}
         />}
-        <CytoEditor ml={ml}/>
+        <CytoEditor/>
       </CytoDropZone>
       <Text position="fixed" left={0} bottom={0} p={4}>
         {pckg.version}

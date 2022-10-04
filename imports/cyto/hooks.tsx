@@ -86,7 +86,7 @@ export function CytoReactLinksCardInsertNode({
   />;
 };
 
-export function useLinkInserting(elements = [], reactElements = [], focus, cy, ml, ehRef) {
+export function useLinkInserting(elements = [], reactElements = [], focus, cy, ehRef) {
   const [insertingLink, setInsertingLink] = useState<IInsertedLink>();
   const [container, setContainer] = useContainer();
   const containerRef = useRefAutofill(container);
@@ -95,6 +95,7 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, m
   const [insertingCyto, setInsertingCyto] = useInsertingCytoStore();
   const insertingCytoRef = useRefAutofill(insertingCyto);
   const toast = useToast();
+  const ml = deep.minilinks;
 
   useHotkeys('esc', e => {
     e.preventDefault();
@@ -290,6 +291,7 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, m
                   {
                     from_id: container,
                     type_id: deep.idSync('@deep-foundation/core', 'Focus'),
+                    // @ts-ignore
                     object: { data: { value: ins?.position } },
                     in: { data: {
                       type_id: deep.idSync('@deep-foundation/core', 'Contain'),
@@ -465,7 +467,6 @@ export function useCyInitializer({
   reactElements,
   cy,
   setCy,
-  ml,
   ehRef,
   cytoViewportRef,
 }: {
@@ -474,7 +475,6 @@ export function useCyInitializer({
   reactElements: any;
   cy: any;
   setCy: any;
-  ml: any;
   ehRef: any;
   cytoViewportRef: any;
 }) {
@@ -486,6 +486,7 @@ export function useCyInitializer({
   const [showTypes, setShowTypes] = useShowTypes();
   const [cytoEditor, setCytoEditor] = useCytoEditor();
   const containerRef = useRefAutofill(container);
+  const ml = deep.minilinks;
 
   const {
     addTab,
@@ -519,7 +520,7 @@ export function useCyInitializer({
   });
 
   const { focus, unfocus, lockingRef } = useCytoFocusMethods(cy, relayoutDebounced);
-  const { startInsertingOfType, openInsertCard, insertLink, drawendInserting, insertingCyto, insertingCytoRef } = useLinkInserting(elements, reactElements, focus, cy, ml, ehRef);
+  const { startInsertingOfType, openInsertCard, insertLink, drawendInserting, insertingCyto, insertingCytoRef } = useLinkInserting(elements, reactElements, focus, cy, ehRef);
 
   const onLoaded = (ncy) => {
     const locking = lockingRef.current;

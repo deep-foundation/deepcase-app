@@ -49,7 +49,7 @@ export const EditorTextArea = React.memo<any>(({
     width="100%"
     theme={colorMode === 'light' ? 'light' : "vs-dark"}
     defaultLanguage="javascript"
-    defaultValue={value}
+    defaultValue={value || ''}
     onChange={onChange}
     onMount={handleEditorDidMount}
   />)
