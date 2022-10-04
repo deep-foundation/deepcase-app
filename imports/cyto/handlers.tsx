@@ -1,5 +1,5 @@
 import { useSubscription } from '@apollo/client';
-import { Accordion, AccordionItem, AccordionButton, AccordionIcon, AccordionPanel, Box, Flex, SimpleGrid, Text, Button, Spacer, useColorMode, InputGroup, Input, InputRightElement } from '@chakra-ui/react';
+import { Accordion, AccordionItem, AccordionButton, AccordionIcon, AccordionPanel, Box, Flex, SimpleGrid, Text, Button, Spacer, useColorMode, InputGroup, Input, InputRightElement, Tag, TagCloseButton, TagLabel, HStack, VStack } from '@chakra-ui/react';
 import { useDeep, useDeepQuery, useDeepSubscription } from '@deep-foundation/deeplinks/imports/client';
 import { generateQuery, generateQueryData } from '@deep-foundation/deeplinks/imports/gql';
 import { Link, useMinilinksApply, useMinilinksQuery, useMinilinksSubscription } from '@deep-foundation/deeplinks/imports/minilinks';
@@ -7,6 +7,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CytoReactLinkAvatar } from '../cyto-react-avatar';
 import { EditorHandler } from '../editor/editor-handler';
 import { useChackraColor } from '../get-color';
+import { useContainer } from '../hooks';
 
 const reasons = [
   {
@@ -57,20 +58,116 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
   const HandleName = handle?.inByType?.[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value;
 
   const [inserting, setInserting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [container] = useContainer();
+
   const onInsert = useCallback(async () => {
     setInserting(true);
     await deep.insert({
       type_id: handle.id,
-      from_id: support.id,
-      to_id: +value
+      from_id: +value,
+      to_id: handler.id,
+      in: { data: {
+        type_id: deep.idSync('@deep-foundation/core', 'Contain'),
+        from_id: container,
+      } }
     });
     setInserting(false);
-  }, [value]);
+  }, [value, container]);
+
+  const onDelete = useCallback(async (handleId) => {
+    await deep.delete(handleId);
+  }, []);
 
   const handles = useMinilinksSubscription(deep.minilinks, {
     type_id: handle.id,
     to_id: handler.id,
   });
+
+  const isLinkHandler = ['HandleInsert', 'HandleUpdate', 'HandleDelete'].includes(HandleName);
+
+  const Handle = useCallback((
+    isLinkHandler
+    ? (h) => {
+      return <Tag size='lg' borderRadius='full' variant='solid'>
+        <TagLabel>{h.from_id}</TagLabel>
+        <TagCloseButton onClick={() => onDelete(h.id)}/>
+      </Tag>;
+    }
+    : (h) => {
+      return <Tag size='lg' borderRadius='full' variant='solid'>
+        <TagLabel>{h.from_id}</TagLabel>
+        <TagCloseButton onClick={() => onDelete(h.id)}/>
+      </Tag>;
+    }
+  ), [deleting]);
+
+  const Form = useCallback((
+    isLinkHandler
+    ? ({ value, onInsert }: { value: string, onInsert: () => void }) => {
+      return <InputGroup
+        position='absolute' w='100%' h='100%' left={0} top={0} borderWidth='1px' borderRadius='lg' bgColor={colorMode == 'light' ? white : gray900}
+        onMouseMove={() => {
+          clearTimeout(mouseoutRef.current);
+        }}
+      >
+        <Input
+          autoFocus
+          h='100%'
+          type={'number'}
+          placeholder='id'
+          onMouseLeave={onLeave}
+          onMouseOver={() => {
+            clearTimeout(mouseoutRef.current);
+            !adding && setAdding(true);
+          }}
+          onBlur={onLeave}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+        />
+        <InputRightElement h='100%'>
+          <Button
+            marginRight={5} size='md' variant='ghost' onClick={onInsert}
+            isLoading={inserting}
+          >
+            +
+          </Button>
+        </InputRightElement>
+      </InputGroup>;
+    }
+    : ({ value, onInsert }: { value: string, onInsert: () => void }) => {
+      return <InputGroup
+        position='absolute' w='100%' h='100%' left={0} top={0} borderWidth='1px' borderRadius='lg' bgColor={colorMode == 'light' ? white : gray900}
+        onMouseMove={() => {
+          clearTimeout(mouseoutRef.current);
+        }}
+      >
+        <Input
+          disabled
+          autoFocus
+          h='100%'
+          type={'number'}
+          placeholder='id'
+          onMouseLeave={onLeave}
+          onMouseOver={() => {
+            clearTimeout(mouseoutRef.current);
+            !adding && setAdding(true);
+          }}
+          onBlur={onLeave}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+        />
+        <InputRightElement h='100%'>
+          <Button
+            marginRight={5} size='md' variant='ghost' onClick={onInsert}
+            isLoading={inserting}
+          >
+            +
+          </Button>
+        </InputRightElement>
+      </InputGroup>;
+    }
+  ), []);
 
   return <div>
     <Box borderWidth='1px' borderRadius='lg'>
@@ -79,46 +176,16 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
           {HandleName}
         </Text>
         <Spacer />
-        <Button size='sm' variant='outline' onClick={() => setAdding(true)}>
+        <Button size='sm' variant='outline' onClick={() => setAdding(true)} disabled={!isLinkHandler}>
           +
         </Button>
-        {adding && <InputGroup
-          position='absolute' w='100%' h='100%' left={0} top={0} borderWidth='1px' borderRadius='lg' bgColor={colorMode == 'light' ? white : gray900}
-          onMouseMove={() => {
-            clearTimeout(mouseoutRef.current);
-          }}
-        >
-          <Input
-            autoFocus
-            h='100%'
-            type={'number'}
-            placeholder='id'
-            onMouseLeave={onLeave}
-            onMouseOver={() => {
-              clearTimeout(mouseoutRef.current);
-              !adding && setAdding(true);
-            }}
-            onBlur={onLeave}
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-          />
-          <InputRightElement h='100%'>
-            <Button
-              marginRight={5} size='md' variant='ghost' onClick={onInsert}
-              isLoading={inserting}
-            >
-              +
-            </Button>
-          </InputRightElement>
-        </InputGroup>}
+        {adding && <Form value={value} onInsert={onInsert}/>}
       </Flex>
       {!!handles?.length && <>
         <hr/>
-        <Box p={3}>
-          {handles.map((h) => {
-            return <Box>{h.id}</Box>;
-          })}
-        </Box>
+        <HStack spacing={3} p={3}>
+          {handles.map(Handle)}
+        </HStack>
       </>}
     </Box>
   </div>;
@@ -138,25 +205,50 @@ export const CytoEditorHandlersSupport = React.memo<any>(function CytoEditorHand
     to_id: linkId,
   });
 
+  const [container] = useContainer();
+
+  const onInsertHandler = useCallback(async () => {
+    await deep.insert({
+      to_id: linkId,
+      from_id: support.id,
+      type_id: deep.idSync('@deep-foundation/core', 'Handler'),
+      in: { data: {
+        type_id: deep.idSync('@deep-foundation/core', 'Contain'),
+        from_id: container,
+      } }
+    });
+  }, [container]);
+
+  const onDeleteHandler = useCallback(async (handlerId) => {
+    await deep.delete(handlerId);
+  }, []);
+
   return <AccordionItem>
     <AccordionButton>
-      <Box flex='1' textAlign='left'>
-        Support: {support.id} {support.inByType[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value}
-      </Box>
+      <Flex w={'100%'}>
+        <Box flex='1' textAlign='left'>
+          Support: {support.id} {support.inByType[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value}
+        </Box>
+        <Spacer/>
+        <Button size='sm' variant='outline' onClick={() => onInsertHandler()}>+</Button>
+      </Flex>
       <AccordionIcon />
     </AccordionButton>
-    <AccordionPanel p={3}>
+    <AccordionPanel><SimpleGrid spacing={3}>
       {handlers.map((h: any) => (
         <Box borderWidth='2px' borderRadius='lg' borderStyle='dashed' p={2}>
-          Handler: {h.id} {h.inByType[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || ''}
-          <SimpleGrid columns={2} spacing={3} width={'100%'}>
+          Handler: <Tag size='md' borderRadius='full' variant='solid'>
+        <TagLabel>{h.id}</TagLabel>
+        <TagCloseButton onClick={() => onDeleteHandler(h.id)}/>
+      </Tag> {h.inByType[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || ''}
+          <SimpleGrid marginTop={3} columns={2} spacing={3} width={'100%'}>
             {support?.outByType[deep.idSync('@deep-foundation/core', 'SupportsCompatable')]?.map(({ to: handle }) => (
               <CytoEditorHandlersSupportHandle support={support} handler={h} handle={handle}/>
             ))}
           </SimpleGrid>
         </Box>
       ))}
-    </AccordionPanel>
+    </SimpleGrid></AccordionPanel>
   </AccordionItem>;
 });
 
