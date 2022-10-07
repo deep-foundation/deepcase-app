@@ -1,6 +1,6 @@
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, Box } from '@chakra-ui/react';
-import { useDeep } from '@deep-foundation/deeplinks/imports/client';
-import { Link, MinilinksInstance, MinilinksResult, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, Box, HStack, Flex, IconButton } from '@chakra-ui/react';
+import { useDeep, useDeepQuery } from '@deep-foundation/deeplinks/imports/client';
+import { Link, MinilinksInstance, MinilinksResult, useMinilinksApply, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
 import { ClientHandlerRenderer, evalClientHandler } from '../client-handler';
 import { useLocalStore } from '@deep-foundation/store/local';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -17,6 +17,7 @@ import json5 from 'json5';
 import { useDebounceCallback } from '@react-hook/debounce';
 import { CatchErrors } from '../react-errors';
 import { CytoEditorHandlers } from './handlers';
+import { VscClearAll } from 'react-icons/vsc';
 
 // global._callClientHandler = callClientHandler;
 export interface EditorTab {
@@ -114,6 +115,10 @@ export function CytoEditor({
     setTabs,
   } = useEditorTabs();
 
+  const onCloseAll = useCallback(() => {
+    setTabs([]);
+  }, []);
+
   const {
     tempValueRef,
     valuesRef,
@@ -163,6 +168,33 @@ export function CytoEditor({
   useEffect(() => {
     import('@monaco-editor/react').then(m => {});
   }, []);
+
+  const { data } = useDeepQuery({
+    down: {
+      link: {
+        type_id: { _in: [
+          deep.idSync('@deep-foundation/core', 'Supports'),
+          deep.idSync('@deep-foundation/core', 'SupportsCompatable'),
+          deep.idSync('@deep-foundation/core', 'Handler'),
+          deep.idSync('@deep-foundation/core', 'Port'),
+          deep.idSync('@deep-foundation/core', 'HandlePort'),
+          deep.idSync('@deep-foundation/core', 'Route'),
+          deep.idSync('@deep-foundation/core', 'RouterListening'),
+          deep.idSync('@deep-foundation/core', 'RouterStringUse'),
+          deep.idSync('@deep-foundation/core', 'HandleRoute'),
+        ] },
+      },
+    },
+  });
+  useMinilinksApply(deep.minilinks, 'cyto-editor-handlers', data || []);
+
+  useEffect(() => {
+    console.log('tab change query', deep.minilinks?.query({
+      type_id: deep.idSync('@deep-foundation/core', 'Handler'),
+      from_id: deep.idSync('@deep-foundation/core', 'clientSupportsJs'),
+      to_id: tabId,
+    }));
+  }, [tabId]);
 
   return <>
     <Modal isOpen={cytoEditor} onClose={onClose} size='full'>
@@ -228,6 +260,7 @@ export function CytoEditor({
               focusEditor();
             }}
           />}
+          closeAllButtonElement={<IconButton icon={<VscClearAll/>} onClick={onCloseAll} aria-label='Close all tabs'/>}
           closeButtonElement={<CloseButton onClick={onClose}/>}
           editorRight={
             // rightArea === 'handlers' && (<EditorHandlers generated={generated} setGenerated={setGenerated}>
@@ -250,7 +283,7 @@ export function CytoEditor({
                 setFillSize={setFillSize}
               >
                 {typeof(Component) === 'function' && [<CatchErrors key={Component.toString()} errorRenderer={() => <div></div>}>
-                  <ClientHandlerRenderer Component={Component} fillSize={fillSize}/>
+                  <ClientHandlerRenderer Component={Component} fillSize={fillSize} link={deep?.minilinks?.byId[tab?.id]}/>
                 </CatchErrors>]}
               </EditorComponentView>
             </Box>

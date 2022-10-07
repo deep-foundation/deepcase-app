@@ -1,4 +1,4 @@
-import { Flex, HStack, IconButton, Popover, PopoverContent, PopoverTrigger, Spacer, Spinner, useDisclosure, useToast } from "@chakra-ui/react";
+import { Alert, AlertIcon, Box, Flex, HStack, IconButton, Popover, PopoverContent, PopoverTrigger, Spacer, Spinner, useDisclosure, useToast } from "@chakra-ui/react";
 import { useDeep, useDeepQuery } from "@deep-foundation/deeplinks/imports/client";
 import { useMinilinksFilter, useMinilinksHandle } from "@deep-foundation/deeplinks/imports/minilinks";
 import { useDebounceCallback } from "@react-hook/debounce";
@@ -326,20 +326,23 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
 
   reactElements.push(...linkReactElementsIds.map(id => (elements.find(e => e.id === id))));
 
-  const toggleLinkReactElement = useMemo(() => (id: number) => {
+  const cyRef = useRefAutofill(cy);
+
+  const toggleLinkReactElement = (id: number) => {
     setLinkReactElements((linkReactElements) => {
+      const cy = cyRef.current;
       const isEnabling = !linkReactElements[id];
       if (isEnabling) {
-        cy.$(`#${id}`).data('Component', AnyLinkComponent);
-        cy.$(`#${id}`).addClass('unhoverable').removeClass('hover');
-        cy.$(`#${id}`).style({
+        cy?.$(`#${id}`).data('Component', AnyLinkComponent);
+        cy?.$(`#${id}`).addClass('unhoverable').removeClass('hover');
+        cy?.$(`#${id}`).style({
           'shape': 'rectangle',
           'background-opacity': '0',
         });
       } else {
-        cy.$(`#${id}`).data('Component', undefined);
-        cy.$(`#${id}`).removeClass('unhoverable');
-        cy.$(`#${id}`).style({
+        cy?.$(`#${id}`).data('Component', undefined);
+        cy?.$(`#${id}`).removeClass('unhoverable');
+        cy?.$(`#${id}`).style({
           'shape': null,
           width: null,
           height: null,
@@ -352,7 +355,7 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
         [id]: !linkReactElements[id],
       };
     });
-  }, [cy]);
+  };
 
   const AnyLinkComponent = useMemo(() => {
     return function AnyLinkComponent({ id }: { id: number }) {
@@ -361,17 +364,23 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
       const { onOpen, onClose, isOpen } = useDisclosure();
       const [search, setSearch] = useState('');
 
+      const types = [];
+      for(let cursor = deep.minilinks?.byId?.[id]; cursor && cursor.type != cursor; cursor = cursor.type) {
+        types.push(cursor.id);
+      }
+
       let handlers = useMinilinksFilter(
         ml,
         useCallback((l) => true, []),
         useCallback((l, ml) => {
           return ml.byType[deep.idSync('@deep-foundation/core', 'Handler')]?.filter(l => (
             !!l?.inByType?.[deep.idSync('@deep-foundation/core', 'HandleClient')]?.filter(l => (
-              l?.from_id === id || l?.from_id === ml.byId[id]?.type_id
+              !!types.includes(l.from_id)
             ))?.length
           ));
         }, [id]),
       ) || [];
+      console.log('handlers', handlers, types);
 
       useEffect(() => {
         if (!handlerId) {
@@ -444,7 +453,7 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
               onClick={() => toggleLinkReactElement(id)}
             />
           </Flex>
-          {!handler?.id && <div>234</div>}
+          {!handler?.id && <Alert status='error'><AlertIcon />Compatable HandleClient not founded.</Alert>}
           {!!handler?.id && <ClientHandler handlerId={handler?.id} linkId={id} ml={ml}/>}
         </CatchErrors>
       </div>;
@@ -581,8 +590,7 @@ export function useCyInitializer({
       var node = e.target;
       const id = node?.data('link')?.id;
       if (id) {
-        ncy.$(`node, edge`).not(`#${id},#${id}-from,#${id}-to,#${id}-type`).removeClass('clicked');
-        ncy.$(`#${id},#${id}-from,#${id}-to,#${id}-type`).toggleClass('clicked');
+        toggleLinkReactElement(id);
       }
     };
     const tapstart = function(evt){
@@ -623,15 +631,6 @@ export function useCyInitializer({
       selector: '.link-node',
       outsideMenuCancel: 10,
       commands: [
-        {
-          content: 'client handler',
-          select: function(ele){
-            const id = ele.data('link')?.id;
-            if (id) {
-              toggleLinkReactElement(id);
-            }
-          }
-        },
         {
           content: 'editor',
           select: function(ele){

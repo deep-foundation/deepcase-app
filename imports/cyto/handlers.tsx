@@ -1,5 +1,6 @@
 import { useSubscription } from '@apollo/client';
-import { Accordion, AccordionItem, AccordionButton, AccordionIcon, AccordionPanel, Box, Flex, SimpleGrid, Text, Button, Spacer, useColorMode, InputGroup, Input, InputRightElement, Tag, TagCloseButton, TagLabel, HStack, VStack } from '@chakra-ui/react';
+import { ChevronDownIcon } from '@chakra-ui/icons';
+import { Accordion, AccordionItem, AccordionButton, AccordionIcon, AccordionPanel, Box, Flex, SimpleGrid, Text, Button, Spacer, useColorMode, InputGroup, Input, InputRightElement, Tag, TagCloseButton, TagLabel, HStack, VStack, Select, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { useDeep, useDeepQuery, useDeepSubscription } from '@deep-foundation/deeplinks/imports/client';
 import { generateQuery, generateQueryData } from '@deep-foundation/deeplinks/imports/gql';
 import { Link, useMinilinksApply, useMinilinksQuery, useMinilinksSubscription } from '@deep-foundation/deeplinks/imports/minilinks';
@@ -8,25 +9,6 @@ import { CytoReactLinkAvatar } from '../cyto-react-avatar';
 import { EditorHandler } from '../editor/editor-handler';
 import { useChackraColor } from '../get-color';
 import { useContainer } from '../hooks';
-
-const reasons = [
-  {
-    id: 1,
-    name: 'type',
-  },
-  {
-    id: 2,
-    name: 'selector',
-  },
-  {
-    id: 3,
-    name: 'route',
-  },
-  {
-    id: 4,
-    name: 'schedule',
-  },
-];
 
 export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEditorHandlersSupport({
   support,
@@ -84,10 +66,18 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
     to_id: handler.id,
   });
 
-  const isLinkHandler = ['HandleInsert', 'HandleUpdate', 'HandleDelete'].includes(HandleName);
+  const ports = useMinilinksSubscription(deep.minilinks, {
+    type_id: deep.idSync('@deep-foundation/core', 'Port'),
+  });
+
+  const isLink = ['HandleInsert', 'HandleUpdate', 'HandleDelete'].includes(HandleName);
+  const isRoute = HandleName === 'HandleRoute';
+  const isPort = HandleName === 'HandlePort';
+  const isShedule = HandleName === 'HandleShedule';
+  const isClient = HandleName === 'HandleClient';
 
   const Handle = useCallback((
-    isLinkHandler
+    isLink
     ? (h) => {
       return <Tag size='lg' borderRadius='full' variant='solid'>
         <TagLabel>{h.from_id}</TagLabel>
@@ -103,7 +93,7 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
   ), [deleting]);
 
   const Form = useCallback((
-    isLinkHandler
+    isLink || isClient
     ? ({ value, onInsert }: { value: string, onInsert: () => void }) => {
       return <InputGroup
         position='absolute' w='100%' h='100%' left={0} top={0} borderWidth='1px' borderRadius='lg' bgColor={colorMode == 'light' ? white : gray900}
@@ -125,6 +115,38 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
           value={value}
           onChange={(e) => setValue(e.target.value)}
         />
+        <InputRightElement h='100%'>
+          <Button
+            marginRight={5} size='md' variant='ghost' onClick={onInsert}
+            isLoading={inserting}
+          >
+            +
+          </Button>
+        </InputRightElement>
+      </InputGroup>;
+    }
+    : isPort
+    ? ({ value, onInsert }: { value: string, onInsert: () => void }) => {
+      return <InputGroup
+        position='absolute' w='100%' h='100%' left={0} top={0} borderWidth='1px' borderRadius='lg' bgColor={colorMode == 'light' ? white : gray900}
+        onMouseMove={() => {
+          clearTimeout(mouseoutRef.current);
+        }}
+      >
+        <Menu>
+          <MenuButton
+            as={Button}
+            rightIcon={<ChevronDownIcon />}
+            h={'100%'}
+            w={`calc(100% - 60px)`}
+          >
+            Port
+          </MenuButton>
+          <MenuList>
+            <MenuItem>+</MenuItem>
+            {ports.map(port => (<MenuItem key={port.id}>{port.id}</MenuItem>))}
+          </MenuList>
+        </Menu>
         <InputRightElement h='100%'>
           <Button
             marginRight={5} size='md' variant='ghost' onClick={onInsert}
@@ -176,7 +198,7 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
           {HandleName}
         </Text>
         <Spacer />
-        <Button size='sm' variant='outline' onClick={() => setAdding(true)} disabled={!isLinkHandler}>
+        <Button size='sm' variant='outline' onClick={() => setAdding(true)} disabled={!(isLink || isPort || isClient)}>
           +
         </Button>
         {adding && <Form value={value} onInsert={onInsert}/>}
@@ -258,18 +280,6 @@ export const CytoEditorHandlers = React.memo<any>(function CytoEditorHandlers({
   linkId: number;
 }) {
   const deep = useDeep();
-  const { data } = useDeepQuery({
-    down: {
-      link: {
-        type_id: { _in: [
-          deep.idSync('@deep-foundation/core', 'Supports'),
-          deep.idSync('@deep-foundation/core', 'SupportsCompatable'),
-          deep.idSync('@deep-foundation/core', 'Handler'),
-        ] },
-      },
-    },
-  });
-  useMinilinksApply(deep.minilinks, 'cyto-editor-handlers', data || []);
 
   const supports = useMinilinksSubscription(deep.minilinks, { type_id: deep.idSync('@deep-foundation/core', 'Supports') });
 

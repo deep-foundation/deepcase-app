@@ -7,6 +7,8 @@ import * as classnames from 'classnames';
 import React, { useCallback, useEffect, useRef } from 'react';
 // import * as reacticons from 'react-icons/all';
 import reactHotkeysHook from 'react-hotkeys-hook';
+import * as debounce from '@react-hook/debounce';
+import * as json5 from 'json5';
 
 const r = (path) => {
   if (r.list[path]) return r.list[path];
@@ -19,6 +21,8 @@ r.list = {
   'classnames': classnames,
   // 'react-icons/all': reacticons,
   'react-hotkeys-hook': reactHotkeysHook,
+  '@react-hook/debounce': debounce,
+  'json5': json5,
 };
 
 export async function evalClientHandler({

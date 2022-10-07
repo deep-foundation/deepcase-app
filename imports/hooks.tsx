@@ -22,6 +22,9 @@ export function useClickSelect() {
 export function usePromiseLoader() {
   return useQueryStore('promise-loader', false);
 }
+export function useTraveler() {
+  return useQueryStore('traveler', true);
+}
 export function useContainer() {
   const [spaceId] = useSpaceId();
   const store = useQueryStore('container', 0);

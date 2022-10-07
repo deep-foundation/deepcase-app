@@ -3,7 +3,7 @@ import { HStack, ButtonGroup, Button, IconButton, FormControl, FormLabel, Switch
 import { useDeep } from "@deep-foundation/deeplinks/imports/client";
 import copy from "copy-to-clipboard";
 import { useState, useEffect } from "react";
-import { useSpaceId, useShowTypes, useLayout, useContainer, useShowExtra, useShowFocus, usePromiseLoader } from "../hooks";
+import { useSpaceId, useShowTypes, useLayout, useContainer, useShowExtra, useShowFocus, usePromiseLoader, useTraveler } from "../hooks";
 import { useCytoEditor } from "./hooks";
 
 const NEXT_PUBLIC_GQL_PATH = process.env.NEXT_PUBLIC_GQL_PATH || 'localhost:3006/gql';
@@ -21,6 +21,7 @@ export function CytoMenu() {
   const [container, setContainer] = useContainer();
   const [extra, setExtra] = useShowExtra();
   const [focus, setFocus] = useShowFocus();
+  const [traveler, setTraveler] = useTraveler();
   const deep = useDeep();
 
   useEffect(() => {
@@ -104,6 +105,12 @@ export function CytoMenu() {
             promises
           </FormLabel>
           <Switch id='show-promise-loader-switch' isChecked={promiseLoader} onChange={() => setPromiseLoader(!promiseLoader)}/>
+        </FormControl>
+        <FormControl display='flex' alignItems='center'>
+          <FormLabel htmlFor='show-traveler-switch' mb='0'>
+            traveler
+          </FormLabel>
+          <Switch id='show-traveler-switch' isChecked={traveler} onChange={() => setTraveler(!traveler)}/>
         </FormControl>
       </HStack>
     </VStack>

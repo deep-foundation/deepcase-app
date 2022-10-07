@@ -22,9 +22,26 @@ export function DeepLoaderActive({
 }) {
   const useApolloLoader = subscription ? useSubscription : useQuery;
   const deep = useDeep();
+  const [promiseLoader, setPromiseLoader] = usePromiseLoader();
   const subQuery = useMemo(() => {
     const v = (queryLink?.value?.value);
     const variables = deep.serializeQuery(v);
+    const where = {
+      _and: [
+        ...(!promiseLoader ? [{
+          type_id: {
+            _nin: [
+              deep.idSync('@deep-foundation/core', 'Then'),
+              deep.idSync('@deep-foundation/core', 'Promise'),
+              deep.idSync('@deep-foundation/core', 'Resolved'),
+              deep.idSync('@deep-foundation/core', 'Rejected'),
+              deep.idSync('@deep-foundation/core', 'PromiseResult'),
+            ],
+          },
+        }] : [{}]),
+        variables?.where,
+      ],
+    };
     return generateQuery({
       operation: subscription ? 'subscription' : 'query',
       queries: [generateQueryData({
@@ -33,12 +50,12 @@ export function DeepLoaderActive({
           id type_id from_id to_id value
         `,
         variables: v
-        ? { ...variables, where: variables?.where }
+        ? { ...variables, where }
         : { where: {}, limit: 0 },
       })],
       name: name,
     });
-  }, [queryLink, queryLink?.value?.value]);
+  }, [queryLink, queryLink?.value?.value, promiseLoader]);
   const subQueryResults = useApolloLoader(subQuery.query, { variables: subQuery.variables });
   const [sintSubQueryResults, setSintSubQueryResults] = useState<any>(subQueryResults);
   const subQueryPrimary = subscription ? subQueryResults : sintSubQueryResults || subQueryResults;
@@ -139,6 +156,14 @@ export const DeepLoader = memo(function DeepLoader({
     }, []),
   ) || [];
 
+  const ids = useMinilinksFilter(
+    deep.minilinks,
+    useCallback((l) => true, []),
+    useCallback((l, ml) => {
+      return Object.keys(ml.byId).map(link => parseInt(link));
+    }, []),
+  ) || [];
+
   const queryAndSpaceLoadedIds = useMinilinksFilter(
     deep.minilinks,
     useCallback((l) => !!l?._applies?.find(a => a.includes('query-') || a.includes('space')), []),
@@ -163,25 +188,50 @@ export const DeepLoader = memo(function DeepLoader({
 
   const typesQuery = useMemo(() => {
     return { value: { value: {
-      id: { _in: typeIds },
+      down: {
+        tree_id: { _eq: 0 },
+        link_id: { _in: ids }
+      },
     } } };
-  }, [typeIds]);
+  }, [ids]);
+
+  // const all = useMinilinksFilter(deep.minilinks, () => true, () => Object.keys(deep.minilinks.byId));
 
   const clientHandlersQuery = useMemo(() => {
-    const ids = [...typeIds, ...queryAndSpaceLoadedIds];
+    const _ids = [...ids, ...queryAndSpaceLoadedIds];
+    console.log('clientHandlersQuery', _ids);
     return { value: { value: {
-      in: {
-        type_id: deep.idSync('@deep-foundation/core', 'Handler'),
-        from_id: deep.idSync('@deep-foundation/core', 'clientSupportsJs'),
-        in: {
-          type_id: deep.idSync('@deep-foundation/core', 'HandleClient'),
-          from_id: {
-            _in: ids,
+      _or: [
+        {
+          up: {
+            tree_id: { _eq: deep.idSync('@deep-foundation/core', 'handlersTree') },
+            parent: {
+              type_id: deep.idSync('@deep-foundation/core', 'Handler'),
+              from_id: deep.idSync('@deep-foundation/core', 'clientSupportsJs'),
+              in: {
+                type_id: deep.idSync('@deep-foundation/core', 'HandleClient'),
+                from_id: {
+                  _in: _ids,
+                },
+              },
+            },
           },
         },
-      }
+        {
+          in: {
+            type_id: deep.idSync('@deep-foundation/core', 'Handler'),
+            from_id: deep.idSync('@deep-foundation/core', 'clientSupportsJs'),
+            in: {
+              type_id: deep.idSync('@deep-foundation/core', 'HandleClient'),
+              from_id: {
+                _in: _ids,
+              },
+            },
+          },
+        },
+      ]
     } } };
-  }, [typeIds, queryAndSpaceLoadedIds]);
+  }, [queryAndSpaceLoadedIds, ids]);
 
   return <>
     <><DeepLoaderActive

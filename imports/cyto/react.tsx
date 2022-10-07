@@ -2,11 +2,11 @@ import { useEffect, useRef } from "react";
 import ReactResizeDetector from 'react-resize-detector';
 
 function getId(element) {
-  return typeof(element.id) === 'function' ? element.id() : element.id;
+  return typeof(element?.id) === 'function' ? element?.id() : element?.id;
 }
 
 export function defaultGenerateId(element) {
-  const id = getId(element);
+  const id = getId(element) || 0;
   return `${id}-layout-element`;
 }
 
