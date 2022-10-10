@@ -91,7 +91,7 @@ const BubbleArrowLeft = ({
 }
 
 const Done = React.memo<any>(() => {
-  return(<IconContext.Provider value={{ color: "blue", className: 'done-icon' }}>
+  return(<IconContext.Provider value={{ color: "blue" }}>
       <div>
         <BsCheck2 />
       </div>
@@ -99,7 +99,7 @@ const Done = React.memo<any>(() => {
   )
 })
 const DoneAllOpacity = React.memo<any>(() => {
-  return(<IconContext.Provider value={{ color: "blue", className: 'done-icon' }}>
+  return(<IconContext.Provider value={{ color: "blue" }}>
       <div>
         <BsCheck2All />
       </div>
@@ -107,7 +107,7 @@ const DoneAllOpacity = React.memo<any>(() => {
   )
 })
 const DoneAll = React.memo<any>(() => {
-  return(<IconContext.Provider value={{ color: "primary", className: 'done-all-icon' }}>
+  return(<IconContext.Provider value={{ color: "primary" }}>
       <div>
         <BsCheck2All />
       </div>

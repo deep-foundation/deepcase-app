@@ -1,6 +1,6 @@
 import cytoscape from 'cytoscape';
 import edgeConnections from 'cytoscape-edge-connections';
-import { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 // import CytoscapeComponent from 'react-cytoscapejs';
 // import klay from 'cytoscape-klay';
 import dagre from 'cytoscape-dagre';
@@ -16,22 +16,20 @@ import cola from 'cytoscape-cola';
 import cxtmenu from 'cytoscape-cxtmenu';
 import edgehandles from 'cytoscape-edgehandles';
 // import cytoscapeLasso from 'cytoscape-lasso';
-import { useCytoElements } from './elements';
-import { useInsertLinkCard, useLinkReactElements, useCytoEditor } from './hooks';
-import { CytoGraphProps } from './types';
-import { CytoReactLayout } from './react';
-import { useColorModeValue, useToast, Spinner, Text } from '@chakra-ui/react';
-import { useChackraColor, useChackraGlobal } from '../get-color';
-import { useContainer, useCytoViewport, useFocusMethods, useInsertingCytoStore, useLayout, useRefAutofill, useShowExtra, useShowTypes, useSpaceId } from '../hooks';
-import { useRerenderer } from '../rerenderer-hook';
-import { CytoEditor, useEditorTabs } from './editor';
+import { Text, useToast } from '@chakra-ui/react';
 import { useMinilinksHandle } from '@deep-foundation/deeplinks/imports/minilinks';
-import { CytoDropZone } from './drop-zone';
-import { useCytoStylesheets } from './stylesheets';
-import { Refstater, useRefstarter } from '../refstater';
-import pckg from '../../package.json';
 import dynamic from 'next/dynamic';
-import { useRefEffect } from 'react-use-ref-effect';
+import pckg from '../../package.json';
+import { useContainer, useCytoViewport, useFocusMethods, useInsertingCytoStore, useLayout, useRefAutofill, useShowExtra, useShowTypes, useSpaceId } from '../hooks';
+import { Refstater, useRefstarter } from '../refstater';
+import { CytoDropZone } from './drop-zone';
+import { CytoEditor, useEditorTabs } from './editor';
+import { useCytoElements } from './elements';
+import { useCytoEditor, useInsertLinkCard, useLinkReactElements } from './hooks';
+import { CytoReactLayout } from './react';
+import { useCytoStylesheets } from './stylesheets';
+import { CytoGraphProps } from './types';
+
 
 const CytoscapeComponent = dynamic<any>(
   () => import('react-cytoscapejs').then((m) => m.default),

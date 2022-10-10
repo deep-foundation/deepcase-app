@@ -3,7 +3,7 @@ import { HStack, ButtonGroup, Button, IconButton, FormControl, FormLabel, Switch
 import { useDeep } from "@deep-foundation/deeplinks/imports/client";
 import copy from "copy-to-clipboard";
 import { useState, useEffect } from "react";
-import { useSpaceId, useShowTypes, useLayout, useContainer, useShowExtra, useShowFocus } from "../hooks";
+import { useSpaceId, useShowTypes, useLayout, useContainer, useShowExtra, useShowFocus, useMediaQuery } from "../hooks";
 import { useCytoEditor } from "./hooks";
 
 const NEXT_PUBLIC_GQL_PATH = process.env.NEXT_PUBLIC_GQL_PATH || 'localhost:3006/gql';
@@ -21,6 +21,7 @@ export function CytoMenu() {
   const [extra, setExtra] = useShowExtra();
   const [focus, setFocus] = useShowFocus();
   const deep = useDeep();
+  const [max300] = useMediaQuery('(max-width: 300px)');
 
   useEffect(() => {
     const timer = setTimeout(() => {

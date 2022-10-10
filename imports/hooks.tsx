@@ -1,9 +1,10 @@
 import { useAuthNode, useDeep } from '@deep-foundation/deeplinks/imports/client';
 import { useLocalStore } from '@deep-foundation/store/local';
 import { useQueryStore } from '@deep-foundation/store/query';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useMemo } from 'react';
 import { layouts } from './cyto/layouts';
+import { useMediaQuery as useMediaQueryChakra } from '@chakra-ui/react';
 
 export const defaultLeftWidth = 10;
 export const defaultCardWidth = 300;
@@ -175,4 +176,12 @@ export function useRefAutofill<T>(value: T) {
   const ref = useRef<T>(value);
   ref.current = value;
   return ref;
+}
+
+
+export const useMediaQuery = function useMediaQuery(arg) {
+  const [actualValue, isBrowser] = useMediaQueryChakra(arg);
+  const [value, setValue] = useState(false);
+  useEffect(() => setValue(actualValue), [actualValue, isBrowser]);
+  return [value, isBrowser];
 }
