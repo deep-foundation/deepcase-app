@@ -39,6 +39,7 @@ export function useForceGraph() {
 
 export interface IInsertingCytoStore{
   isNode?: boolean;
+  isPossibleNode?: boolean;
   type_id?: number;
   toast?: any;
   From?: number;

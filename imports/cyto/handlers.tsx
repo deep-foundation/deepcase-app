@@ -58,7 +58,10 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
   }, [value, container]);
 
   const onDelete = useCallback(async (handleId) => {
-    await deep.delete(handleId);
+    const link = deep.minilinks.byId[handleId];
+    if (confirm(`Delete ${handleId} (${link.type_id}) = ${link.from_id} > ${link.to_id}?`)) {
+      await deep.delete(handleId);
+    }
   }, []);
 
   const handles = useMinilinksSubscription(deep.minilinks, {
