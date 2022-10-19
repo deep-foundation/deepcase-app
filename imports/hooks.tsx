@@ -20,6 +20,12 @@ const defaultGraphiqlHeight = 300;
 export function useClickSelect() {
   return useLocalStore('click-select', true);
 }
+export function usePromiseLoader() {
+  return useQueryStore('promise-loader', false);
+}
+export function useTraveler() {
+  return useQueryStore('traveler', true);
+}
 export function useContainer() {
   const [spaceId] = useSpaceId();
   const store = useQueryStore('container', 0);
@@ -34,8 +40,14 @@ export function useForceGraph() {
 
 export interface IInsertingCytoStore{
   isNode?: boolean;
+  isPossibleNode?: boolean;
   type_id?: number;
   toast?: any;
+  From?: number;
+  To?: number;
+  from?: number;
+  to?: number;
+  _selfLink?: boolean;
 }
 
 export function useInsertingCytoStore() {

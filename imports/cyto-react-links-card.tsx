@@ -216,6 +216,12 @@ export const CytoReactLinksCard = React.memo<any>(({
     }
   }, { enableOnTags: ["TEXTAREA", "INPUT"] });
 
+  useHotkeys('tab', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSwitchLayout((v) => v === 'grid' ? 'list' : 'grid')
+  }, { enableOnTags: ["TEXTAREA", "INPUT"] });
+
   return (<>
     <Box
       bg={colorGrayToWhite} 

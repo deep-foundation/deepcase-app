@@ -3,7 +3,7 @@ import { HStack, ButtonGroup, Button, IconButton, FormControl, FormLabel, Switch
 import { useDeep } from "@deep-foundation/deeplinks/imports/client";
 import copy from "copy-to-clipboard";
 import { useState, useEffect } from "react";
-import { useSpaceId, useShowTypes, useLayout, useContainer, useShowExtra, useShowFocus, useMediaQuery } from "../hooks";
+import { useSpaceId, useShowTypes, useLayout, useContainer, useShowExtra, useShowFocus, usePromiseLoader, useTraveler, useMediaQuery } from "../hooks";
 import { useCytoEditor } from "./hooks";
 
 const NEXT_PUBLIC_GQL_PATH = process.env.NEXT_PUBLIC_GQL_PATH || 'localhost:3006/gql';
@@ -14,12 +14,14 @@ export function CytoMenu() {
   const [showTypes, setShowTypes] = useShowTypes();
   const [cytoEditor, setCytoEditor] = useCytoEditor();
   const { layout, setLayout, layoutName } = useLayout();
+  const [promiseLoader, setPromiseLoader] = usePromiseLoader();
 
   const [pasteError, setPasteError] = useState(false);
   const [valid, setValid] = useState<any>(undefined);
   const [container, setContainer] = useContainer();
   const [extra, setExtra] = useShowExtra();
   const [focus, setFocus] = useShowFocus();
+  const [traveler, setTraveler] = useTraveler();
   const deep = useDeep();
   const [max300] = useMediaQuery('(max-width: 300px)');
 
@@ -98,6 +100,18 @@ export function CytoMenu() {
             types
           </FormLabel>
           <Switch id='show-types-switch' isChecked={showTypes} onChange={() => setShowTypes(!showTypes)}/>
+        </FormControl>
+        <FormControl display='flex' alignItems='center'>
+          <FormLabel htmlFor='show-promise-loader-switch' mb='0'>
+            promises
+          </FormLabel>
+          <Switch id='show-promise-loader-switch' isChecked={promiseLoader} onChange={() => setPromiseLoader(!promiseLoader)}/>
+        </FormControl>
+        <FormControl display='flex' alignItems='center'>
+          <FormLabel htmlFor='show-traveler-switch' mb='0'>
+            traveler
+          </FormLabel>
+          <Switch id='show-traveler-switch' isChecked={traveler} onChange={() => setTraveler(!traveler)}/>
         </FormControl>
       </HStack>
     </VStack>

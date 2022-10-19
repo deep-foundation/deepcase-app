@@ -1,6 +1,6 @@
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, Box } from '@chakra-ui/react';
-import { useDeep } from '@deep-foundation/deeplinks/imports/client';
-import { Link, MinilinksInstance, MinilinksResult, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, Box, HStack, Flex, IconButton } from '@chakra-ui/react';
+import { useDeep, useDeepQuery } from '@deep-foundation/deeplinks/imports/client';
+import { Link, MinilinksInstance, MinilinksResult, useMinilinksApply, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
 import { ClientHandlerRenderer, evalClientHandler } from '../client-handler';
 import { useLocalStore } from '@deep-foundation/store/local';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -17,6 +17,7 @@ import json5 from 'json5';
 import { useDebounceCallback } from '@react-hook/debounce';
 import { CatchErrors } from '../react-errors';
 import { CytoEditorHandlers } from './handlers';
+import { VscClearAll } from 'react-icons/vsc';
 
 // global._callClientHandler = callClientHandler;
 export interface EditorTab {
@@ -27,8 +28,9 @@ export interface EditorTab {
   initialValue?: string;
 }
 
-export function useEditorValues(tab) {
+export function useEditorValueSaver(tab) {
   const [values, setValues] = useLocalStore<any>('editor-values', {});
+  const tempValueRef = useRef<any>();
   const valuesRef = useRef<any>();
   valuesRef.current = values;
   const setValuesDebounced = useDebounceCallback((value) => {
@@ -36,8 +38,10 @@ export function useEditorValues(tab) {
   }, 500);
   return {
     valuesRef,
+    tempValueRef,
     value: values[tab],
     setValue: useCallback((id, value) => {
+      tempValueRef.current = { ...valuesRef.current, [id]: value };
       setValuesDebounced({ ...valuesRef.current, [id]: value });
     }, []),
   };
@@ -93,9 +97,7 @@ const reasons = [
 ];
 
 export function CytoEditor({
-  ml
 }: {
-  ml: MinilinksResult<Link<number>>;
 }) {
   const [cytoEditor, setCytoEditor] = useCytoEditor();
   const onClose = useCallback(() => {
@@ -113,14 +115,19 @@ export function CytoEditor({
     setTabs,
   } = useEditorTabs();
 
+  const onCloseAll = useCallback(() => {
+    setTabs([]);
+  }, []);
+
   const {
+    tempValueRef,
     valuesRef,
     value,
     setValue,
-  } = useEditorValues(tabId);
+  } = useEditorValueSaver(tabId);
 
   const generatedLink = useMinilinksFilter(
-    ml,
+    deep.minilinks,
     (link) => {
       return link?.outByType[deep.idSync('@deep-foundation/core', 'GeneratedFrom')]?.[0]?.to_id === tabId;
     },
@@ -153,9 +160,41 @@ export function CytoEditor({
     };
   }, []);
 
+  const focusEditor = useCallback(() => {
+    // @ts-ignore
+    refEditor?.current?.editor?.focus();
+  }, []);
+
   useEffect(() => {
     import('@monaco-editor/react').then(m => {});
   }, []);
+
+  const { data } = useDeepQuery({
+    down: {
+      link: {
+        type_id: { _in: [
+          deep.idSync('@deep-foundation/core', 'Supports'),
+          deep.idSync('@deep-foundation/core', 'SupportsCompatable'),
+          deep.idSync('@deep-foundation/core', 'Handler'),
+          deep.idSync('@deep-foundation/core', 'Port'),
+          deep.idSync('@deep-foundation/core', 'HandlePort'),
+          deep.idSync('@deep-foundation/core', 'Route'),
+          deep.idSync('@deep-foundation/core', 'RouterListening'),
+          deep.idSync('@deep-foundation/core', 'RouterStringUse'),
+          deep.idSync('@deep-foundation/core', 'HandleRoute'),
+        ] },
+      },
+    },
+  });
+  useMinilinksApply(deep.minilinks, 'cyto-editor-handlers', data || []);
+
+  useEffect(() => {
+    console.log('tab change query', deep.minilinks?.query({
+      type_id: deep.idSync('@deep-foundation/core', 'Handler'),
+      from_id: deep.idSync('@deep-foundation/core', 'clientSupportsJs'),
+      to_id: tabId,
+    }));
+  }, [tabId]);
 
   return <>
     <Modal isOpen={cytoEditor} onClose={onClose} size='full'>
@@ -173,20 +212,20 @@ export function CytoEditor({
               if (tabs.length === 1 && tabs[0]?.id === tab.id) onClose();
               closeTab(tabId);
               setValue(tabId, undefined);
+              focusEditor();
             }}
-            onSave={async (value) => {
+            onSave={async (savedValue) => {
+              const value = tempValueRef?.current?.[tabId] || savedValue;
               const Value = await deep.id({ in: { type_id: { _id: ['@deep-foundation/core', 'Value'] }, from: { typed: { id: { _eq: tab.id } } } } });
               const table = Value === deep.idSync('@deep-foundation/core', 'String') ? 'strings' : Value === deep.idSync('@deep-foundation/core', 'Number') ? 'numbers' : Value === deep.idSync('@deep-foundation/core', 'Object') ? 'objects' : undefined;
               const type = Value === deep.idSync('@deep-foundation/core', 'String') ? 'string' : Value === deep.idSync('@deep-foundation/core', 'Number') ? 'number' : Value === deep.idSync('@deep-foundation/core', 'Object') ? 'object' : 'undefined';
 
-              const _value = table === 'strings' ? value : table === 'numbers' ? parseFloat(value) : table === 'objects' ? json5.parse(value) : undefined;
+              let _value;
+              try {
+                _value = table === 'strings' ? value : table === 'numbers' ? parseFloat(value) : table === 'objects' ? json5.parse(value) : undefined;
+              } catch(error) {}
 
-              // setSavedValue(value);
-              
-              console.log({ table, value, Value, type, ValueQuery: { in: { type_id: { _id: ['@deep-foundation/core', 'Value'] }, from: { typed: { id: { _eq: tab.id } } } } } }, { link_id: tab.id, value: _value }, {
-                table: table,
-              });
-              if (!ml.byId[tab.id]?.value) {
+              if (!deep.minilinks.byId[tab.id]?.value) {
                 await deep.insert({ link_id: tab.id, value: _value }, {
                   table: table,
                 });
@@ -206,7 +245,7 @@ export function CytoEditor({
           editorTabsElement={<EditorTabs
             tabs={tabs.map((tab) => ({
               ...tab,
-              title: ml.byId[tab.id]?.inByType?.[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || tab.id,
+              title: `${tab.id} ${deep.minilinks.byId[tab.id]?.inByType?.[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || ''}`.trim(),
               active: tabId === tab.id,
             }))}
             setTabs={(tabs) => setTabs(tabs)}
@@ -214,18 +253,19 @@ export function CytoEditor({
               if (tabs.length === 1 && tabs[0]?.id === tab.id) onClose();
               closeTab(tab.id);
               setValue(tabId, undefined);
+              focusEditor();
             }}
             onClick={(tab) => {
               activeTab(tab.id);
-              // @ts-ignore
-              refEditor?.current?.editor?.focus();
+              focusEditor();
             }}
           />}
+          closeAllButtonElement={<IconButton icon={<VscClearAll/>} onClick={onCloseAll} aria-label='Close all tabs'/>}
           closeButtonElement={<CloseButton onClick={onClose}/>}
           editorRight={
             // rightArea === 'handlers' && (<EditorHandlers generated={generated} setGenerated={setGenerated}>
             // <EditorHandler
-            //   reasons={reasons} 
+            //   reasons={reasons}
             //   avatarElement={<CytoReactLinkAvatar emoji='💥' />}
             //   title='first'
             //   sync={false}
@@ -233,7 +273,7 @@ export function CytoEditor({
             // ></EditorHandler>
             // </EditorHandlers>) ||
             rightArea === 'handlers' && (
-              <CytoEditorHandlers ml={ml} linkId={generated && generatedLink ? generatedLink?.id : tab.id}/>
+              <CytoEditorHandlers linkId={generated && generatedLink ? generatedLink?.id : tab.id}/>
             ) ||
             rightArea === 'preview' && <Box pos='relative'>
               <EditorComponentView
@@ -243,7 +283,7 @@ export function CytoEditor({
                 setFillSize={setFillSize}
               >
                 {typeof(Component) === 'function' && [<CatchErrors key={Component.toString()} errorRenderer={() => <div></div>}>
-                  <ClientHandlerRenderer Component={Component} fillSize={fillSize}/>
+                  <ClientHandlerRenderer Component={Component} fillSize={fillSize} link={deep?.minilinks?.byId[tab?.id]}/>
                 </CatchErrors>]}
               </EditorComponentView>
             </Box>

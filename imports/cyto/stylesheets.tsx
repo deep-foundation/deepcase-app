@@ -243,21 +243,21 @@ export function useCytoStylesheets(): any {
         'border-color': colorFocus,
       }
     },
-    {
-      selector: '.link-from.clicked, .link-to.clicked, .link-type.clicked',
-      style: {
-        'line-color': colorClicked,
-        'target-arrow-color': colorClicked,
-        width: 2,
-      }
-    },
-    {
-      selector: '.link-node.clicked',
-      style: {
-        color: colorClicked,
-        'background-color': colorClicked, 
-      }
-    },
+    // {
+    //   selector: '.link-from.clicked, .link-to.clicked, .link-type.clicked',
+    //   style: {
+    //     'line-color': colorClicked,
+    //     'target-arrow-color': colorClicked,
+    //     width: 2,
+    //   }
+    // },
+    // {
+    //   selector: '.link-node.clicked',
+    //   style: {
+    //     color: colorClicked,
+    //     'background-color': colorClicked, 
+    //   }
+    // },
     {
       selector: ':parent',
       style: {

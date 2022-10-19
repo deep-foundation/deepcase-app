@@ -1,6 +1,6 @@
 {
   "name": "@deep-foundation/deepcase",
-  "version": "0.1.0-beta.1",
+  "version": "0.1.0-beta.2",
   "scripts": {
     "dev": "next dev",
     "build": "rm -rf app && next build",
@@ -17,8 +17,8 @@
     "@capacitor/core": "^3.2.3",
     "@chakra-ui/icons": "^2.0.2",
     "@chakra-ui/react": "^2.2.1",
-    "@deep-foundation/deeplinks": "0.0.95",
-    "@deep-foundation/hasura": "0.0.17",
+    "@deep-foundation/deeplinks": "0.0.96",
+    "@deep-foundation/hasura": "0.0.18",
     "@deep-foundation/materialized-path": "^0.0.11",
     "@deep-foundation/react-hasura": "0.0.5",
     "@deep-foundation/store": "0.0.6",

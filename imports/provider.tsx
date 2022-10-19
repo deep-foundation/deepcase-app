@@ -5,6 +5,7 @@ import { QueryStoreProvider } from '@deep-foundation/store/query';
 
 import { ChakraProvider } from '@chakra-ui/react';
 import themeChakra from './theme/theme';
+import { useMemo } from 'react';
 
 export function ProviderConnected({
   children,
@@ -35,7 +36,7 @@ export function Provider({
         <QueryStoreProvider>
           <LocalStoreProvider>
             <TokenProvider>
-              <ApolloClientTokenizedProvider options={{ client: 'deeplinks-app', path: GRAPHQL_PATH, ssl: GRAPHQL_SSL, ws: !!process?.browser }}>
+              <ApolloClientTokenizedProvider options={useMemo(() => ({ client: 'deeplinks-app', path: GRAPHQL_PATH, ssl: GRAPHQL_SSL, ws: !!process?.browser }), [])}>
                 <ProviderConnected>
                   {children}
                 </ProviderConnected>

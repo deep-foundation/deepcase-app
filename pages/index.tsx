@@ -1,15 +1,15 @@
 
 import { DeepProvider, useDeep } from '@deep-foundation/deeplinks/imports/client';
-import { Link, useMinilinksConstruct, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
+import { Link, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
 import dynamic from "next/dynamic";
 import { useCallback } from 'react';
+import { AutoGuest } from '../imports/auto-guest';
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
-import { CytoGraphProps } from '../imports/cyto/types';
+import CytoGraph from '../imports/cyto/graph';
 import { useShowExtra, useSpaceId } from '../imports/hooks';
 import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
-import { AutoGuest } from '../imports/auto-guest';
-import CytoGraph from '../imports/cyto/graph';
+import { useRefstarter } from '../imports/refstater';
 
 // const CytoGraph = dynamic<CytoGraphProps>(
 //   () => import('../imports/cyto/graph').then((m) => m.default),
@@ -23,37 +23,37 @@ const CytoMenu = dynamic<any>(
 export function Content({
 }: {
 }) {
+  const cytoViewportRef = useRefstarter<{ pan: { x: number; y: number; }; zoom: number }>();
+
   const [spaceId, setSpaceId] = useSpaceId();
   const deep = useDeep();
   global.deep = deep;
-  const minilinks = useMinilinksConstruct();
-  const { ref: mlRef, ml } = minilinks;
-  global.ml = ml;
 
+  global.ml = deep.minilinks;
   const [extra, setExtra] = useShowExtra();
 
   const links: Link<number>[] = useMinilinksFilter(
-    ml,
+    deep.minilinks,
     useCallback((l) => true, []),
-    useCallback((l, ml) => (
-      extra
-      ? ml.links
-      : ml.links.filter(l => (
-        !!l._applies.find((a: string) => !!~a.indexOf('query-') || a === 'space')
-      ))
-    ), [extra]),
+    useCallback((l, ml) => {
+      const result =  (
+        extra
+        ? ml.links
+        : ml.links.filter(l => (
+          !!l._applies.find((a: string) => !!~a.indexOf('query-') || a === 'space')
+        ))
+      );
+      return result;
+    }, [extra]),
   ) || [];
-
-  console.log('index', { links });
 
   return (<>
     {[<DeepLoader
       key={spaceId}
       spaceId={spaceId}
-      minilinks={minilinks}
       />]}
-    <CytoGraph links={links} ml={ml}/>
-    <CytoMenu/>
+    <CytoGraph links={links} cytoViewportRef={cytoViewportRef}/>
+    <CytoMenu cytoViewportRef={cytoViewportRef}/>
     <ColorModeSwitcher/>
   </>);
   

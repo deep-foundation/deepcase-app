@@ -7,6 +7,7 @@ interface IGrid {
   editorTabsElement?: any;
   editorTextAreaElement?: any;
   editorRight?: any;
+  closeAllButtonElement?: any;
   closeButtonElement?: any;
   editorRightSwitch?: any;
 }
@@ -17,6 +18,7 @@ export const EditorGrid = React.memo<any>(({
   editorTabsElement,
   editorTextAreaElement,
   editorRight,
+  closeAllButtonElement,
   closeButtonElement,
   editorRightSwitch,
 }:IGrid) => {
@@ -26,7 +28,8 @@ export const EditorGrid = React.memo<any>(({
 
   return (<Box display='flex' flexDir='column' h={'100%'} bg={colorMode == 'light' ? white : gray900} style={{ opacity: 0.98 }}>
       <Flex>
-        <Box sx={{width: 'calc(100% - 2rem)'}}>{editorTabsElement}</Box>
+        <Center>{closeAllButtonElement}</Center>
+        <Box sx={{width: 'calc(100% - 4rem)'}}>{editorTabsElement}</Box>
         <Center>{closeButtonElement}</Center>
       </Flex>
       <Box display='grid' gridTemplateColumns={columns} h={'100%'}>

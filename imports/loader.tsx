@@ -3,6 +3,7 @@ import { useDeep } from "@deep-foundation/deeplinks/imports/client";
 import { generateQuery, generateQueryData } from "@deep-foundation/deeplinks/imports/gql";
 import { Link, useMinilinksFilter } from "@deep-foundation/deeplinks/imports/minilinks";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePromiseLoader } from "./hooks";
 import { CatchErrors } from "./react-errors";
 import { useDelayedInterval } from "./use-delayed-interval";
 
@@ -21,9 +22,26 @@ export function DeepLoaderActive({
 }) {
   const useApolloLoader = subscription ? useSubscription : useQuery;
   const deep = useDeep();
+  const [promiseLoader, setPromiseLoader] = usePromiseLoader();
   const subQuery = useMemo(() => {
     const v = (queryLink?.value?.value);
     const variables = deep.serializeQuery(v);
+    const where = {
+      _and: [
+        ...(!promiseLoader ? [{
+          type_id: {
+            _nin: [
+              deep.idSync('@deep-foundation/core', 'Then'),
+              deep.idSync('@deep-foundation/core', 'Promise'),
+              deep.idSync('@deep-foundation/core', 'Resolved'),
+              deep.idSync('@deep-foundation/core', 'Rejected'),
+              deep.idSync('@deep-foundation/core', 'PromiseResult'),
+            ],
+          },
+        }] : [{}]),
+        variables?.where,
+      ],
+    };
     return generateQuery({
       operation: subscription ? 'subscription' : 'query',
       queries: [generateQueryData({
@@ -32,12 +50,12 @@ export function DeepLoaderActive({
           id type_id from_id to_id value
         `,
         variables: v
-        ? { ...variables, where: variables?.where }
+        ? { ...variables, where }
         : { where: {}, limit: 0 },
       })],
       name: name,
     });
-  }, [queryLink, queryLink?.value?.value]);
+  }, [queryLink, queryLink?.value?.value, promiseLoader]);
   const subQueryResults = useApolloLoader(subQuery.query, { variables: subQuery.variables });
   const [sintSubQueryResults, setSintSubQueryResults] = useState<any>(subQueryResults);
   const subQueryPrimary = subscription ? subQueryResults : sintSubQueryResults || subQueryResults;
@@ -68,32 +86,33 @@ export function DeepLoaderActive({
 
 export const DeepLoader = memo(function DeepLoader({
   spaceId,
-  minilinks,
 }: {
   spaceId?: number;
-  minilinks?: any;
 }) {
   const deep = useDeep();
   const userId = deep.linkId;
+  const [promiseLoader, setPromiseLoader] = usePromiseLoader();
 
   const spaceQuery = useMemo(() => ({ value: { value: {
     up: {
       tree_id: { _eq: deep.idSync('@deep-foundation/core', 'containTree') },
       parent_id: { _eq: spaceId },
     },
-    type_id: {
-      _nin: [
-        deep.idSync('@deep-foundation/core', 'Then'),
-        deep.idSync('@deep-foundation/core', 'Promise'),
-        deep.idSync('@deep-foundation/core', 'Resolved'),
-        deep.idSync('@deep-foundation/core', 'Rejected'),
-        deep.idSync('@deep-foundation/core', 'PromiseResult'),
-      ],
-    },
-  } } }), []);
+    ...(!promiseLoader ? {
+      type_id: {
+        _nin: [
+          deep.idSync('@deep-foundation/core', 'Then'),
+          deep.idSync('@deep-foundation/core', 'Promise'),
+          deep.idSync('@deep-foundation/core', 'Resolved'),
+          deep.idSync('@deep-foundation/core', 'Rejected'),
+          deep.idSync('@deep-foundation/core', 'PromiseResult'),
+        ],
+      },
+    } : {}),
+  } } }), [promiseLoader]);
 
   let queries = useMinilinksFilter(
-    minilinks.ml,
+    deep.minilinks,
     useCallback((l) => {
       return [deep.idSync('@deep-foundation/core', 'Query'), deep.idSync('@deep-foundation/core', 'Active')].includes(l.type_id);
     }, [spaceId]),
@@ -103,7 +122,6 @@ export const DeepLoader = memo(function DeepLoader({
       });
     }, [spaceId]),
   );
-  console.log('queries', queries);
   queries = queries || [];
 
   const insertableTypesQuery = useMemo(() => ({ value: { value: {
@@ -125,21 +143,29 @@ export const DeepLoader = memo(function DeepLoader({
   } } }), [userId]);
 
   const insertableTypes = useMinilinksFilter(
-    minilinks.ml,
+    deep.minilinks,
     useCallback((l) => !!l?._applies?.includes('insertable-types'), []),
     useCallback((l, ml) => (ml.links.filter(l => l._applies.includes('insertable-types')).map(l => l.id)), []),
   ) || [];
 
   const typeIds = useMinilinksFilter(
-    minilinks.ml,
+    deep.minilinks,
     useCallback((l) => true, []),
     useCallback((l, ml) => {
       return Object.keys(ml.byType).map(type => parseInt(type));
     }, []),
   ) || [];
 
+  const ids = useMinilinksFilter(
+    deep.minilinks,
+    useCallback((l) => true, []),
+    useCallback((l, ml) => {
+      return Object.keys(ml.byId).map(link => parseInt(link));
+    }, []),
+  ) || [];
+
   const queryAndSpaceLoadedIds = useMinilinksFilter(
-    minilinks.ml,
+    deep.minilinks,
     useCallback((l) => !!l?._applies?.find(a => a.includes('query-') || a.includes('space')), []),
     useCallback((l, ml) => (ml.links.filter(l => l._applies?.find(a => a.includes('query-') || a.includes('space'))).map(l => l.id)), []),
   ) || [];
@@ -162,39 +188,64 @@ export const DeepLoader = memo(function DeepLoader({
 
   const typesQuery = useMemo(() => {
     return { value: { value: {
-      id: { _in: typeIds },
+      down: {
+        tree_id: { _eq: 0 },
+        link_id: { _in: ids }
+      },
     } } };
-  }, [typeIds]);
+  }, [ids]);
+
+  // const all = useMinilinksFilter(deep.minilinks, () => true, () => Object.keys(deep.minilinks.byId));
 
   const clientHandlersQuery = useMemo(() => {
-    const ids = [...typeIds, ...queryAndSpaceLoadedIds];
+    const _ids = [...ids, ...queryAndSpaceLoadedIds];
+    console.log('clientHandlersQuery', _ids);
     return { value: { value: {
-      in: {
-        type_id: deep.idSync('@deep-foundation/core', 'Handler'),
-        from_id: deep.idSync('@deep-foundation/core', 'clientSupportsJs'),
-        in: {
-          type_id: deep.idSync('@deep-foundation/core', 'HandleClient'),
-          from_id: {
-            _in: ids,
+      _or: [
+        {
+          up: {
+            tree_id: { _eq: deep.idSync('@deep-foundation/core', 'handlersTree') },
+            parent: {
+              type_id: deep.idSync('@deep-foundation/core', 'Handler'),
+              from_id: deep.idSync('@deep-foundation/core', 'clientSupportsJs'),
+              in: {
+                type_id: deep.idSync('@deep-foundation/core', 'HandleClient'),
+                from_id: {
+                  _in: _ids,
+                },
+              },
+            },
           },
         },
-      }
+        {
+          in: {
+            type_id: deep.idSync('@deep-foundation/core', 'Handler'),
+            from_id: deep.idSync('@deep-foundation/core', 'clientSupportsJs'),
+            in: {
+              type_id: deep.idSync('@deep-foundation/core', 'HandleClient'),
+              from_id: {
+                _in: _ids,
+              },
+            },
+          },
+        },
+      ]
     } } };
-  }, [typeIds, queryAndSpaceLoadedIds]);
+  }, [queryAndSpaceLoadedIds, ids]);
 
   return <>
     <><DeepLoaderActive
       name="DEEPCASE_SPACE"
       query={spaceQuery}
       onChange={(r) => {
-        minilinks.ml.apply(r, 'space');
+        deep.minilinks?.apply(r, 'space');
       }}
     /></>
     <><DeepLoaderActive
       name="DEEPCASE_CLIENT_HANDLERS"
       query={clientHandlersQuery}
       onChange={(r) => {
-        minilinks.ml.apply(r, 'client-handlers');
+        deep.minilinks?.apply(r, 'client-handlers');
       }}
     /></>
     {queries?.map((f, i) => (<><DeepLoaderActive
@@ -202,21 +253,21 @@ export const DeepLoader = memo(function DeepLoader({
       key={f.id}
       query={f}
       onChange={(r) => {
-        minilinks.ml.apply(r, `query-${f.id}`);
+        deep.minilinks?.apply(r, `query-${f.id}`);
       }}
     /></>))}
     <><DeepLoaderActive
       name={`DEEPCASE_INSERTABLE_TYPES`}
       query={insertableTypesQuery}
       onChange={(r) => {
-        minilinks.ml.apply(r, 'insertable-types');
+        deep.minilinks?.apply(r, 'insertable-types');
       }}
     /></>
     <><DeepLoaderActive
       name={`DEEPCASE_TYPES`}
       query={typesQuery}
       onChange={(r) => {
-        minilinks.ml.apply(r, 'types');
+        deep.minilinks?.apply(r, 'types');
       }}
     /></>
     {!!typeIds && <><DeepLoaderActive
@@ -224,14 +275,14 @@ export const DeepLoader = memo(function DeepLoader({
       query={containsAndSymbolsQuery}
       debounce={2000}
       onChange={(r) => {
-        minilinks.ml.apply(r, 'contains_and_symbols');
+        deep.minilinks?.apply(r, 'contains_and_symbols');
       }}
     /></>}
     {!!typeIds && <><DeepLoaderActive
       name={`DEEPCASE_VALUES`}
       query={valuesQuery}
       onChange={(r) => {
-        minilinks.ml.apply(r, 'values');
+        deep.minilinks?.apply(r, 'values');
       }}
     /></>}
   </>;
