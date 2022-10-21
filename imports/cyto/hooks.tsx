@@ -467,7 +467,7 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
               onClick={() => toggleLinkReactElement(id)}
             />
           </Flex>
-          {!handler?.id && <Alert status='error'><AlertIcon />Compatable HandleClient not founded.</Alert>}
+          {!handler?.id && <Alert status='error'><AlertIcon />Compatible HandleClient not found.</Alert>}
           {!!handler?.id && <ClientHandler handlerId={handler?.id} linkId={id} ml={ml}/>}
         </CatchErrors>
       </div>;
