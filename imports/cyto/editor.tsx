@@ -135,14 +135,14 @@ export function CytoEditor({
       return ml.byId[tabId]?.inByType[deep.idSync('@deep-foundation/core', 'GeneratedFrom')]?.[0]?.from;
     },
   )
-
+  
   useEffect(() => {
     const value = generatedLink?.value?.value || tab?.initialValue;
     evalClientHandler({ value, deep }).then(({ data, error }) => {
       setComponent(() => data);
     });
   }, [tab?.initialValue, generatedLink]);
-
+  
   const currentValue = valuesRef?.current?.[tabId] || tab?.initialValue || '';
 
   const refEditor = useRef();

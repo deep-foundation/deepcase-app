@@ -137,6 +137,7 @@ export const DeepLoader = memo(function DeepLoader({
           deep.idSync('@deep-foundation/core', 'HandleOperation'),
           deep.idSync('@deep-foundation/core', 'Operation'),
           deep.idSync('@deep-foundation/core', 'TreeInclude'),
+          deep.idSync('@deep-foundation/core', 'File'),
         ] }
       },
     ],
