@@ -1,17 +1,18 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ITypeData } from '../popover-text/popover-text';
 import { useChackraColor } from '../get-color';
-import { useColorModeValue, Box, Textarea, Text, Tooltip } from '@chakra-ui/react';
+import { useColorModeValue, Box, Textarea, Text, Tooltip, Flex, Button, ButtonGroup, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverFooter, PopoverHeader, PopoverTrigger } from '@chakra-ui/react';
 import { TypeIcon } from '../cyto-react-links-card';
 import { AnimatePresence, motion } from 'framer-motion';
 
 
 const variants = {
   opened: {
-      opacity: 1
+    opacity: 1
   },
   exited: {
-      opacity: 0
+    opacity: 0,
+    transition: { duration: 0.9 }
   }
 };
 
@@ -41,10 +42,10 @@ export const TextInput = React.memo<any>(() => {
 
 export const TooltipEmoji = React.memo<any>(({
   selectedLinkId = 0,
-  children,
+  // children,
   data,
 }:{
-  children: any;
+  // children?: any;
   selectedLinkId?: number;
   data: ITypeData[];
 }) => {
@@ -59,8 +60,46 @@ export const TooltipEmoji = React.memo<any>(({
     setSelectedLink((prevLinkId) => prevLinkId == linkId ? 0 : linkId);
   }, []);
 
+  const [isOpen, setIsOpen] = React.useState(false)
+  const open = () => setIsOpen(!isOpen)
+  const close = () => setIsOpen(false)
+
   return (<AnimatePresence>
-      <Tooltip 
+
+      <Popover
+        returnFocusOnClose={false}
+        isOpen={isOpen}
+        onClose={close}
+        placement='right'
+        closeOnBlur={false}
+      >
+        <PopoverTrigger>
+          <Button colorScheme='pink'>Popover Target</Button>
+        </PopoverTrigger>
+        <PopoverContent>
+          <PopoverArrow />
+          <PopoverBody>
+            <Box
+              overflow='hidden'
+              h='100%'
+            >
+              <Flex overflowX='scroll'>
+                {data.map((t) => <TypeIcon 
+                  key={t.id} 
+                  src={t.src} 
+                  borderWidth={selectedLink === t.id ? 2 : 1}
+                  borderColor={selectedLink === t.id ? borderColorSelected : colorGrayToWhite}
+                  _hover={{
+                    borderColor: 'primary'
+                  }}
+                  onClick={selectLink}/>
+                )}
+              </Flex>
+            </Box>
+          </PopoverBody>
+        </PopoverContent>
+      </Popover>
+      {/* <Tooltip 
         as={motion.div}
         initial="exited"
         animate="opened"
@@ -68,48 +107,40 @@ export const TooltipEmoji = React.memo<any>(({
         variants={variants}
         sx={{position: 'relative'}}
         label={<Box
-          display='flex'
-          overflowX='scroll'
-          width='100rem'
-          // pos='absolute'
-          h='100%'
-        >
-          {data.map((t) => <TypeIcon 
-            key={t.id} 
-            src={t.src} 
-            borderWidth={selectedLink === t.id ? 2 : 1}
-            borderColor={selectedLink === t.id ? borderColorSelected : colorGrayToWhite}
-            _hover={{
-              borderColor: 'primary'
-            }}
-            onClick={selectLink}/>
-          )}
-        </Box>}
+            overflow='hidden'
+            h='100%'
+          >
+            <Flex overflowX='scroll'>
+              {data.map((t) => <TypeIcon 
+                key={t.id} 
+                src={t.src} 
+                borderWidth={selectedLink === t.id ? 2 : 1}
+                borderColor={selectedLink === t.id ? borderColorSelected : colorGrayToWhite}
+                _hover={{
+                  borderColor: 'primary'
+                }}
+                onClick={selectLink}/>
+              )}
+            </Flex>
+          </Box>
+        }
       >
-        {/* <Box
-          display='flex'
-          overflowX='scroll'
-          width='100rem'
-          pos='absolute'
-          h='100%'
-        >
-          {data.map((t) => <TypeIcon 
-            key={t.id} 
-            src={t.src} 
-            borderWidth={selectedLink === t.id ? 2 : 1}
-            borderColor={selectedLink === t.id ? borderColorSelected : colorGrayToWhite}
-            _hover={{
-              borderColor: 'primary'
-            }}
-            onClick={selectLink}/>
-          )}
-        </Box> */}
         {children}
-      </Tooltip>
+      </Tooltip> */}
     </AnimatePresence>
   )
 })
 
-export const TooltipExample = React.memo(({data}:{data: ITypeData[];}) => {
-  return (<TooltipEmoji data={data}><Text as='div' fontSize='xl'>Tooltip</Text></TooltipEmoji>)
+export const TooltipExample = React.memo(({
+  // data, 
+  open
+}:{
+  // data: ITypeData[]; 
+  open?: any;
+}) => {
+  return (
+    // <TooltipEmoji data={data}>
+      <Text onClick={open} as='div' fontSize='xl'>Tooltip</Text>
+    // </TooltipEmoji>
+  )
 })
