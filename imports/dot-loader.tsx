@@ -53,7 +53,7 @@ export const DotsLoader = React.memo<any>(() => {
           borderRadius: '50%',
           position: 'relative',
         },
-        '& > *:nth-child(-n+3)': {
+        '& > *:nth-of-type(-n+3)': {
           marginRight: '0.2rem',
         }
       }}

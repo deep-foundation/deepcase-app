@@ -211,7 +211,7 @@ export const GridComponent = React.memo<any>(({
             borderTop: `1px solid ${colorGrayToWhite}`,
             borderBottom: `1px solid ${colorGrayToWhite}`,
             overflow: 'hidden',
-            '& > *:nth-child(even)': {
+            '& > *:nth-of-type(even)': {
               p: 2
             }
           }}
