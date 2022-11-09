@@ -1,6 +1,6 @@
+import { useColorMode } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
 import React from 'react';
-import { useColorMode } from '@chakra-ui/react';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
 
@@ -15,6 +15,8 @@ interface IEditor {
   onSave?: (value: string) => void;
   onClose?: () => void;
   onExit?: () => void;
+  minimap?: boolean;
+  lineNumbers?: string;
 }
 
 export const EditorTextArea = React.memo<any>(({
@@ -24,6 +26,8 @@ export const EditorTextArea = React.memo<any>(({
   onSave,
   onClose,
   onExit,
+  minimap = true,
+  lineNumbers = 'on',
 }:IEditor) => {
   const refValue = React.useRef(value);
   refValue.current = value;
@@ -42,9 +46,16 @@ export const EditorTextArea = React.memo<any>(({
       onExit && onExit();
     });
   }
+  console.log({refEditor});
 
   return (<MonacoEditor
-    options={monacoEditorOptions}
+    options={{
+      ...monacoEditorOptions,
+      minimap: {
+        enabled: minimap
+      },
+      lineNumbers: lineNumbers,
+    }}
     height="100%"
     width="100%"
     theme={colorMode === 'light' ? 'light' : "vs-dark"}
