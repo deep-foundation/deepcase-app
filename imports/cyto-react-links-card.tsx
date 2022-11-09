@@ -223,20 +223,20 @@ export const CytoReactLinksCard = React.memo<any>(({
   }, { enableOnTags: ["TEXTAREA", "INPUT"] });
 
   return (<>
-    <Box
-      bg={colorGrayToWhite} 
-      maxW='md'
-      maxH='lg'
-      {...(fillSize ? { h: '100%', w: '100%' } : { h: 72, w: 96 })}
-      overflowY='hidden'
-      borderWidth='1px' 
-      borderColor={colorWhiteToGray} 
-      color={colorWhiteToGray} 
-      borderRadius='lg' 
-      overflow='hidden'
-      display='flex'
-      flexDir='column'
-    >
+      <Box
+        bg={colorGrayToWhite} 
+        maxW='md'
+        maxH='lg'
+        {...(fillSize ? { h: '100%', w: '100%' } : { h: 72, w: 96 })}
+        overflowY='hidden'
+        borderWidth='1px' 
+        borderColor={colorWhiteToGray} 
+        color={colorWhiteToGray} 
+        borderRadius='lg' 
+        overflow='hidden'
+        display='flex'
+        flexDir='column'
+      >
         <Flex minWidth='max-content' alignItems='center' gap='2' borderBottomStyle='solid' borderBottomWidth='1px' borderBottomColor='gray.200'>
           <InputGroup size='xs' pl='2'>
             <Input 
