@@ -1,4 +1,5 @@
-import { Box, Center, Flex, IconButton, Input, InputGroup, InputRightElement, ScaleFade, SlideFade, Spacer, Text, useColorModeValue } from '@chakra-ui/react';
+import { Box, Button, Center, Flex, IconButton, Input, InputGroup, InputRightElement, ScaleFade, SlideFade, Spacer, Text, useColorModeValue } from '@chakra-ui/react';
+import { motion } from 'framer-motion';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { BsCheck2, BsDoorClosed, BsGrid3X2Gap, BsListUl, BsSearch } from 'react-icons/bs';
@@ -26,6 +27,34 @@ export interface ITypeIcon {
   [key: string]: any;
 }
 
+const variants = {
+  initial: {
+    originX: 1, 
+    originY: 1, 
+    opacity: 0, 
+    scale: 0, 
+    transformPerspective: 100, 
+    z: 0, 
+    y: 0,
+  },
+  view: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      duration: 0.3,
+      // delay: 0.2,
+    }
+  },
+  hide: {
+    originX: 0,
+    originY: 0,
+    opacity: 0, scale: 0,
+    transition: {
+      duration: 0.05,
+    }
+  }
+};
+
 export const TypeIcon = React.memo<any>(({
   src,
   borderColor = 'black',
@@ -34,10 +63,16 @@ export const TypeIcon = React.memo<any>(({
   ...props
 }:ITypeIcon) => {
   return <Box 
-      as='button' 
+      as={motion.div} 
       arial-label='type button' 
-      mr={2} 
-      ml={2} 
+      variants={variants}
+      initial='initial'
+      whileInView='view'
+      whileHover={{
+        y: 1,
+        z: 10,
+        transformPerspective: 400}}
+      exit='hide'
       borderRadius='full' 
       boxSize={boxSize}
       borderWidth={borderWidth} 
@@ -66,7 +101,7 @@ const GridPanel = React.memo<any>(({
   onSelectLink?: (linkId: number) => any;
 }) => {
   return (
-    <Box display='grid' gridTemplateColumns='repeat( auto-fill, minmax(.5rem, 1.5rem) )' pl='2' pr='2' columnGap={2} rowGap={2}>
+    <Box display='grid' gridTemplateColumns='repeat( auto-fill, minmax(.5rem, 1.5rem) )' p='2' columnGap={2} rowGap={2}>
       {data.map(d => (<TypeIcon
         key={d.id}
         borderWidth={selectedLink === d.id ? 2 : 1}
@@ -111,7 +146,7 @@ const CytoListItem = React.memo<any>(({
       }}
       bg={selectedLink === id ? 'primary' : 'none'}
     >
-      <TypeIcon borderColor={borderColor} src={src} />
+      <TypeIcon borderColor={borderColor} src={src} mr={2} ml={2} />
       <Flex direction='column' align='flex-start'>
         <Text fontSize='sm'>{linkName}</Text>
         <Text fontSize='xs'>{containerName}</Text>
@@ -287,7 +322,7 @@ export const CytoReactLinksCard = React.memo<any>(({
             style={{
               pointerEvents: switchLayout === 'grid' ? 'initial' : 'none',
               position: 'absolute',
-              top: '0.4rem',
+              top: 0,
               left: 0,
               width: '100%',
               height: '100%',

@@ -1,9 +1,9 @@
+import { Box, Flex, Popover, PopoverArrow, PopoverBody, PopoverContent, PopoverTrigger, Text, Textarea, useColorModeValue } from '@chakra-ui/react';
+import { AnimatePresence } from 'framer-motion';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ITypeData } from '../popover-text/popover-text';
-import { useChackraColor } from '../get-color';
-import { useColorModeValue, Box, Textarea, Text, Tooltip, Flex, Button, ButtonGroup, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverFooter, PopoverHeader, PopoverTrigger } from '@chakra-ui/react';
 import { TypeIcon } from '../cyto-react-links-card';
-import { AnimatePresence, motion } from 'framer-motion';
+import { useChackraColor } from '../get-color';
+import { ITypeData } from '../popover-text/popover-text';
 
 
 const variants = {
@@ -28,7 +28,6 @@ export const TextInput = React.memo<any>(() => {
   
   useEffect(() => {
     let position = inputRef?.current?.selectionStart;
-    console.log(position);
   })
 
   return (<Textarea
@@ -64,53 +63,58 @@ export const TooltipEmoji = React.memo<any>(({
   const open = () => setIsOpen(!isOpen)
   const close = () => setIsOpen(false)
 
-  return (<AnimatePresence>
-
-      <Popover
-        returnFocusOnClose={false}
-        isOpen={isOpen}
-        onClose={close}
-        placement='right'
-        closeOnBlur={false}
+  return (<Popover
+      returnFocusOnClose={false}
+      isOpen={isOpen}
+      onOpen={open}
+      onClose={close}
+      placement='right'
+      closeOnBlur={false}
+      size='sm'
+      arrowShadowColor='none'
+      
+    >
+      <PopoverTrigger>
+        <Box w='max-content' h='100%'>Popover Target</Box>
+      </PopoverTrigger>
+      <PopoverContent sx={{ 
+          // boxShadow: '0 0 0',
+          // '[data-focus-visible]': {
+          //   borderColor: 'none'
+          // }
+        }}
+        _focusVisible={{boxShadow: '0 0 0', outlineColor: 'transparent', border: 'none',}}
       >
-        <PopoverTrigger>
-          <Button colorScheme='pink'>Popover Target</Button>
-        </PopoverTrigger>
-        <PopoverContent>
-          <PopoverArrow />
-          <PopoverBody>
-            <Box
-              overflow='hidden'
-              h='100%'
-            >
-              <Flex overflowX='scroll'>
-                {data.map((t) => <TypeIcon 
-                  key={t.id} 
-                  src={t.src} 
-                  borderWidth={selectedLink === t.id ? 2 : 1}
-                  borderColor={selectedLink === t.id ? borderColorSelected : colorGrayToWhite}
-                  _hover={{
-                    borderColor: 'primary'
-                  }}
-                  onClick={selectLink}/>
-                )}
-              </Flex>
-            </Box>
-          </PopoverBody>
-        </PopoverContent>
-      </Popover>
-      {/* <Tooltip 
-        as={motion.div}
-        initial="exited"
-        animate="opened"
-        exit="exited"
-        variants={variants}
-        sx={{position: 'relative'}}
-        label={<Box
-            overflow='hidden'
+        <PopoverArrow />
+        <PopoverBody 
+          overflow='scroll'
+          sx={{
+            p: 1.5,
+            overscrollBehavior: 'contain', 
+            boxSizing: 'border-box',
+            '::-webkit-scrollbar': {
+              display:'none',
+              // width: '100%',
+              // height: '3px',
+              // borderRadius: '2px',
+              // backgroundColor: `rgba(194, 219, 245, 0.5)`,
+            },
+            // '&::-webkit-scrollbar-thumb': {
+            //   backgroundColor: 'red',
+            // },
+          }}
+        >
+          <Box
+            w='max-content'
             h='100%'
           >
-            <Flex overflowX='scroll'>
+            <Flex 
+              sx={{
+                '& > *:not(:last-of-type)': {
+                  mr: '0.4rem',
+                }
+              }}
+            >
               {data.map((t) => <TypeIcon 
                 key={t.id} 
                 src={t.src} 
@@ -123,11 +127,9 @@ export const TooltipEmoji = React.memo<any>(({
               )}
             </Flex>
           </Box>
-        }
-      >
-        {children}
-      </Tooltip> */}
-    </AnimatePresence>
+        </PopoverBody>
+      </PopoverContent>
+    </Popover>
   )
 })
 

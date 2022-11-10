@@ -76,6 +76,24 @@ export const elements = [
     linkName: 'Massage',
     containerName: '@deepcase/massage',
   },
+  {
+    id: 11,
+    src: '❤️‍🔥',
+    linkName: 'Massage',
+    containerName: '@deepcase/massage',
+  },
+  {
+    id: 12,
+    src: '❤️‍🔥',
+    linkName: 'Massage',
+    containerName: '@deepcase/massage',
+  },
+  {
+    id: 13,
+    src: '❤️‍🔥',
+    linkName: 'Massage',
+    containerName: '@deepcase/massage',
+  },
 ]
 
 export default function Page() {
@@ -96,7 +114,7 @@ export default function Page() {
           {[<DeepLoader
             key={spaceId}
             spaceId={spaceId}
-            minilinks={minilinks}
+            // minilinks={minilinks}
             // onUpdateScreenQuery={query => console.log('updateScreenQuery', query)}
             />]}
           <ColorModeSwitcher/>

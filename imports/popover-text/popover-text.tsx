@@ -1,5 +1,5 @@
-import React, { ReactElement, useCallback, useRef, useState } from 'react';
-import { chakra, Box, Button, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Text, useBoolean, useDisclosure, useColorModeValue, Square } from '@chakra-ui/react';
+import { Box, Button, chakra, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverTrigger, Square, Text, useColorModeValue } from '@chakra-ui/react';
+import React, { ReactElement } from 'react';
 import { useChackraColor } from '../get-color';
 
 export interface ITypeData {
