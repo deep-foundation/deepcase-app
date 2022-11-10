@@ -1,5 +1,4 @@
 import { Box, Flex, Popover, PopoverArrow, PopoverBody, PopoverContent, PopoverTrigger, Text, Textarea, useColorModeValue } from '@chakra-ui/react';
-import { AnimatePresence } from 'framer-motion';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { TypeIcon } from '../cyto-react-links-card';
 import { useChackraColor } from '../get-color';
@@ -78,10 +77,10 @@ export const TooltipEmoji = React.memo<any>(({
         <Box w='max-content' h='100%'>Popover Target</Box>
       </PopoverTrigger>
       <PopoverContent sx={{ 
-          // boxShadow: '0 0 0',
-          // '[data-focus-visible]': {
-          //   borderColor: 'none'
-          // }
+          boxShadow: '0 0 0',
+          '& [data-focus-visible]': {
+            borderColor: 'none'
+          }
         }}
         _focusVisible={{boxShadow: '0 0 0', outlineColor: 'transparent', border: 'none',}}
       >
