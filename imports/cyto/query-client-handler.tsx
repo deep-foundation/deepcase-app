@@ -1,6 +1,8 @@
 import { Box, HStack, IconButton } from '@chakra-ui/react';
+import { useLocalStore } from '@deep-foundation/store/local';
+import { useDebounceCallback } from '@react-hook/debounce';
 import { motion } from 'framer-motion';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { BsCheck2, BsLightbulbFill, BsLightbulbOff } from 'react-icons/bs';
 import { EditorTextArea } from '../editor/editor-textarea';
 import { CustomizableIcon } from '../icons-provider';
@@ -30,6 +32,7 @@ const variants = {
 export const QueryClientHandler = React.memo<any>(() => {
   const [viewSize, setViewSize] = useState({width: 200, height: 150});
   const [save, setSave] = useState(false);
+  const [value, setValue] = useState(false);
   const [active, setActive] = useState(false);
   
   useEffect(() => {
@@ -48,7 +51,24 @@ export const QueryClientHandler = React.memo<any>(() => {
       height='100%'
       justify='flex-end'
       mb={2}
-      >
+    >
+      { value   
+        ?<IconButton 
+          as={motion.div}
+          variants={variants}
+          initial='hide'
+          whileInView='view'
+          aria-label='save button' 
+          isRound
+          variant='outline'
+          sx={{ borderColor: 'rgb(0, 128, 255)' }}
+          isLoading={save}
+          size='xs'
+          icon={<CustomizableIcon Component={BsCheck2} value={{ color: 'rgb(0, 128, 255)' }} />}
+          onClick={() => setSave(true)}
+        />
+        : null
+      }
       <IconButton 
         as={motion.div}
         variants={variants}
@@ -61,20 +81,6 @@ export const QueryClientHandler = React.memo<any>(() => {
         size='xs'
         onClick={() => setActive(!active)}
         icon={active ? <BsLightbulbOff /> : <CustomizableIcon Component={BsLightbulbFill} value={{ color: 'rgb(0, 128, 255)' }} />}
-        />
-      <IconButton 
-        as={motion.div}
-        variants={variants}
-        initial='hide'
-        whileInView='view'
-        aria-label='save button' 
-        isRound
-        variant='outline'
-        sx={{ borderColor: 'rgb(0, 128, 255)' }}
-        isLoading={save}
-        size='xs'
-        icon={<CustomizableIcon Component={BsCheck2} value={{ color: 'rgb(0, 128, 255)' }} />}
-        onClick={() => setSave(true)}
       />
     </HStack>
     <Resize 
@@ -89,6 +95,8 @@ export const QueryClientHandler = React.memo<any>(() => {
       <EditorTextArea 
         minimap={false} 
         lineNumbers='off' 
+        onChange={(value) => setValue(true)}
+        onSave={() => setSave(true)}
       />
     </Resize>
   </Box>)
