@@ -29,7 +29,7 @@ const variants = {
   }
 };
 
-export const QueryClientHandler = React.memo<any>(() => {
+export const QueryClientHandler = React.memo<any>(({nested = false}:{nested?: boolean;}) => {
   const [viewSize, setViewSize] = useState({width: 200, height: 150});
   const [save, setSave] = useState(false);
   const [value, setValue] = useState(false);
@@ -51,6 +51,15 @@ export const QueryClientHandler = React.memo<any>(() => {
       height='100%'
       justify='flex-end'
       mb={2}
+      sx={
+        nested ? {
+          position: 'absolute',
+          top: '0.375rem',
+          right: '0.375rem',
+          zIndex: 1,
+          height: 'max-content'
+        } : null
+      }
     >
       { value   
         ?<IconButton 
