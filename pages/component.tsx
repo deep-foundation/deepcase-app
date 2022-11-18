@@ -1,19 +1,18 @@
 
-import { Box, Heading, HStack, Code, useColorModeValue, Button } from '@chakra-ui/react';
+import { Box, Button, Code, Heading, HStack } from '@chakra-ui/react';
 import { useMinilinksConstruct } from '@deep-foundation/deeplinks/imports/minilinks';
 import dynamic from "next/dynamic";
 import { useState } from 'react';
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
 import { Appearance } from '../imports/component-appearance';
 import { GridComponent } from '../imports/component/grid-component';
+import { Connector } from '../imports/connector';
 import { QueryClientHandler } from '../imports/cyto/query-client-handler';
 import { CytoGraphProps } from '../imports/cyto/types';
 import { DotsLoader } from '../imports/dot-loader';
-import { useChackraColor } from '../imports/get-color';
 import { Example } from '../imports/popover-text/popover-text';
 import { Provider } from '../imports/provider';
-import { Resize } from '../imports/resize';
-import { TextInput, TooltipEmoji, TooltipExample } from '../imports/text-cursor-tooltip/text-cursor-tooltip';
+import { TextInput, TooltipEmoji } from '../imports/text-cursor-tooltip/text-cursor-tooltip';
 import { elements } from './card';
 
 const CytoGraph = dynamic<CytoGraphProps>(
@@ -25,6 +24,7 @@ export default function Page() {
   const minilinks = useMinilinksConstruct();
   const { ref: mlRef, ml } = minilinks;
   const [toggle, setToggle] = useState(false);
+  const [portal, setPortal] = useState(false);
   // const [viewSize, setViewSize] = useState({width: 200, height: 150});
 
   // const blackAlpha = useChackraColor('blackAlpha.200');
@@ -60,7 +60,7 @@ export default function Page() {
             <Box w='15rem' h='10rem' bg='blue.400' /> 
           </Appearance>
         </HStack>
-        <button onClick={() => setToggle(!toggle)}>push me</button>
+        <Button colorScheme='teal' onClick={() => setToggle(!toggle)}>push me</Button>
 
         <Box w='100%' h='4rem' />
         <Code>/popover-text/popover-text</Code>
@@ -75,20 +75,18 @@ export default function Page() {
         <Box w='100%' h='10rem' />
         <Code>/cyto/query-client-handler</Code>
         <Box w='100%' h='1rem' />
-        {/* <Resize 
-          size={viewSize} 
-          onChangeSize={(viewSize) => setViewSize(viewSize)} 
-          style={{
-            // borderTop: 'none', 
-            // borderBottom: 'none', 
-            // borderLeft: `1px solid ${colorGrayToWhite}`,
-            // borderRight: `1px solid ${colorGrayToWhite}`,
-            position: 'relative',
-            overflow: 'hidden'
-          }}
-        > */}
-          <QueryClientHandler />
-        {/* </Resize> */}
+        <QueryClientHandler />
+        <Box w='100%' h='1rem' />
+
+        <Box w='100%' h='2rem' />
+        <Code>/connector</Code>
+        <Box w='100%' h='1rem' />
+        <Connector 
+          portalOpen={portal}
+          onClosePortal={() => setPortal(false)}
+        />
+        <Button colorScheme='teal' onClick={() => setPortal(true)}>push me</Button>
+        <Box w='100%' h='1rem' />
 
       </Box>
     </></Provider>
