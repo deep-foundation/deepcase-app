@@ -1,14 +1,9 @@
-import { Box, List, Spacer, Stat, StatHelpText, StatLabel, StatNumber, Table, TableCaption, TableContainer, Tbody, Td, Tfoot, Th, Thead, Tr, useColorModeValue } from '@chakra-ui/react';
-import React, { ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { TiPlusOutline } from 'react-icons/ti';
+import { Box, Stat, StatHelpText, StatLabel, StatNumber, Table, TableCaption, TableContainer, Tbody, Td, Tfoot, Th, Thead, Tr, useColorModeValue } from '@chakra-ui/react';
+import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import { FcEnteringHeavenAlive, FcMindMap } from 'react-icons/fc';
-import { size } from 'lodash';
-import { Resize } from '../resize';
-import ReactResizeDetector from 'react-resize-detector';
-import { useMotionValue, useTransform, motion } from 'framer-motion';
-import { GrBottomCorner } from 'react-icons/gr';
-import { CustomizableIcon } from '../icons-provider';
+import { TiPlusOutline } from 'react-icons/ti';
 import { useChackraColor } from '../get-color';
+import { Resize } from '../resize';
 
 
 const SemicircularButton = React.memo<any>(({
@@ -144,58 +139,12 @@ export const GridComponent = React.memo<any>(({
     console.log({height: ref.current?.clientHeight, width: ref.current?.clientWidth, widthMount, widthUnmount});
   }, []);
   console.log({height, width, widthMount, widthUnmount});
-  
-  console.log({viewSize});
 
   const blackAlpha = useChackraColor('blackAlpha.200');
   const whiteAlpha = useChackraColor('whiteAlpha.200');
   const colorGrayToWhite = useColorModeValue(blackAlpha, whiteAlpha);
 
-  return (<>
-    {/* <div
-      style={{
-        width: 490,
-        height: 400,
-        // ...props.style,
-        backgroundColor: "#19e",
-        display: "flex",
-        placeItems: "center",
-        placeContent: "center",
-      }}
-    >
-      <motion.div
-        style={{
-          width: 100,
-          height: 100,
-          borderRadius: 10,
-          backgroundColor: "#000",
-          // cursor: "grab",
-          position: 'relative',
-        }}
-        // drag
-        // whileTap={{ cursor: "grabbing" }}
-      >
-        <motion.div
-          style={{
-            width: '1rem',
-            height: '1rem',
-            borderRadius: 10,
-            backgroundColor: "#fff",
-            cursor: "grab",
-            position: 'absolute', top: 'calc(100% - 1rem)', left: 'calc(100% - 1rem)'
-          }}
-          drag
-          // dragConstraints={{ left: -1, right: 1, top: -1, bottom: 1 }}
-          dragElastic={0}
-          dragMomentum={true}
-          dragTransition={{ bounceDamping: 2 }}
-          onDragStart={(event, info) => console.log(info.offset.x, info.offset.y) }
-          whileTap={{ cursor: "grabbing" }} 
-          ref={littleRef}  
-        />
-      </motion.div>
-    </div> */}
-    <Spacer />
+  return (
     <Box>
       <Box
         display='flex'
@@ -326,6 +275,5 @@ export const GridComponent = React.memo<any>(({
         />
       </Box>
     </Box>
-    </>
   )
 })
