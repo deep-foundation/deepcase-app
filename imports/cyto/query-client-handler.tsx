@@ -54,7 +54,7 @@ export const QueryClientHandler = React.memo<any>(({nested = false}:{nested?: bo
       sx={
         nested ? {
           position: 'absolute',
-          top: '0.375rem',
+          bottom: 0,
           right: '0.375rem',
           zIndex: 1,
           height: 'max-content'

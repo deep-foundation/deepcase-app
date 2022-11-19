@@ -25,6 +25,7 @@ export default function Page() {
   const { ref: mlRef, ml } = minilinks;
   const [toggle, setToggle] = useState(false);
   const [portal, setPortal] = useState(false);
+  const [nested, setNested] = useState(false);
   // const [viewSize, setViewSize] = useState({width: 200, height: 150});
 
   // const blackAlpha = useChackraColor('blackAlpha.200');
@@ -75,7 +76,8 @@ export default function Page() {
         <Box w='100%' h='10rem' />
         <Code>/cyto/query-client-handler</Code>
         <Box w='100%' h='1rem' />
-        <QueryClientHandler />
+        <QueryClientHandler nested={nested} />
+        <Button colorScheme='teal' onClick={() => setNested(!nested)}>nested</Button>
         <Box w='100%' h='1rem' />
 
         <Box w='100%' h='2rem' />
