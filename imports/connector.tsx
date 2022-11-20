@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from
 import { Box, Button, Divider, Flex, IconButton, Image, Input, InputGroup, InputLeftAddon, InputLeftElement, InputRightAddon, InputRightElement, Spacer, Text } from '@chakra-ui/react';
 import { ModalWindow } from "./modal-window";
 import { useDebounceCallback } from "@react-hook/debounce";
-import { IoAddCircleOutline, IoPlayOutline, IoAddOutline } from 'react-icons/io5';
+import { IoStopOutline, IoPlayOutline, IoAddOutline } from 'react-icons/io5';
 import { MdDelete } from 'react-icons/md';
 import { motion, useAnimation, AnimatePresence } from 'framer-motion';
 import { CustomizableIcon } from "./icons-provider";
@@ -68,46 +68,55 @@ const Initializing = React.memo<any>(() => {
   )
 });
 
-const Initialized = React.memo(() => {
-  return (<Flex width='100%' justify='space-between' pt={2} pb={2} alignItems='center'>
+const ButtonTextButton = React.memo(({
+  ComponentLeftIcon = IoPlayOutline,
+  ariaLabelLeft = 'Add local route',
+  ComponentRightIcon =  MdDelete,
+  ariaLabelRight = 'Remove local route',
+  text = 'Initializing',
+  onClickLeft,
+  onClickRight,
+}:{
+  ComponentLeftIcon?: any;
+  ariaLabelLeft?: string;
+  ComponentRightIcon?: any;
+  ariaLabelRight?: string;
+  text?: any;
+  onClickLeft?: () => any;
+  onClickRight?: () => any;
+}) => {
+  return (<Flex width='100%' justify='space-between'  alignItems='center'>
       <IconButton
         variant='unstyled' 
         size='md'
-        aria-label='Add local route' 
-        icon={
-          <IoPlayOutline color='rgb(0, 128, 255)' />
-        } 
+        aria-label={ariaLabelLeft}
+        icon={<ComponentLeftIcon color='rgb(0, 128, 255)' />} 
+        onClick={onClickLeft}
       />
-      <Text sx={{color: '#F7FAFC'}} fontSize='sm' as='kbd' mr='0.125rem'>Initializing</Text>
+      <Text sx={{color: '#F7FAFC'}} fontSize='sm' as='kbd' mr='0.125rem'>{text}</Text>
       <IconButton
         variant='unstyled' 
         size='md'
-        aria-label='Add local route' 
-        icon={
-          <MdDelete color='rgb(0, 128, 255)' />
-        } 
+        aria-label={ariaLabelRight}
+        onClick={onClickRight}
+        icon={<ComponentRightIcon color='rgb(0, 128, 255)' />} 
       />
-      
     </Flex>
   )
 })
 
 const inputArea = {
   open: {
-    height: '5rem',
-    // scaleY: 1,
-    // display: 'block',
+    height: '4rem',
     transition: { duration: 0.5 }
   }, 
   close: {
     height: '0rem',
-    // scaleY: 0,
-    // display: 'none',
     transition: { delay: 0.5 }
   },
   initial: {
     height: '0rem',
-    // scaleY: 0,
+    overflow: 'hidden',
     originY: 1
   }
 };
@@ -117,7 +126,6 @@ const inputAnimation = {
     opacity: 1,
     scaleY: 1,
     originY: 0,
-    // display: 'flex',
     transition: { 
       duration: 0.5,
       delay: 0.2
@@ -127,7 +135,6 @@ const inputAnimation = {
     opacity: 0,
     scaleY: 0,
     originY: 1,
-    // display: 'none',
     transition: { 
       duration: 0.3,
       display: { delay: 0.7 }
@@ -176,21 +183,25 @@ const InputAnimation = React.memo<any>(({
       variants={inputArea}
       bg={bgContainer}
       w='100%'
-      // height='100%'
-      p={4}
+      display='flex'
+      alignItems='center'
+      justifyContent='center'
+      pl={4}
+      pr={4}
+      // p={4}
       key={key}
     >
       {/* <Box > */}
         {/* <AnimatePresence> */}
           <InputGroup 
-            size='lg'
+            size='md'
             // layout
             as={motion.div}
             animate={controlInput}
             initial='hide'
             exit='hide'
             variants={inputAnimation}
-            key={key}
+            // key={key}
           >
             <InputLeftElement 
               onClick={onStartRemoteRoute}
@@ -235,7 +246,7 @@ const initArea = {
   open: {
     scaleY: 1,
     opacity: 1,
-    display: 'flex',
+    // display: 'flex',
   }, 
   close: {
     scaleY: 0,
@@ -254,6 +265,13 @@ const initArea = {
   }
 };
 
+enum InitializingState {
+  notInit = 'not init',
+  initializing = 'initializing',
+  initialized = 'initialized',
+  launched = 'launched',
+}
+
 export const Connector = React.memo<any>(({
   portalOpen, 
   onClosePortal,
@@ -265,10 +283,9 @@ export const Connector = React.memo<any>(({
   const controlNotInit = useAnimation();
   const controlInit = useAnimation();
   const controlInited = useAnimation();
+  const controlLaunch = useAnimation();
   const [valueRemote, setValueRemote] = useState('');
-  const [initLocal, setInitLocal] = useState(false);
-  const [initedLocal, setInitedLocal] = useState(false);
-  // const [addRemote, setAddRemote] = useState(0);
+  const [init, setInitLocal] = useState<InitializingState>(InitializingState.notInit);
   const onChangeValueRemote = useDebounceCallback((value) => {
     setValueRemote(value);
   }, 500);
@@ -297,17 +314,26 @@ export const Connector = React.memo<any>(({
   }, [control, portalOpen]);
 
   useEffect(() => {
-    if (initLocal && !initedLocal) { 
+    if (init === InitializingState.initializing) { 
       controlNotInit.start('close');
       controlInit.start('open');
-    } else if (initLocal && initedLocal) {
+    } else if (init === InitializingState.initialized) {
       controlNotInit.start('initializing');
       controlInit.start('initializing');
       controlInited.start('open');
+    } else if (init === InitializingState.launched) {
+      controlNotInit.start('initializing');
+      controlInit.start('initializing');
+      controlInited.start('initializing');
+      controlLaunch.start('open');
     } else {
+      controlNotInit.start('initializing');
+      controlInit.start('initializing');
+      controlInited.start('initializing');
+      controlLaunch.start('initializing');
       controlNotInit.start("open");
     } 
-  }, [initLocal, initedLocal]);
+  }, [init]);
 
   return (<ModalWindow onClosePortal={onClosePortal} portalOpen={portalOpen}>
       <Box 
@@ -344,7 +370,7 @@ export const Connector = React.memo<any>(({
                 // setValueRemote={}
                 onDeleteValue={() => remove(rr.id)}
                 // onStartRemoteRoute={() => {}}
-                key={rr.id}
+                key={(console.log({'rr': rr.id}),rr.id)}
               />)
             )}
           </AnimatePresence>
@@ -368,11 +394,13 @@ export const Connector = React.memo<any>(({
             pb={2}
             boxSizing='border-box'
             w='100%'
+            position='relative'
           > 
             <AnimatePresence>
-              <Box display='flex' w='100%' justifyContent='space-between' alignItems='center' minW='19.75rem' position='relative'>
+              {/* <Box display='flex' w='100%' justifyContent='space-between' alignItems='center' minW='19.75rem' position='relative'> */}
                 <Box 
                   w='100%' 
+                  minW='19.75rem'
                   h='100%' 
                   display='flex' 
                   justifyContent='space-between'
@@ -381,7 +409,7 @@ export const Connector = React.memo<any>(({
                   animate={controlNotInit}
                   initial='initial'
                   variants={initArea}
-                  onClick={() => setInitLocal(!initLocal)} 
+                  onClick={() => setInitLocal(InitializingState.initializing)} 
                 >
                   <Text sx={{color: '#F7FAFC'}} fontSize='sm' as='kbd'>no initialized</Text>
                   <IconButton
@@ -395,34 +423,59 @@ export const Connector = React.memo<any>(({
                 </Box>
                 <Box 
                   w='100%' 
+                  minW='19.75rem'
                   h='100%' 
                   display='flex' 
                   position='absolute'
-                  top={0} left={0}
+                  top={0} left={4}
                   justifyContent='space-between'
                   alignItems='center'
                   as={motion.div}
                   animate={controlInit}
-                  initial='Initializing'
+                  initial='initializing'
                   variants={initArea}
-                  onClick={() => setInitedLocal(!initedLocal)} 
+                  onClick={() => setInitLocal(InitializingState.initialized)} 
                 >
                   <Initializing />
                 </Box>
                 <Box 
                   w='100%' 
+                  minW='19.75rem'
                   h='100%'  
                   position='absolute'
-                  top={0} left={-4}
+                  top={0} left={0}
                   as={motion.div}
                   animate={controlInited}
                   initial='initializing'
                   variants={initArea}
-                  onClick={() => setInitLocal(!initLocal)} 
                 >
-                  <Initialized />
+                  <ButtonTextButton 
+                    onClickLeft={() => setInitLocal(InitializingState.launched)} 
+                    onClickRight={() => setInitLocal(InitializingState.launched)} 
+                  />
                 </Box>
-              </Box>
+                <Box 
+                  // w='100%' 
+                  minW='19.75rem'
+                  h='100%'  
+                  position='absolute'
+                  top={0} left={0}
+                  as={motion.div}
+                  animate={controlLaunch}
+                  initial='initializing'
+                  variants={initArea}
+                  onClick={() => setInitLocal(InitializingState.notInit)} 
+                >
+                   <ButtonTextButton 
+                    text='launched'
+                    ariaLabelLeft=""
+                    ariaLabelRight=""
+                    ComponentRightIcon={IoStopOutline}
+                    onClickLeft={() => setInitLocal(InitializingState.launched)} 
+                    onClickRight={() => setInitLocal(InitializingState.launched)} 
+                  />
+                </Box>
+              {/* </Box> */}
             </AnimatePresence>
           </Box>
         </Box>
