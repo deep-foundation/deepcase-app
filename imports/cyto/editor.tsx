@@ -77,25 +77,6 @@ export function useEditorTabs() {
   };
 }
 
-const reasons = [
-  {
-    id: 1,
-    name: 'type',
-  },
-  {
-    id: 2,
-    name: 'selector',
-  },
-  {
-    id: 3,
-    name: 'route',
-  },
-  {
-    id: 4,
-    name: 'schedule',
-  },
-];
-
 export function CytoEditor({
 }: {
 }) {
@@ -168,33 +149,6 @@ export function CytoEditor({
   useEffect(() => {
     import('@monaco-editor/react').then(m => {});
   }, []);
-
-  const { data } = useDeepQuery({
-    down: {
-      link: {
-        type_id: { _in: [
-          deep.idSync('@deep-foundation/core', 'Supports'),
-          deep.idSync('@deep-foundation/core', 'SupportsCompatable'),
-          deep.idSync('@deep-foundation/core', 'Handler'),
-          deep.idSync('@deep-foundation/core', 'Port'),
-          deep.idSync('@deep-foundation/core', 'HandlePort'),
-          deep.idSync('@deep-foundation/core', 'Route'),
-          deep.idSync('@deep-foundation/core', 'RouterListening'),
-          deep.idSync('@deep-foundation/core', 'RouterStringUse'),
-          deep.idSync('@deep-foundation/core', 'HandleRoute'),
-        ] },
-      },
-    },
-  });
-  useMinilinksApply(deep.minilinks, 'cyto-editor-handlers', data || []);
-
-  useEffect(() => {
-    console.log('tab change query', deep.minilinks?.query({
-      type_id: deep.idSync('@deep-foundation/core', 'Handler'),
-      from_id: deep.idSync('@deep-foundation/core', 'clientSupportsJs'),
-      to_id: tabId,
-    }));
-  }, [tabId]);
 
   return <>
     <Modal isOpen={cytoEditor} onClose={onClose} size='full'>

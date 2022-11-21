@@ -73,6 +73,9 @@ export function useWindowSize() {
 export function useGraphiqlHeight() {
   return useLocalStore('graphiql-height', defaultGraphiqlHeight);
 };
+export function useAutoFocusOnInsert() {
+  return useLocalStore('autofocus-on-insert', true);
+};
 export function useShowExtra() {
   return useQueryStore<any>('show-extra', false);
 };
@@ -81,6 +84,9 @@ export function useCytoViewport<S extends { pan: { x: number; y: number; }; zoom
 };
 export function useShowFocus() {
   return useQueryStore<any>('show-focus', false);
+};
+export function useBreadcrumbs() {
+  return useQueryStore<any>('breadcrumbs', false);
 };
 export function useShowTypes() {
   return useQueryStore('show-types', true);
@@ -95,7 +101,13 @@ export function useFocusMethods() {
     return {
       unfocus: async (id) => {
         console.log('unfocus', { spaceId, id });
-        const where = { type_id: deep.idSync('@deep-foundation/core', 'Focus'), from_id: spaceId, to_id: id };
+        const whereF = { type_id: deep.idSync('@deep-foundation/core', 'Focus'), from_id: spaceId, to_id: id };
+        const where = {
+          _or: [
+            whereF,
+            { type_id: deep.idSync('@deep-foundation/core', 'Contain'), from_id: spaceId, to: whereF },
+          ],
+        };
         console.log('unfocused', await deep.delete(where));
       },
       focus: async (id, value: { x: number; y: number; z: number; }) => {

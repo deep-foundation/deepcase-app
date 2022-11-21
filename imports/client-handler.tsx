@@ -1,14 +1,16 @@
 import * as chakra from '@chakra-ui/react';
-import { DeepClient, useDeep } from "@deep-foundation/deeplinks/imports/client";
+import { DeepClient, useDeep, useDeepSubscription } from "@deep-foundation/deeplinks/imports/client";
 import { evalClientHandler as deepclientEvalClientHandler } from '@deep-foundation/deeplinks/imports/client-handler';
 import { useMinilinksFilter } from "@deep-foundation/deeplinks/imports/minilinks";
 import * as axios from 'axios';
 import * as classnames from 'classnames';
 import React, { useCallback, useEffect, useRef } from 'react';
 // import * as reacticons from 'react-icons/all';
-import reactHotkeysHook from 'react-hotkeys-hook';
+import * as reactHotkeysHook from 'react-hotkeys-hook';
 import * as debounce from '@react-hook/debounce';
 import * as json5 from 'json5';
+import { useContainer, useSpaceId } from './hooks';
+import { CytoEditorPreview } from './cyto/editor-preview';
 
 const r = (path) => {
   if (r.list[path]) return r.list[path];
@@ -23,6 +25,11 @@ r.list = {
   'react-hotkeys-hook': reactHotkeysHook,
   '@react-hook/debounce': debounce,
   'json5': json5,
+  '@deep-foundation/deepcase': {
+    useContainer,
+    useSpaceId,
+    CytoEditorPreview,
+  },
 };
 
 export async function evalClientHandler({
@@ -48,50 +55,51 @@ export async function evalClientHandler({
 export interface ClientHandlerRendererProps {
   Component: any;
   fillSize?: boolean;
+  onClose?: () => any;
   [key: string]: any;
 };
 
 export function ClientHandlerRenderer({
   Component,
   fillSize = false,
+  onClose,
   ...props
 }: ClientHandlerRendererProps) {
-  return <>{typeof(Component) === 'function' && <Component fillSize={fillSize} {...props} style={{
-    ...(fillSize ? { width: '100%', height: '100%' } : {}),
-    ...props?.style,
-  }}/>}</>;
+  return <>{typeof(Component) === 'function' && <Component
+    onClose={onClose}
+    fillSize={fillSize}
+    {...props}
+    style={{
+      ...(fillSize ? { width: '100%', height: '100%' } : {}),
+      ...props?.style,
+    }}
+  />}</>;
 }
 
 export interface ClientHandlerProps extends Partial<ClientHandlerRendererProps> {
   handlerId: number;
   linkId: number;
   ml: any;
+  onClose?: () => any,
 }
 
 export function ClientHandler({
   handlerId,
   linkId,
   ml,
+  onClose,
   ...props
 }: ClientHandlerProps) {
   const deep = useDeep();
-  let file = useMinilinksFilter(
-    ml,
-    useCallback((l) => true, []),
-    useCallback((l, ml) => {
-      console.log('ClientHandler useMinilinksFilter', { linkId, handlerId });
-      return ml.byType[deep.idSync('@deep-foundation/core', 'SyncTextFile')]
-      ?.filter(l => (
-        !!l?.inByType?.[deep.idSync('@deep-foundation/core', 'Handler')]?.filter(l => (
-          l.id === handlerId
-        ))?.length
-      ))?.[0];
-    }, [linkId, handlerId]),
-  );
+  const { data: files } = useDeepSubscription({
+    in: {
+      id: handlerId
+    },
+  });
+  const file = files?.[0];
 
   const [Component, setComponent] = React.useState<any>(null);
 
-  console.log('ClientHandler', { file });
   const lastEvalRef = useRef(0);
   useEffect(() => {
     const value = file?.value?.value;
@@ -112,7 +120,9 @@ export function ClientHandler({
 
   return (<>
     {(typeof(Component) === 'function')
-    ? <>{[<ClientHandlerRenderer key={Component.toString()} Component={Component} {...props} fillSize={false} link={ml.byId[linkId]} ml={ml}/>]}</>
-    : <div>123</div>}
+    ? <>{[<ClientHandlerRenderer key={Component.toString()} Component={Component} {...props} fillSize={false} link={ml.byId[linkId]} ml={ml} onClose={onClose}/>]}</>
+    : <div>
+        
+      </div>}
   </>);
 }

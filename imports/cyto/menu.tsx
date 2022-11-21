@@ -1,20 +1,26 @@
 import { CloseIcon } from "@chakra-ui/icons";
-import { HStack, ButtonGroup, Button, IconButton, FormControl, FormLabel, Switch, Box, VStack } from "@chakra-ui/react";
+import { HStack, ButtonGroup, Button, IconButton, FormControl, FormLabel, Switch, Box, VStack, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Input, Tag, TagLabel } from "@chakra-ui/react";
 import { useDeep } from "@deep-foundation/deeplinks/imports/client";
 import copy from "copy-to-clipboard";
-import { useState, useEffect } from "react";
-import { useSpaceId, useShowTypes, useLayout, useContainer, useShowExtra, useShowFocus, usePromiseLoader, useTraveler, useMediaQuery } from "../hooks";
+import { useState, useEffect, useMemo } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
+import { useSpaceId, useShowTypes, useLayout, useContainer, useShowExtra, useShowFocus, usePromiseLoader, useTraveler, useMediaQuery, useAutoFocusOnInsert, useBreadcrumbs } from "../hooks";
 import { useCytoEditor } from "./hooks";
 
 const NEXT_PUBLIC_GQL_PATH = process.env.NEXT_PUBLIC_GQL_PATH || 'localhost:3006/gql';
 const NEXT_PUBLIC_GQL_SSL = process.env.NEXT_PUBLIC_GQL_SSL || '0';
 
-export function CytoMenu() {
+export function CytoMenu({
+  cyRef,
+}: {
+  cyRef?: any;
+}) {
   const [spaceId, setSpaceId] = useSpaceId();
   const [showTypes, setShowTypes] = useShowTypes();
   const [cytoEditor, setCytoEditor] = useCytoEditor();
   const { layout, setLayout, layoutName } = useLayout();
   const [promiseLoader, setPromiseLoader] = usePromiseLoader();
+  const [autoFocus, setAutoFocus] = useAutoFocusOnInsert();
 
   const [pasteError, setPasteError] = useState(false);
   const [valid, setValid] = useState<any>(undefined);
@@ -22,6 +28,7 @@ export function CytoMenu() {
   const [extra, setExtra] = useShowExtra();
   const [focus, setFocus] = useShowFocus();
   const [traveler, setTraveler] = useTraveler();
+  const [breadcrumbs, setBreadcrumbs] = useBreadcrumbs();
   const deep = useDeep();
   const [max300] = useMediaQuery('(max-width: 300px)');
 
@@ -84,6 +91,12 @@ export function CytoMenu() {
       </HStack>
       <HStack>
         <FormControl display='flex' alignItems='center'>
+          <FormLabel htmlFor='autofocus-on-insert' mb='0'>
+            autofocus
+          </FormLabel>
+          <Switch id='autofocus-on-insert' isChecked={autoFocus} onChange={() => setAutoFocus(!autoFocus)}/>
+        </FormControl>
+        <FormControl display='flex' alignItems='center'>
           <FormLabel htmlFor='show-focus' mb='0'>
             focus
           </FormLabel>
@@ -113,7 +126,69 @@ export function CytoMenu() {
           </FormLabel>
           <Switch id='show-traveler-switch' isChecked={traveler} onChange={() => setTraveler(!traveler)}/>
         </FormControl>
+        <FormControl display='flex' alignItems='center'>
+          <FormLabel htmlFor='breadcrumbs-switch' mb='0'>
+            breadcrumbs
+          </FormLabel>
+          <Switch id='breadcrumbs-switch' isChecked={breadcrumbs} onChange={() => setBreadcrumbs(!breadcrumbs)}/>
+        </FormControl>
+      </HStack>
+      <HStack>
+        <MenuSearch cyRef={cyRef}/>
       </HStack>
     </VStack>
   </Box>;
 }
+
+export const MenuSearch = ({ cyRef }: { cyRef?: any; }) => {
+  const deep = useDeep();
+  const [value, setValue] = useState('');
+  const links = deep.useMinilinksQuery({
+    _or: [
+      { id: { _eq: parseInt(value) } }
+    ],
+  });
+  const [index, setIndex] = useState(-1);
+  useHotkeys('up,right,down,left', e => {
+    const cy = cyRef?.current;
+    e.preventDefault();
+    e.stopPropagation();
+    if (index == -1) {
+      setIndex(0);
+    } else if (e.key == 'ArrowUp' || e.key == 'ArrowLeft') {
+      setIndex(index => index - 1);
+      cy.center(cy.$(`#{links[index - 1]?.id}`));
+    } else if (e.key == 'ArrowDown' || e.key == 'ArrowRight') {
+      setIndex(index => index + 1);
+      cy.center(cy.$(`#{links[index + 1]?.id}`));
+    }
+  }, { enableOnTags: ["TEXTAREA", "INPUT"] });
+
+  useHotkeys('enter', e => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, { enableOnTags: ["TEXTAREA", "INPUT"] });
+  return <>
+    <Popover placement='top-start' autoFocus={false}>
+      <PopoverTrigger>
+        <Input value={value} onChange={(e) => setValue(e.target.value)}/>
+      </PopoverTrigger>
+      <PopoverContent>
+        <PopoverHeader fontWeight='semibold'>Popover placement</PopoverHeader>
+        <PopoverArrow />
+        <PopoverCloseButton />
+        <PopoverBody>
+          {links.map(link => (
+            <Tag
+              borderRadius='full'
+              variant='solid'
+              colorScheme='default'
+            >
+              <TagLabel>{link.id}</TagLabel>
+            </Tag>
+          ))}
+        </PopoverBody>
+      </PopoverContent>
+    </Popover>
+  </>;
+};

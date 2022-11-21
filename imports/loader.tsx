@@ -3,7 +3,7 @@ import { useDeep } from "@deep-foundation/deeplinks/imports/client";
 import { generateQuery, generateQueryData } from "@deep-foundation/deeplinks/imports/gql";
 import { Link, useMinilinksFilter } from "@deep-foundation/deeplinks/imports/minilinks";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { usePromiseLoader } from "./hooks";
+import { useBreadcrumbs, usePromiseLoader } from "./hooks";
 import { CatchErrors } from "./react-errors";
 import { useDelayedInterval } from "./use-delayed-interval";
 
@@ -47,7 +47,7 @@ export function DeepLoaderActive({
       queries: [generateQueryData({
         tableName: 'links',
         returning: `
-          id type_id from_id to_id value
+          id type_id from_id to_id value string { id value } number { id value } object { id value }
         `,
         variables: v
         ? { ...variables, where }
@@ -92,6 +92,8 @@ export const DeepLoader = memo(function DeepLoader({
   const deep = useDeep();
   const userId = deep.linkId;
   const [promiseLoader, setPromiseLoader] = usePromiseLoader();
+  const [breadcrumbs] = useBreadcrumbs();
+  console.log({ breadcrumbs });
 
   const spaceQuery = useMemo(() => ({ value: { value: {
     up: {
@@ -109,6 +111,27 @@ export const DeepLoader = memo(function DeepLoader({
         ],
       },
     } : {}),
+    _not: {
+      up: {
+        tree_id: { _eq: deep.idSync('@deep-foundation/core', 'containTree') },
+        self: { _eq: false },
+        parent: {
+          type_id: { _in: [deep.idSync('@deep-foundation/core', 'Space'), deep.idSync('@deep-foundation/core', 'Package')] },
+          up: {
+            tree_id: { _eq: deep.idSync('@deep-foundation/core', 'containTree') },
+            self: { _eq: false },
+            parent_id: { _eq: spaceId },
+          },
+        },
+      },
+    },
+  } } }), [promiseLoader]);
+
+  const breadcrumbsQuery = useMemo(() => ({ value: { value: {
+    down: {
+      tree_id: { _eq: deep.idSync('@deep-foundation/core', 'containTree') },
+      link_id: { _eq: spaceId },
+    },
   } } }), [promiseLoader]);
 
   let queries = useMinilinksFilter(
@@ -200,7 +223,6 @@ export const DeepLoader = memo(function DeepLoader({
 
   const clientHandlersQuery = useMemo(() => {
     const _ids = [...ids, ...queryAndSpaceLoadedIds];
-    console.log('clientHandlersQuery', _ids);
     return { value: { value: {
       _or: [
         {
@@ -236,13 +258,23 @@ export const DeepLoader = memo(function DeepLoader({
 
   return <>
     <><DeepLoaderActive
+      key="DEEPCASE_SPACE"
       name="DEEPCASE_SPACE"
       query={spaceQuery}
       onChange={(r) => {
         deep.minilinks?.apply(r, 'space');
       }}
     /></>
+    {!!breadcrumbs && <><DeepLoaderActive
+      key="DEEPCASE_BREADCRUMBS"
+      name="DEEPCASE_BREADCRUMBS"
+      query={breadcrumbsQuery}
+      onChange={(r) => {
+        deep.minilinks?.apply(r, 'breadcrumbs');
+      }}
+    /></>}
     <><DeepLoaderActive
+      key="DEEPCASE_CLIENT_HANDLERS"
       name="DEEPCASE_CLIENT_HANDLERS"
       query={clientHandlersQuery}
       onChange={(r) => {
@@ -250,14 +282,15 @@ export const DeepLoader = memo(function DeepLoader({
       }}
     /></>
     {queries?.map((f, i) => (<><DeepLoaderActive
+      key={`DEEPCASE_QUERY_${f.id}`}
       name={`DEEPCASE_QUERY_${f.id}`}
-      key={f.id}
       query={f}
       onChange={(r) => {
         deep.minilinks?.apply(r, `query-${f.id}`);
       }}
     /></>))}
     <><DeepLoaderActive
+      key={`DEEPCASE_INSERTABLE_TYPES`}
       name={`DEEPCASE_INSERTABLE_TYPES`}
       query={insertableTypesQuery}
       onChange={(r) => {
@@ -265,6 +298,7 @@ export const DeepLoader = memo(function DeepLoader({
       }}
     /></>
     <><DeepLoaderActive
+      key={`DEEPCASE_TYPES`}
       name={`DEEPCASE_TYPES`}
       query={typesQuery}
       onChange={(r) => {
@@ -272,6 +306,7 @@ export const DeepLoader = memo(function DeepLoader({
       }}
     /></>
     {!!typeIds && <><DeepLoaderActive
+      key={`DEEPCASE_CONTAINS_AND_SYMBOLS`}
       name={`DEEPCASE_CONTAINS_AND_SYMBOLS`}
       query={containsAndSymbolsQuery}
       debounce={2000}
@@ -280,6 +315,7 @@ export const DeepLoader = memo(function DeepLoader({
       }}
     /></>}
     {!!typeIds && <><DeepLoaderActive
+      key={`DEEPCASE_VALUES`}
       name={`DEEPCASE_VALUES`}
       query={valuesQuery}
       onChange={(r) => {

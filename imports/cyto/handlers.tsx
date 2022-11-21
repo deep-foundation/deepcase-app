@@ -64,12 +64,12 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
     }
   }, []);
 
-  const handles = useMinilinksSubscription(deep.minilinks, {
-    type_id: handle.id,
-    to_id: handler.id,
+  const { data: handles } = useDeepSubscription({
+    type_id: handle?.id,
+    to_id: handler?.id,
   });
 
-  const ports = useMinilinksSubscription(deep.minilinks, {
+  const { data: ports } = useDeepSubscription({
     type_id: deep.idSync('@deep-foundation/core', 'Port'),
   });
 
@@ -224,7 +224,7 @@ export const CytoEditorHandlersSupport = React.memo<any>(function CytoEditorHand
   linkId: number;
 }) {
   const deep = useDeep();
-  const handlers = useMinilinksSubscription(deep.minilinks, {
+  const { data: handlers } = useDeepSubscription({
     type_id: deep.idSync('@deep-foundation/core', 'Handler'),
     from_id: support.id,
     to_id: linkId,
@@ -260,7 +260,7 @@ export const CytoEditorHandlersSupport = React.memo<any>(function CytoEditorHand
       <AccordionIcon />
     </AccordionButton>
     <AccordionPanel><SimpleGrid spacing={3}>
-      {handlers.map((h: any) => (
+      {handlers?.map((h: any) => (
         <Box borderWidth='2px' borderRadius='lg' borderStyle='dashed' p={2}>
           Handler: <Tag size='md' borderRadius='full' variant='solid'>
         <TagLabel>{h.id}</TagLabel>
@@ -284,7 +284,37 @@ export const CytoEditorHandlers = React.memo<any>(function CytoEditorHandlers({
 }) {
   const deep = useDeep();
 
-  const supports = useMinilinksSubscription(deep.minilinks, { type_id: deep.idSync('@deep-foundation/core', 'Supports') });
+  useDeepSubscription({
+    down: {
+      link: { 
+        type_id: { _in: [
+          deep.idSync('@deep-foundation/core', 'Supports'),
+          deep.idSync('@deep-foundation/core', 'SupportsCompatable'),
+          deep.idSync('@deep-foundation/core', 'HandleOperation'),
+        ] },
+      },
+    },
+  });
+
+  useDeepSubscription({
+    up: {
+      parent: { 
+        type_id: { _in: [
+          deep.idSync('@deep-foundation/core', 'Supports'),
+          deep.idSync('@deep-foundation/core', 'SupportsCompatable'),
+          deep.idSync('@deep-foundation/core', 'HandleOperation'),
+        ] },
+      },
+    },
+  });
+
+  useDeepSubscription({
+    in: { type_id: deep.idSync('@deep-foundation/core', 'SupportsCompatable') },
+  });
+
+  const supports = deep.useMinilinksSubscription({
+    type_id: deep.idSync('@deep-foundation/core', 'Supports'),
+  });
 
   return <>
     <Box position="relative">

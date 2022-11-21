@@ -90,6 +90,7 @@ export function useCytoFocusMethods(cy, relayoutDebounced) {
 export default function CytoGraph({
   links = [],
   cytoViewportRef,
+  cyRef,
 }: CytoGraphProps){
   console.time('CytoGraph');
   const deep = useDeep();
@@ -102,6 +103,7 @@ export default function CytoGraph({
   const toast = useToast();
 
   const [cy, setCy] = useState<any>();
+  cyRef.current = cy;
   const ehRef = useRef<any>();
 
   const { elements, reactElements } = useCytoElements(deep.minilinks, links, cy, spaceId);
@@ -123,7 +125,7 @@ export default function CytoGraph({
           cy={(_cy) => {
             if (!cy) onLoaded(_cy);
           }}
-          elements={elements} 
+          elements={elements}
           layout={layout(elementsRef.current, cy)}
           stylesheet={stylesheets}
           panningEnabled={true}

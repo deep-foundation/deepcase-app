@@ -1,5 +1,5 @@
 import { Alert, AlertIcon, Box, Flex, HStack, IconButton, Popover, PopoverContent, PopoverTrigger, Spacer, Spinner, useDisclosure, useToast } from "@chakra-ui/react";
-import { useDeep, useDeepQuery } from "@deep-foundation/deeplinks/imports/client";
+import { useDeep, useDeepQuery, useDeepSubscription } from "@deep-foundation/deeplinks/imports/client";
 import { useMinilinksFilter, useMinilinksHandle } from "@deep-foundation/deeplinks/imports/minilinks";
 import { useDebounceCallback } from "@react-hook/debounce";
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
@@ -9,7 +9,7 @@ import { VscChromeClose, VscVersions } from "react-icons/vsc";
 import { useLocalStorage } from "usehooks-ts";
 import { ClientHandler } from "../client-handler";
 import { CytoReactLinksCard } from "../cyto-react-links-card";
-import { useContainer, useInsertingCytoStore, useLayout, useRefAutofill, useShowExtra, useShowTypes, useSpaceId } from "../hooks";
+import { useContainer, useInsertingCytoStore, useLayout, useRefAutofill, useShowExtra, useShowTypes, useSpaceId, useAutoFocusOnInsert } from "../hooks";
 import { LinkClientHandlerDefault } from "../link-client-handlers/default";
 import { CatchErrors } from "../react-errors";
 import { useEditorTabs } from "./editor";
@@ -59,24 +59,26 @@ export function CytoReactLinksCardInsertNode({
       const isNode = !type.from_id && !type.to_id;
       setInsertingCyto({});
       if (isNode) {
-        await deep.insert({
-          type_id: id,
-          in: { data: [
-            {
-              from_id: container,
-              type_id: deep.idSync('@deep-foundation/core', 'Contain'),
-            },
-            {
-              from_id: container,
-              type_id: deep.idSync('@deep-foundation/core', 'Focus'),
-              object: { data: { value: insertingLink.position } },
-              in: { data: {
-                type_id: deep.idSync('@deep-foundation/core', 'Contain'),
-                from_id: container
-              } },
-            },
-          ] },
-        });
+        console.log('CytoReactLinksCard', id, 0, 0, insertingLink.position);
+        await returningRef.current.insertLink(id, 0, 0, insertingLink.position);
+        // await deep.insert({
+        //   type_id: id,
+        //   in: { data: [
+        //     {
+        //       from_id: container,
+        //       type_id: deep.idSync('@deep-foundation/core', 'Contain'),
+        //     },
+        //     {
+        //       from_id: container,
+        //       type_id: deep.idSync('@deep-foundation/core', 'Focus'),
+        //       object: { data: { value: insertingLink.position } },
+        //       in: { data: {
+        //         type_id: deep.idSync('@deep-foundation/core', 'Contain'),
+        //         from_id: container
+        //       } },
+        //     },
+        //   ] },
+        // });
         setInsertingLink(undefined);
       } else {
         returningRef?.current.startInsertingOfType(id, type.from_id, type.to_id);
@@ -90,6 +92,8 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
   const [insertingLink, setInsertingLink] = useState<IInsertedLink>();
   const [container, setContainer] = useContainer();
   const containerRef = useRefAutofill(container);
+  const [spaceId, setSpaceId] = useSpaceId();
+  const spaceIdRef = useRefAutofill(spaceId);
   const deep = useDeep();
   const deepRef = useRefAutofill(deep);
   const [insertingCyto, setInsertingCyto] = useInsertingCytoStore();
@@ -111,18 +115,23 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
     useCallback((l, ml) => (ml.links.filter(l => l._applies.includes('insertable-types'))), []),
   ) || [];
 
+  const [autoFocus, setAutoFocus] = useAutoFocusOnInsert();
+  const autoFocusRef = useRefAutofill(autoFocus);
+
   const insertLink = useCallback(async (type_id, from, to, position: any) => {
     const loadedLink = types?.find(t => t.id === type_id);
     const valued = loadedLink?.valued?.[0]?.to_id;
     const inArray = [];
-    if (position) {
+    console.log('insertLink1', type_id, from, to, position, autoFocusRef.current);
+    if (position && autoFocusRef.current && !from && !to) {
+      console.log('insertLink2', type_id, from, to, position, autoFocusRef.current);
       inArray.push({
-        from_id: containerRef.current,
+        from_id: spaceIdRef.current,
         type_id: deep.idSync('@deep-foundation/core', 'Focus'),
         object: { data: { value: position } },
-        ...(container ? { in: { data: {
+        ...(containerRef.current ? { in: { data: {
           type_id: deep.idSync('@deep-foundation/core', 'Contain'),
-          from_id: container
+          from_id: containerRef.current
         } } } : {}),
       });
     }
@@ -143,10 +152,10 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
       to_id: to || 0,
     });
 
-    setInsertingLink((insertLink) => {
-      if (!from && !to && !!insertLink) focus(linkId, insertLink.position);
-      return undefined;
-    })
+    // setInsertingLink((insertLink) => {
+    //   if (!from && !to && !!insertLink) focus(linkId, insertLink.position);
+    //   return undefined;
+    // })
   }, [cy, types, container, deep.linkId]);
   const insertLinkRef = useRefAutofill(insertLink);
 
@@ -174,6 +183,12 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
     elements.push(element);
     reactElements.push(element);
   }
+
+  useHotkeys('esc', () => {
+    if (insertingCytoRef?.current?.type_id) setInsertingCyto({});
+    ehRef?.current?.disableDrawMode();
+    cy?.$('.eh-ghost,.eh-preview')?.remove();
+  });
 
   const returning = {
     insertLink,
@@ -211,7 +226,7 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
         onCloseComplete: () => {
           if (insertingCytoRef?.current?.type_id) setInsertingCyto({});
           ehRef?.current?.disableDrawMode();
-          cy.$('.eh-ghost,.eh-preview').remove();
+          cy?.$('.eh-ghost,.eh-preview')?.remove();
         },
       });
       if (!isNode) {
@@ -272,48 +287,31 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
       if(event.target === cy){
         if (ins.type_id) {
           if (ins.isPossibleNode) {
-            await deepRef.current.insert({
-              type_id: ins.type_id,
-              in: { data: [
-                {
-                  from_id: containerRef.current,
-                  type_id: deep.idSync('@deep-foundation/core', 'Contain'),
-                },
-                {
-                  from_id: containerRef.current,
-                  type_id: deep.idSync('@deep-foundation/core', 'Focus'),
-                  object: { data: { value: event.position } },
-                  in: { data: {
-                    type_id: deep.idSync('@deep-foundation/core', 'Contain'),
-                    from_id: containerRef.current
-                  } },
-                },
-              ] },
-            });
+            await returningRef.current.insertLink(ins.type_id, 0, 0, event.position);
+            // await deepRef.current.insert({
+            //   type_id: ins.type_id,
+            //   in: { data: [
+            //     {
+            //       from_id: containerRef.current,
+            //       type_id: deep.idSync('@deep-foundation/core', 'Contain'),
+            //     },
+            //     {
+            //       from_id: containerRef.current,
+            //       type_id: deep.idSync('@deep-foundation/core', 'Focus'),
+            //       object: { data: { value: event.position } },
+            //       in: { data: {
+            //         type_id: deep.idSync('@deep-foundation/core', 'Contain'),
+            //         from_id: containerRef.current
+            //       } },
+            //     },
+            //   ] },
+            // });
             toast.close(ins.toast);
             setInsertingCyto({});
           } else {
             const Any = deep.idSync('@deep-foundation/core', 'Any');
             if (ins.From === Any && ins.To === Any) {
-              await deepRef.current.insert({
-                type_id: ins.type_id,
-                in: { data: [
-                  {
-                    from_id: container,
-                    type_id: deep.idSync('@deep-foundation/core', 'Contain'),
-                  },
-                  {
-                    from_id: container,
-                    type_id: deep.idSync('@deep-foundation/core', 'Focus'),
-                    // @ts-ignore
-                    object: { data: { value: ins?.position } },
-                    in: { data: {
-                      type_id: deep.idSync('@deep-foundation/core', 'Contain'),
-                      from_id: container
-                    } },
-                  },
-                ] },
-              });
+              await returningRef.current.insertLink(ins.type_id, 0, 0, ins?.position);
             }
             setInsertingCyto({});
           }
@@ -383,18 +381,13 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
         types.push(cursor.id);
       }
 
-      let handlers = useMinilinksFilter(
-        ml,
-        useCallback((l) => true, []),
-        useCallback((l, ml) => {
-          return ml.byType[deep.idSync('@deep-foundation/core', 'Handler')]?.filter(l => (
-            !!l?.inByType?.[deep.idSync('@deep-foundation/core', 'HandleClient')]?.filter(l => (
-              !!types.includes(l.from_id)
-            ))?.length
-          ));
-        }, [id]),
-      ) || [];
-      console.log('handlers', handlers, types);
+      const { data: handlers } = useDeepQuery({
+        type_id: deep.idSync('@deep-foundation/core', 'Handler'),
+        in: {
+          type_id: deep.idSync('@deep-foundation/core', 'HandleClient'),
+          _or: types.map(type => ({ from_id: { _type_of: type } })),
+        },
+      });
 
       useEffect(() => {
         if (!handlerId) {
@@ -405,13 +398,17 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
         }
       }, [handlers]);
 
-      const handler = handlers?.find(h => h.id === handlerId);
-      const elements = handlers.map(t => ({
+      const handler = handlers.find(h => h.id === handlerId);
+      const elements = handlers?.map(t => ({
         id: t?.id,
         src:  t?.inByType[deep.idSync('@deep-foundation/core', 'Symbol')]?.[0]?.value?.value || t.id,
         linkName: t?.inByType[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || t.id,
         containerName: t?.inByType[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.from?.value?.value || '',
-      }));
+      })) || [];
+
+      console.log('handlers', { handlers, handler, handlerId, elements });
+
+      const onCloseCard = useCallback(() => toggleLinkReactElement(id), [id]);
 
       return <div>
         <CatchErrors errorRenderer={(error, reset) => {
@@ -464,11 +461,11 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
                 }
               }}
               icon={<VscChromeClose />}
-              onClick={() => toggleLinkReactElement(id)}
+              onClick={onCloseCard}
             />
           </Flex>
           {!handler?.id && <Alert status='error'><AlertIcon />Compatible HandleClient not found.</Alert>}
-          {!!handler?.id && <ClientHandler handlerId={handler?.id} linkId={id} ml={ml}/>}
+          {!!handler?.id && <ClientHandler handlerId={handler?.id} linkId={id} ml={ml} onClose={onCloseCard}/>}
         </CatchErrors>
       </div>;
     };
@@ -674,7 +671,9 @@ export function useCyInitializer({
           select: async function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
-              await deep.delete(+id);
+              if (confirm(`Are you shure whant to delete this link?`)) {
+                await deep.delete(+id);
+              }
             }
           }
         },
@@ -683,12 +682,14 @@ export function useCyInitializer({
           select: async function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
-              await deep.delete({
-                up: {
-                  tree_id: { _eq: deep.idSync('@deep-foundation/core', 'containTree') },
-                  parent_id: { _eq: +id },
-                },
-              });
+              if (confirm(`Are you shure whant to delete all links down by contain tree?`)) {
+                await deep.delete({
+                  up: {
+                    tree_id: { _eq: deep.idSync('@deep-foundation/core', 'containTree') },
+                    parent_id: { _eq: +id },
+                  },
+                });
+              }
             }
           }
         },
