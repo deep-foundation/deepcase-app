@@ -101,11 +101,11 @@ export function useFocusMethods() {
     return {
       unfocus: async (id) => {
         console.log('unfocus', { spaceId, id });
-        const whereF = { type_id: deep.idSync('@deep-foundation/core', 'Focus'), from_id: spaceId, to_id: id };
+        const whereF = { type_id: deep.idLocal('@deep-foundation/core', 'Focus'), from_id: spaceId, to_id: id };
         const where = {
           _or: [
             whereF,
-            { type_id: deep.idSync('@deep-foundation/core', 'Contain'), from_id: spaceId, to: whereF },
+            { type_id: deep.idLocal('@deep-foundation/core', 'Contain'), from_id: spaceId, to: whereF },
           ],
         };
         console.log('unfocused', await deep.delete(where));
@@ -113,7 +113,7 @@ export function useFocusMethods() {
       focus: async (id, value: { x: number; y: number; z: number; }) => {
         console.log('focus', { spaceId, id, value });
         const q = await deep.select({
-          type_id: deep.idSync('@deep-foundation/core', 'Focus'),
+          type_id: deep.idLocal('@deep-foundation/core', 'Focus'),
           from_id: spaceId,
           to_id: id,
         });
@@ -121,12 +121,12 @@ export function useFocusMethods() {
         let focusId = focus?.id;
         if (!focusId) {
           const { data: [{ id: newFocusId }] } = await deep.insert({
-            type_id: deep.idSync('@deep-foundation/core', 'Focus'),
+            type_id: deep.idLocal('@deep-foundation/core', 'Focus'),
             from_id: spaceId,
             to_id: id,
             object: { data: { value } },
             in: { data: {
-              type_id: deep.idSync('@deep-foundation/core', 'Contain'),
+              type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
               from_id: spaceId
             } },
           });
@@ -153,11 +153,11 @@ export function useActiveMethods() {
   return useMemo(() => {
     return {
       deactive: async function(id: number) {
-        console.log(await deep.delete({ type_id: deep.idSync('@deep-foundation/core', 'Active'), from_id: spaceId, to_id: id }));
+        console.log(await deep.delete({ type_id: deep.idLocal('@deep-foundation/core', 'Active'), from_id: spaceId, to_id: id }));
       },
       find: async function(id: number) {
         const q = await deep.select({
-          type_id: deep.idSync('@deep-foundation/core', 'Active'),
+          type_id: deep.idLocal('@deep-foundation/core', 'Active'),
           from_id: spaceId,
           to_id: id,
         });
@@ -166,11 +166,11 @@ export function useActiveMethods() {
       active: async function(id: number) {
         const active = await this.find(id);
         const { data: [{ id: newId }] } = await deep.insert({
-          type_id: deep.idSync('@deep-foundation/core', 'Active'),
+          type_id: deep.idLocal('@deep-foundation/core', 'Active'),
           from_id: spaceId,
           to_id: id,
           in: { data: {
-            type_id: deep.idSync('@deep-foundation/core', 'Contain'),
+            type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
             from_id: spaceId
           } },
         });

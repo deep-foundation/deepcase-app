@@ -50,19 +50,19 @@ export function CytoDropZone({
     if (container) {
       try {
         const { data: [{ id }] } = await deep.insert({
-          type_id: deep.idSync('@deep-foundation/core', 'AsyncFile'),
+          type_id: deep.idLocal('@deep-foundation/core', 'AsyncFile'),
           in: { data: [
             {
-              type_id: deep.idSync('@deep-foundation/core', 'Contain'),
+              type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
               from_id: container,
             },
             {
-              type_id: deep.idSync('@deep-foundation/core', 'Focus'),
+              type_id: deep.idLocal('@deep-foundation/core', 'Focus'),
               from_id: space,
               object: { data: { value: { x: ((event.clientX) - (pan.x)) / zoom, y: ((event.clientY) - (pan.y)) / zoom } } },
               in: { data: [
                 {
-                  type_id: deep.idSync('@deep-foundation/core', 'Contain'),
+                  type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
                   from_id: container,
                 },
               ] },

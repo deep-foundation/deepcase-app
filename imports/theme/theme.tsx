@@ -1,6 +1,6 @@
 import { extendTheme, ThemeConfig } from '@chakra-ui/react';
 
-import { mode } from '@chakra-ui/theme-tools';
+import { mode, StyleFunctionProps } from '@chakra-ui/theme-tools';
 
 const config: ThemeConfig = {
   initialColorMode: 'light',
@@ -11,7 +11,7 @@ const config: ThemeConfig = {
 const themeChakra = extendTheme({ 
   config,
   styles: {
-    global: props => ({
+    global: (props: StyleFunctionProps) => ({
       'body': {
         color: mode('gray.900', 'whiteAlpha.900')(props),
         bg: mode('gray.100', '#141214')(props),
@@ -54,6 +54,18 @@ const themeChakra = extendTheme({
           justifyContent: 'center',
           padding: '1rem 0',
         },
+        // filled: {
+        //   background: 'white',
+        //   _hover: {
+        //     background: "green.200",
+        //   }}
+          // field: (props) => ({
+          //   bg: mode('gray.100', '#141214')(props),
+          //   _hover: {
+          //     bg: mode("green.200", "red.600")(props),
+          //   }}
+          // )
+  
         // ЗАКОММЕНТИРОВАЛ
         // применялось ко всем кнопкам, все стало красным
         // outline: {

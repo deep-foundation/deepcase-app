@@ -27,6 +27,9 @@ export function Provider({
 }) {
   const ThemeProviderCustom = ChakraProvider;
   const themeCustom = themeChakra;
+
+  console.log({themeCustom});
+  console.log({ThemeProviderCustom});
   return (
     // <Analitics
     //   yandexMetrikaAccounts={[84726091]}

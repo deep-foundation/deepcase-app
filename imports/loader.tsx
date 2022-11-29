@@ -31,11 +31,11 @@ export function DeepLoaderActive({
         ...(!promiseLoader ? [{
           type_id: {
             _nin: [
-              deep.idSync('@deep-foundation/core', 'Then'),
-              deep.idSync('@deep-foundation/core', 'Promise'),
-              deep.idSync('@deep-foundation/core', 'Resolved'),
-              deep.idSync('@deep-foundation/core', 'Rejected'),
-              deep.idSync('@deep-foundation/core', 'PromiseResult'),
+              deep.idLocal('@deep-foundation/core', 'Then'),
+              deep.idLocal('@deep-foundation/core', 'Promise'),
+              deep.idLocal('@deep-foundation/core', 'Resolved'),
+              deep.idLocal('@deep-foundation/core', 'Rejected'),
+              deep.idLocal('@deep-foundation/core', 'PromiseResult'),
             ],
           },
         }] : [{}]),
@@ -97,28 +97,28 @@ export const DeepLoader = memo(function DeepLoader({
 
   const spaceQuery = useMemo(() => ({ value: { value: {
     up: {
-      tree_id: { _eq: deep.idSync('@deep-foundation/core', 'containTree') },
+      tree_id: { _eq: deep.idLocal('@deep-foundation/core', 'containTree') },
       parent_id: { _eq: spaceId },
     },
     ...(!promiseLoader ? {
       type_id: {
         _nin: [
-          deep.idSync('@deep-foundation/core', 'Then'),
-          deep.idSync('@deep-foundation/core', 'Promise'),
-          deep.idSync('@deep-foundation/core', 'Resolved'),
-          deep.idSync('@deep-foundation/core', 'Rejected'),
-          deep.idSync('@deep-foundation/core', 'PromiseResult'),
+          deep.idLocal('@deep-foundation/core', 'Then'),
+          deep.idLocal('@deep-foundation/core', 'Promise'),
+          deep.idLocal('@deep-foundation/core', 'Resolved'),
+          deep.idLocal('@deep-foundation/core', 'Rejected'),
+          deep.idLocal('@deep-foundation/core', 'PromiseResult'),
         ],
       },
     } : {}),
     _not: {
       up: {
-        tree_id: { _eq: deep.idSync('@deep-foundation/core', 'containTree') },
+        tree_id: { _eq: deep.idLocal('@deep-foundation/core', 'containTree') },
         self: { _eq: false },
         parent: {
-          type_id: { _in: [deep.idSync('@deep-foundation/core', 'Space'), deep.idSync('@deep-foundation/core', 'Package')] },
+          type_id: { _in: [deep.idLocal('@deep-foundation/core', 'Space'), deep.idLocal('@deep-foundation/core', 'Package')] },
           up: {
-            tree_id: { _eq: deep.idSync('@deep-foundation/core', 'containTree') },
+            tree_id: { _eq: deep.idLocal('@deep-foundation/core', 'containTree') },
             self: { _eq: false },
             parent_id: { _eq: spaceId },
           },
@@ -129,19 +129,21 @@ export const DeepLoader = memo(function DeepLoader({
 
   const breadcrumbsQuery = useMemo(() => ({ value: { value: {
     down: {
-      tree_id: { _eq: deep.idSync('@deep-foundation/core', 'containTree') },
+      tree_id: { _eq: deep.idLocal('@deep-foundation/core', 'containTree') },
       link_id: { _eq: spaceId },
     },
   } } }), [promiseLoader]);
 
   let queries = useMinilinksFilter(
     deep.minilinks,
-    useCallback((l) => {
-      return [deep.idSync('@deep-foundation/core', 'Query'), deep.idSync('@deep-foundation/core', 'Active')].includes(l.type_id);
+    useCallback((l, ...args) => {
+      console.log('ABC', l, ...args);
+      console.trace('ABC');
+      return [deep.idLocal('@deep-foundation/core', 'Query'), deep.idLocal('@deep-foundation/core', 'Active')].includes(l.type_id);
     }, [spaceId]),
     useCallback((l, ml) => {
-      return ml.byType[deep.idSync('@deep-foundation/core', 'Query')]?.filter((l) => {
-        return l?.type_id === deep.idSync('@deep-foundation/core', 'Query') && !!l?.inByType?.[deep.idSync('@deep-foundation/core', 'Active')]?.find(a => a?.from_id === spaceId) && l?.value?.value;
+      return ml.byType[deep.idLocal('@deep-foundation/core', 'Query')]?.filter((l) => {
+        return l?.type_id === deep.idLocal('@deep-foundation/core', 'Query') && !!l?.inByType?.[deep.idLocal('@deep-foundation/core', 'Active')]?.find(a => a?.from_id === spaceId) && l?.value?.value;
       });
     }, [spaceId]),
   );
@@ -156,11 +158,11 @@ export const DeepLoader = memo(function DeepLoader({
         }
       }, {
         type_id: { _in: [
-          deep.idSync('@deep-foundation/core', 'Type'),
-          deep.idSync('@deep-foundation/core', 'HandleOperation'),
-          deep.idSync('@deep-foundation/core', 'Operation'),
-          deep.idSync('@deep-foundation/core', 'TreeInclude'),
-          deep.idSync('@deep-foundation/core', 'File'),
+          deep.idLocal('@deep-foundation/core', 'Type'),
+          deep.idLocal('@deep-foundation/core', 'HandleOperation'),
+          deep.idLocal('@deep-foundation/core', 'Operation'),
+          deep.idLocal('@deep-foundation/core', 'TreeInclude'),
+          deep.idLocal('@deep-foundation/core', 'File'),
         ] }
       },
     ],
@@ -198,7 +200,7 @@ export const DeepLoader = memo(function DeepLoader({
     const ids = [...typeIds, ...insertableTypes, ...queryAndSpaceLoadedIds];
     return { value: { value: {
       to_id: { _in: ids },
-      type_id: { _in: [deep.idSync('@deep-foundation/core', 'Contain'), deep.idSync('@deep-foundation/core', 'Symbol')] },
+      type_id: { _in: [deep.idLocal('@deep-foundation/core', 'Contain'), deep.idLocal('@deep-foundation/core', 'Symbol')] },
     } } };
   }, [typeIds, insertableTypes, queryAndSpaceLoadedIds]);
 
@@ -206,7 +208,7 @@ export const DeepLoader = memo(function DeepLoader({
     const ids = [...typeIds, ...insertableTypes, ...queryAndSpaceLoadedIds];
     return { value: { value: {
       from_id: { _in: ids },
-      type_id: { _eq: deep.idSync('@deep-foundation/core', 'Value') },
+      type_id: { _eq: deep.idLocal('@deep-foundation/core', 'Value') },
     } } };
   }, [typeIds, insertableTypes, queryAndSpaceLoadedIds]);
 
@@ -227,12 +229,12 @@ export const DeepLoader = memo(function DeepLoader({
       _or: [
         {
           up: {
-            tree_id: { _eq: deep.idSync('@deep-foundation/core', 'handlersTree') },
+            tree_id: { _eq: deep.idLocal('@deep-foundation/core', 'handlersTree') },
             parent: {
-              type_id: deep.idSync('@deep-foundation/core', 'Handler'),
-              from_id: deep.idSync('@deep-foundation/core', 'clientSupportsJs'),
+              type_id: deep.idLocal('@deep-foundation/core', 'Handler'),
+              from_id: deep.idLocal('@deep-foundation/core', 'clientSupportsJs'),
               in: {
-                type_id: deep.idSync('@deep-foundation/core', 'HandleClient'),
+                type_id: deep.idLocal('@deep-foundation/core', 'HandleClient'),
                 from_id: {
                   _in: _ids,
                 },
@@ -242,10 +244,10 @@ export const DeepLoader = memo(function DeepLoader({
         },
         {
           in: {
-            type_id: deep.idSync('@deep-foundation/core', 'Handler'),
-            from_id: deep.idSync('@deep-foundation/core', 'clientSupportsJs'),
+            type_id: deep.idLocal('@deep-foundation/core', 'Handler'),
+            from_id: deep.idLocal('@deep-foundation/core', 'clientSupportsJs'),
             in: {
-              type_id: deep.idSync('@deep-foundation/core', 'HandleClient'),
+              type_id: deep.idLocal('@deep-foundation/core', 'HandleClient'),
               from_id: {
                 _in: _ids,
               },

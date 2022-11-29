@@ -56,8 +56,7 @@ export function Content({
     <CytoGraph links={links} cyRef={cyRef} cytoViewportRef={cytoViewportRef}/>
     <CytoMenu cyRef={cyRef} cytoViewportRef={cytoViewportRef}/>
     <ColorModeSwitcher/>
-  </>);
-  
+  </>); 
 };
 
 export default function Page() {

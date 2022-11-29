@@ -37,7 +37,7 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
     }, 1000);
   };
 
-  const HandleName = handle?.inByType?.[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value;
+  const HandleName = handle?.inByType?.[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value;
 
   const [inserting, setInserting] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -50,7 +50,7 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
       from_id: +value,
       to_id: handler.id,
       in: { data: {
-        type_id: deep.idSync('@deep-foundation/core', 'Contain'),
+        type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
         from_id: container,
       } }
     });
@@ -70,7 +70,7 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
   });
 
   const { data: ports } = useDeepSubscription({
-    type_id: deep.idSync('@deep-foundation/core', 'Port'),
+    type_id: deep.idLocal('@deep-foundation/core', 'Port'),
   });
 
   const isLink = ['HandleInsert', 'HandleUpdate', 'HandleDelete'].includes(HandleName);
@@ -82,16 +82,16 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
   const Handle = useCallback((
     isLink
     ? (h) => {
-      return <Tag size='lg' borderRadius='full' variant='solid'>
+      return <Box><Tag size='lg' borderRadius='full' variant='solid'>
         <TagLabel>{h.from_id}</TagLabel>
         <TagCloseButton onClick={() => onDelete(h.id)}/>
-      </Tag>;
+      </Tag></Box>;
     }
     : (h) => {
-      return <Tag size='lg' borderRadius='full' variant='solid'>
+      return <Box><Tag size='lg' borderRadius='full' variant='solid'>
         <TagLabel>{h.from_id}</TagLabel>
         <TagCloseButton onClick={() => onDelete(h.id)}/>
-      </Tag>;
+      </Tag></Box>;
     }
   ), [deleting]);
 
@@ -208,9 +208,9 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
       </Flex>
       {!!handles?.length && <>
         <hr/>
-        <HStack spacing={3} p={3}>
+        <SimpleGrid columns={3} spacing={3} p={3} templateColumns="repeat( auto-fill, minmax(3.5rem, 4.5rem) )">
           {handles.map(Handle)}
-        </HStack>
+        </SimpleGrid>
       </>}
     </Box>
   </div>;
@@ -225,7 +225,7 @@ export const CytoEditorHandlersSupport = React.memo<any>(function CytoEditorHand
 }) {
   const deep = useDeep();
   const { data: handlers } = useDeepSubscription({
-    type_id: deep.idSync('@deep-foundation/core', 'Handler'),
+    type_id: deep.idLocal('@deep-foundation/core', 'Handler'),
     from_id: support.id,
     to_id: linkId,
   });
@@ -236,9 +236,9 @@ export const CytoEditorHandlersSupport = React.memo<any>(function CytoEditorHand
     await deep.insert({
       to_id: linkId,
       from_id: support.id,
-      type_id: deep.idSync('@deep-foundation/core', 'Handler'),
+      type_id: deep.idLocal('@deep-foundation/core', 'Handler'),
       in: { data: {
-        type_id: deep.idSync('@deep-foundation/core', 'Contain'),
+        type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
         from_id: container,
       } }
     });
@@ -252,7 +252,7 @@ export const CytoEditorHandlersSupport = React.memo<any>(function CytoEditorHand
     <AccordionButton>
       <Flex w={'100%'}>
         <Box flex='1' textAlign='left'>
-          Support: {support.id} {support.inByType[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value}
+          Support: {support.id} {support.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value}
         </Box>
         <Spacer/>
         <Button size='sm' variant='outline' onClick={() => onInsertHandler()}>+</Button>
@@ -265,9 +265,9 @@ export const CytoEditorHandlersSupport = React.memo<any>(function CytoEditorHand
           Handler: <Tag size='md' borderRadius='full' variant='solid'>
         <TagLabel>{h.id}</TagLabel>
         <TagCloseButton onClick={() => onDeleteHandler(h.id)}/>
-      </Tag> {h.inByType[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || ''}
+      </Tag> {h.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || ''}
           <SimpleGrid marginTop={3} columns={2} spacing={3} width={'100%'}>
-            {support?.outByType[deep.idSync('@deep-foundation/core', 'SupportsCompatable')]?.map(({ to: handle }) => (
+            {support?.outByType[deep.idLocal('@deep-foundation/core', 'SupportsCompatable')]?.map(({ to: handle }) => (
               <CytoEditorHandlersSupportHandle support={support} handler={h} handle={handle}/>
             ))}
           </SimpleGrid>
@@ -288,9 +288,9 @@ export const CytoEditorHandlers = React.memo<any>(function CytoEditorHandlers({
     down: {
       link: { 
         type_id: { _in: [
-          deep.idSync('@deep-foundation/core', 'Supports'),
-          deep.idSync('@deep-foundation/core', 'SupportsCompatable'),
-          deep.idSync('@deep-foundation/core', 'HandleOperation'),
+          deep.idLocal('@deep-foundation/core', 'Supports'),
+          deep.idLocal('@deep-foundation/core', 'SupportsCompatable'),
+          deep.idLocal('@deep-foundation/core', 'HandleOperation'),
         ] },
       },
     },
@@ -300,20 +300,20 @@ export const CytoEditorHandlers = React.memo<any>(function CytoEditorHandlers({
     up: {
       parent: { 
         type_id: { _in: [
-          deep.idSync('@deep-foundation/core', 'Supports'),
-          deep.idSync('@deep-foundation/core', 'SupportsCompatable'),
-          deep.idSync('@deep-foundation/core', 'HandleOperation'),
+          deep.idLocal('@deep-foundation/core', 'Supports'),
+          deep.idLocal('@deep-foundation/core', 'SupportsCompatable'),
+          deep.idLocal('@deep-foundation/core', 'HandleOperation'),
         ] },
       },
     },
   });
 
   useDeepSubscription({
-    in: { type_id: deep.idSync('@deep-foundation/core', 'SupportsCompatable') },
+    in: { type_id: deep.idLocal('@deep-foundation/core', 'SupportsCompatable') },
   });
 
   const supports = deep.useMinilinksSubscription({
-    type_id: deep.idSync('@deep-foundation/core', 'Supports'),
+    type_id: deep.idLocal('@deep-foundation/core', 'Supports'),
   });
 
   return <>

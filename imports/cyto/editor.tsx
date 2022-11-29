@@ -110,10 +110,10 @@ export function CytoEditor({
   const generatedLink = useMinilinksFilter(
     deep.minilinks,
     (link) => {
-      return link?.outByType[deep.idSync('@deep-foundation/core', 'GeneratedFrom')]?.[0]?.to_id === tabId;
+      return link?.outByType?.[deep.idLocal('@deep-foundation/core', 'GeneratedFrom')]?.[0]?.to_id === tabId;
     },
     (link, ml) => {
-      return ml.byId[tabId]?.inByType[deep.idSync('@deep-foundation/core', 'GeneratedFrom')]?.[0]?.from;
+      return ml?.byId[tabId]?.inByType[deep.idLocal('@deep-foundation/core', 'GeneratedFrom')]?.[0]?.from;
     },
   )
   
@@ -171,8 +171,8 @@ export function CytoEditor({
             onSave={async (savedValue) => {
               const value = tempValueRef?.current?.[tabId] || savedValue;
               const Value = await deep.id({ in: { type_id: { _id: ['@deep-foundation/core', 'Value'] }, from: { typed: { id: { _eq: tab.id } } } } });
-              const table = Value === deep.idSync('@deep-foundation/core', 'String') ? 'strings' : Value === deep.idSync('@deep-foundation/core', 'Number') ? 'numbers' : Value === deep.idSync('@deep-foundation/core', 'Object') ? 'objects' : undefined;
-              const type = Value === deep.idSync('@deep-foundation/core', 'String') ? 'string' : Value === deep.idSync('@deep-foundation/core', 'Number') ? 'number' : Value === deep.idSync('@deep-foundation/core', 'Object') ? 'object' : 'undefined';
+              const table = Value === deep.idLocal('@deep-foundation/core', 'String') ? 'strings' : Value === deep.idLocal('@deep-foundation/core', 'Number') ? 'numbers' : Value === deep.idLocal('@deep-foundation/core', 'Object') ? 'objects' : undefined;
+              const type = Value === deep.idLocal('@deep-foundation/core', 'String') ? 'string' : Value === deep.idLocal('@deep-foundation/core', 'Number') ? 'number' : Value === deep.idLocal('@deep-foundation/core', 'Object') ? 'object' : 'undefined';
 
               let _value;
               try {
@@ -199,7 +199,7 @@ export function CytoEditor({
           editorTabsElement={<EditorTabs
             tabs={tabs.map((tab) => ({
               ...tab,
-              title: `${tab.id} ${deep.minilinks.byId[tab.id]?.inByType?.[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || ''}`.trim(),
+              title: `${tab.id} ${deep.minilinks.byId[tab.id]?.inByType?.[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || ''}`.trim(),
               active: tabId === tab.id,
             }))}
             setTabs={(tabs) => setTabs(tabs)}

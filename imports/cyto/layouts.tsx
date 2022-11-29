@@ -16,7 +16,7 @@ export const layoutColaPreset = () => ({
   // positioning options
   randomize: false, // use random node positions at beginning of layout
   avoidOverlap: false, // if true, prevents overlap of node bounding boxes
-  handleDisconnected: true, // if true, avoids disconnected components from overlapping
+  handleDisconnected: false, // if true, avoids disconnected components from overlapping
   convergenceThreshold: 0.01, // when the alpha value (system energy) falls below this value, the layout stops
   // nodeSpacing: function( node ){ return 50; }, // extra spacing around nodes
   flow: undefined, // use DAG/tree flow layout if specified, e.g. { axis: 'y', minSeparation: 30 }

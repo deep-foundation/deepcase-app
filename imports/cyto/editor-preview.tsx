@@ -49,8 +49,10 @@ export function useEditorValueSaver(tab) {
 
 export function CytoEditorPreview({
   link,
+  compact = false,
 }: {
   link?: any;
+  compact?: boolean;
 }) {
   const [cytoEditor, setCytoEditor] = useCytoEditor();
   const onClose = useCallback(() => {
@@ -70,10 +72,10 @@ export function CytoEditorPreview({
   const generatedLink = useMinilinksFilter(
     deep.minilinks,
     (link) => {
-      return link?.outByType[deep.idSync('@deep-foundation/core', 'GeneratedFrom')]?.[0]?.to_id === linkId;
+      return link?.outByType?.[deep.idLocal('@deep-foundation/core', 'GeneratedFrom')]?.[0]?.to_id === linkId;
     },
     (link, ml) => {
-      return ml.byId[linkId]?.inByType[deep.idSync('@deep-foundation/core', 'GeneratedFrom')]?.[0]?.from;
+      return ml.byId[linkId]?.inByType[deep.idLocal('@deep-foundation/core', 'GeneratedFrom')]?.[0]?.from;
     },
   )
 
@@ -95,43 +97,49 @@ export function CytoEditorPreview({
 
   const [Component, setComponent] = useState({});
 
+  const [switcher, setSwitch] = useState(true);
+  const switchProps = switcher ? { left: 0 } : { right: 0 };
+
   return <>
     <EditorGrid
-      editorTextAreaElement={<>{[<div key={linkId}><EditorTextArea
-        refEditor={refEditor}
-        value={currentValue}
-        onChange={(value) => {
-          setValue(linkId, value);
-        }}
-        onSave={async (savedValue) => {
-          const value = tempValueRef?.current?.[linkId] || savedValue;
-          const Value = await deep.id({ in: { type_id: { _id: ['@deep-foundation/core', 'Value'] }, from: { typed: { id: { _eq: linkId } } } } });
-          const table = Value === deep.idSync('@deep-foundation/core', 'String') ? 'strings' : Value === deep.idSync('@deep-foundation/core', 'Number') ? 'numbers' : Value === deep.idSync('@deep-foundation/core', 'Object') ? 'objects' : undefined;
-          const type = Value === deep.idSync('@deep-foundation/core', 'String') ? 'string' : Value === deep.idSync('@deep-foundation/core', 'Number') ? 'number' : Value === deep.idSync('@deep-foundation/core', 'Object') ? 'object' : 'undefined';
+      columns={switcher ? 'repeat(2, 15% 85%)' : 'repeat(2, 85% 15%)'}
+      editorTextAreaElement={<>{[<div key={linkId}>
+        <EditorTextArea
+          refEditor={refEditor}
+          value={currentValue}
+          onChange={(value) => {
+            setValue(linkId, value);
+          }}
+          onSave={async (savedValue) => {
+            const value = tempValueRef?.current?.[linkId] || savedValue;
+            const Value = await deep.id({ in: { type_id: { _id: ['@deep-foundation/core', 'Value'] }, from: { typed: { id: { _eq: linkId } } } } });
+            const table = Value === deep.idLocal('@deep-foundation/core', 'String') ? 'strings' : Value === deep.idLocal('@deep-foundation/core', 'Number') ? 'numbers' : Value === deep.idLocal('@deep-foundation/core', 'Object') ? 'objects' : undefined;
+            const type = Value === deep.idLocal('@deep-foundation/core', 'String') ? 'string' : Value === deep.idLocal('@deep-foundation/core', 'Number') ? 'number' : Value === deep.idLocal('@deep-foundation/core', 'Object') ? 'object' : 'undefined';
 
-          let _value;
-          try {
-            _value = table === 'strings' ? value : table === 'numbers' ? parseFloat(value) : table === 'objects' ? json5.parse(value) : undefined;
-          } catch(error) {}
+            let _value;
+            try {
+              _value = table === 'strings' ? value : table === 'numbers' ? parseFloat(value) : table === 'objects' ? json5.parse(value) : undefined;
+            } catch(error) {}
 
-          if (!deep.minilinks.byId[linkId]?.value) {
-            await deep.insert({ link_id: linkId, value: _value }, {
-              table: table,
-            });
-          } else if (type !== 'undefined') {
-            await deep.update({ link_id: { _eq: linkId } }, {
-              value: _value,
-            }, {
-              table: `${type}s`,
-            });
-          } else {
-          }
-        }}
-      /></div>]}</>}
+            if (!deep.minilinks.byId[linkId]?.value) {
+              await deep.insert({ link_id: linkId, value: _value }, {
+                table: table,
+              });
+            } else if (type !== 'undefined') {
+              await deep.update({ link_id: { _eq: linkId } }, {
+                value: _value,
+              }, {
+                table: `${type}s`,
+              });
+            } else {
+            }
+          }}
+        />
+      </div>]}</>}
       // editorTabsElement={<EditorTabs
       //   tabs={tabs.map((tab) => ({
       //     ...tab,
-      //     title: `${linkId} ${deep.minilinks.byId[linkId]?.inByType?.[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || ''}`.trim(),
+      //     title: `${linkId} ${deep.minilinks.byId[linkId]?.inByType?.[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || ''}`.trim(),
       //     active: linkId === linkId,
       //   }))}
       //   setTabs={(tabs) => setTabs(tabs)}
@@ -187,5 +195,8 @@ export function CytoEditorPreview({
         }}
       />}
     />
+    <Box position='absolute' {...switchProps} top={0} height={'100%'} width={'15%'} bg='primary' opacity={0.2} onClick={() => {
+      setSwitch(sw => !sw);
+    }}></Box>
   </>;
 }

@@ -1,5 +1,5 @@
 import { CloseIcon } from "@chakra-ui/icons";
-import { HStack, ButtonGroup, Button, IconButton, FormControl, FormLabel, Switch, Box, VStack, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Input, Tag, TagLabel } from "@chakra-ui/react";
+import { HStack, ButtonGroup, Button, IconButton, FormControl, FormLabel, Switch, Box, VStack, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Input, Tag, TagLabel, Text } from "@chakra-ui/react";
 import { useDeep } from "@deep-foundation/deeplinks/imports/client";
 import copy from "copy-to-clipboard";
 import { useState, useEffect, useMemo } from "react";
@@ -143,48 +143,108 @@ export function CytoMenu({
 export const MenuSearch = ({ cyRef }: { cyRef?: any; }) => {
   const deep = useDeep();
   const [value, setValue] = useState('');
-  const links = deep.useMinilinksQuery({
+
+  const byId = deep.useMinilinksQuery({
     _or: [
-      { id: { _eq: parseInt(value) } }
+      { id: { _eq: parseInt(value) } },
     ],
   });
+  const byValue = deep.useMinilinksQuery({
+    value: {
+      value: { _ilike: value },
+    },
+  });
+  const byContain = deep.useMinilinksQuery({
+    _or: [
+      { in: {
+        type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
+        value: { value: {
+          _ilike: value,
+          _neq: '',
+        } },
+      } },
+    ],
+  });
+  const all = [...byId, ...byValue, ...byContain];
   const [index, setIndex] = useState(-1);
-  useHotkeys('up,right,down,left', e => {
-    const cy = cyRef?.current;
-    e.preventDefault();
-    e.stopPropagation();
-    if (index == -1) {
-      setIndex(0);
-    } else if (e.key == 'ArrowUp' || e.key == 'ArrowLeft') {
-      setIndex(index => index - 1);
-      cy.center(cy.$(`#{links[index - 1]?.id}`));
-    } else if (e.key == 'ArrowDown' || e.key == 'ArrowRight') {
-      setIndex(index => index + 1);
-      cy.center(cy.$(`#{links[index + 1]?.id}`));
-    }
-  }, { enableOnTags: ["TEXTAREA", "INPUT"] });
+  const [selected, setSelected] = useState(0);
+  // useHotkeys('up,right,down,left', e => {
+  //   const cy = cyRef?.current;
+  //   e.preventDefault();
+  //   // e.stopPropagation();
+  //   if (index == -1) {
+  //     setIndex(0);
+  //   } else if (e.key == 'ArrowUp' || e.key == 'ArrowLeft') {
+  //     setIndex(index => index < 0 ? all.length - 1 : 0);
+  //   } else if (e.key == 'ArrowDown' || e.key == 'ArrowRight') {
+  //     setIndex(index => index > all.length - 1 ? 0 : index + 1);
+  //   }
+  // }, { enableOnTags: ["TEXTAREA", "INPUT"] });
+  useEffect(() => {
+    setSelected(all[index]?.id);
+  }, [index]);
+  console.log({ all });
 
   useHotkeys('enter', e => {
     e.preventDefault();
     e.stopPropagation();
   }, { enableOnTags: ["TEXTAREA", "INPUT"] });
   return <>
-    <Popover placement='top-start' autoFocus={false}>
+    <Popover placement='bottom-start' autoFocus={false}>
       <PopoverTrigger>
         <Input value={value} onChange={(e) => setValue(e.target.value)}/>
       </PopoverTrigger>
       <PopoverContent>
-        <PopoverHeader fontWeight='semibold'>Popover placement</PopoverHeader>
+        <PopoverHeader fontWeight='semibold'>Search local</PopoverHeader>
         <PopoverArrow />
         <PopoverCloseButton />
         <PopoverBody>
-          {links.map(link => (
+          <Text as="h1">byId</Text>
+          {byId.map(link => (console.log({ selected, link }),
             <Tag
               borderRadius='full'
               variant='solid'
-              colorScheme='default'
+              colorScheme={selected === link.id ? 'primary' : 'default'}
+              onClick={(() => {
+                const cy = cyRef?.current;
+                console.log('cy', cy);
+                console.log('cy el', `#${link?.id}`, cy.$(`#${link?.id}`));
+                cy.center(cy.$(`#${link?.id}`));
+              })}
             >
-              <TagLabel>{link.id}</TagLabel>
+              <TagLabel>{deep.nameLocal(link.id) || link.id}</TagLabel>
+            </Tag>
+          ))}
+          <Text as="h1">byContain</Text>
+          {byContain.map(link => (
+            <Tag
+              borderRadius='full'
+              variant='solid'
+              colorScheme={selected === link.id ? 'primary' : 'default'}
+              onClick={(() => {
+                const cy = cyRef?.current;
+                console.log('cy', cy);
+                console.log('cy el', `#${link?.id}`, cy.$(`#${link?.id}`));
+                cy.center(cy.$(`#${link?.id}`));
+              })}
+            >
+              <TagLabel>{deep.nameLocal(link.id) || link.id}</TagLabel>
+            </Tag>
+          ))}
+          <Text as="h1">byValue</Text>
+          {byValue.map(link => (
+            <Tag
+              borderRadius='full'
+              variant='solid'
+              colorScheme={selected === link.id ? 'primary' : 'default'}
+              onClick={(() => {
+                const cy = cyRef?.current;
+                console.log('cy', cy);
+                console.log('cy el', `#${link?.id}`, cy.$(`#${link?.id}`));
+                cy.center(cy.$(`#${link?.id}`));
+              })}
+            >
+              <TagLabel>{deep.nameLocal(link.id) || link.id}</TagLabel>
             </Tag>
           ))}
         </PopoverBody>

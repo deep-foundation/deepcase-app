@@ -45,9 +45,9 @@ export function CytoReactLinksCardInsertNode({
 
   const elements = (types || [])?.map(t => ({
     id: t.id,
-    src:  t?.inByType[deep.idSync('@deep-foundation/core', 'Symbol')]?.[0]?.value?.value || t.id,
-    linkName: t?.inByType[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || t.id,
-    containerName: t?.inByType[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.from?.value?.value || '',
+    src:  t?.inByType[deep.idLocal('@deep-foundation/core', 'Symbol')]?.[0]?.value?.value || t.id,
+    linkName: t?.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || t.id,
+    containerName: t?.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.from?.value?.value || '',
   }));
   return <CytoReactLinksCard
     elements={elements.filter(el => (!!el?.linkName?.includes && el?.linkName?.toLocaleLowerCase()?.includes(search) || el?.containerName?.includes && el?.containerName?.toLocaleLowerCase()?.includes(search)))}
@@ -66,14 +66,14 @@ export function CytoReactLinksCardInsertNode({
         //   in: { data: [
         //     {
         //       from_id: container,
-        //       type_id: deep.idSync('@deep-foundation/core', 'Contain'),
+        //       type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
         //     },
         //     {
         //       from_id: container,
-        //       type_id: deep.idSync('@deep-foundation/core', 'Focus'),
+        //       type_id: deep.idLocal('@deep-foundation/core', 'Focus'),
         //       object: { data: { value: insertingLink.position } },
         //       in: { data: {
-        //         type_id: deep.idSync('@deep-foundation/core', 'Contain'),
+        //         type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
         //         from_id: container
         //       } },
         //     },
@@ -127,25 +127,25 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
       console.log('insertLink2', type_id, from, to, position, autoFocusRef.current);
       inArray.push({
         from_id: spaceIdRef.current,
-        type_id: deep.idSync('@deep-foundation/core', 'Focus'),
+        type_id: deep.idLocal('@deep-foundation/core', 'Focus'),
         object: { data: { value: position } },
         ...(containerRef.current ? { in: { data: {
-          type_id: deep.idSync('@deep-foundation/core', 'Contain'),
+          type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
           from_id: containerRef.current
         } } } : {}),
       });
     }
-    if (container && type_id !== deep.idSync('@deep-foundation/core', 'Contain')) {
+    if (container && type_id !== deep.idLocal('@deep-foundation/core', 'Contain')) {
       inArray.push({
         from_id: container,
-        type_id: deep.idSync('@deep-foundation/core', 'Contain'),
+        type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
       });
     }
     const { data: [{ id: linkId }] } = await deep.insert({
       type_id: type_id,
-      ...(valued === deep.idSync('@deep-foundation/core', 'String') ? { string: { data: { value: '' } } } :
-        valued === deep.idSync('@deep-foundation/core', 'Number') ? { number: { data: { value: 0 } } } :
-        valued === deep.idSync('@deep-foundation/core', 'Object') ? { object: { data: { value: {} } } } :
+      ...(valued === deep.idLocal('@deep-foundation/core', 'String') ? { string: { data: { value: '' } } } :
+        valued === deep.idLocal('@deep-foundation/core', 'Number') ? { number: { data: { value: 0 } } } :
+        valued === deep.idLocal('@deep-foundation/core', 'Object') ? { object: { data: { value: {} } } } :
         {}),
       ...(!!inArray.length ? { in: { data: inArray } } : {}),
       from_id: from || 0,
@@ -212,10 +212,10 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
     startInsertingOfType: (id: number, From: number, To: number) => {
       const link = ml.byId[id];
       const isNode = !link.from_id && !link.to_id;
-      const isPossibleNode = isNode || (link.from_id === link.to_id && link.from_id === deep.idSync('@deep-foundation/core', 'Any'));
-      const TypeName = link?.inByType?.[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || link?.id;
-      const FromName = ml.byId[link.from_id]?.inByType?.[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || link.from_id;
-      const ToName = ml.byId[link.to_id]?.inByType?.[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || link.to_id;
+      const isPossibleNode = isNode || (link.from_id === link.to_id && link.from_id === deep.idLocal('@deep-foundation/core', 'Any'));
+      const TypeName = link?.inByType?.[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || link?.id;
+      const FromName = ml.byId[link.from_id]?.inByType?.[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || link.from_id;
+      const ToName = ml.byId[link.to_id]?.inByType?.[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || link.to_id;
       const t = toast({
         title: `Inserting link type of: ${TypeName}`,
         description: `This ${isNode ? `is node type, just click somewhere for insert.` : `is link type, connect two links from typeof ${FromName} to typeof ${ToName} for insert.`}`,
@@ -293,14 +293,14 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
             //   in: { data: [
             //     {
             //       from_id: containerRef.current,
-            //       type_id: deep.idSync('@deep-foundation/core', 'Contain'),
+            //       type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
             //     },
             //     {
             //       from_id: containerRef.current,
-            //       type_id: deep.idSync('@deep-foundation/core', 'Focus'),
+            //       type_id: deep.idLocal('@deep-foundation/core', 'Focus'),
             //       object: { data: { value: event.position } },
             //       in: { data: {
-            //         type_id: deep.idSync('@deep-foundation/core', 'Contain'),
+            //         type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
             //         from_id: containerRef.current
             //       } },
             //     },
@@ -309,7 +309,7 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
             toast.close(ins.toast);
             setInsertingCyto({});
           } else {
-            const Any = deep.idSync('@deep-foundation/core', 'Any');
+            const Any = deep.idLocal('@deep-foundation/core', 'Any');
             if (ins.From === Any && ins.To === Any) {
               await returningRef.current.insertLink(ins.type_id, 0, 0, ins?.position);
             }
@@ -382,9 +382,9 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
       }
 
       const { data: handlers } = useDeepQuery({
-        type_id: deep.idSync('@deep-foundation/core', 'Handler'),
+        type_id: deep.idLocal('@deep-foundation/core', 'Handler'),
         in: {
-          type_id: deep.idSync('@deep-foundation/core', 'HandleClient'),
+          type_id: deep.idLocal('@deep-foundation/core', 'HandleClient'),
           _or: types.map(type => ({ from_id: { _type_of: type } })),
         },
       });
@@ -401,9 +401,9 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
       const handler = handlers.find(h => h.id === handlerId);
       const elements = handlers?.map(t => ({
         id: t?.id,
-        src:  t?.inByType[deep.idSync('@deep-foundation/core', 'Symbol')]?.[0]?.value?.value || t.id,
-        linkName: t?.inByType[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || t.id,
-        containerName: t?.inByType[deep.idSync('@deep-foundation/core', 'Contain')]?.[0]?.from?.value?.value || '',
+        src:  t?.inByType[deep.idLocal('@deep-foundation/core', 'Symbol')]?.[0]?.value?.value || t.id,
+        linkName: t?.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || t.id,
+        containerName: t?.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.from?.value?.value || '',
       })) || [];
 
       console.log('handlers', { handlers, handler, handlerId, elements });
@@ -627,7 +627,7 @@ export function useCyInitializer({
           in: { data: [
             {
               from_id: containerRef.current,
-              type_id: deep.idSync('@deep-foundation/core', 'Contain'),
+              type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
             },
           ] },
         });
@@ -685,7 +685,7 @@ export function useCyInitializer({
               if (confirm(`Are you shure whant to delete all links down by contain tree?`)) {
                 await deep.delete({
                   up: {
-                    tree_id: { _eq: deep.idSync('@deep-foundation/core', 'containTree') },
+                    tree_id: { _eq: deep.idLocal('@deep-foundation/core', 'containTree') },
                     parent_id: { _eq: +id },
                   },
                 });
@@ -767,7 +767,7 @@ export function useCyInitializer({
     const updatedListener = (oldLink, newLink) => {
       // on update link or link value - unlock reposition lock
       if (
-        newLink.type_id === deep.idSync('@deep-foundation/core', 'Focus') && newLink?.value?.value?.x &&
+        newLink.type_id === deep.idLocal('@deep-foundation/core', 'Focus') && newLink?.value?.value?.x &&
         
         // if true - we remember how WE lock it, ok, we have updatefrom db...
         // if undefined - we not know lock/not lock... just update from db...
