@@ -1,12 +1,11 @@
 import { Box, Divider, Flex, IconButton, Image, Input, InputGroup, InputLeftElement, InputRightElement, Text } from '@chakra-ui/react';
 import { useDebounceCallback } from "@react-hook/debounce";
 import { AnimatePresence, motion, useAnimation } from 'framer-motion';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { IoAddOutline, IoPlayOutline, IoStopOutline } from 'react-icons/io5';
 import { MdDelete } from 'react-icons/md';
 import { CustomizableIcon } from "./icons-provider";
 import { ModalWindow } from "./modal-window";
-
 
 const ConnectorGrid = React.memo<any>(({
   children, 
@@ -58,8 +57,22 @@ const displayAnimation = {
 };
 
 const TerminalConnect = React.memo<any>(({openTerminal = false, key,}:{openTerminal?: boolean; key: any;}) => {
+  const terminalBoxRef = useRef<any>();
   const control = useAnimation();
   const animation = useAnimation();
+
+  useEffect(() => {
+    (async () => {
+      const { Terminal } = await import("xterm");
+      const termimal = new Terminal({
+        cursorBlink: true,
+        cursorStyle: 'block',
+      });
+      const box = terminalBoxRef.current;
+      termimal.open(box);
+      termimal.write('Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ')
+    })();
+  }, []);
 
   useEffect(() => {
     if(openTerminal == true) {
@@ -86,14 +99,15 @@ const TerminalConnect = React.memo<any>(({openTerminal = false, key,}:{openTermi
         // h='100%'
       >
         <Box  
-          // as={motion.div}
-          // animate={animation}
-          // initial='initial'
-          // variants={displayAnimation}
-          // exit='none'
+          ref={terminalBoxRef}
           w='30rem' 
           h='20rem'
-          bg='cyan.300' />
+          sx={{
+            '& > *': {
+              height: '100%',
+            },
+          }}
+        />
       </Box>
     // </AnimatePresence>
   )
@@ -101,7 +115,7 @@ const TerminalConnect = React.memo<any>(({openTerminal = false, key,}:{openTermi
 
 const Initializing = React.memo<any>(() => {
   return (<Flex width='100%' justify='space-between' pt={2} pb={2}>
-      <Text sx={{color: '#F7FAFC'}} fontSize='sm' as='kbd' mr='0.125rem'>Initializing</Text>
+      <Text color='gray.400' fontSize='sm' as='kbd' mr='0.125rem'>Initializing</Text>
       <Box 
         display='flex' 
         w='100%' 
@@ -114,12 +128,12 @@ const Initializing = React.memo<any>(() => {
           }
         }}
       >
-        <motion.div
+        <motion.div 
           style={{
             width: 3,
             height: 3,
             borderRadius: 0.5,
-            backgroundColor: "#fff"
+            backgroundColor: "#A0AEC0",
           }}
           animate={{ scale: [0, 1, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
@@ -129,7 +143,7 @@ const Initializing = React.memo<any>(() => {
             width: 3,
             height: 3,
             borderRadius: 0.5,
-            backgroundColor: "#fff"
+            backgroundColor: "#A0AEC0",
           }}
           animate={{ scale: [0, 1, 0] }}
           transition={{ duration: 2, repeat: Infinity, delay: 0.4  }}
@@ -139,7 +153,7 @@ const Initializing = React.memo<any>(() => {
             width: 3,
             height: 3,
             borderRadius: 0.5,
-            backgroundColor: "#fff"
+            backgroundColor: "#A0AEC0",
           }}
           animate={{ scale: [0, 1, 0] }}
           transition={{ duration: 2, repeat: Infinity, delay: 0.8  }}
@@ -149,7 +163,7 @@ const Initializing = React.memo<any>(() => {
             width: 3,
             height: 3,
             borderRadius: 0.5,
-            backgroundColor: "#fff"
+            backgroundColor: "#A0AEC0",
           }}
           animate={{ scale: [0, 1, 0] }}
           transition={{ duration: 2, repeat: Infinity, delay: 1.6  }}
@@ -184,7 +198,7 @@ const ButtonTextButton = React.memo(({
         icon={<ComponentLeftIcon color='rgb(0, 128, 255)' />} 
         onClick={onClickLeft}
       />
-      <Text sx={{color: '#F7FAFC'}} fontSize='sm' as='kbd' mr='0.125rem'>{text}</Text>
+      <Text color='gray.400' fontSize='sm' as='kbd' mr='0.125rem'>{text}</Text>
       <IconButton
         variant='unstyled' 
         size='md'
@@ -282,34 +296,30 @@ const InputAnimation = React.memo<any>(({
       // p={4}
       key={key}
     >
-      {/* <Box > */}
-        {/* <AnimatePresence> */}
-          <InputGroup 
-            size='md'
-            // layout
-            as={motion.div}
-            animate={controlInput}
-            initial='hide'
-            exit='hide'
-            variants={inputAnimation}
-            // key={key}
-          >
-            <InputLeftElement 
-              onClick={onStartRemoteRoute}
-              children={
-                <CustomizableIcon Component={IoPlayOutline} value={{color: 'rgb(0, 128, 255)'}} />
-              } 
-            />
-            <Input placeholder='rout' value={valueRemoteRoute} onChange={onChangeValueRemoteRoute} />
-            <InputRightElement 
-              onClick={onDeleteValue}
-              children={
-                <CustomizableIcon Component={MdDelete} value={{color: 'rgb(0, 128, 255)'}} />
-              } 
-            />
-          </InputGroup>
-        {/* </AnimatePresence> */}
-      {/* </Box> */}
+      <InputGroup 
+        size='md'
+        // layout
+        as={motion.div}
+        animate={controlInput}
+        initial='hide'
+        exit='hide'
+        color='gray.500'
+        variants={inputAnimation}
+      >
+        <InputLeftElement 
+          onClick={onStartRemoteRoute}
+          children={
+            <CustomizableIcon Component={IoPlayOutline} value={{color: 'rgb(0, 128, 255)'}} />
+          } 
+        />
+        <Input placeholder='rout' value={valueRemoteRoute} onChange={onChangeValueRemoteRoute} />
+        <InputRightElement 
+          onClick={onDeleteValue}
+          children={
+            <CustomizableIcon Component={MdDelete} value={{color: 'rgb(0, 128, 255)'}} />
+          } 
+        />
+      </InputGroup>
     </Box>
   )
 });
@@ -461,7 +471,7 @@ export const Connector = React.memo<any>(({
             key={1221}
           >
             <Box pt={4} pl={4} pr={4} textAlign='left' w='100%'>
-              <Text sx={{color: '#F7FAFC'}} fontSize='md'>Remote deep</Text>
+              <Text color='gray.400' fontSize='md'>Remote deep</Text>
             </Box>
             <AnimatePresence>
               {remoteRouts.map(rr => (
@@ -488,7 +498,7 @@ export const Connector = React.memo<any>(({
                 onTap={add}
               />
               <Divider mb={4} />
-              <Text sx={{color: '#F7FAFC'}} fontSize='md'>Local deep</Text>
+              <Text color='gray.400' fontSize='md'>Local deep</Text>
             </Box>
             <Box 
               bg='#141214'
@@ -515,7 +525,7 @@ export const Connector = React.memo<any>(({
                   variants={initArea}
                   onClick={() => setInitLocal(InitializingState.initializing)} 
                 >
-                  <Text sx={{color: '#F7FAFC'}} fontSize='sm' as='kbd'>no initialized</Text>
+                  <Text color='gray.400' fontSize='sm' as='kbd'>no initialized</Text>
                   <IconButton
                     variant='unstyled' 
                     size='md'

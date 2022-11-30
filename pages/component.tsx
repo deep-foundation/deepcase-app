@@ -83,7 +83,6 @@ export default function Page() {
         <Box w='100%' h='2rem' />
         <Code>/connector</Code>
         <Box w='100%' h='1rem' />
-        
           <Connector 
             portalOpen={portal}
             onClosePortal={() => setPortal(false)}
