@@ -497,6 +497,8 @@ export const Connector = React.memo<any>(({
               boxSizing='border-box'
               w='100%'
               position='relative'
+              borderBottomLeftRadius='5px'
+              borderBottomRightRadius='5px'
             > 
               <AnimatePresence>
                 <Box 
