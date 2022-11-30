@@ -83,10 +83,11 @@ export default function Page() {
         <Box w='100%' h='2rem' />
         <Code>/connector</Code>
         <Box w='100%' h='1rem' />
-        <Connector 
-          portalOpen={portal}
-          onClosePortal={() => setPortal(false)}
-        />
+        
+          <Connector 
+            portalOpen={portal}
+            onClosePortal={() => setPortal(false)}
+          />
         <Button colorScheme='teal' onClick={() => setPortal(true)}>push me</Button>
         <Box w='100%' h='1rem' />
 

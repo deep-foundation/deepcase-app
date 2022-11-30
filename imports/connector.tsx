@@ -1,12 +1,103 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Box, Button, Divider, Flex, IconButton, Image, Input, InputGroup, InputLeftAddon, InputLeftElement, InputRightAddon, InputRightElement, Spacer, Text } from '@chakra-ui/react';
-import { ModalWindow } from "./modal-window";
+import { Box, Divider, Flex, IconButton, Image, Input, InputGroup, InputLeftElement, InputRightElement, Text } from '@chakra-ui/react';
 import { useDebounceCallback } from "@react-hook/debounce";
-import { IoStopOutline, IoPlayOutline, IoAddOutline } from 'react-icons/io5';
+import { AnimatePresence, motion, useAnimation } from 'framer-motion';
+import React, { useEffect, useState } from "react";
+import { IoAddOutline, IoPlayOutline, IoStopOutline } from 'react-icons/io5';
 import { MdDelete } from 'react-icons/md';
-import { motion, useAnimation, AnimatePresence } from 'framer-motion';
 import { CustomizableIcon } from "./icons-provider";
+import { ModalWindow } from "./modal-window";
 
+
+const ConnectorGrid = React.memo<any>(({
+  children, 
+  ...props
+}:{
+  children: any; 
+  [key: string]: any;
+}) => {
+
+  return (
+    <Box 
+      display='flex' 
+      {...props}
+    >
+      <AnimatePresence>
+        {children}
+      </AnimatePresence>
+    </Box>
+  )
+});
+
+const terminalAnimation = {
+  grow: {
+    scale: 1,
+    width: '100%',
+    opacity: 1,
+    transition: { duration: 1.1}
+  },
+  shrink: {
+    scale: 0,
+    opacity: 0,
+    width: '0px',
+    transition: { duration: 1.1, delay: 0.2}
+  }
+};
+
+const displayAnimation = {
+  display: {
+    display: 'block',
+    transition: { duration: 1}
+  },
+  none: {
+    display: 'none',
+    transition: { duration: 0.1, delay: 1.3}
+  },
+  initial: {
+    display: 'none',
+  }
+};
+
+const TerminalConnect = React.memo<any>(({openTerminal = false, key,}:{openTerminal?: boolean; key: any;}) => {
+  const control = useAnimation();
+  const animation = useAnimation();
+
+  useEffect(() => {
+    if(openTerminal == true) {
+      control.start('grow');
+      animation.start('display');
+    } else {
+      control.start('shrink');
+      animation.start('none');
+    }
+  }, [control, animation, openTerminal]);
+
+  return (
+  // <AnimatePresence>
+      <Box 
+        key={key}
+        as={motion.div}
+        overflow='hidden'
+        borderRadius='5px'
+        animate={control}
+        initial='shrink'
+        variants={terminalAnimation}
+        exit='shrink'
+        // w='100%' 
+        // h='100%'
+      >
+        <Box  
+          // as={motion.div}
+          // animate={animation}
+          // initial='initial'
+          // variants={displayAnimation}
+          // exit='none'
+          w='30rem' 
+          h='20rem'
+          bg='cyan.300' />
+      </Box>
+    // </AnimatePresence>
+  )
+})
 
 const Initializing = React.memo<any>(() => {
   return (<Flex width='100%' justify='space-between' pt={2} pb={2}>
@@ -341,64 +432,75 @@ export const Connector = React.memo<any>(({
         flexDirection='column'
         alignItems='center'
       >
-        <Box boxSize='5rem'>
-          <Image src='./logo_n.svg' alt='logo' />
+        <Box>
+          <Box boxSize='5rem' mb={4}>
+            <Image src='./logo_n.svg' alt='logo' />
+          </Box>
         </Box>
-        <Box 
-          as={motion.div}
-          display='flex' 
-          flexDir='column' 
-          alignItems='center' 
-          justifyContent='center' 
-          height='100%'
-          width='max-content'
-          bg='#141214'
-          borderRadius='5px'
-          animate={control}
-          initial='shrink'
-          variants={cardAnimation}
+        <ConnectorGrid 
+          alignItems='center'
+          sx={{
+            '& > *:not(:last-of-type)': {
+              mr: init == InitializingState.notInit ? 0 : 4,
+            }
+          }}
         >
-          <Box pt={4} pl={4} pr={4} textAlign='left' w='100%'>
-            <Text sx={{color: '#F7FAFC'}} fontSize='md'>Remote deep</Text>
-          </Box>
-          <AnimatePresence>
-            {remoteRouts.map(rr => (
-              <InputAnimation 
-                addRemoteRout={!!remoteRouts}
-                valueRemoteRoute={rr.value}
-                onChangeValueRemoteRoute={(e) => save(rr.id, e.target.value)}
-                // setValueRemote={}
-                onDeleteValue={() => remove(rr.id)}
-                // onStartRemoteRoute={() => {}}
-                key={(console.log({'rr': rr.id}),rr.id)}
-              />)
-            )}
-          </AnimatePresence>
-          <Box pb={4} pl={4} pr={4} width='100%'>
-            <IconButton
-              as={motion.div} 
-              variant='unstyled' 
-              aria-label='Add remote route' 
-              icon={
-                <IoAddOutline color='rgb(0, 128, 255)' />
-              }
-              // onClick={() => setAddRemote(!addRemote)} 
-              onTap={add}
-            />
-            <Divider mb={4} />
-            <Text sx={{color: '#F7FAFC'}} fontSize='md'>Local deep</Text>
-          </Box>
           <Box 
+            as={motion.div}
+            display='flex' 
+            flexDir='column' 
+            alignItems='center' 
+            justifyContent='center' 
+            height='100%'
+            width='max-content'
             bg='#141214'
-            pl={4}
-            pb={2}
-            boxSizing='border-box'
-            w='100%'
-            position='relative'
-          > 
+            borderRadius='5px'
+            animate={control}
+            initial='shrink'
+            variants={cardAnimation}
+            key={1221}
+          >
+            <Box pt={4} pl={4} pr={4} textAlign='left' w='100%'>
+              <Text sx={{color: '#F7FAFC'}} fontSize='md'>Remote deep</Text>
+            </Box>
             <AnimatePresence>
-              {/* <Box display='flex' w='100%' justifyContent='space-between' alignItems='center' minW='19.75rem' position='relative'> */}
+              {remoteRouts.map(rr => (
+                <InputAnimation 
+                  addRemoteRout={!!remoteRouts}
+                  valueRemoteRoute={rr.value}
+                  onChangeValueRemoteRoute={(e) => save(rr.id, e.target.value)}
+                  // setValueRemote={}
+                  onDeleteValue={() => remove(rr.id)}
+                  // onStartRemoteRoute={() => {}}
+                  key={rr.id}
+                />)
+              )}
+            </AnimatePresence>
+            <Box pb={4} pl={4} pr={4} width='100%'>
+              <IconButton
+                as={motion.div} 
+                variant='unstyled' 
+                aria-label='Add remote route' 
+                icon={
+                  <IoAddOutline color='rgb(0, 128, 255)' />
+                }
+                // onClick={() => setAddRemote(!addRemote)} 
+                onTap={add}
+              />
+              <Divider mb={4} />
+              <Text sx={{color: '#F7FAFC'}} fontSize='md'>Local deep</Text>
+            </Box>
+            <Box 
+              bg='#141214'
+              pl={4}
+              pb={2}
+              boxSizing='border-box'
+              w='100%'
+              position='relative'
+            > 
+              <AnimatePresence>
                 <Box 
+                  key={InitializingState.notInit}
                   w='100%' 
                   minW='19.75rem'
                   h='100%' 
@@ -422,6 +524,7 @@ export const Connector = React.memo<any>(({
                   />
                 </Box>
                 <Box 
+                  key={InitializingState.initializing}
                   w='100%' 
                   minW='19.75rem'
                   h='100%' 
@@ -439,6 +542,7 @@ export const Connector = React.memo<any>(({
                   <Initializing />
                 </Box>
                 <Box 
+                  key={InitializingState.initialized}
                   w='100%' 
                   minW='19.75rem'
                   h='100%'  
@@ -455,7 +559,8 @@ export const Connector = React.memo<any>(({
                   />
                 </Box>
                 <Box 
-                  // w='100%' 
+                  key={InitializingState.launched}
+                  w='100%' 
                   minW='19.75rem'
                   h='100%'  
                   position='absolute'
@@ -466,7 +571,7 @@ export const Connector = React.memo<any>(({
                   variants={initArea}
                   onClick={() => setInitLocal(InitializingState.notInit)} 
                 >
-                   <ButtonTextButton 
+                  <ButtonTextButton 
                     text='launched'
                     ariaLabelLeft=""
                     ariaLabelRight=""
@@ -475,10 +580,13 @@ export const Connector = React.memo<any>(({
                     onClickRight={() => setInitLocal(InitializingState.launched)} 
                   />
                 </Box>
-              {/* </Box> */}
-            </AnimatePresence>
+              </AnimatePresence>
+            </Box>
           </Box>
-        </Box>
+          <TerminalConnect 
+            openTerminal={init == InitializingState.initializing ? true : false} 
+            key={21121} />
+        </ConnectorGrid>
       </Box>
     </ModalWindow>
   )
