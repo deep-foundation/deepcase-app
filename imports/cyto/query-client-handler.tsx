@@ -13,8 +13,6 @@ const variants = {
   view: {
     opacity: 1,
     scale: 1,
-    originX: 1,
-    // originY: 1,
     transition: {
       duration: 1,
       delay: 0.3,
@@ -22,12 +20,16 @@ const variants = {
     }
   },
   hide: {
-    originX: 1,
     opacity: 0,
     scale: 0,
     transition: {
-      // duration: 0.25,
+      type: 'spring'
     }
+  },
+  initial: {
+    originX: 1,
+    opacity: 0,
+    scale: 0,
   }
 };
 
@@ -144,7 +146,7 @@ export const QueryClientHandler = React.memo<any>(({nested = false}:{nested?: bo
           <IconButton 
             as={motion.div}
             variants={variants}
-            initial='hide'
+            initial='initial'
             whileInView='view'
             animate='view'
             aria-label='activate/inactivate button' 
@@ -160,7 +162,7 @@ export const QueryClientHandler = React.memo<any>(({nested = false}:{nested?: bo
            <IconButton 
             as={motion.div}
             variants={variants}
-            initial='hide'
+            initial='initial'
             animate={control}
             whileInView='view'
             aria-label='save button' 
