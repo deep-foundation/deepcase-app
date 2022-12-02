@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
 import { Appearance } from '../imports/component-appearance';
 import { GridComponent } from '../imports/component/grid-component';
-import { Connector } from '../imports/connector';
+import { Connector } from '../imports/connector/connector';
 import { QueryClientHandler } from '../imports/cyto/query-client-handler';
 import { CytoGraphProps } from '../imports/cyto/types';
 import { DotsLoader } from '../imports/dot-loader';

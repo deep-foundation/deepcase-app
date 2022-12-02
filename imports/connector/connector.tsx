@@ -4,8 +4,9 @@ import { AnimatePresence, motion, useAnimation } from 'framer-motion';
 import React, { useEffect, useRef, useState } from "react";
 import { IoAddOutline, IoPlayOutline, IoStopOutline } from 'react-icons/io5';
 import { MdDelete } from 'react-icons/md';
-import { CustomizableIcon } from "./icons-provider";
-import { ModalWindow } from "./modal-window";
+import { CustomizableIcon } from "../icons-provider";
+import { ModalWindow } from "../modal-window";
+import { DockerWarning } from './docker-warning';
 
 const ConnectorGrid = React.memo<any>(({
   children, 
@@ -376,9 +377,11 @@ enum InitializingState {
 export const Connector = React.memo<any>(({
   portalOpen, 
   onClosePortal,
+  isExistDocker = true,
 }:{
   portalOpen?: boolean; 
   onClosePortal: () => any;
+  isExistDocker?: boolean;
 }) => {
   const control = useAnimation();
   const controlNotInit = useAnimation();
@@ -499,6 +502,7 @@ export const Connector = React.memo<any>(({
               />
               <Divider mb={4} />
               <Text color='gray.400' fontSize='md'>Local deep</Text>
+              {isExistDocker ? <DockerWarning /> : null}
             </Box>
             <Box 
               bg='#141214'
@@ -509,6 +513,8 @@ export const Connector = React.memo<any>(({
               position='relative'
               borderBottomLeftRadius='5px'
               borderBottomRightRadius='5px'
+              filter='auto'
+              blur={isExistDocker === true ? '2px' : 0}
             > 
               <AnimatePresence>
                 <Box 
