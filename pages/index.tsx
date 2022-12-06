@@ -64,7 +64,7 @@ export default function Page() {
   const [gqlPath, setGqlPath] = useState('');
   const [gqlSsl, setGqlSsl] = useState('');
   const [portal, setPortal] = useState(true);
-  return (<><Provider gqlPath={gqlPath} gqlSsl={gqlPath}>
+  return (<><Provider gqlPath={gqlPath} gqlSsl={gqlSsl}>
       <DeepProvider>
         <AutoGuest>
           <Connector 
