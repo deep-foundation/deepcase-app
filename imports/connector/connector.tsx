@@ -375,7 +375,7 @@ enum InitializingState {
 }
 
 export const Connector = React.memo<any>(({
-  portalOpen, 
+  portalOpen = true, 
   onClosePortal,
   isExistDocker = true,
 }:{
@@ -410,7 +410,7 @@ export const Connector = React.memo<any>(({
   };
 
   useEffect(() => {
-    if (!!portalOpen) {
+    if (portalOpen == true) {
       control.start("grow"); 
     } else {
       control.start("shrink");
@@ -469,7 +469,7 @@ export const Connector = React.memo<any>(({
             bg='#141214'
             borderRadius='5px'
             animate={control}
-            initial='shrink'
+            initial='grow'
             variants={cardAnimation}
             key={1221}
           >
