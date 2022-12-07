@@ -59,6 +59,7 @@ const displayAnimation = {
 
 const TerminalConnect = React.memo<any>(({openTerminal = false, key,}:{openTerminal?: boolean; key: any;}) => {
   const terminalBoxRef = useRef<any>();
+  const terminalRef = useRef<any>();
   const control = useAnimation();
   const animation = useAnimation();
 
@@ -69,6 +70,7 @@ const TerminalConnect = React.memo<any>(({openTerminal = false, key,}:{openTermi
         cursorBlink: true,
         cursorStyle: 'block',
       });
+      terminalRef.current = termimal;
       const box = terminalBoxRef.current;
       termimal.open(box);
       termimal.write('Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ')
@@ -101,18 +103,19 @@ const TerminalConnect = React.memo<any>(({openTerminal = false, key,}:{openTermi
       >
         <Box  
           ref={terminalBoxRef}
-          w='30rem' 
+          w='45rem' 
           h='20rem'
           sx={{
             '& > *': {
               height: '100%',
             },
           }}
+          onClick={()=>{terminalRef.current.write('click!')}}
         />
       </Box>
     // </AnimatePresence>
   )
-})
+});
 
 const Initializing = React.memo<any>(() => {
   return (<Flex width='100%' justify='space-between' pt={2} pb={2}>
@@ -179,7 +182,7 @@ const ButtonTextButton = React.memo(({
   ariaLabelLeft = 'Add local route',
   ComponentRightIcon =  MdDelete,
   ariaLabelRight = 'Remove local route',
-  text = 'Initializing',
+  text = 'Initialized',
   onClickLeft,
   onClickRight,
 }:{
@@ -502,7 +505,7 @@ export const Connector = React.memo<any>(({
               />
               <Divider mb={4} />
               <Text color='gray.400' fontSize='md'>Local deep</Text>
-              {isExistDocker ? <DockerWarning /> : null}
+              {!isExistDocker ? <DockerWarning /> : null}
             </Box>
             <Box 
               bg='#141214'
@@ -514,7 +517,7 @@ export const Connector = React.memo<any>(({
               borderBottomLeftRadius='5px'
               borderBottomRightRadius='5px'
               filter='auto'
-              blur={isExistDocker === true ? '2px' : 0}
+              blur={isExistDocker === false ? '2px' : 0}
             > 
               <AnimatePresence>
                 <Box 
@@ -538,7 +541,7 @@ export const Connector = React.memo<any>(({
                     aria-label='Add local route' 
                     icon={
                       <IoAddOutline color='rgb(0, 128, 255)' />
-                    } 
+                    }
                   />
                 </Box>
                 <Box 

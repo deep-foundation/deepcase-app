@@ -71,7 +71,7 @@ export default function Page() {
             portalOpen={portal}
             onClosePortal={() => setPortal(false)}
           />
-          <Content/>
+          { portal ? null : <Content/> }
         </AutoGuest>
       </DeepProvider>
     </Provider> 
