@@ -95,7 +95,7 @@ const TerminalConnect = React.memo<any>(({openTerminal = false, key,}:{openTermi
         overflow='hidden'
         borderRadius='5px'
         animate={control}
-        initial='shrink'
+        // initial='shrink'
         variants={terminalAnimation}
         exit='shrink'
         // w='100%' 

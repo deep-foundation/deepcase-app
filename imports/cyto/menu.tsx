@@ -6,14 +6,17 @@ import { useState, useEffect, useMemo } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useSpaceId, useShowTypes, useLayout, useContainer, useShowExtra, useShowFocus, usePromiseLoader, useTraveler, useMediaQuery, useAutoFocusOnInsert, useBreadcrumbs } from "../hooks";
 import { useCytoEditor } from "./hooks";
+import { IoExitOutline } from 'react-icons/io5';
 
 const NEXT_PUBLIC_GQL_PATH = process.env.NEXT_PUBLIC_GQL_PATH || 'localhost:3006/gql';
 const NEXT_PUBLIC_GQL_SSL = process.env.NEXT_PUBLIC_GQL_SSL || '0';
 
 export function CytoMenu({
   cyRef,
+  openPortal,
 }: {
   cyRef?: any;
+  openPortal: () => any;
 }) {
   const [spaceId, setSpaceId] = useSpaceId();
   const [showTypes, setShowTypes] = useShowTypes();
@@ -40,7 +43,7 @@ export function CytoMenu({
     return () => clearTimeout(timer);
   }, [pasteError, valid]);
 
-  return <Box pos='absolute' left={0} top={0}>
+  return <Box pos='absolute' left={0} top={0} display='grid' gridTemplateColumns='1fr 0.8fr'>
     <VStack spacing='1rem' m='1rem' align={'flex-start'}>
       <HStack>
         <ButtonGroup size='sm' isAttached variant='outline'>
@@ -137,6 +140,7 @@ export function CytoMenu({
         <MenuSearch cyRef={cyRef}/>
       </HStack>
     </VStack>
+    <Button bgColor='primary' color='white' size='sm' w='4rem' mt={4} justifySelf='flex-end' rightIcon={<IoExitOutline />} onClick={openPortal}>Exit</Button>
   </Box>;
 }
 
