@@ -22,7 +22,9 @@ const CytoMenu = dynamic<any>(
 );
 
 export function Content({
+  openPortal
 }: {
+  openPortal: () => any;
 }) {
   const cytoViewportRef = useRefstarter<{ pan: { x: number; y: number; }; zoom: number }>();
   const cyRef = useRef();
@@ -55,7 +57,7 @@ export function Content({
       spaceId={spaceId}
       />]}
     <CytoGraph links={links} cyRef={cyRef} cytoViewportRef={cytoViewportRef}/>
-    <CytoMenu cyRef={cyRef} cytoViewportRef={cytoViewportRef}/>
+    <CytoMenu cyRef={cyRef} cytoViewportRef={cytoViewportRef} openPortal={openPortal}/>
     <ColorModeSwitcher/>
   </>); 
 };
@@ -71,7 +73,7 @@ export default function Page() {
             portalOpen={portal}
             onClosePortal={() => setPortal(false)}
           />
-          { portal ? null : <Content/> }
+          { portal ? null : <Content openPortal={()=>setPortal(true)}/> }
         </AutoGuest>
       </DeepProvider>
     </Provider> 
