@@ -71,9 +71,8 @@ const TerminalConnect = React.memo<any>(({openTerminal = false, key,}:{openTermi
         cursorStyle: 'block',
       });
       terminalRef.current = termimal;
-      const box = terminalBoxRef.current;
-      termimal.open(box);
-      termimal.write('Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ')
+      termimal.open(terminalBoxRef.current);
+      termimal.writeln('Hello \x1B[1;3;31mbugfixers\x1B[0m!')
     })();
   }, []);
 
@@ -81,6 +80,9 @@ const TerminalConnect = React.memo<any>(({openTerminal = false, key,}:{openTermi
     if(openTerminal == true) {
       control.start('grow');
       animation.start('display');
+      setTimeout(async() => {
+        terminalRef?.current?.resize(terminalRef.current.cols,terminalRef.current.rows);
+      }, 1200);
     } else {
       control.start('shrink');
       animation.start('none');
@@ -95,7 +97,7 @@ const TerminalConnect = React.memo<any>(({openTerminal = false, key,}:{openTermi
         overflow='hidden'
         borderRadius='5px'
         animate={control}
-        // initial='shrink'
+        initial='shrink'
         variants={terminalAnimation}
         exit='shrink'
         // w='100%' 
@@ -110,7 +112,10 @@ const TerminalConnect = React.memo<any>(({openTerminal = false, key,}:{openTermi
               height: '100%',
             },
           }}
-          onClick={()=>{terminalRef.current.write('click!')}}
+          onClick={()=>{
+            terminalRef.current.writeln('click!')
+            terminalRef?.current?.resize(terminalRef.current.cols,terminalRef.current.rows);
+        console.log('textarea', terminalRef.current.textarea)}}
         />
       </Box>
     // </AnimatePresence>
