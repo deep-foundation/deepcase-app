@@ -7,6 +7,25 @@ import { MdDelete } from 'react-icons/md';
 import { CustomizableIcon } from "../icons-provider";
 import { ModalWindow } from "../modal-window";
 import { DockerWarning } from './docker-warning';
+import axios from 'axios';
+
+const DOCKER = process.env.DOCKER || '0';
+const DEEPLINKS_PUBLIC_URL = process.env.DEEPLINKS_PUBLIC_URL || 'http://localhost:3006';
+
+const _checkDeeplinksStatus = async () => {
+  let status;
+  let err;
+  try {
+    // DL may be not in docker, when DC in docker, so we use host.docker.internal instead of docker-network link deep_links_1
+    status = await axios.get(`${+DOCKER ? 'http://host.docker.internal:3006' : DEEPLINKS_PUBLIC_URL}/api/healthz`, { validateStatus: status => true, timeout: 7000 });
+  } catch(e){
+    err = e;
+  }
+  return { result: status?.data?.docker, error: err };
+};
+
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 const ConnectorGrid = React.memo<any>(({
   children, 
@@ -57,7 +76,7 @@ const displayAnimation = {
   }
 };
 
-const TerminalConnect = React.memo<any>(({openTerminal = false, key,}:{openTerminal?: boolean; key: any;}) => {
+const TerminalConnect = React.memo<any>(({initializingState = undefined, setInitLocal, key,}:{initializingState?: InitializingState; closeTerminal: () => any; setInitLocal: (state) => any; terminalClosed: boolean; key: any;}) => {
   const terminalBoxRef = useRef<any>();
   const terminalRef = useRef<any>();
   const control = useAnimation();
@@ -71,23 +90,60 @@ const TerminalConnect = React.memo<any>(({openTerminal = false, key,}:{openTermi
         cursorStyle: 'block',
       });
       terminalRef.current = termimal;
-      termimal.open(terminalBoxRef.current);
-      termimal.writeln('Hello \x1B[1;3;31mbugfixers\x1B[0m!')
+      termimal?.open(terminalBoxRef.current);
+      termimal?.writeln('Hello \x1B[1;3;31mbugfixers\x1B[0m!')
     })();
   }, []);
 
   useEffect(() => {
-    if(openTerminal == true) {
+    if(initializingState == 'initializing') {
       control.start('grow');
       animation.start('display');
       setTimeout(async() => {
         terminalRef?.current?.resize(terminalRef.current.cols,terminalRef.current.rows);
-      }, 1200);
+        const r = await axios({ 
+          method: 'post',
+          url: 'http://localhost:3007/api/deeplinks',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          data: {
+            operation: 'run'
+          }
+        });
+        console.log('result',r);
+        terminalRef?.current?.writeln('');
+        terminalRef?.current?.writeln(r.data.fullStr);
+        terminalRef?.current?.writeln('');
+        terminalRef?.current?.writeln(r.data.result.stdout);
+        setInitLocal(InitializingState.launched);
+      }, 2000);
     } else {
-      control.start('shrink');
-      animation.start('none');
+      if (initializingState == 'removing') {
+        control.start('grow');
+        animation.start('display');
+        setTimeout(async() => {
+          terminalRef?.current?.resize(terminalRef.current.cols,terminalRef.current.rows);
+          const r = await axios({ 
+            method: 'post',
+            url: 'http://localhost:3007/api/deeplinks',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            data: {
+              operation: 'reset'
+            }
+          });
+          console.log('result',r);
+          terminalRef?.current?.writeln('');
+          terminalRef?.current?.writeln(r.data.fullStr);
+          terminalRef?.current?.writeln('');
+          terminalRef?.current?.writeln(r.data.result.stdout);
+          setInitLocal(InitializingState.notInit);
+        }, 2000);
+      }
     }
-  }, [control, animation, openTerminal]);
+  }, [control, animation, initializingState]);
 
   return (
   // <AnimatePresence>
@@ -106,7 +162,7 @@ const TerminalConnect = React.memo<any>(({openTerminal = false, key,}:{openTermi
         <Box  
           ref={terminalBoxRef}
           w='45rem' 
-          h='20rem'
+          h='25rem'
           sx={{
             '& > *': {
               height: '100%',
@@ -122,9 +178,9 @@ const TerminalConnect = React.memo<any>(({openTerminal = false, key,}:{openTermi
   )
 });
 
-const Initializing = React.memo<any>(() => {
+const Loading = React.memo<any>(({text}: {text: string;}) => {
   return (<Flex width='100%' justify='space-between' pt={2} pb={2}>
-      <Text color='gray.400' fontSize='sm' as='kbd' mr='0.125rem'>Initializing</Text>
+      <Text color='gray.400' fontSize='sm' as='kbd' mr='0.125rem'>{text}</Text>
       <Box 
         display='flex' 
         w='100%' 
@@ -380,6 +436,7 @@ enum InitializingState {
   initializing = 'initializing',
   initialized = 'initialized',
   launched = 'launched',
+  removing = 'removing',
 }
 
 export const Connector = React.memo<any>(({
@@ -396,6 +453,7 @@ export const Connector = React.memo<any>(({
   const controlInit = useAnimation();
   const controlInited = useAnimation();
   const controlLaunch = useAnimation();
+  const controlRemoving = useAnimation();
   const [valueRemote, setValueRemote] = useState('');
   const [init, setInitLocal] = useState<InitializingState>(InitializingState.notInit);
   const onChangeValueRemote = useDebounceCallback((value) => {
@@ -438,14 +496,28 @@ export const Connector = React.memo<any>(({
       controlInit.start('initializing');
       controlInited.start('initializing');
       controlLaunch.start('open');
+    } else if (init === InitializingState.removing) {
+      controlNotInit.start('initializing');
+      controlInit.start('initializing');
+      controlInited.start('initializing');
+      controlLaunch.start('initializing');
+      controlRemoving.start("open");
     } else {
       controlNotInit.start('initializing');
       controlInit.start('initializing');
       controlInited.start('initializing');
       controlLaunch.start('initializing');
-      controlNotInit.start("open");
+      controlRemoving.start("initializing");
+      controlNotInit.start('open');
     } 
   }, [init]);
+
+  useEffect(() => {
+    (async () => {
+      const status = await _checkDeeplinksStatus();
+      console.log('zopa', status);
+    })();
+  }, []);
 
   return (<ModalWindow onClosePortal={onClosePortal} portalOpen={portalOpen}>
       <Box 
@@ -563,9 +635,8 @@ export const Connector = React.memo<any>(({
                   animate={controlInit}
                   initial='initializing'
                   variants={initArea}
-                  onClick={() => setInitLocal(InitializingState.initialized)} 
                 >
-                  <Initializing />
+                  <Loading text="Initializing"/>
                 </Box>
                 <Box 
                   key={InitializingState.initialized}
@@ -595,22 +666,37 @@ export const Connector = React.memo<any>(({
                   animate={controlLaunch}
                   initial='initializing'
                   variants={initArea}
-                  onClick={() => setInitLocal(InitializingState.notInit)} 
+                  onClick={() => onClosePortal()} 
                 >
                   <ButtonTextButton 
                     text='launched'
                     ariaLabelLeft=""
                     ariaLabelRight=""
                     ComponentRightIcon={IoStopOutline}
-                    onClickLeft={() => setInitLocal(InitializingState.launched)} 
-                    onClickRight={() => setInitLocal(InitializingState.launched)} 
+                    onClickLeft={() => onClosePortal()} 
+                    onClickRight={() => setInitLocal(InitializingState.removing)} 
                   />
+                </Box>
+                <Box 
+                  key={InitializingState.removing}
+                  w='100%' 
+                  minW='19.75rem'
+                  h='100%'  
+                  position='absolute'
+                  top={0} left={0}
+                  as={motion.div}
+                  animate={controlRemoving}
+                  initial='initializing'
+                  variants={initArea}
+                >
+                  <Loading text="Removing"/>
                 </Box>
               </AnimatePresence>
             </Box>
           </Box>
           <TerminalConnect 
-            openTerminal={init == InitializingState.initializing ? true : false} 
+            initializingState={init} 
+            setInitLocal={(state)=>setInitLocal(state)}
             key={21121} />
         </ConnectorGrid>
       </Box>
