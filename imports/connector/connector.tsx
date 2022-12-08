@@ -89,13 +89,13 @@ const callEngine = async ({ operation, terminalRef}: { operation: string; termin
     }
   });
   console.log('result',r);
-  terminalRef?.current?.writeln('');
-  terminalRef?.current?.writeln(r.data?.envs);
-  terminalRef?.current?.writeln('');
+  terminalRef?.current?.writeln(JSON.stringify(r.data?.envs));
   terminalRef?.current?.writeln(r.data?.engineStr);
+  const strings = r.data.result.stdout.split('\n');
+  for (let i = 0; i < strings.length; i++) terminalRef?.current?.writeln(strings[i]);
   terminalRef?.current?.writeln('');
-  terminalRef?.current?.writeln(r.data.result.stdout);
 };
+  
 
 const TerminalConnect = React.memo<any>(({initializingState = undefined, setInitLocal, key,}:{initializingState?: InitializingState; closeTerminal: () => any; setInitLocal: (state) => any; terminalClosed: boolean; key: any;}) => {
   const terminalBoxRef = useRef<any>();
@@ -509,14 +509,14 @@ export const Connector = React.memo<any>(({
       controlRemoving.start("initializing");
       controlNotInit.start('open');
     } 
-  }, [init]);
+  }, [init, portalOpen]);
 
   useEffect(() => {
     (async () => {
       const status = await _checkDeeplinksStatus();
-      console.log('zopa', status);
+      if (status.result !== undefined) setInitLocal(InitializingState.launched)
     })();
-  }, []);
+  }, [portalOpen]);
 
   return (<ModalWindow onClosePortal={onClosePortal} portalOpen={portalOpen}>
       <Box 
@@ -573,11 +573,10 @@ export const Connector = React.memo<any>(({
                   onStartRemoteRoute={() => {
                     try {
                       const url = new URL(rr.value);
-                      console.log('URL', rr.value);
                       setGqlPath(`${url.hostname}${url.port ? ':' + url.port : ''}${url.pathname}`);
                       setGqlSsl(url.protocol == 'http:' ? false : true);
                     } catch(e) {
-                      console.log('URL', e);
+                      console.log('URL error', e);
                     }
                   }}
                   key={rr.id}
@@ -681,13 +680,12 @@ export const Connector = React.memo<any>(({
                   animate={controlLaunch}
                   initial='initializing'
                   variants={initArea}
-                  onClick={() => onClosePortal()} 
                 >
                   <ButtonTextButton 
                     text='launched'
                     ariaLabelLeft=""
                     ariaLabelRight=""
-                    ComponentRightIcon={IoStopOutline}
+                    // ComponentRightIcon={IoStopOutline}
                     onClickLeft={() => onClosePortal()} 
                     onClickRight={() => setInitLocal(InitializingState.removing)} 
                   />
