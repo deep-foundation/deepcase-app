@@ -76,8 +76,8 @@ const displayAnimation = {
   }
 };
 
-const callEngine = async ({ operation, terminalRef}: { operation: string; terminalRef: any}) => {
-  terminalRef?.current?.resize(terminalRef.current.cols,terminalRef.current.rows);
+const callEngine = async ({ operation, terminal }: { operation: string; terminal?: any}) => {
+  terminal?.resize(terminal.cols,terminal.rows);
   const r = await axios({ 
     method: 'post',
     url: 'http://localhost:3007/api/deeplinks',
@@ -89,11 +89,14 @@ const callEngine = async ({ operation, terminalRef}: { operation: string; termin
     }
   });
   console.log('result',r);
-  terminalRef?.current?.writeln(JSON.stringify(r.data?.envs));
-  terminalRef?.current?.writeln(r.data?.engineStr);
-  const strings = r.data.result.stdout.split('\n');
-  for (let i = 0; i < strings.length; i++) terminalRef?.current?.writeln(strings[i]);
-  terminalRef?.current?.writeln('');
+  if (terminal) {
+    terminal?.writeln(JSON.stringify(r.data?.envs));
+    terminal?.writeln(r.data?.engineStr);
+    const strings = r.data.result.stdout.split('\n');
+    for (let i = 0; i < strings.length; i++) terminal?.writeln(strings[i]);
+    terminal?.writeln('');
+  }
+  return r;
 };
   
 
@@ -122,9 +125,9 @@ const TerminalConnect = React.memo<any>(({initializingState = undefined, setInit
       animation.start('display');
       setTimeout(async() => {
         terminalRef?.current?.resize(terminalRef.current.cols,terminalRef.current.rows);
-        await callEngine({ operation: 'init', terminalRef });
-        await callEngine({ operation: 'migrate', terminalRef });
-        await callEngine({ operation: 'check', terminalRef });
+        await callEngine({ operation: 'init', terminal: terminalRef.current });
+        await callEngine({ operation: 'migrate', terminal: terminalRef.current });
+        await callEngine({ operation: 'check', terminal: terminalRef.current });
         setInitLocal(InitializingState.launched);
       }, 2000);
     } else {
@@ -133,7 +136,7 @@ const TerminalConnect = React.memo<any>(({initializingState = undefined, setInit
         animation.start('display');
         setTimeout(async() => {
           terminalRef?.current?.resize(terminalRef.current.cols,terminalRef.current.rows);
-          await callEngine({ operation: 'reset', terminalRef });
+          await callEngine({ operation: 'reset', terminal: terminalRef.current });
           setInitLocal(InitializingState.notInit);
         }, 2000);
       }
@@ -437,7 +440,6 @@ export const Connector = React.memo<any>(({
   setGqlPath,
   setGqlSsl,
   onClosePortal,
-  isExistDocker = true,
 }:{
   portalOpen?: boolean; 
   gqlPath: string;
@@ -445,7 +447,6 @@ export const Connector = React.memo<any>(({
   setGqlPath: (path: string) => any;
   setGqlSsl: (ssl: boolean) => any;
   onClosePortal: () => any;
-  isExistDocker?: boolean;
 }) => {
   const control = useAnimation();
   const controlNotInit = useAnimation();
@@ -454,6 +455,7 @@ export const Connector = React.memo<any>(({
   const controlLaunch = useAnimation();
   const controlRemoving = useAnimation();
   const [valueRemote, setValueRemote] = useState('');
+  const [isExistDocker, setIsExistDocker] = useState(true);
   const [init, setInitLocal] = useState<InitializingState>(InitializingState.notInit);
   const onChangeValueRemote = useDebounceCallback((value) => {
     setValueRemote(value);
@@ -517,6 +519,15 @@ export const Connector = React.memo<any>(({
       if (status.result !== undefined) setInitLocal(InitializingState.launched)
     })();
   }, [portalOpen]);
+
+  useEffect(() => {
+    (async () => {
+      const dockerStatus = await callEngine({ operation: 'dock' });
+      if (dockerStatus?.data?.result?.stdout?.[0] !== '{') setIsExistDocker(false);
+      const dockerComposeStatus = await callEngine({ operation: 'compose' });
+      if (!/^-?\d+$/.test(dockerComposeStatus?.data?.result?.stdout?.[0])) setIsExistDocker(false);
+    })();
+  }, []);
 
   return (<ModalWindow onClosePortal={onClosePortal} portalOpen={portalOpen}>
       <Box 
