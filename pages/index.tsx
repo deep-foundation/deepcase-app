@@ -74,7 +74,6 @@ export default function Page() {
             onClosePortal={() => setPortal(false)}
           />
           { portal ? null : <Content openPortal={()=>setPortal(true)}/> }
-          <Content openPortal={()=>setPortal(true)}/>
         </AutoGuest>
       </DeepProvider>
     </Provider> 
