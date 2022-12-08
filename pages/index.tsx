@@ -72,6 +72,10 @@ export default function Page() {
           <Connector 
             portalOpen={portal}
             onClosePortal={() => setPortal(false)}
+            gqlPath
+            gqlSsl
+            setGqlPath={(path) => setGqlPath(path)}
+            setGqlSsl={(ssl) => setGqlSsl(ssl)}
           />
           { portal ? null : <Content openPortal={()=>setPortal(true)}/> }
         </AutoGuest>

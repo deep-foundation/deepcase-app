@@ -76,6 +76,27 @@ const displayAnimation = {
   }
 };
 
+const callEngine = async ({ operation, terminalRef}: { operation: string; terminalRef: any}) => {
+  terminalRef?.current?.resize(terminalRef.current.cols,terminalRef.current.rows);
+  const r = await axios({ 
+    method: 'post',
+    url: 'http://localhost:3007/api/deeplinks',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    data: {
+      operation
+    }
+  });
+  console.log('result',r);
+  terminalRef?.current?.writeln('');
+  terminalRef?.current?.writeln(r.data?.envs);
+  terminalRef?.current?.writeln('');
+  terminalRef?.current?.writeln(r.data?.engineStr);
+  terminalRef?.current?.writeln('');
+  terminalRef?.current?.writeln(r.data.result.stdout);
+};
+
 const TerminalConnect = React.memo<any>(({initializingState = undefined, setInitLocal, key,}:{initializingState?: InitializingState; closeTerminal: () => any; setInitLocal: (state) => any; terminalClosed: boolean; key: any;}) => {
   const terminalBoxRef = useRef<any>();
   const terminalRef = useRef<any>();
@@ -101,21 +122,9 @@ const TerminalConnect = React.memo<any>(({initializingState = undefined, setInit
       animation.start('display');
       setTimeout(async() => {
         terminalRef?.current?.resize(terminalRef.current.cols,terminalRef.current.rows);
-        const r = await axios({ 
-          method: 'post',
-          url: 'http://localhost:3007/api/deeplinks',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          data: {
-            operation: 'run'
-          }
-        });
-        console.log('result',r);
-        terminalRef?.current?.writeln('');
-        terminalRef?.current?.writeln(r.data.fullStr);
-        terminalRef?.current?.writeln('');
-        terminalRef?.current?.writeln(r.data.result.stdout);
+        await callEngine({ operation: 'init', terminalRef });
+        await callEngine({ operation: 'migrate', terminalRef });
+        await callEngine({ operation: 'check', terminalRef });
         setInitLocal(InitializingState.launched);
       }, 2000);
     } else {
@@ -124,21 +133,7 @@ const TerminalConnect = React.memo<any>(({initializingState = undefined, setInit
         animation.start('display');
         setTimeout(async() => {
           terminalRef?.current?.resize(terminalRef.current.cols,terminalRef.current.rows);
-          const r = await axios({ 
-            method: 'post',
-            url: 'http://localhost:3007/api/deeplinks',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            data: {
-              operation: 'reset'
-            }
-          });
-          console.log('result',r);
-          terminalRef?.current?.writeln('');
-          terminalRef?.current?.writeln(r.data.fullStr);
-          terminalRef?.current?.writeln('');
-          terminalRef?.current?.writeln(r.data.result.stdout);
+          await callEngine({ operation: 'reset', terminalRef });
           setInitLocal(InitializingState.notInit);
         }, 2000);
       }
@@ -168,10 +163,6 @@ const TerminalConnect = React.memo<any>(({initializingState = undefined, setInit
               height: '100%',
             },
           }}
-          onClick={()=>{
-            terminalRef.current.writeln('click!')
-            terminalRef?.current?.resize(terminalRef.current.cols,terminalRef.current.rows);
-        console.log('textarea', terminalRef.current.textarea)}}
         />
       </Box>
     // </AnimatePresence>
@@ -440,11 +431,19 @@ enum InitializingState {
 }
 
 export const Connector = React.memo<any>(({
-  portalOpen = true, 
+  portalOpen = true,
+  gqlPath,
+  gqlSsl,
+  setGqlPath,
+  setGqlSsl,
   onClosePortal,
   isExistDocker = true,
 }:{
   portalOpen?: boolean; 
+  gqlPath: string;
+  gqlSsl: boolean;
+  setGqlPath: (path: string) => any;
+  setGqlSsl: (ssl: boolean) => any;
   onClosePortal: () => any;
   isExistDocker?: boolean;
 }) => {
@@ -563,8 +562,24 @@ export const Connector = React.memo<any>(({
                   valueRemoteRoute={rr.value}
                   onChangeValueRemoteRoute={(e) => save(rr.id, e.target.value)}
                   // setValueRemote={}
-                  onDeleteValue={() => remove(rr.id)}
-                  // onStartRemoteRoute={() => {}}
+                  onDeleteValue={(e) => {
+                    if (gqlPath == rr.value) {
+                      setGqlPath('');
+                      setGqlSsl(undefined);
+                    }
+                    remove(rr.id)
+                    }
+                  }
+                  onStartRemoteRoute={() => {
+                    try {
+                      const url = new URL(rr.value);
+                      console.log('URL', rr.value);
+                      setGqlPath(`${url.hostname}${url.port ? ':' + url.port : ''}${url.pathname}`);
+                      setGqlSsl(url.protocol == 'http:' ? false : true);
+                    } catch(e) {
+                      console.log('URL', e);
+                    }
+                  }}
                   key={rr.id}
                 />)
               )}
