@@ -77,7 +77,7 @@ export default function Page() {
             setGqlPath={(path) => setGqlPath(path)}
             setGqlSsl={(ssl) => setGqlSsl(ssl)}
           />
-          { portal ? null : <Content openPortal={()=>setPortal(true)}/> }
+          <Content openPortal={()=>setPortal(true)}/>
         </AutoGuest>
       </DeepProvider>
     </Provider> 

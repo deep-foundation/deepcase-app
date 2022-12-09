@@ -92,8 +92,9 @@ const callEngine = async ({ operation, terminal }: { operation: string; terminal
   if (terminal) {
     terminal?.writeln(JSON.stringify(r.data?.envs));
     terminal?.writeln(r.data?.engineStr);
-    const strings = r.data.result.stdout.split('\n');
-    for (let i = 0; i < strings.length; i++) terminal?.writeln(strings[i]);
+    const strings = r?.data?.result?.stdout?.split('\n');
+    if (r?.data?.result?.stderr) terminal?.writeln(r?.data?.result?.stderr);
+    for (let i = 0; i < strings?.length; i++) terminal?.writeln(strings[i]);
     terminal?.writeln('');
   }
   return r;
