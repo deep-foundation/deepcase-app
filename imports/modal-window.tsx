@@ -41,7 +41,7 @@ const backdrop = {
 }
 
 export const ModalWindow = React.memo<any>(({
-  portalOpen = true, 
+  portalOpen = false, 
   onClosePortal,
   children,
 }:{
@@ -69,7 +69,7 @@ export const ModalWindow = React.memo<any>(({
       <Center 
         as={motion.div}
         animate={control}
-        initial='active'
+        initial='inactive'
         variants={backdrop}
         width='100vw' 
         height='100vh'

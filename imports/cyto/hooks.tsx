@@ -311,7 +311,7 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
           } else {
             const Any = deep.idLocal('@deep-foundation/core', 'Any');
             if (ins.From === Any && ins.To === Any) {
-              await returningRef.current.insertLink(ins.type_id, 0, 0, event?.position);
+              await returningRef.current.insertLink(ins.type_id, 0, 0, ins?.position);
             }
             setInsertingCyto({});
           }
@@ -372,7 +372,7 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
   const AnyLinkComponent = useMemo(() => {
     return function AnyLinkComponent({ id }: { id: number }) {
       const deep = useDeep();
-      const [handlerId, setHandlerId] = useState(undefined);
+      const [handlerId, setHandlerId] = useState();
       const { onOpen, onClose, isOpen } = useDisclosure();
       const [search, setSearch] = useState('');
 
