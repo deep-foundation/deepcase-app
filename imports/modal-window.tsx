@@ -1,4 +1,4 @@
-import { motion, useAnimation } from 'framer-motion';
+import { AnimatePresence, motion, useAnimation } from 'framer-motion';
 import React, { useEffect, useRef } from 'react';
 import { Box, Center, Portal, useOutsideClick } from '@chakra-ui/react';
 
@@ -41,7 +41,7 @@ const backdrop = {
 }
 
 export const ModalWindow = React.memo<any>(({
-  portalOpen = true, 
+  portalOpen = false, 
   onClosePortal,
   children,
 }:{
@@ -66,31 +66,38 @@ export const ModalWindow = React.memo<any>(({
 
   return (
     <Portal>
-      <Center 
-        as={motion.div}
-        animate={control}
-        initial='active'
-        variants={backdrop}
-        width='100vw' 
-        height='100vh'
-        position='fixed'
-        top={0}
-        left={0}
-        zIndex={3}
-        backdropFilter='
-          blur(2px) 
-          contrast(1.2)'
-        backdropInvert='25%'
-      >
-        {portalOpen && <Box 
-          as={motion.div} 
-          animate={control} 
-          variants={invitationForm} 
-          ref={ref}
+      <AnimatePresence>
+        <Center 
+          as={motion.div}
+          animate={control}
+          initial='active'
+          variants={backdrop}
+          exit={'inactive'}
+          width='100vw' 
+          height='100vh'
+          position='fixed'
+          top={0}
+          left={0}
+          zIndex={3}
+          backdropFilter='
+            blur(2px) 
+            contrast(1.2)'
+          backdropInvert='25%'
         >
-          {children}
-        </Box>}
-      </Center>
+          {portalOpen && <AnimatePresence>
+              <Box 
+                as={motion.div} 
+                animate={control} 
+                exit={'inactive'}
+                variants={invitationForm} 
+                ref={ref}
+              >
+                {children}
+              </Box>
+            </AnimatePresence>
+          }
+        </Center>
+      </AnimatePresence>
     </Portal>
     )
   })

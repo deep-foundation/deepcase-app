@@ -3,29 +3,11 @@ import { useDebounceCallback } from "@react-hook/debounce";
 import { AnimatePresence, motion, useAnimation } from 'framer-motion';
 import React, { useEffect, useRef, useState } from "react";
 import { IoAddOutline, IoPlayOutline, IoStopOutline } from 'react-icons/io5';
+import { BsFillPauseFill } from 'react-icons/bs';
 import { MdDelete } from 'react-icons/md';
 import { CustomizableIcon } from "../icons-provider";
 import { ModalWindow } from "../modal-window";
 import { DockerWarning } from './docker-warning';
-import axios from 'axios';
-
-const DOCKER = process.env.DOCKER || '0';
-const DEEPLINKS_PUBLIC_URL = process.env.DEEPLINKS_PUBLIC_URL || 'http://localhost:3006';
-
-const _checkDeeplinksStatus = async () => {
-  let status;
-  let err;
-  try {
-    // DL may be not in docker, when DC in docker, so we use host.docker.internal instead of docker-network link deep_links_1
-    status = await axios.get(`${+DOCKER ? 'http://host.docker.internal:3006' : DEEPLINKS_PUBLIC_URL}/api/healthz`, { validateStatus: status => true, timeout: 7000 });
-  } catch(e){
-    err = e;
-  }
-  return { result: status?.data?.docker, error: err };
-};
-
-
-const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 const ConnectorGrid = React.memo<any>(({
   children, 
@@ -76,34 +58,8 @@ const displayAnimation = {
   }
 };
 
-const callEngine = async ({ operation, terminal }: { operation: string; terminal?: any}) => {
-  terminal?.resize(terminal.cols,terminal.rows);
-  const r = await axios({ 
-    method: 'post',
-    url: 'http://localhost:3007/api/deeplinks',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    data: {
-      operation
-    }
-  });
-  console.log('result',r);
-  if (terminal) {
-    terminal?.writeln(JSON.stringify(r.data?.envs));
-    terminal?.writeln(r.data?.engineStr);
-    const strings = r?.data?.result?.stdout?.split('\n');
-    if (r?.data?.result?.stderr) terminal?.writeln(r?.data?.result?.stderr);
-    for (let i = 0; i < strings?.length; i++) terminal?.writeln(strings[i]);
-    terminal?.writeln('');
-  }
-  return r;
-};
-  
-
-const TerminalConnect = React.memo<any>(({initializingState = undefined, setInitLocal, key,}:{initializingState?: InitializingState; closeTerminal: () => any; setInitLocal: (state) => any; terminalClosed: boolean; key: any;}) => {
+const TerminalConnect = React.memo<any>(({openTerminal = false, key,}:{openTerminal?: boolean; key: any;}) => {
   const terminalBoxRef = useRef<any>();
-  const terminalRef = useRef<any>();
   const control = useAnimation();
   const animation = useAnimation();
 
@@ -114,23 +70,16 @@ const TerminalConnect = React.memo<any>(({initializingState = undefined, setInit
         cursorBlink: true,
         cursorStyle: 'block',
       });
-      terminalRef.current = termimal;
-      termimal?.open(terminalBoxRef.current);
-      termimal?.writeln('Hello \x1B[1;3;31mbugfixers\x1B[0m!')
+      const box = terminalBoxRef.current;
+      termimal.open(box);
+      termimal.write('Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ')
     })();
   }, []);
 
   useEffect(() => {
-    if(initializingState == 'initializing') {
+    if(openTerminal == true) {
       control.start('grow');
       animation.start('display');
-      setTimeout(async() => {
-        terminalRef?.current?.resize(terminalRef.current.cols,terminalRef.current.rows);
-        await callEngine({ operation: 'init', terminal: terminalRef.current });
-        await callEngine({ operation: 'migrate', terminal: terminalRef.current });
-        await callEngine({ operation: 'check', terminal: terminalRef.current });
-        setInitLocal(InitializingState.launched);
-      }, 2000);
     } else {
       if (initializingState == 'removing') {
         control.start('grow');
@@ -139,18 +88,21 @@ const TerminalConnect = React.memo<any>(({initializingState = undefined, setInit
           terminalRef?.current?.resize(terminalRef.current.cols,terminalRef.current.rows);
           await callEngine({ operation: 'reset', terminal: terminalRef.current });
           setInitLocal(InitializingState.notInit);
+          control.start('shrink');
         }, 2000);
       }
     }
-  }, [control, animation, initializingState]);
+  }, [control, animation, openTerminal]);
 
   return (
-  // <AnimatePresence>
+    <AnimatePresence>
       <Box 
         key={key}
         as={motion.div}
-        overflow='hidden'
+        overflow='auto'
+        sx={{ overscrollBehavior: 'contain'}}
         borderRadius='5px'
+        border='1rem solid #141214'
         animate={control}
         initial='shrink'
         variants={terminalAnimation}
@@ -160,8 +112,8 @@ const TerminalConnect = React.memo<any>(({initializingState = undefined, setInit
       >
         <Box  
           ref={terminalBoxRef}
-          w='45rem' 
-          h='25rem'
+          w='30rem' 
+          h='20rem'
           sx={{
             '& > *': {
               height: '100%',
@@ -169,13 +121,13 @@ const TerminalConnect = React.memo<any>(({initializingState = undefined, setInit
           }}
         />
       </Box>
-    // </AnimatePresence>
+    </AnimatePresence>
   )
-});
+})
 
-const Loading = React.memo<any>(({text}: {text: string;}) => {
+const Initializing = React.memo<any>(() => {
   return (<Flex width='100%' justify='space-between' pt={2} pb={2}>
-      <Text color='gray.400' fontSize='sm' as='kbd' mr='0.125rem'>{text}</Text>
+      <Text color='gray.400' fontSize='sm' as='kbd' mr='0.125rem'>Initializing</Text>
       <Box 
         display='flex' 
         w='100%' 
@@ -238,7 +190,7 @@ const ButtonTextButton = React.memo(({
   ariaLabelLeft = 'Add local route',
   ComponentRightIcon =  MdDelete,
   ariaLabelRight = 'Remove local route',
-  text = 'Initialized',
+  text = 'Initializing',
   onClickLeft,
   onClickRight,
 }:{
@@ -384,18 +336,18 @@ const InputAnimation = React.memo<any>(({
   )
 });
 
-const cardAnimation = {
-  grow: {
-    scale: 1,
-    opacity: 1,
-    transition: { duration: 0.8}
-  },
-  shrink: {
-    scale: 0,
-    opacity: 0,
-    transition: { duration: 0.8, delay: 0.5}
-  }
-};
+// const cardAnimation = {
+//   grow: {
+//     scale: 1,
+//     opacity: 1,
+//     transition: { duration: 0.8}
+//   },
+//   shrink: {
+//     scale: 0,
+//     opacity: 0,
+//     transition: { duration: 0.8, delay: 0.5}
+//   }
+// };
 
 const initArea = {
   initial: {
@@ -431,32 +383,23 @@ enum InitializingState {
   initializing = 'initializing',
   initialized = 'initialized',
   launched = 'launched',
-  removing = 'removing',
 }
 
 export const Connector = React.memo<any>(({
-  portalOpen = true,
-  gqlPath,
-  gqlSsl,
-  setGqlPath,
-  setGqlSsl,
+  portalOpen, 
   onClosePortal,
+  isExistDocker = true,
 }:{
   portalOpen?: boolean; 
-  gqlPath: string;
-  gqlSsl: boolean;
-  setGqlPath: (path: string) => any;
-  setGqlSsl: (ssl: boolean) => any;
   onClosePortal: () => any;
+  isExistDocker?: boolean;
 }) => {
   const control = useAnimation();
   const controlNotInit = useAnimation();
   const controlInit = useAnimation();
   const controlInited = useAnimation();
   const controlLaunch = useAnimation();
-  const controlRemoving = useAnimation();
   const [valueRemote, setValueRemote] = useState('');
-  const [isExistDocker, setIsExistDocker] = useState(true);
   const [init, setInitLocal] = useState<InitializingState>(InitializingState.notInit);
   const onChangeValueRemote = useDebounceCallback((value) => {
     setValueRemote(value);
@@ -478,7 +421,7 @@ export const Connector = React.memo<any>(({
   };
 
   useEffect(() => {
-    if (portalOpen == true) {
+    if (!!portalOpen) {
       control.start("grow"); 
     } else {
       control.start("shrink");
@@ -498,37 +441,14 @@ export const Connector = React.memo<any>(({
       controlInit.start('initializing');
       controlInited.start('initializing');
       controlLaunch.start('open');
-    } else if (init === InitializingState.removing) {
-      controlNotInit.start('initializing');
-      controlInit.start('initializing');
-      controlInited.start('initializing');
-      controlLaunch.start('initializing');
-      controlRemoving.start("open");
     } else {
       controlNotInit.start('initializing');
       controlInit.start('initializing');
       controlInited.start('initializing');
       controlLaunch.start('initializing');
-      controlRemoving.start("initializing");
-      controlNotInit.start('open');
+      controlNotInit.start("open");
     } 
-  }, [init, portalOpen]);
-
-  useEffect(() => {
-    (async () => {
-      const status = await _checkDeeplinksStatus();
-      if (status.result !== undefined) setInitLocal(InitializingState.launched)
-    })();
-  }, [portalOpen]);
-
-  useEffect(() => {
-    (async () => {
-      const dockerStatus = await callEngine({ operation: 'dock' });
-      if (dockerStatus?.data?.result?.stdout?.[0] !== '{') setIsExistDocker(false);
-      const dockerComposeStatus = await callEngine({ operation: 'compose' });
-      if (!/^-?\d+$/.test(dockerComposeStatus?.data?.result?.stdout?.[0])) setIsExistDocker(false);
-    })();
-  }, []);
+  }, [init]);
 
   return (<ModalWindow onClosePortal={onClosePortal} portalOpen={portalOpen}>
       <Box 
@@ -545,12 +465,12 @@ export const Connector = React.memo<any>(({
           alignItems='center'
           sx={{
             '& > *:not(:last-of-type)': {
-              mr: init == InitializingState.notInit ? 0 : 4,
+              mr: init === InitializingState.notInit ? 0 : 4,
             }
           }}
         >
           <Box 
-            as={motion.div}
+            // as={motion.div}
             display='flex' 
             flexDir='column' 
             alignItems='center' 
@@ -559,9 +479,9 @@ export const Connector = React.memo<any>(({
             width='max-content'
             bg='#141214'
             borderRadius='5px'
-            animate={control}
-            initial='grow'
-            variants={cardAnimation}
+            // animate={control}
+            // initial='grow'
+            // variants={cardAnimation}
             key={1221}
           >
             <Box pt={4} pl={4} pr={4} textAlign='left' w='100%'>
@@ -574,23 +494,8 @@ export const Connector = React.memo<any>(({
                   valueRemoteRoute={rr.value}
                   onChangeValueRemoteRoute={(e) => save(rr.id, e.target.value)}
                   // setValueRemote={}
-                  onDeleteValue={(e) => {
-                    if (gqlPath == rr.value) {
-                      setGqlPath('');
-                      setGqlSsl(undefined);
-                    }
-                    remove(rr.id)
-                    }
-                  }
-                  onStartRemoteRoute={() => {
-                    try {
-                      const url = new URL(rr.value);
-                      setGqlPath(`${url.hostname}${url.port ? ':' + url.port : ''}${url.pathname}`);
-                      setGqlSsl(url.protocol == 'http:' ? false : true);
-                    } catch(e) {
-                      console.log('URL error', e);
-                    }
-                  }}
+                  onDeleteValue={() => remove(rr.id)}
+                  // onStartRemoteRoute={() => {}}
                   key={rr.id}
                 />)
               )}
@@ -608,7 +513,7 @@ export const Connector = React.memo<any>(({
               />
               <Divider mb={4} />
               <Text color='gray.400' fontSize='md'>Local deep</Text>
-              {!isExistDocker ? <DockerWarning /> : null}
+              {isExistDocker ? <DockerWarning /> : null}
             </Box>
             <Box 
               bg='#141214'
@@ -620,7 +525,7 @@ export const Connector = React.memo<any>(({
               borderBottomLeftRadius='5px'
               borderBottomRightRadius='5px'
               filter='auto'
-              blur={isExistDocker === false ? '2px' : 0}
+              blur={isExistDocker === true ? '2px' : 0}
             > 
               <AnimatePresence>
                 <Box 
@@ -635,7 +540,12 @@ export const Connector = React.memo<any>(({
                   animate={controlNotInit}
                   initial='initial'
                   variants={initArea}
-                  onClick={() => setInitLocal(InitializingState.initializing)} 
+                  onClick={() => {
+                    setInitLocal(InitializingState.initializing);
+                    setTimeout(() => {
+                      setInitLocal(InitializingState.initialized);
+                    }, 3000)
+                  }} 
                 >
                   <Text color='gray.400' fontSize='sm' as='kbd'>no initialized</Text>
                   <IconButton
@@ -644,7 +554,7 @@ export const Connector = React.memo<any>(({
                     aria-label='Add local route' 
                     icon={
                       <IoAddOutline color='rgb(0, 128, 255)' />
-                    }
+                    } 
                   />
                 </Box>
                 <Box 
@@ -661,8 +571,9 @@ export const Connector = React.memo<any>(({
                   animate={controlInit}
                   initial='initializing'
                   variants={initArea}
+                  onClick={() => setInitLocal(InitializingState.initialized)} 
                 >
-                  <Loading text="Initializing"/>
+                  <Initializing />
                 </Box>
                 <Box 
                   key={InitializingState.initialized}
@@ -677,26 +588,30 @@ export const Connector = React.memo<any>(({
                   variants={initArea}
                 >
                   <ButtonTextButton 
+                    ariaLabelLeft="go to launched deepcase"
+                    ariaLabelRight="launched local deepcase"
+                    ComponentRightIcon={BsFillPauseFill}
                     onClickLeft={() => setInitLocal(InitializingState.launched)} 
-                    onClickRight={() => setInitLocal(InitializingState.launched)} 
+                    onClickRight={() => setInitLocal(InitializingState.notInit)} 
                   />
                 </Box>
                 <Box 
                   key={InitializingState.launched}
                   w='100%' 
                   minW='19.75rem'
-                  h='100%'  
+                  h='100%' 
                   position='absolute'
                   top={0} left={0}
                   as={motion.div}
                   animate={controlLaunch}
                   initial='initializing'
                   variants={initArea}
+                  onClick={() => setInitLocal(InitializingState.notInit)} 
                 >
                   <ButtonTextButton 
                     text='launched'
-                    ariaLabelLeft=""
-                    ariaLabelRight=""
+                    ariaLabelLeft="go to deepcase"
+                    ariaLabelRight="delete local deepcase"
                     // ComponentRightIcon={IoStopOutline}
                     onClickLeft={() => onClosePortal()} 
                     onClickRight={() => setInitLocal(InitializingState.removing)} 
@@ -709,6 +624,7 @@ export const Connector = React.memo<any>(({
                   h='100%'  
                   position='absolute'
                   top={0} left={0}
+                  pl={4}
                   as={motion.div}
                   animate={controlRemoving}
                   initial='initializing'
@@ -720,8 +636,7 @@ export const Connector = React.memo<any>(({
             </Box>
           </Box>
           <TerminalConnect 
-            initializingState={init} 
-            setInitLocal={(state)=>setInitLocal(state)}
+            openTerminal={init == InitializingState.initializing ? true : false} 
             key={21121} />
         </ConnectorGrid>
       </Box>
