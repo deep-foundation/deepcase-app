@@ -40,7 +40,7 @@ export function CytoMenu({
     return () => clearTimeout(timer);
   }, [pasteError, valid]);
 
-  return <Box pos='absolute' left={0} top={0}>
+  return <Box pos='absolute' left={0} top={0} display='grid' gridTemplateColumns='1fr 0.8fr' w='100%'>
     <VStack spacing='1rem' m='1rem' align={'flex-start'}>
       <HStack>
         <ButtonGroup size='sm' isAttached variant='outline'>
@@ -137,6 +137,7 @@ export function CytoMenu({
         <MenuSearch cyRef={cyRef}/>
       </HStack>
     </VStack>
+    <Button bgColor='primary' color='white' size='sm' w='4rem' mt={10} mr={4} justifySelf='flex-end' rightIcon={<IoExitOutline />} onClick={openPortal}>Exit</Button>
   </Box>;
 }
 

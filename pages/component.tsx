@@ -9,6 +9,7 @@ import { GridComponent } from '../imports/component/grid-component';
 import { Connector } from '../imports/connector/connector';
 import { QueryClientHandler } from '../imports/cyto/query-client-handler';
 import { CytoGraphProps } from '../imports/cyto/types';
+import { DeepWYSIWYG } from '../imports/deep-wysiwyg';
 import { DotsLoader } from '../imports/dot-loader';
 import { Example } from '../imports/popover-text/popover-text';
 import { Provider } from '../imports/provider';
@@ -21,8 +22,8 @@ const CytoGraph = dynamic<CytoGraphProps>(
 );
 
 export default function Page() {
-  const minilinks = useMinilinksConstruct();
-  const { ref: mlRef, ml } = minilinks;
+  // const minilinks = useMinilinksConstruct();
+  // const { ref: mlRef, ml } = minilinks;
   const [toggle, setToggle] = useState(false);
   const [portal, setPortal] = useState(false);
   const [nested, setNested] = useState(false);
@@ -80,7 +81,7 @@ export default function Page() {
         <Button colorScheme='teal' onClick={() => setNested(!nested)}>nested</Button>
         <Box w='100%' h='1rem' />
 
-        <Box w='100%' h='2rem' />
+        {/* <Box w='100%' h='2rem' />
         <Code>/connector</Code>
         <Box w='100%' h='1rem' />
           <Connector 
@@ -88,6 +89,12 @@ export default function Page() {
             onClosePortal={() => setPortal(false)}
           />
         <Button colorScheme='teal' onClick={() => setPortal(true)}>push me</Button>
+        <Box w='100%' h='1rem' />
+        */}
+        <Box w='100%' h='2rem' />
+        <Code>/deep-wysiwyg</Code>
+        <Box w='100%' h='1rem' />
+          <DeepWYSIWYG />
         <Box w='100%' h='1rem' />
 
       </Box>
