@@ -3,6 +3,7 @@ import { useDebounceCallback } from "@react-hook/debounce";
 import { AnimatePresence, motion, useAnimation } from 'framer-motion';
 import React, { useEffect, useRef, useState } from "react";
 import { IoAddOutline, IoPlayOutline, IoStopOutline } from 'react-icons/io5';
+import { BsFillPauseFill } from 'react-icons/bs';
 import { MdDelete } from 'react-icons/md';
 import { CustomizableIcon } from "../icons-provider";
 import { ModalWindow } from "../modal-window";
@@ -80,18 +81,28 @@ const TerminalConnect = React.memo<any>(({openTerminal = false, key,}:{openTermi
       control.start('grow');
       animation.start('display');
     } else {
-      control.start('shrink');
-      animation.start('none');
+      if (initializingState == 'removing') {
+        control.start('grow');
+        animation.start('display');
+        setTimeout(async() => {
+          terminalRef?.current?.resize(terminalRef.current.cols,terminalRef.current.rows);
+          await callEngine({ operation: 'reset', terminal: terminalRef.current });
+          setInitLocal(InitializingState.notInit);
+          control.start('shrink');
+        }, 2000);
+      }
     }
   }, [control, animation, openTerminal]);
 
   return (
-  // <AnimatePresence>
+    <AnimatePresence>
       <Box 
         key={key}
         as={motion.div}
-        overflow='hidden'
+        overflow='auto'
+        sx={{ overscrollBehavior: 'contain'}}
         borderRadius='5px'
+        border='1rem solid #141214'
         animate={control}
         initial='shrink'
         variants={terminalAnimation}
@@ -110,7 +121,7 @@ const TerminalConnect = React.memo<any>(({openTerminal = false, key,}:{openTermi
           }}
         />
       </Box>
-    // </AnimatePresence>
+    </AnimatePresence>
   )
 })
 
@@ -325,18 +336,18 @@ const InputAnimation = React.memo<any>(({
   )
 });
 
-const cardAnimation = {
-  grow: {
-    scale: 1,
-    opacity: 1,
-    transition: { duration: 0.8}
-  },
-  shrink: {
-    scale: 0,
-    opacity: 0,
-    transition: { duration: 0.8, delay: 0.5}
-  }
-};
+// const cardAnimation = {
+//   grow: {
+//     scale: 1,
+//     opacity: 1,
+//     transition: { duration: 0.8}
+//   },
+//   shrink: {
+//     scale: 0,
+//     opacity: 0,
+//     transition: { duration: 0.8, delay: 0.5}
+//   }
+// };
 
 const initArea = {
   initial: {
@@ -454,12 +465,12 @@ export const Connector = React.memo<any>(({
           alignItems='center'
           sx={{
             '& > *:not(:last-of-type)': {
-              mr: init == InitializingState.notInit ? 0 : 4,
+              mr: init === InitializingState.notInit ? 0 : 4,
             }
           }}
         >
           <Box 
-            as={motion.div}
+            // as={motion.div}
             display='flex' 
             flexDir='column' 
             alignItems='center' 
@@ -468,9 +479,9 @@ export const Connector = React.memo<any>(({
             width='max-content'
             bg='#141214'
             borderRadius='5px'
-            animate={control}
-            initial='shrink'
-            variants={cardAnimation}
+            // animate={control}
+            // initial='grow'
+            // variants={cardAnimation}
             key={1221}
           >
             <Box pt={4} pl={4} pr={4} textAlign='left' w='100%'>
@@ -529,7 +540,12 @@ export const Connector = React.memo<any>(({
                   animate={controlNotInit}
                   initial='initial'
                   variants={initArea}
-                  onClick={() => setInitLocal(InitializingState.initializing)} 
+                  onClick={() => {
+                    setInitLocal(InitializingState.initializing);
+                    setTimeout(() => {
+                      setInitLocal(InitializingState.initialized);
+                    }, 3000)
+                  }} 
                 >
                   <Text color='gray.400' fontSize='sm' as='kbd'>no initialized</Text>
                   <IconButton
@@ -572,15 +588,18 @@ export const Connector = React.memo<any>(({
                   variants={initArea}
                 >
                   <ButtonTextButton 
+                    ariaLabelLeft="go to launched deepcase"
+                    ariaLabelRight="launched local deepcase"
+                    ComponentRightIcon={BsFillPauseFill}
                     onClickLeft={() => setInitLocal(InitializingState.launched)} 
-                    onClickRight={() => setInitLocal(InitializingState.launched)} 
+                    onClickRight={() => setInitLocal(InitializingState.notInit)} 
                   />
                 </Box>
                 <Box 
                   key={InitializingState.launched}
                   w='100%' 
                   minW='19.75rem'
-                  h='100%'  
+                  h='100%' 
                   position='absolute'
                   top={0} left={0}
                   as={motion.div}
@@ -591,12 +610,27 @@ export const Connector = React.memo<any>(({
                 >
                   <ButtonTextButton 
                     text='launched'
-                    ariaLabelLeft=""
-                    ariaLabelRight=""
-                    ComponentRightIcon={IoStopOutline}
-                    onClickLeft={() => setInitLocal(InitializingState.launched)} 
-                    onClickRight={() => setInitLocal(InitializingState.launched)} 
+                    ariaLabelLeft="go to deepcase"
+                    ariaLabelRight="delete local deepcase"
+                    // ComponentRightIcon={IoStopOutline}
+                    onClickLeft={() => onClosePortal()} 
+                    onClickRight={() => setInitLocal(InitializingState.removing)} 
                   />
+                </Box>
+                <Box 
+                  key={InitializingState.removing}
+                  w='100%' 
+                  minW='19.75rem'
+                  h='100%'  
+                  position='absolute'
+                  top={0} left={0}
+                  pl={4}
+                  as={motion.div}
+                  animate={controlRemoving}
+                  initial='initializing'
+                  variants={initArea}
+                >
+                  <Loading text="Removing"/>
                 </Box>
               </AnimatePresence>
             </Box>
