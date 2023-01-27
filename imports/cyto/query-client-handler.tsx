@@ -108,7 +108,8 @@ export const QueryClientHandler = React.memo<any>(({nested = false}:{nested?: bo
       style={{
         position: 'relative',
         overflow: nested ? 'hidden' : 'inherit',
-        borderRadius: 5
+        borderRadius: 5,
+        border: 'none',
       }}
     >
       <Box 
@@ -122,6 +123,7 @@ export const QueryClientHandler = React.memo<any>(({nested = false}:{nested?: bo
           overflow='hidden' sx={{ borderRadius: 5 }}
           w={terminalBorderWidth}
           h={terminalBorderHeight}
+          border='1px dashed #605c60'
           // w={199}
           // h={149}
         >
