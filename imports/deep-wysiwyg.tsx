@@ -5,7 +5,8 @@ import { Box, IconButton } from '@chakra-ui/react';
 import { motion, useAnimation } from 'framer-motion';
 import { FiBold, FiItalic, FiUnderline, FiCode } from 'react-icons/fi';
 import { TbNumber1, TbNumber2, TbQuote, TbList, TbListNumbers } from 'react-icons/tb';
-import { RxTextAlignJustify, RxTextAlignCenter, RxTextAlignLeft, RxTextAlignRight } from 'react-icons/rx';
+//@ts-ignore
+import { RxTextAlignJustify, RxTextAlignCenter, RxTextAlignLeft, RxTextAlignRight } from "react-icons/rx";
 import isHotkey from 'is-hotkey';
 
 
