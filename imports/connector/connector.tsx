@@ -102,7 +102,17 @@ const callEngine = async ({ operation, terminal }: { operation: string; terminal
 };
 
 
-const TerminalConnect = React.memo<any>(({initializingState = undefined, setInitLocal, key,}:{initializingState?: InitializingState; closeTerminal: () => any; setInitLocal: (state) => any; terminalClosed: boolean; key: any;}) => {
+const TerminalConnect = React.memo<any>(({
+  initializingState = undefined, 
+  setInitLocal, 
+  key,
+}:{
+  initializingState?: InitializingState; 
+  closeTerminal: () => any; 
+  setInitLocal: (state) => any; 
+  terminalClosed: boolean; 
+  key: any;
+}) => {
   const terminalBoxRef = useRef<any>();
   const terminalRef = useRef<any>();
   const control = useAnimation();
@@ -134,17 +144,20 @@ const TerminalConnect = React.memo<any>(({initializingState = undefined, setInit
       }, 2000);
     } else {
       if (initializingState == 'removing') {
-        control.start('grow');
+        // control.start('grow');
         // animation.start('display');
         setTimeout(async() => {
           terminalRef?.current?.resize(terminalRef.current.cols,terminalRef.current.rows);
           await callEngine({ operation: 'reset', terminal: terminalRef.current });
+          // control.start('shrink');
           setInitLocal(InitializingState.notInit);
-          control.start('shrink');
         }, 2000);
       }
+      control.start('shrink');
     }
   }, [control, initializingState]);
+
+  console.log({control, initializingState});
 
   return (
     <AnimatePresence>
@@ -439,19 +452,19 @@ enum InitializingState {
 }
 
 export const Connector = React.memo<any>(({
-  portalOpen = true,
+  // portalOpen = true,
   gqlPath,
   gqlSsl,
   setGqlPath,
   setGqlSsl, 
-  onClosePortal,
+  // onClosePortal,
 }:{
-  portalOpen?: boolean;
+  // portalOpen?: boolean;
   gqlPath: string;
   gqlSsl: boolean;
   setGqlPath: (path: string) => any;
   setGqlSsl: (ssl: boolean) => any; 
-  onClosePortal: () => any;
+  // onClosePortal: (portalOpen: boolean) => any;
 }) => {
   const control = useAnimation();
   const controlNotInit = useAnimation();
@@ -465,6 +478,9 @@ export const Connector = React.memo<any>(({
   const onChangeValueRemote = useDebounceCallback((value) => {
     setValueRemote(value);
   }, 500);
+
+  const [ portalOpen, setPortalOpen ] = useState(true); 
+  const onClosePortal = () => setPortalOpen(!portalOpen);
   
   const [remoteRouts, setArr] = useState([]);
   
@@ -507,7 +523,7 @@ export const Connector = React.memo<any>(({
       controlInit.start('initializing');
       controlInited.start('initializing');
       controlLaunch.start('initializing');
-      // controlRemoving.start("open");
+      controlRemoving.start("open");
     } else {
       controlNotInit.start('initializing');
       controlInit.start('initializing');
@@ -517,7 +533,7 @@ export const Connector = React.memo<any>(({
       controlNotInit.start("open");
       // controlNotInit.start('close');
     } 
-  }, [init, portalOpen]);
+  }, [init]);
 
   useEffect(() => {
     (async () => {
@@ -706,15 +722,21 @@ export const Connector = React.memo<any>(({
                   animate={controlLaunch}
                   initial='initializing'
                   variants={initArea}
-                  onClick={() => setInitLocal(InitializingState.notInit)} 
+                  // onClick={() => setInitLocal(InitializingState.notInit)} 
                 >
                   <ButtonTextButton 
                     text='launched'
                     ariaLabelLeft="go to deepcase"
                     ariaLabelRight="delete local deepcase"
                     // ComponentRightIcon={IoStopOutline}
-                    onClickLeft={() => onClosePortal()} 
-                    onClickRight={() => setInitLocal(InitializingState.removing)} 
+                    onClickLeft={() => {
+                      // setInitLocal(InitializingState.launched);
+                      setPortalOpen(false);
+                      console.log({portalOpen});
+                    }} 
+                    onClickRight={() => {
+                      setInitLocal(InitializingState.removing)
+                    }} 
                   />
                 </Box>
                 <Box 

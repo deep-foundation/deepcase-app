@@ -57,7 +57,7 @@ export function Content({
       spaceId={spaceId}
       />]}
     <CytoGraph links={links} cyRef={cyRef} cytoViewportRef={cytoViewportRef}/>
-    <CytoMenu cyRef={cyRef} cytoViewportRef={cytoViewportRef}/>
+    <CytoMenu cyRef={cyRef} cytoViewportRef={cytoViewportRef} openPortal={openPortal} />
     <ColorModeSwitcher/>
   </>); 
 };
@@ -66,20 +66,21 @@ export default function Page() {
   const [gqlPath, setGqlPath] = useState('');
   const [gqlSsl, setGqlSsl] = useState('');
   const [portal, setPortal] = useState(true);
+  console.log({portal});
 
   return (<>
     <Provider gqlPath={gqlPath} gqlSsl={gqlSsl}>
       <DeepProvider>
         <AutoGuest>
           <Connector 
-            openPortal={portal}
-            onClosePortal={() => setPortal(false)}
+            // portalOpen={portal}
+            // onClosePortal={() => setPortal(portal)}
             gqlPath
             gqlSsl
             setGqlPath={(path) => setGqlPath(path)}
             setGqlSsl={(ssl) => setGqlSsl(ssl)}
           />
-          <Content openPortal={() => setPortal(true)}/>
+          <Content openPortal={()=>setPortal(!portal)} />
         </AutoGuest>
       </DeepProvider>
     </Provider>
