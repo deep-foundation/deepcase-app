@@ -126,6 +126,7 @@ const TerminalConnect = React.memo<any>(({
         cursorStyle: 'block',
       });
       terminalRef.current = termimal;
+      console.log('open', terminalBoxRef.current)
       termimal?.open(terminalBoxRef.current);
       termimal?.writeln('Hello \x1B[1;3;31mbugfixers\x1B[0m!')
     })();
@@ -452,14 +453,16 @@ enum InitializingState {
 }
 
 export const Connector = React.memo<any>(({
-  // portalOpen = true,
+  portalOpen = true,
+  setPortalOpen,
   gqlPath,
   gqlSsl,
   setGqlPath,
   setGqlSsl, 
   // onClosePortal,
 }:{
-  // portalOpen?: boolean;
+  portalOpen?: boolean;
+  setPortalOpen?: () => any;
   gqlPath: string;
   gqlSsl: boolean;
   setGqlPath: (path: string) => any;
@@ -479,8 +482,8 @@ export const Connector = React.memo<any>(({
     setValueRemote(value);
   }, 500);
 
-  const [ portalOpen, setPortalOpen ] = useState(true); 
-  const onClosePortal = () => setPortalOpen(!portalOpen);
+  // const [ portalOpen, setPortalOpen ] = useState(true); 
+  const onClosePortal = () => setPortalOpen(false);
   
   const [remoteRouts, setArr] = useState([]);
   
