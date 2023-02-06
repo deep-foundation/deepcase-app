@@ -90,6 +90,7 @@ const callEngine = async ({ operation, terminal }: { operation: string; terminal
     }
   });
   console.log('result',r);
+  console.log('terminal',terminal);
   if (terminal) {
     terminal?.writeln(JSON.stringify(r.data?.envs));
     terminal?.writeln(r.data?.engineStr);
@@ -141,19 +142,23 @@ const TerminalConnect = React.memo<any>(({
         await callEngine({ operation: 'init', terminal: terminalRef.current });
         await callEngine({ operation: 'migrate', terminal: terminalRef.current });
         await callEngine({ operation: 'check', terminal: terminalRef.current });
-        setInitLocal(InitializingState.launched);
+        setTimeout(async() => {  
+          setInitLocal(InitializingState.launched);
+        }, 2000);
       }, 2000);
-    } else {
-      if (initializingState == 'removing') {
-        // control.start('grow');
+    } else if (initializingState == 'removing') {
+        control.start('grow');
         // animation.start('display');
         setTimeout(async() => {
           terminalRef?.current?.resize(terminalRef.current.cols,terminalRef.current.rows);
           await callEngine({ operation: 'reset', terminal: terminalRef.current });
           // control.start('shrink');
-          setInitLocal(InitializingState.notInit);
+          setTimeout(async() => {
+            setInitLocal(InitializingState.notInit);
+          }, 2000);
         }, 2000);
-      }
+    } else if (initializingState == 'launched' || initializingState == 'not init') {
+      if (terminalRef.current) terminalRef.current.clear();
       control.start('shrink');
     }
   }, [control, initializingState]);
