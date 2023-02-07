@@ -546,7 +546,12 @@ export const Connector = React.memo<any>(({
   useEffect(() => {
     (async () => {
       const status = await _checkDeeplinksStatus();
-      if (status.result !== undefined) setInitLocal(InitializingState.launched)
+      console.log('status',status.result !== undefined);
+      if (status.result !== undefined) {
+        setInitLocal(InitializingState.notInit);
+        await delay(6000);
+        setInitLocal(InitializingState.launched);
+      }
     })();
   }, [portalOpen]);
 
