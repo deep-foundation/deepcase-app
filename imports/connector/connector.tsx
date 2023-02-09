@@ -549,7 +549,7 @@ export const Connector = React.memo<any>(({
       console.log('status',status.result !== undefined);
       if (status.result !== undefined) {
         setInitLocal(InitializingState.notInit);
-        await delay(6000);
+        await delay(1000);
         setInitLocal(InitializingState.launched);
       }
     })();
