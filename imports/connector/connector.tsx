@@ -122,14 +122,15 @@ const TerminalConnect = React.memo<any>(({
   useEffect(() => {
     (async () => {
       const { Terminal } = await import("xterm");
-      const termimal = new Terminal({
+      const terminal = new Terminal({
         cursorBlink: true,
         cursorStyle: 'block',
       });
-      terminalRef.current = termimal;
-      console.log('open', terminalBoxRef.current)
-      termimal?.open(terminalBoxRef.current);
-      termimal?.writeln('Hello \x1B[1;3;31mbugfixers\x1B[0m!')
+      terminalRef.current = terminal;
+      if (terminalBoxRef.current){
+        terminal?.open(terminalBoxRef.current);
+        terminal?.writeln('Hello \x1B[1;3;31mbugfixers\x1B[0m!');
+      }
     })();
   }, []);
 
@@ -514,6 +515,7 @@ export const Connector = React.memo<any>(({
   }, [control, portalOpen]);
 
   useEffect(() => {
+    console.log('init!', init);
     if (init === InitializingState.initializing) { 
       controlNotInit.start('close');
       controlInit.start('open');
@@ -532,7 +534,7 @@ export const Connector = React.memo<any>(({
       controlInited.start('initializing');
       controlLaunch.start('initializing');
       controlRemoving.start("open");
-    } else {
+    } else if (init === InitializingState.notInit) {
       controlNotInit.start('initializing');
       controlInit.start('initializing');
       controlInited.start('initializing');
@@ -547,11 +549,13 @@ export const Connector = React.memo<any>(({
     (async () => {
       const status = await _checkDeeplinksStatus();
       console.log('status',status.result !== undefined);
+      console.log('initializingState1', init)
       if (status.result !== undefined) {
         setInitLocal(InitializingState.notInit);
         await delay(1000);
         setInitLocal(InitializingState.launched);
       }
+      console.log('portalOpen', portalOpen)
     })();
   }, [portalOpen]);
 
