@@ -1,6 +1,7 @@
 {
   "name": "@deep-foundation/deepcase",
   "version": "0.1.0-beta.2",
+  "license": "Unlicense",
   "scripts": {
     "dev": "next dev",
     "build": "rm -rf app && next build",

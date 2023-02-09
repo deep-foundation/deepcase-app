@@ -140,7 +140,7 @@ export function CytoMenu({
         <MenuSearch cyRef={cyRef}/>
       </HStack>
     </VStack>
-    <Button bgColor='primary' color='white' size='sm' w='4rem' mt={10} mr={4} justifySelf='flex-end' rightIcon={<IoExitOutline />} onClick={openPortal}>Exit</Button>
+    {/* <Button bgColor='primary' color='white' size='sm' w='4rem' mt={10} mr={4} justifySelf='flex-end' rightIcon={<IoExitOutline />} onClick={openPortal}>Exit</Button> */}
   </Box>;
 }
 
