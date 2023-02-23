@@ -143,9 +143,9 @@ const TerminalConnect = React.memo<any>(({
         await callEngine({ operation: 'init', terminal: terminalRef.current });
         await callEngine({ operation: 'migrate', terminal: terminalRef.current });
         await callEngine({ operation: 'check', terminal: terminalRef.current });
-        setTimeout(async() => {  
-          setInitLocal(InitializingState.launched);
-        }, 2000);
+
+        await delay(2000);
+        setInitLocal(InitializingState.launched);
       }, 2000);
     } else if (initializingState == 'removing') {
         control.start('grow');
@@ -154,9 +154,8 @@ const TerminalConnect = React.memo<any>(({
           terminalRef?.current?.resize(terminalRef.current.cols,terminalRef.current.rows);
           await callEngine({ operation: 'reset', terminal: terminalRef.current });
           // control.start('shrink');
-          setTimeout(async() => {
-            setInitLocal(InitializingState.notInit);
-          }, 2000);
+          await delay(2000);
+          setInitLocal(InitializingState.notInit);
         }, 2000);
     } else if (initializingState == 'launched' || initializingState == 'not init') {
       if (terminalRef.current) terminalRef.current.clear();
