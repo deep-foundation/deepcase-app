@@ -12,6 +12,7 @@ import axios from 'axios';
 
 const DOCKER = process.env.DOCKER || '0';
 const DEEPLINKS_PUBLIC_URL = process.env.DEEPLINKS_PUBLIC_URL || 'http://localhost:3006';
+const NEXT_PUBLIC_DEEPLINKS_SERVER = process.env.NEXT_PUBLIC_DEEPLINKS_SERVER || 'http://localhost:3007';
 
 const _checkDeeplinksStatus = async () => {
   let status;
@@ -81,7 +82,7 @@ const callEngine = async ({ operation, terminal }: { operation: string; terminal
   terminal?.resize(terminal.cols,terminal.rows);
   const r = await axios({ 
     method: 'post',
-    url: 'http://localhost:3007/api/deeplinks',
+    url: `${NEXT_PUBLIC_DEEPLINKS_SERVER}/api/deeplinks`,
     headers: {
       'Content-Type': 'application/json'
     },
