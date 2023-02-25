@@ -3,8 +3,8 @@
   "description": "Next.js Chrome Extension starter",
   "version": "0.0.1",
   "manifest_version": 3,
-  "permissions": ["action"],
-  "host_permissions": ["<all_urls>"],
+  "permissions": ["debugger"],
+  "host_permissions": [],
   "action": {
     "default_title": "Next.js app",
     "default_popup": "index.html"
