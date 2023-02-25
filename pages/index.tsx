@@ -73,7 +73,7 @@ export default function Page() {
         <AutoGuest>
           <Connector
             portalOpen={portal}
-            setPortalOpen={setPortal}
+            setPortal={setPortal}
             // onClosePortal={() => setPortal(portal)}
             gqlPath
             gqlSsl

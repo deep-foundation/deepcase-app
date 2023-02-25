@@ -460,7 +460,7 @@ enum InitializingState {
 
 export const Connector = React.memo<any>(({
   portalOpen = true,
-  setPortalOpen,
+  setPortal,
   gqlPath,
   gqlSsl,
   setGqlPath,
@@ -468,7 +468,7 @@ export const Connector = React.memo<any>(({
   // onClosePortal,
 }:{
   portalOpen?: boolean;
-  setPortalOpen?: () => any;
+  setPortal?: (state?: boolean) => any;
   gqlPath: string;
   gqlSsl: boolean;
   setGqlPath: (path: string) => any;
@@ -488,8 +488,8 @@ export const Connector = React.memo<any>(({
     setValueRemote(value);
   }, 500);
 
-  // const [ portalOpen, setPortalOpen ] = useState(true); 
-  const onClosePortal = () => setPortalOpen(false);
+  // const [ portalOpen, setPortal ] = useState(true); 
+  const onClosePortal = () => setPortal(false);
   
   const [remoteRouts, setArr] = useState([]);
   
@@ -748,7 +748,7 @@ export const Connector = React.memo<any>(({
                     // ComponentRightIcon={IoStopOutline}
                     onClickLeft={() => {
                       // setInitLocal(InitializingState.launched);
-                      setPortalOpen(false);
+                      setPortal(false);
                       console.log({portalOpen});
                     }} 
                     onClickRight={() => {
