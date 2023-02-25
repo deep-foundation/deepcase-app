@@ -1,10 +1,10 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.deepfoundation.deep',
-  appName: 'Deep',
+  appId: 'deep.case.app',
+  appName: 'Deep.Case',
   webDir: 'out',
-  bundledWebRuntime: false
+  bundledWebRuntime: false,
 };
 
 export default config;

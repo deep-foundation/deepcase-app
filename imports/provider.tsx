@@ -1,8 +1,11 @@
-import { DeepProvider } from '@deep-foundation/deeplinks/imports/client';
 import { TokenProvider, useTokenController } from '@deep-foundation/deeplinks/imports/react-token';
 import { ApolloClientTokenizedProvider } from '@deep-foundation/react-hasura/apollo-client-tokenized-provider';
 import { LocalStoreProvider } from '@deep-foundation/store/local';
 import { QueryStoreProvider } from '@deep-foundation/store/query';
+
+import { ChakraProvider } from '@chakra-ui/react';
+import themeChakra from './theme/theme';
+import { useMemo } from 'react';
 
 export function ProviderConnected({
   children,
@@ -10,44 +13,45 @@ export function ProviderConnected({
   children: JSX.Element;
 }) {
   const [token, setToken] = useTokenController();
+
   return <>{children}</>;
 }
 
-export const GRAPHQL_PATH = process.env.NEXT_PUBLIC_GQL_PATH;
-export const GRAPHQL_SSL = !!+process.env.NEXT_PUBLIC_GQL_SSL;
-
-
-
+export const NEXT_PUBLIC_GQL_PATH = process.env.NEXT_PUBLIC_GQL_PATH;
+export const NEXT_PUBLIC_GQL_SSL = !!+process.env.NEXT_PUBLIC_GQL_SSL;
 
 export function Provider({
+  gqlPath,
+  gqlSsl,
   children,
 }: {
+  gqlPath?: string;
+  gqlSsl?: string;
   children: JSX.Element;
 }) {
-  return (
-		// <Analitics
-		//   yandexMetrikaAccounts={[84726091]}
-		//   googleAnalyticsAccounts={['G-DC5RRWLRNV']}
-		// >
+  const ThemeProviderCustom = ChakraProvider;
+  const themeCustom = themeChakra;
 
-		<QueryStoreProvider>
-			<LocalStoreProvider>
-				<TokenProvider>
-					<ApolloClientTokenizedProvider
-						options={{
-							client: 'deeplinks-app',
-							path: GRAPHQL_PATH,
-							ssl: GRAPHQL_SSL,
-							ws: !!process?.browser,
-						}}
-					>
-						<ProviderConnected>
-							<DeepProvider>{children}</DeepProvider>
-						</ProviderConnected>
-					</ApolloClientTokenizedProvider>
-				</TokenProvider>
-			</LocalStoreProvider>
-		</QueryStoreProvider>
-		// </Analitics>
-	);
+  console.log({themeCustom});
+  console.log({ThemeProviderCustom});
+  return (
+    // <Analitics
+    //   yandexMetrikaAccounts={[84726091]}
+    //   googleAnalyticsAccounts={['G-DC5RRWLRNV']}
+    // >
+      <ThemeProviderCustom theme={themeCustom}>
+        <QueryStoreProvider>
+          <LocalStoreProvider>
+            <TokenProvider>
+              <ApolloClientTokenizedProvider options={useMemo(() => ({ client: 'deeplinks-app', path: gqlPath ? gqlPath : NEXT_PUBLIC_GQL_PATH, ssl: gqlSsl ? gqlSsl : NEXT_PUBLIC_GQL_SSL, ws: !!process?.browser }), [gqlPath, gqlSsl])}>
+                <ProviderConnected>
+                  {children}
+                </ProviderConnected>
+              </ApolloClientTokenizedProvider>
+            </TokenProvider>
+          </LocalStoreProvider>
+        </QueryStoreProvider>
+      </ThemeProviderCustom>
+    // </Analitics>
+  )
 };

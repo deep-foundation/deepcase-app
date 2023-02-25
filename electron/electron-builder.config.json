@@ -1,5 +1,5 @@
 {
-  "appId": "sdk.app",
+  "appId": "deep.case.app",
   "afterSign": "notarize.js",
   "afterPack": "./recover-after-electron-build.js",
   "directories": {

@@ -1,51 +1,45 @@
-## Prerequisitions
-```
-npm-install
-```
-Add `.env` file with these environment variables:
-```
-NEXT_PUBLIC_GQL_PATH=3006-deepfoundation-dev-urovmzfl8a1.ws-eu85.gitpod.io/gql
-NEXT_PUBLIC_GQL_SSL=1
-```
-And do not forget to change NEXT_PUBLIC_GQL_PATH to your graphql address
+# deep-foundation deepcase
 
-## Package installation
+## envs
+
 ```
-package_name="device" # Replace to any package name
-npx ts-node "./imports/${package_name}/install-package.ts"
+export MIGRATIONS_HASURA_PATH=localhost:8080;
+export MIGRATIONS_HASURA_SSL=0;
+export MIGRATIONS_HASURA_SECRET=myadminsecretkey;
+
+export NEXT_PUBLIC_DEEPLINKS_SERVER=http://localhost:3007;
+export NEXT_PUBLIC_GQL_PATH=localhost:3006/gql;
+export NEXT_PUBLIC_GQL_SSL=0;
+
+export NEXT_PUBLIC_ENGINES=1;
+
+export JWT_SECRET=<?>;
 ```
 
-## Web
+## dev server
+
 ```
-npm run build &&
+npm ci
+npm run dev -- -p 3007
+```
+
+## prod server
+
+```
+npm ci
+npm run build
 npm run start
 ```
 
-## Android
-```
-npm run android-build &&
-npm run android-run
-```
+## run electron dev
+(renderer client builded, not dev)
 
-## IOS
 ```
-npm run ios-build &&
-npm run ios-run
+cross-env ASSET_PREFIX='.' npm run build;
+npm run export;
+npx cap copy electron; npx cap open electron;
 ```
 
+## setting icons for electron
 
-# deep sdk
-
-- [x] deep example
-- [x] message/reply model https://runkit.com/ivansglazunov/deep-create-messaging-package
-- [ ] linux deb app solution
-- [ ] window exe app solution
-- [ ] mac app build solution
-- [ ] ios app build solution
-- [ ] android app build solution
-- [ ] google chrome extension solution
-- [ ] firefox extension solution
-- [ ] docker solution
-- [ ] heroku solution
-- [ ] gh-pages client solution
-- [ ] standalone os build solution
+put files in public dir and if need change package.json / electron-build ... electron-packager --icon parametr. Use this [manual](https://electron.github.io/electron-packager/main/interfaces/electronpackager.options.html#icon)

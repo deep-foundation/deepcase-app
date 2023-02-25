@@ -1,0 +1,78 @@
+name: Deploy deepcase demo-app
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+defaults:
+  run:
+    working-directory: ./
+env:
+  NEXT_PUBLIC_ENGINES: 0
+  NEXT_PUBLIC_HIDEPATH: 1
+  MIGRATIONS_ID_TYPE_SQL: bigint
+  MIGRATIONS_HASURA_PATH: host.docker.internal:8080
+  MIGRATIONS_HASURA_SSL: 0
+  MIGRATIONS_HASURA_SECRET: myadminsecretkey
+  NEXT_PUBLIC_DEEPLINKS_SERVER: https://deep.deep.foundation
+  NEXT_PUBLIC_GQL_PATH: deeplinks.deep.foundation/gql
+  NEXT_PUBLIC_GQL_SSL: 1
+  DEEPLINKS_HASURA_PATH: host.docker.internal:8080
+  DEEPLINKS_HASURA_SSL: 0
+  MIGRATIONS_DEEPLINKS_URL: http://host.docker.internal:3006
+  DOCKER: 1
+jobs:
+  dockerize:
+    name: dockerize
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Reconfigure git to use HTTP authentication
+        run: >
+          git config --global url."https://github.com/".insteadOf
+          ssh://git@github.com/
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '14.15'
+      - name: Configure Node caching
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules-dockerize-demo
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - name: ci
+        run: npm ci
+      - name: pull dl
+        run: cd node_modules/@deep-foundation && rm -rf deeplinks && git clone https://github.com/deep-foundation/deeplinks.git && cd deeplinks && npm ci && npm run package:build && rm -rf node_modules
+      - name: pull hasura
+        run: cd node_modules/@deep-foundation && rm -rf hasura && git clone https://github.com/deep-foundation/hasura.git && cd hasura && npm ci && npm run package:build  && rm -rf node_modules && rm -rf package-lock.json
+      - name: pull store
+        run: cd node_modules/@deep-foundation && rm -rf store && git clone https://github.com/deep-foundation/store.git && cd store && npm ci && npm run package:build && rm -rf node_modules && rm -rf package-lock.json
+      - name: build next
+        run: npm run build
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: deepf/deepcase
+      - name: build docker image and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: deepf/deepcase:demo
+          labels: ${{ steps.meta.outputs.labels }}
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
