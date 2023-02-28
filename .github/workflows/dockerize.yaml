@@ -1,4 +1,4 @@
-name: Deploy deepcase app
+name: Deploy deepcase app 
 on:
   push:
     branches: [ main ]
