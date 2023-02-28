@@ -59,24 +59,22 @@ jobs:
         run: cd electron && npm ci
       - name: pull dl
         run: cd node_modules/@deep-foundation && rm -rf deeplinks && git clone https://github.com/deep-foundation/deeplinks.git && cd deeplinks && npm ci && npm run package:build && rm -rf node_modules && rm -rf package-lock.json && cd ../../.. && rm -rf electron/node_modules/@deep-foundation/deeplinks
-      - name: build next
-        run: npm run build && npm run export && npx rimraf electron/app && npx cap copy electron
-      - name: Build distribution
-        run: cd electron && npm run electron:pack
+      - name: build
+        run: npm run build-unix
       - name: Create tar.gz file
         run: |
           cd electron/dist
-          mv SDK-1.0.0.AppImage SDK.AppImage
-          tar -czvf SDK.tar.gz SDK.AppImage
+          mv Deep.Case-1.0.0.AppImage Deep.Case.AppImage
+          tar -czvf Deep.Case.tar.gz Deep.Case.AppImage
       - name: And a README (to work around GitHub double-zips)
         run: |
           echo "More information: https://deep.foundation" > electron/dist/README.txt
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: Linux-SDK
+          name: Linux-Deep.Case
           path: |
-            electron/dist/SDK.tar.gz
+            electron/dist/Deep.Case.tar.gz
             electron/dist/README.txt
   mac-build:
     name: mac-build
@@ -126,28 +124,26 @@ jobs:
         run: cd electron && npm ci && ls node_modules | grep @
       - name: pull dl
         run: cd node_modules/@deep-foundation && rm -rf deeplinks && git clone https://github.com/deep-foundation/deeplinks.git && cd deeplinks && npm ci && npm run package:build && rm -rf node_modules && rm -rf package-lock.json && cd ../../.. && rm -rf electron/node_modules/@deep-foundation/deeplinks
-      - name: build next
-        run: npm run build && npm run export && npx rimraf electron/app && npx cap copy electron
-      - name: Build distribution
+      - name: build
         env:
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
           APPLEID: ${{ secrets.APPLEID }}
           APPLEIDPASS: ${{ secrets.APPLEIDPASS }}
-        run: cd electron && npm run electron:pack
+        run: npm run build-mac
       - name: Create zip file
         run: |
           cd electron/dist/mac
-          ditto -c -k --keepParent SDK.app SDK.app.zip
+          ditto -c -k --keepParent Deep.Case-1.0.0.app Deep.Case-1.0.0.app.zip
       - name: And a README (to work around GitHub double-zips)
         run: |
           echo "More information: https://deep.foundation" > electron/dist/mac/README.txt
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: Mac-SDK
+          name: Mac-Deep.Case-1.0.0
           path: |
-            electron/dist/mac/SDK.app.zip
+            electron/dist/mac/Deep.Case-1.0.0.app.zip
             electron/dist/mac/README.txt
   windows-build:
     name: windows-build
@@ -203,23 +199,21 @@ jobs:
         run: cd electron && npm ci
       - name: pull dl
         run: cd node_modules/@deep-foundation && rm -r deeplinks && git clone https://github.com/deep-foundation/deeplinks.git && cd deeplinks && npm ci && npm run package:build && rm -r node_modules && rm -r package-lock.json && cd ../../..
-      - name: build next
-        run: npm run build && npm run export && npx rimraf electron/app && npx cap copy electron
-      - name: Build distribution
-        run: cd electron && npm run electron:pack
+      - name: build
+        run: npm run build-windows
       - name: Create zip file
         run: |
           cd electron/dist
-          tar.exe -a -c -f SDK.zip "SDK-setup.exe"
+          tar.exe -a -c -f Deep.Case-1.0.0.zip "Deep.Case-1.0.0-setup.exe"
       - name: And a README (to work around GitHub double-zips)
         run: |
           echo "More information: https://deep.foundation" > electron/dist/README.txt
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: Windows-SDK
+          name: Windows-Deep.Case-1.0.0
           path: |
-            electron/dist/SDK.zip
+            electron/dist/Deep.Case-1.0.0.zip
             electron/dist/README.txt
   release:
     needs: [linux-build, mac-build, windows-build]
@@ -244,15 +238,15 @@ jobs:
           prerelease: false
       - uses: actions/download-artifact@v3
         with:
-          name: Linux-SDK
+          name: Linux-Deep.Case-1.0.0
           path: electron/dist
       - uses: actions/download-artifact@v3
         with:
-          name: Windows-SDK
+          name: Windows-Deep.Case-1.0.0
           path: electron/dist
       - uses: actions/download-artifact@v3
         with:
-          name: Mac-SDK
+          name: Mac-Deep.Case-1.0.0
           path: electron/dist
       - name: upload linux artifact
         uses: actions/upload-release-asset@v1
@@ -260,8 +254,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: electron/dist/SDK.tar.gz
-          asset_name: linux-SDK.tar.gz
+          asset_path: electron/dist/Deep.Case-1.0.0.tar.gz
+          asset_name: linux-Deep.Case-1.0.0.tar.gz
           asset_content_type: application/gzip
       - name: upload windows artifact
         uses: actions/upload-release-asset@v1
@@ -269,8 +263,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: electron/dist/SDK.zip
-          asset_name: windows-SDK.zip
+          asset_path: electron/dist/Deep.Case-1.0.0.zip
+          asset_name: windows-Deep.Case-1.0.0.zip
           asset_content_type: application/zip
       - name: upload windows artifact
         uses: actions/upload-release-asset@v1
@@ -278,6 +272,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: electron/dist/SDK.app.zip
-          asset_name: mac-SDK.zip
+          asset_path: electron/dist/Deep.Case-1.0.0.app.zip
+          asset_name: mac-Deep.Case-1.0.0.zip
           asset_content_type: application/zip
