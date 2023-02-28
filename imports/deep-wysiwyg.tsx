@@ -5,7 +5,7 @@ import { Box, IconButton } from '@chakra-ui/react';
 import { motion, useAnimation } from 'framer-motion';
 import { FiBold, FiItalic, FiUnderline, FiCode } from 'react-icons/fi';
 import { TbNumber1, TbNumber2, TbQuote, TbList, TbListNumbers } from 'react-icons/tb';
-import { RxTextAlignJustify, RxTextAlignCenter, RxTextAlignLeft, RxTextAlignRight } from 'react-icons/rx';
+import { CiTextAlignJustify, CiTextAlignCenter, CiTextAlignLeft, CiTextAlignRight } from 'react-icons/ci';
 import isHotkey from 'is-hotkey';
 
 
@@ -32,7 +32,7 @@ export const DeepWYSIWYG = React.memo<any>(() => {
 
   return (<Box sx={{
       '& > * > *:nth-of-type(2)': {
-        backgroundColor: 'red',
+        // backgroundColor: 'red',
       }
     }}>
       <Slate editor={editor} value={initialValue}>
@@ -44,10 +44,8 @@ export const DeepWYSIWYG = React.memo<any>(() => {
             borderRight: '1px solid #aaa', 
             borderRadius: '0.5rem', 
             padding: '1rem', 
-            '& > *': {
-              border: '1px solid #aaa', 
-              borderRadius: '50%', 
-              
+            '& > *:hover': {
+              transform: 'scale(1.15)'
             }
         }}>
           <MarkButton icon={<FiBold />} format='bold' />
@@ -59,10 +57,10 @@ export const DeepWYSIWYG = React.memo<any>(() => {
           <BlockButton format="block-quote" icon={<TbQuote />} />
           <BlockButton format="numbered-list" icon={<TbListNumbers />} />
           <BlockButton format="bulleted-list" icon={<TbList />} />
-          <BlockButton format="left" icon={<RxTextAlignLeft />} />
-          <BlockButton format="center" icon={<RxTextAlignCenter />} />
-          <BlockButton format="right" icon={<RxTextAlignRight />} />
-          <BlockButton format="justify" icon={<RxTextAlignJustify />} />
+          <BlockButton format="left" icon={<CiTextAlignLeft />} />
+          <BlockButton format="center" icon={<CiTextAlignCenter />} />
+          <BlockButton format="right" icon={<CiTextAlignRight />} />
+          <BlockButton format="justify" icon={<CiTextAlignJustify />} />
         </Box>
         <Editable 
           style={{ border: '1px solid #aaa', borderRadius: '0.5rem', padding: '1rem' }}
@@ -287,9 +285,8 @@ const toggleBlock = (editor, format) => {
     editor,
     format,
     TEXT_ALIGN_TYPES.includes(format) ? 'align' : 'type'
-  )
-  const isList = LIST_TYPES.includes(format)
-console.log({isList});
+  );
+  const isList = LIST_TYPES.includes(format);
   Transforms.unwrapNodes(editor, {
     match: n =>
       !Editor.isEditor(n) &&
@@ -298,7 +295,7 @@ console.log({isList});
       LIST_TYPES.includes(n.type) &&
       !TEXT_ALIGN_TYPES.includes(format),
     split: true,
-  })
+  });
   let newProperties: Partial<SlateElement>
   if (TEXT_ALIGN_TYPES.includes(format)) {
     newProperties = {

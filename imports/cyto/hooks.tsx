@@ -391,7 +391,7 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
 
       useEffect(() => {
         if (!handlerId) {
-          const handler = handlers?.[0];
+          const handler: any = handlers?.[0];
           if (handler) {
             setHandlerId(handler.id);
           }
