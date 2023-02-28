@@ -95,6 +95,7 @@
     "fkill": "^8.0.0",
     "fkill-cli": "^6.2.0",
     "framer-motion": "^6.3.11",
+    "fs-capacitor": "^8.0.0",
     "gists": "^2.0.0",
     "graphiql": "^1.4.2",
     "jquery": "^3.6.0",
