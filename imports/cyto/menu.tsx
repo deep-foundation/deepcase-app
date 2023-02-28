@@ -6,14 +6,17 @@ import { useState, useEffect, useMemo } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useSpaceId, useShowTypes, useLayout, useContainer, useShowExtra, useShowFocus, usePromiseLoader, useTraveler, useMediaQuery, useAutoFocusOnInsert, useBreadcrumbs } from "../hooks";
 import { useCytoEditor } from "./hooks";
+import { IoExitOutline } from 'react-icons/io5';
 
 const NEXT_PUBLIC_GQL_PATH = process.env.NEXT_PUBLIC_GQL_PATH || 'localhost:3006/gql';
 const NEXT_PUBLIC_GQL_SSL = process.env.NEXT_PUBLIC_GQL_SSL || '0';
 
 export function CytoMenu({
   cyRef,
+  openPortal,
 }: {
   cyRef?: any;
+  openPortal?: () => any;
 }) {
   const [spaceId, setSpaceId] = useSpaceId();
   const [showTypes, setShowTypes] = useShowTypes();
