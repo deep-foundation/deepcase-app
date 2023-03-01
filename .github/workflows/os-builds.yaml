@@ -213,7 +213,7 @@ jobs:
         with:
           name: Windows-Deep.Case-1.0.0
           path: |
-            electron/dist/Deep.Case-1.0.0.zip
+            electron/dist/Deep.Case.zip
             electron/dist/README.txt
   release:
     needs: [linux-build, mac-build, windows-build]
