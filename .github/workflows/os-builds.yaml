@@ -204,7 +204,7 @@ jobs:
       - name: Create zip file
         run: |
           cd electron/dist
-          tar.exe -a -c -f Deep.Case-1.0.0.zip "Deep.Case-1.0.0-setup.exe"
+          tar.exe -a -c -f Deep.Case.zip "Deep.Case-setup.exe"
       - name: And a README (to work around GitHub double-zips)
         run: |
           echo "More information: https://deep.foundation" > electron/dist/README.txt
