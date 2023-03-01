@@ -134,7 +134,7 @@ jobs:
       - name: Create zip file
         run: |
           cd electron/dist/mac
-          ditto -c -k --keepParent Deep.Case-1.0.0.app Deep.Case-1.0.0.app.zip
+          ditto -c -k --keepParent Deep.Case-1.0.0.dmg Deep.Case-1.0.0.dmg.zip
       - name: And a README (to work around GitHub double-zips)
         run: |
           echo "More information: https://deep.foundation" > electron/dist/mac/README.txt
@@ -143,7 +143,7 @@ jobs:
         with:
           name: Mac-Deep.Case-1.0.0
           path: |
-            electron/dist/mac/Deep.Case-1.0.0.app.zip
+            electron/dist/mac/Deep.Case-1.0.0.dmg.zip
             electron/dist/mac/README.txt
   windows-build:
     name: windows-build
@@ -272,6 +272,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: electron/dist/Deep.Case-1.0.0.app.zip
+          asset_path: electron/dist/Deep.Case-1.0.0.dmg.zip
           asset_name: mac-Deep.Case-1.0.0.zip
           asset_content_type: application/zip
