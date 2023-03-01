@@ -64,7 +64,7 @@ jobs:
       - name: Create tar.gz file
         run: |
           cd electron/dist
-          mv Deep.Case-1.0.0.AppImage Deep.Case.AppImage
+          mv Deep.Case-0.1.0.AppImage Deep.Case.AppImage
           tar -czvf Deep.Case.tar.gz Deep.Case.AppImage
       - name: And a README (to work around GitHub double-zips)
         run: |
@@ -134,16 +134,16 @@ jobs:
       - name: Create zip file
         run: |
           cd electron/dist/mac
-          ditto -c -k --keepParent Deep.Case-1.0.0.dmg Deep.Case-1.0.0.dmg.zip
+          ditto -c -k --keepParent Deep.Case-0.1.0.dmg Deep.Case-0.1.0.dmg.zip
       - name: And a README (to work around GitHub double-zips)
         run: |
           echo "More information: https://deep.foundation" > electron/dist/mac/README.txt
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: Mac-Deep.Case-1.0.0
+          name: Mac-Deep.Case-0.1.0
           path: |
-            electron/dist/mac/Deep.Case-1.0.0.dmg.zip
+            electron/dist/mac/Deep.Case-0.1.0.dmg.zip
             electron/dist/mac/README.txt
   windows-build:
     name: windows-build
@@ -211,7 +211,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: Windows-Deep.Case-1.0.0
+          name: Windows-Deep.Case-0.1.0
           path: |
             electron/dist/Deep.Case.zip
             electron/dist/README.txt
@@ -238,15 +238,15 @@ jobs:
           prerelease: false
       - uses: actions/download-artifact@v3
         with:
-          name: Linux-Deep.Case-1.0.0
+          name: Linux-Deep.Case-0.1.0
           path: electron/dist
       - uses: actions/download-artifact@v3
         with:
-          name: Windows-Deep.Case-1.0.0
+          name: Windows-Deep.Case-0.1.0
           path: electron/dist
       - uses: actions/download-artifact@v3
         with:
-          name: Mac-Deep.Case-1.0.0
+          name: Mac-Deep.Case-0.1.0
           path: electron/dist
       - name: upload linux artifact
         uses: actions/upload-release-asset@v1
@@ -254,8 +254,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: electron/dist/Deep.Case-1.0.0.tar.gz
-          asset_name: linux-Deep.Case-1.0.0.tar.gz
+          asset_path: electron/dist/Deep.Case.tar.gz
+          asset_name: linux-Deep.Case.tar.gz
           asset_content_type: application/gzip
       - name: upload windows artifact
         uses: actions/upload-release-asset@v1
@@ -263,15 +263,15 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: electron/dist/Deep.Case-1.0.0.zip
-          asset_name: windows-Deep.Case-1.0.0.zip
+          asset_path: electron/dist/Deep.Case.zip
+          asset_name: windows-Deep.Case-0.1.0.zip
           asset_content_type: application/zip
-      - name: upload windows artifact
+      - name: upload mac artifact
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: electron/dist/Deep.Case-1.0.0.dmg.zip
-          asset_name: mac-Deep.Case-1.0.0.zip
+          asset_path: electron/dist/Deep.Case-0.1.0.dmg.zip
+          asset_name: mac-Deep.Case-0.1.0.zip
           asset_content_type: application/zip
