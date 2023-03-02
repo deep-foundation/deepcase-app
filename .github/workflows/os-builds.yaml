@@ -133,7 +133,7 @@ jobs:
         run: npm run build-mac
       - name: Create zip file
         run: |
-          cd electron/dist/mac
+          cd electron/dist
           ditto -c -k --keepParent Deep.Case-0.1.0.dmg Deep.Case-0.1.0.dmg.zip
       - name: And a README (to work around GitHub double-zips)
         run: |
