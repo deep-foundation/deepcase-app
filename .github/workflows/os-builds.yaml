@@ -143,8 +143,8 @@ jobs:
         with:
           name: Mac-Deep.Case-0.1.0
           path: |
-            electron/dist/mac/Deep.Case-0.1.0.dmg.zip
-            electron/dist/mac/README.txt
+            electron/dist/Deep.Case-0.1.0.dmg.zip
+            electron/dist/README.txt
   windows-build:
     name: windows-build
     env:
@@ -273,5 +273,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: electron/dist/Deep.Case-0.1.0.dmg.zip
-          asset_name: mac-Deep.Case-0.1.0.zip
+          asset_name: Mac-Deep.Case-0.1.0.zip
           asset_content_type: application/zip
