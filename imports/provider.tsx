@@ -2,10 +2,10 @@ import { TokenProvider, useTokenController } from '@deep-foundation/deeplinks/im
 import { ApolloClientTokenizedProvider } from '@deep-foundation/react-hasura/apollo-client-tokenized-provider';
 import { LocalStoreProvider } from '@deep-foundation/store/local';
 import { QueryStoreProvider } from '@deep-foundation/store/query';
-
+import { useLocalStore } from "@deep-foundation/store/local";
 import { ChakraProvider } from '@chakra-ui/react';
 import themeChakra from './theme/theme';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 export function ProviderConnected({
   children,
@@ -21,16 +21,13 @@ export const NEXT_PUBLIC_GQL_PATH = process.env.NEXT_PUBLIC_GQL_PATH;
 export const NEXT_PUBLIC_GQL_SSL = !!+process.env.NEXT_PUBLIC_GQL_SSL;
 
 export function Provider({
-  gqlPath,
-  gqlSsl,
   children,
 }: {
-  gqlPath?: string;
-  gqlSsl?: string;
   children: JSX.Element;
 }) {
   const ThemeProviderCustom = ChakraProvider;
   const themeCustom = themeChakra;
+
 
   return (
     // <Analitics
@@ -40,16 +37,25 @@ export function Provider({
       <ThemeProviderCustom theme={themeCustom}>
         <QueryStoreProvider>
           <LocalStoreProvider>
-            <TokenProvider>
-              <ApolloClientTokenizedProvider options={useMemo(() => ({ client: 'deeplinks-app', path: gqlPath ? gqlPath : NEXT_PUBLIC_GQL_PATH, ssl: gqlSsl ? gqlSsl : NEXT_PUBLIC_GQL_SSL, ws: !!process?.browser }), [gqlPath, gqlSsl])}>
-                <ProviderConnected>
-                  {children}
-                </ProviderConnected>
-              </ApolloClientTokenizedProvider>
-            </TokenProvider>
+            <_Provider children={children} />
           </LocalStoreProvider>
         </QueryStoreProvider>
       </ThemeProviderCustom>
     // </Analitics>
   )
+};
+
+function _Provider({
+  children,
+}){
+  const [activeDeep, setActiveDeep] = useLocalStore('activeDeep', { gqlPath: '', gqlSsl: '' });
+  return (
+      <TokenProvider>
+        <ApolloClientTokenizedProvider options={useMemo(() => ({ client: 'deeplinks-app', path: activeDeep.gqlPath ? activeDeep.gqlPath : NEXT_PUBLIC_GQL_PATH, ssl: activeDeep.gqlSsl ? activeDeep.gqlSsl : NEXT_PUBLIC_GQL_SSL, ws: !!process?.browser }), [activeDeep.gqlPath, activeDeep.gqlSsl])}>
+          <ProviderConnected>
+            {children}
+          </ProviderConnected>
+        </ApolloClientTokenizedProvider>
+      </TokenProvider>
+  );
 };

@@ -461,23 +461,11 @@ enum InitializingState {
 
 export const Connector = React.memo<any>(({
   portalOpen = true,
-  setActiveDeep,
-  activeDeep,
   setPortal,
-  gqlPath,
-  gqlSsl,
-  setGqlPath,
-  setGqlSsl, 
   // onClosePortal,
 }:{
   portalOpen?: boolean;
-  setActiveDeep?: (acriveDeep?: { gqlPath: string, gqlSsl: string }) => any;
-  activeDeep?: { gqlPath: string; gqlSsl: boolean};
   setPortal?: (state?: boolean) => any;
-  gqlPath: string;
-  gqlSsl: boolean;
-  setGqlPath: (path: string) => any;
-  setGqlSsl: (ssl: boolean) => any; 
   // onClosePortal: (portalOpen: boolean) => any;
 }) => {
   const control = useAnimation();
@@ -493,6 +481,9 @@ export const Connector = React.memo<any>(({
   const onChangeValueRemote = useDebounceCallback((value) => {
     setValueRemote(value);
   }, 500);
+  const [activeDeep, setActiveDeep] = useLocalStore('activeDeep', { gqlPath: '', gqlSsl: '' });
+  const [gqlPath, setGqlPath] = useState(activeDeep.gqlPath);
+  const [gqlSsl, setGqlSsl] = useState(activeDeep.gqlSsl);
 
   // const [ portalOpen, setPortal ] = useState(true); 
   const onClosePortal = () => setPortal(false);
@@ -637,7 +628,7 @@ export const Connector = React.memo<any>(({
                     try {
                       const url = new URL(rr.value);
                       setGqlPath(`${url.hostname}${url.port ? ':' + url.port : ''}${url.pathname}`);
-                      setGqlSsl(url.protocol == 'http:' ? false : true);
+                      setGqlSsl(url.protocol == 'http:' ? '' : '1');
                       setActiveDeep({gqlPath: `${url.hostname}${url.port ? ':' + url.port : ''}${url.pathname}`, gqlSsl: url.protocol == 'http:' ? '' : '1'});
                       console.log('onStartRemoteRoute', activeDeep);
                       onClosePortal();

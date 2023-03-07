@@ -62,30 +62,20 @@ export function Content({
   </>); 
 };
 
-export default function Page() {
-  const [activeDeep, setActiveDeep] = useLocalStore('activeDeep', { gqlPath: '', gqlSsl: undefined });
-  const [gqlPath, setGqlPath] = useState(activeDeep.gqlPath);
-  const [gqlSsl, setGqlSsl] = useState(activeDeep.gqlSsl);
+export default function page() {
   const [portal, setPortal] = useState(true);
-
   return (<>
-    <Provider gqlPath={gqlPath} gqlSsl={gqlSsl}>
+    <Provider>
       <DeepProvider>
         <AutoGuest>
           <Connector
             portalOpen={portal}
             setPortal={setPortal}
             // onClosePortal={() => setPortal(portal)}
-            gqlPath
-            gqlSsl
-            activeDeep={activeDeep}
-            setActiveDeep={(active) => setActiveDeep(active)}
-            setGqlPath={(path) => setGqlPath(path)}
-            setGqlSsl={(ssl) => setGqlSsl(ssl)}
           />
           <Content openPortal={()=>setPortal(true)} />
         </AutoGuest>
       </DeepProvider>
-    </Provider>
+    </Provider> 
   </>);
 }
