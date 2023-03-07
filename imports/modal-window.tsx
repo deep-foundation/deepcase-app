@@ -63,7 +63,7 @@ export const ModalWindow = React.memo<any>(({
       control.start("inactive");
     }
   }, [control, portalOpen]);
-
+  
   return (
     <Portal>
       <AnimatePresence>
