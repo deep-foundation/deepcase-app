@@ -616,10 +616,12 @@ export const Connector = React.memo<any>(({
                   onChangeValueRemoteRoute={(e) => save(rr.id, e.target.value)}
                   // setValueRemote={}
                   onDeleteValue={(e) => {
-                    if (gqlPath == rr.value) {
+                    console.log('deleting gqlPath', gqlPath);
+                    console.log('deleting rr', rr);
+                    if (`http${gqlSsl ? 's' : ''}://${gqlPath}` == rr.value) {
                       setGqlPath('');
                       setGqlSsl(undefined);
-                      setActiveDeep({ gqlPath: '', gqlSsl: undefined });
+                      setActiveDeep({ gqlPath: '', gqlSsl: '' });
                     }
                     remove(rr.id)
                     }
@@ -756,7 +758,9 @@ export const Connector = React.memo<any>(({
                     onClickLeft={() => {
                       // setInitLocal(InitializingState.launched);
                       setPortal(false);
-                      console.log({portalOpen});
+                      setGqlPath('localhost:3006/gql');
+                      setGqlSsl(undefined);
+                      setActiveDeep({gqlPath: '', gqlSsl: ''});
                     }} 
                     onClickRight={() => {
                       setInitLocal(InitializingState.removing)
