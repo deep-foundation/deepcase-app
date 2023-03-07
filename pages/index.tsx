@@ -62,7 +62,7 @@ export function Content({
   </>); 
 };
 
-export default function page() {
+export default function Page() {
   const [portal, setPortal] = useState(true);
   return (<>
     <Provider>
