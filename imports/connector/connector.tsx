@@ -8,6 +8,7 @@ import { MdDelete } from 'react-icons/md';
 import { CustomizableIcon } from "../icons-provider";
 import { ModalWindow } from "../modal-window";
 import { DockerWarning } from './docker-warning';
+import { useLocalStore } from "@deep-foundation/store/local";
 import axios from 'axios';
 
 const DOCKER = process.env.DOCKER || '0';
@@ -460,6 +461,8 @@ enum InitializingState {
 
 export const Connector = React.memo<any>(({
   portalOpen = true,
+  setActiveDeep,
+  activeDeep,
   setPortal,
   gqlPath,
   gqlSsl,
@@ -468,6 +471,8 @@ export const Connector = React.memo<any>(({
   // onClosePortal,
 }:{
   portalOpen?: boolean;
+  setActiveDeep?: (acriveDeep?: { gqlPath: string, gqlSsl: string }) => any;
+  activeDeep?: { gqlPath: string; gqlSsl: boolean};
   setPortal?: (state?: boolean) => any;
   gqlPath: string;
   gqlSsl: boolean;
@@ -483,6 +488,7 @@ export const Connector = React.memo<any>(({
   const controlRemoving = useAnimation();
   const [valueRemote, setValueRemote] = useState('');
   const [isExistDocker, setIsExistDocker] = useState(true);
+  const [remoutes, setRemoutes] = useLocalStore('remoutesDeep', []);
   const [init, setInitLocal] = useState<InitializingState>(InitializingState.notInit);
   const onChangeValueRemote = useDebounceCallback((value) => {
     setValueRemote(value);
@@ -491,19 +497,25 @@ export const Connector = React.memo<any>(({
   // const [ portalOpen, setPortal ] = useState(true); 
   const onClosePortal = () => setPortal(false);
   
-  const [remoteRouts, setArr] = useState([]);
+  const [remoteRouts, setArr] = useState(remoutes);
   
   const add = () => {
     setArr((remoteRouts) => [
       ...remoteRouts,
       { id: (Math.random() + 1).toString(36).substring(7), value: "" }
-    ])
+    ]);
+    setRemoutes([
+      ...remoteRouts,
+      { id: (Math.random() + 1).toString(36).substring(7), value: "" }
+    ]);
   };
   const remove = (id) => {
-    setArr((remoteRouts) => remoteRouts.filter((el) => el.id != id))
+    setArr((remoteRouts) => remoteRouts.filter((el) => el.id != id));
+    setRemoutes(remoteRouts.filter((el) => el.id != id));
   };
   const save = (id, value) => {
-    setArr((remoteRouts) => remoteRouts.map((el) => (el.id === id ? { ...el, value } : el)))
+    setArr((remoteRouts) => remoteRouts.map((el) => (el.id === id ? { ...el, value } : el)));
+    setRemoutes(remoteRouts.map((el) => (el.id === id ? { ...el, value } : el)));
   };
 
   useEffect(() => {
@@ -616,6 +628,7 @@ export const Connector = React.memo<any>(({
                     if (gqlPath == rr.value) {
                       setGqlPath('');
                       setGqlSsl(undefined);
+                      setActiveDeep({ gqlPath: '', gqlSsl: undefined });
                     }
                     remove(rr.id)
                     }
@@ -625,6 +638,9 @@ export const Connector = React.memo<any>(({
                       const url = new URL(rr.value);
                       setGqlPath(`${url.hostname}${url.port ? ':' + url.port : ''}${url.pathname}`);
                       setGqlSsl(url.protocol == 'http:' ? false : true);
+                      setActiveDeep({gqlPath: `${url.hostname}${url.port ? ':' + url.port : ''}${url.pathname}`, gqlSsl: url.protocol == 'http:' ? '' : '1'});
+                      console.log('onStartRemoteRoute', activeDeep);
+                      onClosePortal();
                     } catch(e) {
                       console.log('URL error', e);
                     }

@@ -10,6 +10,7 @@ import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
 import { useRefstarter } from '../imports/refstater';
 import { Connector } from '../imports/connector/connector';
+import { useLocalStore } from "@deep-foundation/store/local";
 
 // const CytoGraph = dynamic<CytoGraphProps>(
 //   () => import('../imports/cyto/graph').then((m) => m.default),
@@ -62,8 +63,9 @@ export function Content({
 };
 
 export default function Page() {
-  const [gqlPath, setGqlPath] = useState('');
-  const [gqlSsl, setGqlSsl] = useState('');
+  const [activeDeep, setActiveDeep] = useLocalStore('activeDeep', { gqlPath: '', gqlSsl: undefined });
+  const [gqlPath, setGqlPath] = useState(activeDeep.gqlPath);
+  const [gqlSsl, setGqlSsl] = useState(activeDeep.gqlSsl);
   const [portal, setPortal] = useState(true);
 
   return (<>
@@ -76,6 +78,8 @@ export default function Page() {
             // onClosePortal={() => setPortal(portal)}
             gqlPath
             gqlSsl
+            activeDeep={activeDeep}
+            setActiveDeep={(active) => setActiveDeep(active)}
             setGqlPath={(path) => setGqlPath(path)}
             setGqlSsl={(ssl) => setGqlSsl(ssl)}
           />
