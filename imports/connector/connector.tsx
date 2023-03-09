@@ -11,7 +11,7 @@ import { DockerWarning } from './docker-warning';
 import axios from 'axios';
 
 const DOCKER = process.env.DOCKER || '0';
-const DEEPLINKS_PUBLIC_URL = process.env.DEEPLINKS_PUBLIC_URL || 'http://localhost:3006';
+const NEXT_PUBLIC_DEEPLINKS_URL = process.env.NEXT_PUBLIC_DEEPLINKS_URL || 'http://localhost:3006';
 const NEXT_PUBLIC_DEEPLINKS_SERVER = process.env.NEXT_PUBLIC_DEEPLINKS_SERVER || 'http://localhost:3007';
 
 const _checkDeeplinksStatus = async () => {
@@ -19,7 +19,7 @@ const _checkDeeplinksStatus = async () => {
   let err;
   try {
     // DL may be not in docker, when DC in docker, so we use host.docker.internal instead of docker-network link deep_links_1
-    status = await axios.get(`${+DOCKER ? 'http://host.docker.internal:3006' : DEEPLINKS_PUBLIC_URL}/api/healthz`, { validateStatus: status => true, timeout: 7000 });
+    status = await axios.get(`${+DOCKER ? 'http://host.docker.internal:3006' : NEXT_PUBLIC_DEEPLINKS_URL}/api/healthz`, { validateStatus: status => true, timeout: 7000 });
   } catch(e){
     err = e;
   }
