@@ -59,14 +59,15 @@ const variantsPackage = {
 
 export interface IPackageInstalledVersion {
   id: number;
-  name: string;
+  version: string;
+  packageId: number;  
 }
 
 export interface IPackage {
   id: number;
   name: string;
   description?: any;
-  children?: IPackage[];
+  versions?: IPackageInstalledVersion[];
 }
 
 interface IPackageProps extends IPackage {
@@ -112,11 +113,7 @@ const versions = [
   },
 ]
 
-const ListVersions = React.memo<any>(({
-  // versions = [],
-}:{
-  // versions?: {}[];
-}) => {
+const ListVersions = React.memo<any>(() => {
   const [isOpenListVersions, setIsOpenListVersions] = useState(false);
   const [ selectValue, setSelectValue ] = useState('1.0');
 
@@ -229,7 +226,7 @@ const PackageItem = React.memo<any>(function PackageItem({
   onOpen, 
   name, 
   description,
-  children, 
+  versions, 
   style,
   variants = {},
   transition = {},
@@ -284,16 +281,16 @@ const PackageItem = React.memo<any>(function PackageItem({
           <TagLink version='install' leftIcon={TbBookDownload} size='sm' />
         </Flex>
 
-      {children && <Divider />}
-      {children && <Text fontSize='xs'>Installed Versions:</Text>}
-      {children && <Box sx={{
+      {versions && <Divider />}
+      {versions && <Text fontSize='xs'>Installed Versions:</Text>}
+      {versions && <Box sx={{
           float: 'revert', 
           '& > *:not(:last-of-type)': {
             mr: '0.5rem'
           }
         }}>
-        {children && children.map((c, i) =>(
-          <TagLink version={c.name} key={c.id} />
+        {versions && versions.map((c, i) =>(
+          <TagLink version={c.version} key={c.id} />
         ))}
       </Box>}
     </Box>
@@ -398,7 +395,7 @@ export const TabComponent = React.memo<any>(({
               }}
               name={p.name}
               description={p.description}
-              children={p.children} 
+              versions={p.versions} 
             />
           ))}
         </Box>
