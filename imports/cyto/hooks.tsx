@@ -311,6 +311,7 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
           } else {
             const Any = deep.idLocal('@deep-foundation/core', 'Any');
             if (ins.From === Any && ins.To === Any) {
+              // @ts-ignore
               await returningRef.current.insertLink(ins.type_id, 0, 0, ins?.position);
             }
             setInsertingCyto({});
