@@ -1,5 +1,6 @@
 
 import { Box, Button, Code, Heading, HStack } from '@chakra-ui/react';
+import { DeepProvider } from '@deep-foundation/deeplinks/imports/client';
 import { useMinilinksConstruct } from '@deep-foundation/deeplinks/imports/minilinks';
 import dynamic from "next/dynamic";
 import { useState } from 'react';
@@ -11,6 +12,7 @@ import { QueryClientHandler } from '../imports/cyto/query-client-handler';
 import { CytoGraphProps } from '../imports/cyto/types';
 import { DeepWYSIWYG } from '../imports/deep-wysiwyg';
 import { DotsLoader } from '../imports/dot-loader';
+import { PackagerInterface } from '../imports/packager-interface/packager-interface';
 import { Example } from '../imports/popover-text/popover-text';
 import { Provider } from '../imports/provider';
 import { TextInput, TooltipEmoji } from '../imports/text-cursor-tooltip/text-cursor-tooltip';
@@ -25,6 +27,7 @@ export default function Page() {
   // const minilinks = useMinilinksConstruct();
   // const { ref: mlRef, ml } = minilinks;
   const [toggle, setToggle] = useState(false);
+  const [togglePackager, setTogglePackager] = useState(false);
   const [portal, setPortal] = useState(false);
   const [nested, setNested] = useState(false);
   // const [viewSize, setViewSize] = useState({width: 200, height: 150});
@@ -34,7 +37,10 @@ export default function Page() {
   // const colorGrayToWhite = useColorModeValue(blackAlpha, whiteAlpha);
 
   return (<>
-    <Provider><>
+    <Provider>
+   <DeepProvider>
+
+      <>
       <ColorModeSwitcher/>
       <Box p={{sm: 7, md: 20}}>
         <Box w='100%' h='4rem' />
@@ -97,7 +103,20 @@ export default function Page() {
           <DeepWYSIWYG />
         <Box w='100%' h='1rem' />
 
+
+        <Box w='100%' h='2rem' />
+        <Code>/packager-interface</Code>
+        <Box w='100%' h='1rem' />
+          <PackagerInterface 
+            toggle={togglePackager} 
+            onClose={() => setTogglePackager(false)}
+          />
+          <Button colorScheme='teal' onClick={() => setTogglePackager(true)}>push me</Button>
+        <Box w='100%' h='1rem' />
+
       </Box>
-    </></Provider>
+    </>
+   </DeepProvider>
+    </Provider>
   </>);
 }

@@ -22,10 +22,22 @@ const variants = {
       // scale: { delay: 1 },
       duration: 0.8 
     }
+  },
+  initial: {
+    originX: 0.5,
+    originY: 0.5,
   }
 }
 
-export const Appearance = React.memo<any>(({children, toggle}:{children: ReactNode; toggle?: boolean;}) => {
+export const Appearance = React.memo<any>(({
+  children, 
+  toggle,
+  variantsAnimation = variants,
+}:{
+  children: ReactNode; 
+  toggle?: boolean;
+  variantsAnimation?: any;
+}) => {
   const control = useAnimation();
   useEffect(() => {
     if (toggle === true) {
@@ -36,9 +48,10 @@ export const Appearance = React.memo<any>(({children, toggle}:{children: ReactNo
   }, [control, toggle]);
 
   return (<motion.div
-      variants={variants}
+      variants={variantsAnimation}
       animate={control}
       style={{overflow: 'hidden', position: 'relative', width: 'max-content', height: '100%'}}
+      initial={variantsAnimation.initial}
     >
       {children}
     </motion.div>

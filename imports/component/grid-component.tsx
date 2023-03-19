@@ -125,10 +125,7 @@ export const GridComponent = React.memo<any>(({
   const [width,  setWidth] = useState(0);
   const [widthMount,  setWidthMount] = useState(0);
   const [widthUnmount,  setWidthUnmount] = useState(0);
-
-  console.log({height, width, widthMount, widthUnmount});
   const [viewSize, setViewSize] = useState({width: width, height: height});
-  console.log({viewSize});
   
   useEffect(() => {
     setHeight(ref.current?.clientHeight);
@@ -138,7 +135,6 @@ export const GridComponent = React.memo<any>(({
     setViewSize({width: ref.current?.clientWidth, height: ref.current?.clientHeight});
     console.log({height: ref.current?.clientHeight, width: ref.current?.clientWidth, widthMount, widthUnmount});
   }, []);
-  console.log({height, width, widthMount, widthUnmount});
 
   const blackAlpha = useChackraColor('blackAlpha.200');
   const whiteAlpha = useChackraColor('whiteAlpha.200');
