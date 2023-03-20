@@ -6,10 +6,12 @@ import * as axios from 'axios';
 import * as axiosHooks from 'axios-hooks';
 import * as classnames from 'classnames';
 import React, { useCallback, useEffect, useRef } from 'react';
-// import * as reacticons from 'react-icons/all';
+import * as reacticons from 'react-icons/all';
+import { motion, useAnimation } from 'framer-motion';
 import * as reactHotkeysHook from 'react-hotkeys-hook';
 import * as debounce from '@react-hook/debounce';
 import * as json5 from 'json5';
+import Resizable from 're-resizable';
 import { useContainer, useSpaceId } from './hooks';
 import { CytoEditorPreview } from './cyto/editor-preview';
 
@@ -23,10 +25,15 @@ r.list = {
   'axios': axios,
   'axios-hooks': axiosHooks,
   'classnames': classnames,
-  // 'react-icons/all': reacticons,
+  'react-icons/all': reacticons,
   'react-hotkeys-hook': reactHotkeysHook,
   '@react-hook/debounce': debounce,
   'json5': json5,
+  'framer-motion': {
+    motion,
+    useAnimation,
+  },
+  're-resizable': Resizable,
   '@deep-foundation/deepcase': {
     useContainer,
     useSpaceId,
