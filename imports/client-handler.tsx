@@ -6,7 +6,7 @@ import * as axios from 'axios';
 import * as axiosHooks from 'axios-hooks';
 import * as classnames from 'classnames';
 import React, { useCallback, useEffect, useRef } from 'react';
-import * as reacticons from 'react-icons';
+// import * as reacticons from 'react-icons';
 import { motion, useAnimation } from 'framer-motion';
 import * as reactHotkeysHook from 'react-hotkeys-hook';
 import * as debounce from '@react-hook/debounce';
@@ -25,7 +25,7 @@ r.list = {
   'axios': axios,
   'axios-hooks': axiosHooks,
   'classnames': classnames,
-  'react-icons': reacticons,
+  // 'react-icons': reacticons,
   'react-hotkeys-hook': reactHotkeysHook,
   '@react-hook/debounce': debounce,
   'json5': json5,
