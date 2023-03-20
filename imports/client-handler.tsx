@@ -25,7 +25,7 @@ r.list = {
   'axios': axios,
   'axios-hooks': axiosHooks,
   'classnames': classnames,
-  'react-icons/all': reacticons,
+  'react-icons': reacticons,
   'react-hotkeys-hook': reactHotkeysHook,
   '@react-hook/debounce': debounce,
   'json5': json5,
