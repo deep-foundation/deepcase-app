@@ -341,7 +341,7 @@ const variantsUninstalled = {
 
 export const TabComponent = React.memo<any>(({ 
   variant = 0,
-  installedPackages, 
+  installedPackages = [], 
   notInstalledPackages,
 }:{ 
   variant?: number,
