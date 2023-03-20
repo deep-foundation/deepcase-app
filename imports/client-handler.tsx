@@ -3,6 +3,7 @@ import { DeepClient, useDeep, useDeepSubscription } from "@deep-foundation/deepl
 import { evalClientHandler as deepclientEvalClientHandler } from '@deep-foundation/deeplinks/imports/client-handler';
 import { useMinilinksFilter } from "@deep-foundation/deeplinks/imports/minilinks";
 import * as axios from 'axios';
+import * as axiosHooks from 'axios-hooks';
 import * as classnames from 'classnames';
 import React, { useCallback, useEffect, useRef } from 'react';
 // import * as reacticons from 'react-icons/all';
@@ -20,6 +21,7 @@ r.list = {
   '@chakra-ui/react': chakra,
   'react': React,
   'axios': axios,
+  'axios-hooks': axiosHooks,
   'classnames': classnames,
   // 'react-icons/all': reacticons,
   'react-hotkeys-hook': reactHotkeysHook,
