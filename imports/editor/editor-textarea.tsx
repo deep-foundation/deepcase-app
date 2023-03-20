@@ -46,7 +46,6 @@ export const EditorTextArea = React.memo<any>(({
       onExit && onExit();
     });
   }
-  console.log({refEditor});
 
   return (<MonacoEditor
     options={{
