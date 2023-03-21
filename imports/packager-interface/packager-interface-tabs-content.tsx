@@ -7,6 +7,9 @@ import { TbArrowRotaryFirstRight, TbBookDownload } from 'react-icons/tb';
 import { TagLink } from '../tag-component';
 import _ from 'lodash';
 
+const axiosHooks = require("axios-hooks");
+const axios = require("axios");
+const useAxios = axiosHooks.makeUseAxios({ axios: axios.create() });
 
 const tabTextVariant = {
   active: {
@@ -77,6 +80,7 @@ interface IPackageProps extends IPackage {
   style?: any;
   variants?: any;
   transition?: any;
+  latestVersion: string;
 }
 
 export type Package = IPackage[];
@@ -90,32 +94,28 @@ const versionsListVariants = {
   closed: { opacity: 0, y: 20, transition: { duration: 0.2 } }
 };
 
-const versions = [
-  {
-    id: 1,
-    version: '0.1',
-  },
-  {
-    id: 2,
-    version: '0.1.2',
-  },
-  {
-    id: 3,
-    version: '0.3',
-  },
-  {
-    id: 4,
-    version: '0.3.2',
-  },
-  {
-    id: 5,
-    version: '1.0',
-  },
-]
+// const versions = [
+//   '0.1',
+//   '0.1.2',
+//   '0.3',
+//   '0.3.2',
+//   '1.0'
+// ]
 
-const ListVersions = React.memo<any>(() => {
+const ListVersions = React.memo<any>(({ 
+  name,
+  latestVersion
+}) => {
   const [isOpenListVersions, setIsOpenListVersions] = useState(false);
-  const [ selectValue, setSelectValue ] = useState('1.0');
+  const [selectValue, setSelectValue ] = useState(latestVersion);
+
+  const [{ data, loading, error }, refetch] = useAxios(`https://registry.npmjs.com/${name}`);
+
+  console.log('ListVersions.data', data)
+
+  const versions = data ? Object.keys(data.versions) : [latestVersion];
+  versions.sort();
+  console.log('ListVersions.versions', versions)
 
   return (<Box as={motion.nav}
       initial={false}
@@ -207,13 +207,13 @@ const ListVersions = React.memo<any>(() => {
             as={motion.li} 
             sx={{listStyle: 'none', display: 'block', fontSize: '0.8rem'}} 
             variants={versionsListVariants}
-            key={v.id}
+            key={v}
             role='button'
             onClick={() => {
-              setSelectValue(v.version);
+              setSelectValue(v);
               setIsOpenListVersions(false);
             }}
-          >{v.version}</Box>
+          >{v}</Box>
         ))}
       </Box>
     </Box>
@@ -230,6 +230,7 @@ const PackageItem = React.memo<any>(function PackageItem({
   style,
   variants = {},
   transition = {},
+  latestVersion = "0.0.0",
 }:IPackageProps) {
 
   const open = expanded;
@@ -263,7 +264,7 @@ const PackageItem = React.memo<any>(function PackageItem({
             }}
           >{name}</Box>
           <Box pos='relative' zIndex={3}>
-            <ListVersions />
+            <ListVersions name={name} latestVersion={latestVersion} />
           </Box>
         </Flex>
         <Flex alignItems='center'>
@@ -345,8 +346,8 @@ export const TabComponent = React.memo<any>(({
   notInstalledPackages,
 }:{ 
   variant?: number,
-  installedPackages: IPackageProps[]; 
-  notInstalledPackages: IPackageProps[]; 
+  installedPackages: any[]; 
+  notInstalledPackages: any[]; 
 }) => {
   const [expanded, setExpanded] = useState(false);
   const controlInstall = useAnimation();
@@ -387,15 +388,16 @@ export const TabComponent = React.memo<any>(({
         >
           {installedPackages.map((p, i) => (
             <PackageItem 
-              key={p.id}
-              id={p.id}
+              key={p.localPackage.namespaceId}
+              id={p.localPackage.namespaceId}
               expanded={expanded}
               onOpen={(e) => {
-                if (e.target.value == p.id) setExpanded(!expanded)
+                if (e.target.value == p.localPackage.namespaceId) setExpanded(!expanded)
               }}
-              name={p.name}
-              description={p.description}
-              versions={p.versions} 
+              name={p.localPackage.name}
+              description={p.remotePackage.package.description}
+              latestVersion={p.remotePackage.package.version}
+              versions={p.localPackage.versions}
             />
           ))}
         </Box>
@@ -424,14 +426,15 @@ export const TabComponent = React.memo<any>(({
         >
           {notInstalledPackages.map((p, i) => (
             <PackageItem 
-              key={p.id}
-              id={p.id}
+              key={p.remotePackage.package.name}
+              id={p.remotePackage.package.name}
               expanded={expanded}
               onOpen={(e) => {
-                if (e.target.value == p.id) setExpanded(!expanded)
+                if (e.target.value == p.remotePackage.package.name) setExpanded(!expanded)
               }}
-              name={p.name}
-              description={p.description}
+              name={p.remotePackage.package.name}
+              description={p.remotePackage.package.description}
+              latestVersion={p.remotePackage.package.version}
             />
           ))}
         </Box>
