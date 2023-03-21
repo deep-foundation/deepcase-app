@@ -1,5 +1,5 @@
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, Box, HStack, Flex, IconButton } from '@chakra-ui/react';
-import { useDeep, useDeepQuery } from '@deep-foundation/deeplinks/imports/client';
+import { useDeep, useDeepQuery, useDeepSubscription } from '@deep-foundation/deeplinks/imports/client';
 import { Link, MinilinksInstance, MinilinksResult, useMinilinksApply, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
 import { ClientHandlerRenderer, evalClientHandler } from '../client-handler';
 import { useLocalStore } from '@deep-foundation/store/local';
@@ -61,6 +61,11 @@ export function CytoEditorPreview({
   const deep = useDeep();
 
   const linkId = link.id;
+
+  const [currentLinkId, setCurrentLinkId] = useState(linkId);
+  const { data: [currentLink = link] = [] } = useDeepSubscription({
+    id: currentLinkId,
+  });
 
   const {
     tempValueRef,
@@ -170,16 +175,17 @@ export function CytoEditorPreview({
           <CytoEditorHandlers linkId={generated && generatedLink ? generatedLink?.id : linkId}/>
         ) ||
         rightArea === 'preview' && <Box pos='relative'>
-          <EditorComponentView
+          {[<EditorComponentView
+            key={currentLink?.id}
             size={viewSize}
             onChangeSize={(viewSize) => setViewSize(viewSize)}
             fillSize={fillSize}
             setFillSize={setFillSize}
           >
             {typeof(Component) === 'function' && [<CatchErrors key={Component.toString()} errorRenderer={() => <div></div>}>
-              <ClientHandlerRenderer Component={Component} fillSize={fillSize} link={deep?.minilinks?.byId[linkId]}/>
+              <ClientHandlerRenderer Component={Component} fillSize={fillSize} link={deep?.minilinks?.byId[currentLink?.id]}/>
             </CatchErrors>]}
-          </EditorComponentView>
+          </EditorComponentView>]}
         </Box>
     }
       editorRightSwitch={<EditorSwitcher
@@ -187,6 +193,10 @@ export function CytoEditorPreview({
         setFillSize={(newFillSize) => {
           setFillSize(newFillSize);
           if (!fillSize) setViewSize({ width: 250, height: 250 });
+        }}
+        currentLinkId={currentLinkId}
+        setCurrentLinkId={(newCurrentLinkId) => {
+          setCurrentLinkId(newCurrentLinkId)
         }}
         generated={generated} setGenerated={setGenerated}
         area={rightArea}

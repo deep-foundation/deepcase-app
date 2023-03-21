@@ -1,5 +1,5 @@
 import React from 'react';
-import { HStack, Button, useColorMode, ButtonGroup, FormControl, FormLabel, Switch } from '@chakra-ui/react';
+import { Input, HStack, Button, useColorMode, ButtonGroup, FormControl, FormLabel, Switch } from '@chakra-ui/react';
 
 
 export const EditorSwitcher = React.memo<any>(({
@@ -8,12 +8,16 @@ export const EditorSwitcher = React.memo<any>(({
   rightArea,
   fillSize,
   setFillSize,
+  currentLinkId,
+  setCurrentLinkId,
   generated,
   setGenerated,
 }:{
   area?: string;
   setArea?: (e: any) => any; 
   rightArea?: string;
+  setCurrentLinkId?: (currentLinkId: number) => any;
+  currentLinkId: number;
   setFillSize?: (fillSize: boolean) => any;
   fillSize: boolean;
   generated?: boolean;
@@ -33,6 +37,10 @@ export const EditorSwitcher = React.memo<any>(({
     >
       {area == 'preview' && <>
         <FormControl display='flex' alignItems='center'>
+          <FormLabel htmlFor='input-id' mb='0'>
+            id
+          </FormLabel>
+          <Input id="input-id" value={currentLinkId} onChange={(e) => setCurrentLinkId(parseInt(e.target.value))} />
           <FormLabel htmlFor='show-extra-switch' mb='0'>
             fillSize
           </FormLabel>
