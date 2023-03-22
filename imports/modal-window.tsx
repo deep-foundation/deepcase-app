@@ -79,9 +79,9 @@ export const ModalWindow = React.memo<any>(({
           top={0}
           left={0}
           zIndex={3}
-          backdropFilter='
+          backdropFilter={portalOpen ? `
             blur(2px) 
-            contrast(1.2)'
+            contrast(1.2)` : ''}
           backdropInvert='25%'
         >
           {portalOpen && <AnimatePresence>
