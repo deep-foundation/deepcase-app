@@ -114,7 +114,9 @@ const ListVersions = React.memo<any>(({
   console.log('ListVersions.data', data)
 
   const versions = data ? Object.keys(data.versions) : [latestVersion];
-  versions.sort();
+
+  var collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
+  versions.sort(collator.compare);
   console.log('ListVersions.versions', versions)
 
   return (<Box as={motion.nav}
