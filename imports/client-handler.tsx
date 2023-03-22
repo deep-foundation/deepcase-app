@@ -29,11 +29,11 @@ r.list = {
   'react-hotkeys-hook': reactHotkeysHook,
   '@react-hook/debounce': debounce,
   'json5': json5,
-  'framer-motion': {
-    motion,
-    useAnimation,
-  },
-  're-resizable': Resizable,
+  // 'framer-motion': {
+  //   motion,
+  //   useAnimation,
+  // },
+  // 're-resizable': Resizable,
   '@deep-foundation/deepcase': {
     useContainer,
     useSpaceId,
