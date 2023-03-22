@@ -121,10 +121,9 @@ export const PackagerInterface = React.memo<any>(({
       variantsAnimation={variants} 
       initial='initial'
     >
-      <Box border='1px' borderColor='gray.300' borderRadius='1.2rem'>
+      <Box border='1px' borderColor='gray.300' borderRadius='1.2rem' maxW='35.5rem'>
         <Flex 
           minWidth='max-content' 
-          maxWidth='35.5rem'
           alignItems='center' gap='2' 
         >
           <InputGroup size='xs' pl='2'>

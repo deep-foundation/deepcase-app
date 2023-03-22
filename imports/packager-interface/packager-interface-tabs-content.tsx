@@ -245,7 +245,6 @@ const PackageItem = React.memo<any>(function PackageItem({
         background: 'transparent', 
         p: 1, 
         borderRadius: '0.5rem',
-        maxW: '35.5rem',
         border: '1px solid #e2e7ed',
       }}
       >
@@ -299,37 +298,6 @@ const PackageItem = React.memo<any>(function PackageItem({
     </Box>
   )
 })
-
-// const placeholderPackages: Package = [
-//   {
-//     id: 123,
-//     title: 'Package_1',
-//     description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ac justo ultrices lacus luctus mattis.',
-//     children: [
-//       {
-//         id: 234,
-//         title: '0.0.1',
-//         description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ac justo ultrices lacus luctus mattis.',
-//       },
-//       {
-//         id: 274,
-//         title: '0.12.2',
-//         description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ac justo ultrices lacus luctus mattis.',
-//       },
-//       {
-//         id: 244,
-//         title: '10.16.21',
-//         description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ac justo ultrices lacus luctus mattis.',
-//       },
-      
-//     ],
-//   },
-//   {
-//     id: 1223,
-//     title: 'Package_2',
-//     description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ac justo ultrices lacus luctus mattis.',
-//   },
-// ];
 
 const variantsInstall = {
   show: { opacity: 1, x: '0%' },
