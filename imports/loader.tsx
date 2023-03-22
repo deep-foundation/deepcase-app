@@ -223,37 +223,18 @@ export const DeepLoader = memo(function DeepLoader({
 
   // const all = useMinilinksFilter(deep.minilinks, () => true, () => Object.keys(deep.minilinks.byId));
 
+  // Not an efficient implementation. You have to load wood.
   const clientHandlersQuery = useMemo(() => {
     const _ids = [...ids, ...queryAndSpaceLoadedIds];
     return { value: { value: {
       _or: [
-        {
-          up: {
-            tree_id: { _eq: deep.idLocal('@deep-foundation/core', 'handlersTree') },
-            parent: {
-              type_id: deep.idLocal('@deep-foundation/core', 'Handler'),
-              from_id: deep.idLocal('@deep-foundation/core', 'clientSupportsJs'),
-              in: {
-                type_id: deep.idLocal('@deep-foundation/core', 'HandleClient'),
-                from_id: {
-                  _in: _ids,
-                },
-              },
-            },
-          },
-        },
-        {
+        { 
+          type_id: deep.idLocal('@deep-foundation/core', 'Handler'),
           in: {
-            type_id: deep.idLocal('@deep-foundation/core', 'Handler'),
-            from_id: deep.idLocal('@deep-foundation/core', 'clientSupportsJs'),
-            in: {
-              type_id: deep.idLocal('@deep-foundation/core', 'HandleClient'),
-              from_id: {
-                _in: _ids,
-              },
-            },
+            type_id: deep.idLocal('@deep-foundation/core', 'HandleClient'),
           },
         },
+        { type_id: deep.idLocal('@deep-foundation/core', 'HandleClient') },
       ]
     } } };
   }, [queryAndSpaceLoadedIds, ids]);

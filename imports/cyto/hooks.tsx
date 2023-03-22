@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, Box, Flex, HStack, IconButton, Popover, PopoverContent, PopoverTrigger, Spacer, Spinner, useDisclosure, useToast } from "@chakra-ui/react";
 import { useDeep, useDeepQuery, useDeepSubscription } from "@deep-foundation/deeplinks/imports/client";
-import { useMinilinksFilter, useMinilinksHandle } from "@deep-foundation/deeplinks/imports/minilinks";
+import { useMinilinksFilter, useMinilinksHandle, useMinilinksQuery } from "@deep-foundation/deeplinks/imports/minilinks";
 import { useDebounceCallback } from "@react-hook/debounce";
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -382,11 +382,11 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
         types.push(cursor.id);
       }
 
-      const { data: handlers } = useDeepQuery({
+      const handlers = deep.useMinilinksQuery({
         type_id: deep.idLocal('@deep-foundation/core', 'Handler'),
         in: {
           type_id: deep.idLocal('@deep-foundation/core', 'HandleClient'),
-          _or: types.map(type => ({ from_id: { _type_of: type } })),
+          _or: types.map(type => ({ from_id: { _eq: type } })),
         },
       });
 
