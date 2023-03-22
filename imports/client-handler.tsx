@@ -33,7 +33,7 @@ r.list = {
   //   motion,
   //   useAnimation,
   // },
-  // 're-resizable': Resizable,
+  're-resizable': Resizable,
   '@deep-foundation/deepcase': {
     useContainer,
     useSpaceId,
