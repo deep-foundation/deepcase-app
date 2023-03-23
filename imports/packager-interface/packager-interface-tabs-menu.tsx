@@ -170,6 +170,9 @@ export const TabsPackages = React.memo<any>(({
             sx={{
               display: 'flex',
               alignItems: 'center',
+              '& > *:nth-of-type(1)': {
+                mr: 1
+              }
             }}
           >
             <Install stroke={selectedTab === 0 ? '#ffffff' : '#3a3a3a'} />
@@ -213,6 +216,9 @@ export const TabsPackages = React.memo<any>(({
             sx={{
               display: 'flex',
               alignItems: 'center',
+              '& > *:nth-of-type(1)': {
+                mr: 1
+              }
             }}
           >
             <Uninstall stroke={selectedTab === 1 ? '#ffffff' : '#3a3a3a'} />

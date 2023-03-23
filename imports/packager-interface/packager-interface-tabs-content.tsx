@@ -94,14 +94,6 @@ const versionsListVariants = {
   closed: { opacity: 0, y: 20, transition: { duration: 0.2 } }
 };
 
-// const versions = [
-//   '0.1',
-//   '0.1.2',
-//   '0.3',
-//   '0.3.2',
-//   '1.0'
-// ]
-
 const ListVersions = React.memo<any>(({ 
   name,
   latestVersion
@@ -124,7 +116,7 @@ const ListVersions = React.memo<any>(({
       animate={isOpenListVersions ? "open" : "closed"}
       sx={{
         filter: 'drop-shadow(0px 0px 1px #5f6977)',
-        width: '3.9rem',
+        width: '4.6rem',
         position: 'absolute',
         top: 0,
         right: 0,
@@ -156,7 +148,10 @@ const ListVersions = React.memo<any>(({
             closed: { rotate: 0 }
           }}
           animate={{ originY: 0.55 }}
-          transition={{ type: "tween", duration: 0.2 }}
+          transition={{
+            type: "tween",
+            duration: 0.2
+          }}
         >
           <TbArrowRotaryFirstRight />
         </Box>
@@ -244,7 +239,7 @@ const PackageItem = React.memo<any>(function PackageItem({
         listStyle: "none", 
         background: 'transparent', 
         p: 1, 
-        borderRadius: '0.5rem',
+        borderRadius: 2,
         border: '1px solid #e2e7ed',
       }}
       >
@@ -268,8 +263,11 @@ const PackageItem = React.memo<any>(function PackageItem({
             <ListVersions name={name} latestVersion={latestVersion} />
           </Box>
         </Flex>
-        <Flex alignItems='center'>
-          <Box as={motion.div}
+        <Flex 
+          alignItems='center' 
+          justify='space-between'
+        >
+          {description && <Box as={motion.div}
             width='100%'
             variants={variants}
             transition={transition}
@@ -277,9 +275,10 @@ const PackageItem = React.memo<any>(function PackageItem({
               justifyContent: 'flex-start',
               p: 0,
               fontSize: 'sm',
+              mr: 2,
               ...style
             }}
-          >{description}</Box>
+          >{description}</Box>}
           <TagLink version='install' leftIcon={TbBookDownload} size='sm' />
         </Flex>
 
@@ -288,7 +287,7 @@ const PackageItem = React.memo<any>(function PackageItem({
       {versions && <Box sx={{
           float: 'revert', 
           '& > *:not(:last-of-type)': {
-            mr: '0.5rem'
+            mr: 2
           }
         }}>
         {versions && versions.map((c, i) =>(
@@ -350,7 +349,7 @@ export const TabComponent = React.memo<any>(({
           variants={variantsPackages} 
           sx={{
             '& > *:not(:last-child)':{
-              mb: 1
+              mb: 2
             },
             overflowY: 'scroll',
             overscrollBehavior: 'contain',

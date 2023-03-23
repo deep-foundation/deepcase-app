@@ -11,6 +11,7 @@ import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
 import { useRefstarter } from '../imports/refstater';
 import { Connector } from '../imports/connector/connector';
+import { PackagerInterface } from '../imports/packager-interface/packager-interface';
 
 // const CytoGraph = dynamic<CytoGraphProps>(
 //   () => import('../imports/cyto/graph').then((m) => m.default),
@@ -59,6 +60,7 @@ export function Content({
     <CytoGraph links={links} cyRef={cyRef} cytoViewportRef={cytoViewportRef}/>
     <CytoMenu cyRef={cyRef} cytoViewportRef={cytoViewportRef} openPortal={openPortal} />
     <ColorModeSwitcher/>
+    <PackagerInterface />
   </>); 
 };
 

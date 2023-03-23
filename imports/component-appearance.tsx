@@ -5,6 +5,7 @@ import React, { ReactNode, useEffect } from 'react';
 const variants = {
   show: {
     // scale: 1,
+    display: 'block',
     scaleX: 1,
     scaleY: 1,
     opacity: 1,
@@ -14,6 +15,7 @@ const variants = {
     transition: { duration: 0.5 }
   },
   hide: {
+    display: 'none',
     scaleX: 0.3,
     scaleY: 0.1,
     opacity: 0,
@@ -24,6 +26,7 @@ const variants = {
     }
   },
   initial: {
+    display: 'none',
     originX: 0.5,
     originY: 0.5,
   }

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Box, Flex, IconButton, Input, InputGroup, InputRightElement, Spacer } from '@chakra-ui/react';
+import { Box, Button, Flex, IconButton, Input, InputGroup, InputRightElement, Spacer } from '@chakra-ui/react';
 import { motion, useAnimation } from 'framer-motion';
 import { Appearance } from '../component-appearance';
 import { BsSearch } from 'react-icons/bs';
@@ -51,32 +51,6 @@ const makePackagesSearchResults = (deep, packageNamespaceTypeId, packageVersionT
   return { installedPackages, notInstalledPackages };
 }
 
-const variants = {
-  show: {
-    scaleX: 1,
-    scaleY: 1,
-    opacity: 1,
-    // width: '100%',
-    // height: '100%',
-    borderRadius: '0%',
-    transition: { duration: 0.5 }
-  },
-  hide: {
-    scaleX: 0.3,
-    scaleY: 0.1,
-    opacity: 0,
-    borderRadius: '50%',
-    transition: { 
-      // scale: { delay: 1 },
-      duration: 0.8 
-    }
-  },
-  initial: {
-    originX: 1,
-    originY: 0,
-  }
-}
-
 export const PackagerInterface = React.memo<any>(({
   toggle,
   // search, 
@@ -115,50 +89,52 @@ export const PackagerInterface = React.memo<any>(({
   const { installedPackages, notInstalledPackages } = makePackagesSearchResults(deep, packageNamespaceTypeId, packageVersionTypeId, packageActiveTypeId, data?.objects, prefetched?.length > 0);
 
   console.log('search-results', installedPackages, notInstalledPackages)
+  const [togglePackager, setTogglePackager] = useState(false);
 
-  return (<Appearance 
-      toggle={toggle} 
-      variantsAnimation={variants} 
-      initial='initial'
-    >
-      <Box border='1px' borderColor='gray.300' borderRadius='1.2rem' maxW='35.5rem'>
-        <Flex 
-          minWidth='max-content' 
-          alignItems='center' gap='2' 
-        >
-          <InputGroup size='xs' pl='2'>
-            <Input 
-              ref={inputRef}
-              placeholder='search' 
-              sx={{borderRadius: 'full'}}
-              focusBorderColor='primary'
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+  return (<Box float='right' mr='8' mt='4' pos='relative'>
+      <Button colorScheme='blue' onClick={() => setTogglePackager(true)} pos='absolute' right={4}>packager</Button>
+      <Appearance 
+        toggle={togglePackager} 
+      >
+        <Box border='1px' borderColor='gray.300' borderRadius='1.2rem' w='35.5rem' bg='gray.50'>
+          <Flex 
+            minWidth='max-content' 
+            alignItems='center' gap='2' 
+          >
+            <InputGroup size='xs' pl='2'>
+              <Input 
+                ref={inputRef}
+                placeholder='search' 
+                sx={{borderRadius: 'full'}}
+                focusBorderColor='primary'
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <InputRightElement children={<BsSearch color='green.500' />} />
+            </InputGroup>
+            <Spacer />
+            <IconButton 
+              aria-label='packager window close' 
+              variant='ghost' 
+              colorScheme='current'
+              isRound 
+              icon={<SlClose />} 
+              onClick={() => setTogglePackager(false)} 
             />
-            <InputRightElement children={<BsSearch color='green.500' />} />
-          </InputGroup>
-          <Spacer />
-          <IconButton 
-            aria-label='packager window close' 
-            variant='ghost' 
-            colorScheme='current'
-            isRound 
-            icon={<SlClose />} 
-            onClick={onClose} 
+          </Flex>
+          <TabsPackages 
+            selectedTab={variant}
+            onSelectMode={(e) => setSelectedVariant(variant => variant === 0 ? 1 : 0)}
+            quantityInstall={installedPackages.length}
+            quantityUninstalled={notInstalledPackages.length}
           />
-        </Flex>
-        <TabsPackages 
-          selectedTab={variant}
-          onSelectMode={(e) => setSelectedVariant(variant => variant === 0 ? 1 : 0)}
-          quantityInstall={installedPackages.length}
-          quantityUninstalled={notInstalledPackages.length}
-        />
-        <TabComponent 
-          variant={variant}
-          installedPackages={installedPackages}
-          notInstalledPackages={notInstalledPackages}
-        />
-      </Box>
-    </Appearance>
+          <TabComponent 
+            variant={variant}
+            installedPackages={installedPackages}
+            notInstalledPackages={notInstalledPackages}
+          />
+        </Box>
+      </Appearance>
+    </Box>
   )
 })
