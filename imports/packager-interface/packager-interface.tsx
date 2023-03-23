@@ -23,7 +23,8 @@ const makePackagesSearchResults = (deep, packageNamespaceTypeId, packageVersionT
   if (remotePackages?.length > 0 && areLinksPrefetched) {
     const namespacesByName = {};
     for (const namespace of deep.minilinks.byType[packageNamespaceTypeId]) {
-      namespacesByName[namespace.value.value] = namespace;
+      const name = namespace?.value?.value;
+      if (name) namespacesByName[name] = namespace;
     }
     const versionsByNamespaceId = {};
     for (const version of deep.minilinks.byType[packageVersionTypeId]) {
