@@ -7,6 +7,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { useSpaceId, useShowTypes, useLayout, useContainer, useShowExtra, useShowFocus, usePromiseLoader, useTraveler, useMediaQuery, useAutoFocusOnInsert, useBreadcrumbs } from "../hooks";
 import { useCytoEditor } from "./hooks";
 import { IoExitOutline } from 'react-icons/io5';
+import { PackagerInterface } from "../packager-interface/packager-interface";
 
 const NEXT_PUBLIC_GQL_PATH = process.env.NEXT_PUBLIC_GQL_PATH || 'localhost:3006/gql';
 const NEXT_PUBLIC_GQL_SSL = process.env.NEXT_PUBLIC_GQL_SSL || '0';
@@ -34,6 +35,7 @@ export function CytoMenu({
   const [breadcrumbs, setBreadcrumbs] = useBreadcrumbs();
   const deep = useDeep();
   const [max300] = useMediaQuery('(max-width: 300px)');
+  const [togglePackager, setTogglePackager] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -43,37 +45,43 @@ export function CytoMenu({
     return () => clearTimeout(timer);
   }, [pasteError, valid]);
 
-  return <Box pos='absolute' left={0} top={0} display='grid' gridTemplateColumns='1fr 0.8fr' w='100%'>
+  return <Box 
+    pos='absolute' 
+    left={0} top={0} 
+    // display='grid' 
+    // gridTemplateColumns='1fr 0.8fr' 
+    w='max-content'
+  >
     <VStack spacing='1rem' m='1rem' align={'flex-start'}>
       <HStack>
         <ButtonGroup size='sm' isAttached variant='outline'>
-          <Button disabled>auth</Button>
-          <Button>{deep.linkId}</Button>
+          <Button disabled borderColor='gray.400'>auth</Button>
+          <Button borderColor='gray.400'>{deep.linkId}</Button>
           <IconButton aria-label='Reauth as guest' icon={<CloseIcon />} onClick={async () => {
             const guest = await deep.guest();
             setSpaceId(guest.linkId);
             setContainer(guest.linkId);
-          }}/>
+          }} borderColor='gray.400'/>
         </ButtonGroup>
         <ButtonGroup size='sm' isAttached variant='outline'>
-          <Button disabled>space</Button>
-          <Button>{spaceId}</Button>
+          <Button disabled borderColor='gray.400'>space</Button>
+          <Button borderColor='gray.400'>{spaceId}</Button>
           <IconButton aria-label='Quit to user space' icon={<CloseIcon />} onClick={() => {
             setSpaceId(deep.linkId);
             setContainer(deep.linkId);
-          }}/>
+          }} borderColor='gray.400' />
         </ButtonGroup>
         <ButtonGroup size='sm' isAttached variant='outline'>
-          <Button disabled>container</Button>
-          <Button>{container}</Button>
+          <Button disabled borderColor='gray.400'>container</Button>
+          <Button borderColor='gray.400'>{container}</Button>
           <IconButton aria-label='Quit to user space' icon={<CloseIcon />} onClick={() => {
             setContainer(deep.linkId);
-          }}/>
+          }} borderColor='gray.400'/>
         </ButtonGroup>
         <ButtonGroup size='sm' isAttached variant='outline'>
           <Button onClick={() => {
             copy(deep.token);
-          }}>copy token</Button>
+          }} borderColor='gray.400'>copy token</Button>
           <Button colorScheme={pasteError ? 'red' : valid ? 'blue' : undefined} onClick={async () => {
           if (valid) await deep.login({ token: valid });
           else {
@@ -83,13 +91,13 @@ export function CytoMenu({
             if (error && !linkId) setPasteError(true);
             else if (linkId) setValid(token);
           }
-          }}>{valid ? 'login token' : 'paste token'}</Button>
+          }} borderColor='gray.400'>{valid ? 'login token' : 'paste token'}</Button>
         </ButtonGroup>
         <ButtonGroup size='sm' isAttached variant='outline'>
-          <Button as='a' href={`http${+NEXT_PUBLIC_GQL_SSL ? 's' : ''}://${NEXT_PUBLIC_GQL_PATH}`} target="_blank">gql</Button>
+          <Button borderColor='gray.400' as='a' href={`http${+NEXT_PUBLIC_GQL_SSL ? 's' : ''}://${NEXT_PUBLIC_GQL_PATH}`} target="_blank">gql</Button>
         </ButtonGroup>
         <ButtonGroup size='sm' isAttached variant='outline'>
-          <Button onClick={() => setCytoEditor(true)}>editor</Button>
+          <Button borderColor='gray.400' onClick={() => setCytoEditor(true)}>editor</Button>
         </ButtonGroup>
       </HStack>
       <HStack>
@@ -196,7 +204,7 @@ export const MenuSearch = ({ cyRef }: { cyRef?: any; }) => {
   return <>
     <Popover placement='bottom-start' autoFocus={false}>
       <PopoverTrigger>
-        <Input value={value} onChange={(e) => setValue(e.target.value)}/>
+        <Input value={value} onChange={(e) => setValue(e.target.value)} borderColor='gray.400' />
       </PopoverTrigger>
       <PopoverContent>
         <PopoverHeader fontWeight='semibold'>Search local</PopoverHeader>
