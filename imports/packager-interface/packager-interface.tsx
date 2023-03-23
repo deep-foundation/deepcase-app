@@ -20,34 +20,44 @@ const makeNpmPackagesUrl = (query) => {
 const makePackagesSearchResults = (deep, packageNamespaceTypeId, packageVersionTypeId, packageActiveTypeId, remotePackages, areLinksPrefetched) => {
   const installedPackages = [];
   const notInstalledPackages = [];
-  if (remotePackages?.length > 0 && areLinksPrefetched) {
-    const namespacesByName = {};
-    for (const namespace of deep.minilinks.byType[packageNamespaceTypeId]) {
-      const name = namespace?.value?.value;
-      if (name) namespacesByName[name] = namespace;
-    }
-    const versionsByNamespaceId = {};
-    for (const version of deep.minilinks.byType[packageVersionTypeId]) {
-      versionsByNamespaceId[version.from_id] = [...(versionsByNamespaceId?.[version.from_id] || []), version];
-    }
-    const isActiveByPackageId = {}
-    for (const packageActive of deep.minilinks.byType[packageActiveTypeId]) {
-      isActiveByPackageId[packageActive.to_id] = true;
-    }
-    for (const remotePackage of remotePackages) {
-      const name = remotePackage.package.name;
-      const namespaceId = namespacesByName[name]?.id;
-      if (namespaceId) {
-        const versions = versionsByNamespaceId[namespaceId].map(version => ({
-          packageId: version?.to_id,
-          version: version?.value?.value, 
-          isActive: isActiveByPackageId[version?.to_id]
-        }));
-        installedPackages.push({ localPackage: { namespaceId, name, versions }, remotePackage });
-      } else {
-        notInstalledPackages.push({ remotePackage });
+  if (remotePackages?.length > 0) {
+    if (areLinksPrefetched) {
+      const namespacesByName = {};
+      for (const namespace of deep.minilinks.byType[packageNamespaceTypeId]) {
+        const name = namespace?.value?.value;
+        if (name) namespacesByName[name] = namespace;
       }
-    };
+      const versionsByNamespaceId = {};
+      for (const version of deep.minilinks.byType[packageVersionTypeId]) {
+        versionsByNamespaceId[version.from_id] = [...(versionsByNamespaceId?.[version.from_id] || []), version];
+      }
+      const isActiveByPackageId = {}
+      for (const packageActive of deep.minilinks.byType[packageActiveTypeId]) {
+        isActiveByPackageId[packageActive.to_id] = true;
+      }
+      for (const remotePackage of remotePackages) {
+        const name = remotePackage.package.name;
+        const namespaceId = namespacesByName[name]?.id;
+        if (namespaceId) {
+          const versions = versionsByNamespaceId[namespaceId].map(version => ({
+            packageId: version?.to_id,
+            version: version?.value?.value, 
+            isActive: isActiveByPackageId[version?.to_id]
+          }));
+          installedPackages.push({ localPackage: { namespaceId, name, versions }, remotePackage });
+        } else {
+          notInstalledPackages.push({ remotePackage });
+        }
+      };
+    }
+    else 
+    {
+      // + gives user an ability to see only remote packages even without permissions to see installed packages
+      // - it can give false impression that installed package is not installed
+      for (const remotePackage of remotePackages) {
+        notInstalledPackages.push({ remotePackage });
+      };
+    }
   }
   return { installedPackages, notInstalledPackages };
 }
