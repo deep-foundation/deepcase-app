@@ -1,4 +1,5 @@
 import * as chakra from '@chakra-ui/react';
+import dynamic from 'next/dynamic';
 import { DeepClient, useDeep, useDeepSubscription } from "@deep-foundation/deeplinks/imports/client";
 import { evalClientHandler as deepclientEvalClientHandler } from '@deep-foundation/deeplinks/imports/client-handler';
 import { useMinilinksFilter } from "@deep-foundation/deeplinks/imports/minilinks";
@@ -11,9 +12,15 @@ import * as motion from 'framer-motion';
 import * as reactHotkeysHook from 'react-hotkeys-hook';
 import * as debounce from '@react-hook/debounce';
 import * as json5 from 'json5';
+import { BsCheck2, BsLightbulbFill, BsLightbulbOff } from 'react-icons/bs';
 import Resizable from 're-resizable';
 import { useContainer, useSpaceId } from './hooks';
 import { CytoEditorPreview } from './cyto/editor-preview';
+import { CustomizableIcon } from './icons-provider';
+import { EditorTextArea } from './editor/editor-textarea';
+import { Resize } from './resize';
+const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
+
 
 const r = (path) => {
   if (r.list[path]) return r.list[path];
@@ -31,10 +38,19 @@ r.list = {
   'json5': json5,
   'framer-motion': motion,
   're-resizable': Resizable,
+  '@monaco-editor/react': MonacoEditor,
   '@deep-foundation/deepcase': {
     useContainer,
     useSpaceId,
     CytoEditorPreview,
+    CustomizableIcon,
+    Resize,
+    EditorTextArea,
+  },
+  'react-icons/bs': {
+    BsCheck2, 
+    BsLightbulbFill, 
+    BsLightbulbOff,
   },
 };
 
