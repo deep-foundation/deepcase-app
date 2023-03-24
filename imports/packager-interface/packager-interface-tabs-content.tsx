@@ -6,6 +6,7 @@ import { Install } from "./icons/install";
 import { TbArrowRotaryFirstRight, TbBookDownload } from 'react-icons/tb';
 import { TagLink } from '../tag-component';
 import _ from 'lodash';
+import { useSpaceId } from "../hooks";
 
 const axiosHooks = require("axios-hooks");
 const axios = require("axios");
@@ -230,6 +231,8 @@ const PackageItem = React.memo<any>(function PackageItem({
   latestVersion = "0.0.0",
 }:IPackageProps) {
 
+  const [spaceId, setSpaceId] = useSpaceId();
+
   const open = expanded;
 
   return (<Box 
@@ -291,7 +294,7 @@ const PackageItem = React.memo<any>(function PackageItem({
           }
         }}>
         {versions && versions.map((c, i) =>(
-          <TagLink version={c.version} key={c.id} />
+          <TagLink version={c.version} key={c.packageId} onClick={(e) => { e.preventDefault(); console.log('4324324234234324-0'); console.log('4324324234234324--', c.packageId); setSpaceId(c.id); console.log('4324324234234324-1'); } } />
         ))}
       </Box>}
     </Box>
