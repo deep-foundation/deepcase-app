@@ -38,7 +38,7 @@ const makePackagesSearchResults = (deep, packageNamespaceTypeId, packageVersionT
       for (const remotePackage of remotePackages) {
         const name = remotePackage.package.name;
         const namespaceId = namespacesByName[name]?.id;
-        if (namespaceId) {
+        if (namespaceId && versionsByNamespaceId[namespaceId]) {
           const versions = versionsByNamespaceId[namespaceId].map(version => ({
             packageId: version?.to_id,
             version: version?.value?.value, 

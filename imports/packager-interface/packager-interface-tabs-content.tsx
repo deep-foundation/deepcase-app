@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { RiInstallLine, RiUninstallLine } from 'react-icons/ri';
-import { AnimatePresence, motion, useAnimation } from 'framer-motion';
+import { AnimatePresence, DeprecatedLayoutGroupContext, motion, useAnimation } from 'framer-motion';
 import { Box, Button, Divider, Flex, HStack, List, ListItem, Select, Spacer, Text } from '@chakra-ui/react';
 import { Install } from "./icons/install";
 import { TbArrowRotaryFirstRight, TbBookDownload } from 'react-icons/tb';
 import { TagLink } from '../tag-component';
 import _ from 'lodash';
 import { useSpaceId } from "../hooks";
+import { useDeep } from '@deep-foundation/deeplinks/imports/client';
 
 const axiosHooks = require("axios-hooks");
 const axios = require("axios");
@@ -230,7 +231,7 @@ const PackageItem = React.memo<any>(function PackageItem({
   transition = {},
   latestVersion = "0.0.0",
 }:IPackageProps) {
-
+  const deep = useDeep();
   const [spaceId, setSpaceId] = useSpaceId();
 
   const open = expanded;
@@ -282,7 +283,31 @@ const PackageItem = React.memo<any>(function PackageItem({
               ...style
             }}
           >{description}</Box>}
-          <TagLink version='install' leftIcon={TbBookDownload} size='sm' />
+          <TagLink version='install' leftIcon={TbBookDownload} size='sm' onClick={async (e) => {
+            e.preventDefault();
+            await deep.insert({
+              type_id: await deep.id('@deep-foundation/core', 'PackageQuery'),
+              string: { data: { value: name }},
+              in: {
+                data: [
+                  {
+                    type_id: await deep.id('@deep-foundation/core', 'Contain'),
+                    from_id: deep.linkId,
+                  },
+                  {
+                    type_id: await deep.id('@deep-foundation/npm-packager', 'Install'),
+                    from_id: deep.linkId,
+                    in: {
+                      data: {
+                        type_id: await deep.id('@deep-foundation/core', 'Contain'),
+                        from_id: deep.linkId,
+                      }
+                    }
+                  }
+                ]
+              }
+            })
+          }} />
         </Flex>
 
       {versions && <Divider />}
