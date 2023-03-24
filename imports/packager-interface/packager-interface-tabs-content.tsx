@@ -98,10 +98,11 @@ const versionsListVariants = {
 
 const ListVersions = React.memo<any>(({ 
   name,
-  latestVersion
+  latestVersion,
+  currentVersion,
+  setCurrentVersion
 }) => {
   const [isOpenListVersions, setIsOpenListVersions] = useState(false);
-  const [selectValue, setSelectValue ] = useState(latestVersion);
 
   const [{ data, loading, error }, refetch] = useAxios(`https://registry.npmjs.com/${name}`);
 
@@ -143,7 +144,7 @@ const ListVersions = React.memo<any>(({
           alignItems: 'center',
         }}
       >
-        <Text fontSize='sm'>{selectValue}</Text>
+        <Text fontSize='sm'>{currentVersion}</Text>
         <Box as={motion.div}
           variants={{
             open: { rotate: 180 },
@@ -209,7 +210,7 @@ const ListVersions = React.memo<any>(({
             key={v}
             role='button'
             onClick={() => {
-              setSelectValue(v);
+              setCurrentVersion(v);
               setIsOpenListVersions(false);
             }}
           >{v}</Box>
@@ -233,6 +234,7 @@ const PackageItem = React.memo<any>(function PackageItem({
 }:IPackageProps) {
   const deep = useDeep();
   const [spaceId, setSpaceId] = useSpaceId();
+  const [currentVersion, setCurrentVersion] = useState(latestVersion);
 
   const open = expanded;
 
@@ -264,7 +266,7 @@ const PackageItem = React.memo<any>(function PackageItem({
             }}
           >{name}</Box>
           <Box pos='relative' zIndex={3}>
-            <ListVersions name={name} latestVersion={latestVersion} />
+            <ListVersions name={name} latestVersion={latestVersion} currentVersion={currentVersion} setCurrentVersion={setCurrentVersion} />
           </Box>
         </Flex>
         <Flex 
@@ -287,7 +289,7 @@ const PackageItem = React.memo<any>(function PackageItem({
             e.preventDefault();
             await deep.insert({
               type_id: await deep.id('@deep-foundation/core', 'PackageQuery'),
-              string: { data: { value: name }},
+              string: { data: { value: `${name}@${currentVersion}` }},
               in: {
                 data: [
                   {
