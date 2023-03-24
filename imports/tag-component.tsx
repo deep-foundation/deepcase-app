@@ -9,6 +9,7 @@ export const TagLink = React.memo<any>(({
   key,
   hrefSpace = '/',
   leftIcon = TbAtom,
+  onClick,
 }:{
   size?: string;
   borderRadius?: string;
@@ -16,8 +17,9 @@ export const TagLink = React.memo<any>(({
   key?: any;
   hrefSpace?: string;
   leftIcon?: any;
+  onClick?: any;
 }) => {
-  return (<a href={hrefSpace}>
+  return (<a href={hrefSpace} onClick={onClick}>
       <Tag size={size} key={key} variant='subtle' colorScheme='blue' borderRadius={borderRadius}>
         <TagLeftIcon as={leftIcon} />
         <TagLabel>{version}</TagLabel>

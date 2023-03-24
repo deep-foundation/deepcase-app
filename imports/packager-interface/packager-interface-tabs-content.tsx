@@ -1,11 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { RiInstallLine, RiUninstallLine } from 'react-icons/ri';
-import { AnimatePresence, motion, useAnimation } from 'framer-motion';
+import { AnimatePresence, DeprecatedLayoutGroupContext, motion, useAnimation } from 'framer-motion';
 import { Box, Button, Divider, Flex, HStack, List, ListItem, Select, Spacer, Text } from '@chakra-ui/react';
 import { Install } from "./icons/install";
 import { TbArrowRotaryFirstRight, TbBookDownload } from 'react-icons/tb';
 import { TagLink } from '../tag-component';
 import _ from 'lodash';
+import { useSpaceId } from "../hooks";
+import { useDeep } from '@deep-foundation/deeplinks/imports/client';
 
 const axiosHooks = require("axios-hooks");
 const axios = require("axios");
@@ -96,10 +98,11 @@ const versionsListVariants = {
 
 const ListVersions = React.memo<any>(({ 
   name,
-  latestVersion
+  latestVersion,
+  currentVersion,
+  setCurrentVersion
 }) => {
   const [isOpenListVersions, setIsOpenListVersions] = useState(false);
-  const [selectValue, setSelectValue ] = useState(latestVersion);
 
   const [{ data, loading, error }, refetch] = useAxios(`https://registry.npmjs.com/${name}`);
 
@@ -141,7 +144,7 @@ const ListVersions = React.memo<any>(({
           alignItems: 'center',
         }}
       >
-        <Text fontSize='sm'>{selectValue}</Text>
+        <Text fontSize='sm'>{currentVersion}</Text>
         <Box as={motion.div}
           variants={{
             open: { rotate: 180 },
@@ -207,7 +210,7 @@ const ListVersions = React.memo<any>(({
             key={v}
             role='button'
             onClick={() => {
-              setSelectValue(v);
+              setCurrentVersion(v);
               setIsOpenListVersions(false);
             }}
           >{v}</Box>
@@ -229,6 +232,9 @@ const PackageItem = React.memo<any>(function PackageItem({
   transition = {},
   latestVersion = "0.0.0",
 }:IPackageProps) {
+  const deep = useDeep();
+  const [spaceId, setSpaceId] = useSpaceId();
+  const [currentVersion, setCurrentVersion] = useState(latestVersion);
 
   const open = expanded;
 
@@ -260,7 +266,7 @@ const PackageItem = React.memo<any>(function PackageItem({
             }}
           >{name}</Box>
           <Box pos='relative' zIndex={3}>
-            <ListVersions name={name} latestVersion={latestVersion} />
+            <ListVersions name={name} latestVersion={latestVersion} currentVersion={currentVersion} setCurrentVersion={setCurrentVersion} />
           </Box>
         </Flex>
         <Flex 
@@ -279,7 +285,31 @@ const PackageItem = React.memo<any>(function PackageItem({
               ...style
             }}
           >{description}</Box>}
-          <TagLink version='install' leftIcon={TbBookDownload} size='sm' />
+          <TagLink version='install' leftIcon={TbBookDownload} size='sm' onClick={async (e) => {
+            e.preventDefault();
+            await deep.insert({
+              type_id: await deep.id('@deep-foundation/core', 'PackageQuery'),
+              string: { data: { value: `${name}@${currentVersion}` }},
+              in: {
+                data: [
+                  {
+                    type_id: await deep.id('@deep-foundation/core', 'Contain'),
+                    from_id: deep.linkId,
+                  },
+                  {
+                    type_id: await deep.id('@deep-foundation/npm-packager', 'Install'),
+                    from_id: deep.linkId,
+                    in: {
+                      data: {
+                        type_id: await deep.id('@deep-foundation/core', 'Contain'),
+                        from_id: deep.linkId,
+                      }
+                    }
+                  }
+                ]
+              }
+            })
+          }} />
         </Flex>
 
       {versions && <Divider />}
@@ -291,7 +321,7 @@ const PackageItem = React.memo<any>(function PackageItem({
           }
         }}>
         {versions && versions.map((c, i) =>(
-          <TagLink version={c.version} key={c.id} />
+          <TagLink version={c.version} key={c.packageId} onClick={(e) => { e.preventDefault(); console.log('4324324234234324-0'); console.log('4324324234234324--', c.packageId); setSpaceId(c.id); console.log('4324324234234324-1'); } } />
         ))}
       </Box>}
     </Box>
