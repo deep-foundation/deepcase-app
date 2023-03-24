@@ -18,6 +18,7 @@ import { useDebounceCallback } from '@react-hook/debounce';
 import { CatchErrors } from '../react-errors';
 import { CytoEditorHandlers } from './handlers';
 import { VscClearAll } from 'react-icons/vsc';
+import { EditorResults } from '../editor/editor-results';
 
 // global._callClientHandler = callClientHandler;
 export interface EditorTab {
@@ -246,7 +247,8 @@ export function CytoEditor({
                   <ClientHandlerRenderer Component={Component} fillSize={fillSize} link={deep?.minilinks?.byId[currentLink?.id]}/>
                 </CatchErrors>]}
               </EditorComponentView>]}
-            </Box>
+            </Box> ||
+            rightArea === 'results' && <EditorResults id={tab.id}/>
         }
           editorRightSwitch={<EditorSwitcher
             fillSize={fillSize}
