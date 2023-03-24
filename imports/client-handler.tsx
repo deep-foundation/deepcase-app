@@ -7,7 +7,7 @@ import * as axiosHooks from 'axios-hooks';
 import * as classnames from 'classnames';
 import React, { useCallback, useEffect, useRef } from 'react';
 // import * as reacticons from 'react-icons';
-import { motion, useAnimation } from 'framer-motion';
+import * as motion from 'framer-motion';
 import * as reactHotkeysHook from 'react-hotkeys-hook';
 import * as debounce from '@react-hook/debounce';
 import * as json5 from 'json5';
@@ -29,10 +29,7 @@ r.list = {
   'react-hotkeys-hook': reactHotkeysHook,
   '@react-hook/debounce': debounce,
   'json5': json5,
-  // 'framer-motion': {
-  //   motion,
-  //   useAnimation,
-  // },
+  'framer-motion': motion,
   're-resizable': Resizable,
   '@deep-foundation/deepcase': {
     useContainer,
