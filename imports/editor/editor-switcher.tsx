@@ -79,7 +79,7 @@ export const EditorSwitcher = React.memo<any>(({
         <Button 
           aria-label='Results area'
           value='results'
-          isDisabled={true || area == 'results'}
+          isDisabled={area == 'results'}
           onClick={() => setArea('results')}
         >Results</Button>
       </ButtonGroup>
