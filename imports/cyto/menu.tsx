@@ -197,10 +197,10 @@ export const MenuSearch = ({ cyRef }: { cyRef?: any; }) => {
   }, [index]);
   console.log({ all });
 
-  useHotkeys('enter', e => {
-    e.preventDefault();
-    e.stopPropagation();
-  }, { enableOnTags: ["TEXTAREA", "INPUT"] });
+  // useHotkeys<any>('enter', e => {
+  //   e.preventDefault();
+  //   e.stopPropagation();
+  // }, { enableOnTags: ["TEXTAREA", "INPUT"] });
   return <>
     <Popover placement='bottom-start' autoFocus={false}>
       <PopoverTrigger>
