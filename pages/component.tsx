@@ -12,6 +12,7 @@ import { QueryClientHandler } from '../imports/cyto/query-client-handler';
 import { CytoGraphProps } from '../imports/cyto/types';
 import { DeepWYSIWYG } from '../imports/deep-wysiwyg';
 import { DotsLoader } from '../imports/dot-loader';
+import { PackagePublisher } from '../imports/package-publisher';
 import { PackagerInterface } from '../imports/packager-interface/packager-interface';
 import { Example } from '../imports/popover-text/popover-text';
 import { Provider } from '../imports/provider';
@@ -112,6 +113,12 @@ export default function Page() {
             onClose={() => setTogglePackager(false)}
           />
           <Button colorScheme='teal' onClick={() => setTogglePackager(true)}>push me</Button>
+        <Box w='100%' h='1rem' />
+
+        <Box w='100%' h='2rem' />
+        <Code>/package-publisher</Code>
+        <Box w='100%' h='1rem' />
+          <PackagePublisher />
         <Box w='100%' h='1rem' />
 
       </Box>
