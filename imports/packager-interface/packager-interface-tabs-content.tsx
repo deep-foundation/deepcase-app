@@ -321,7 +321,7 @@ const PackageItem = React.memo<any>(function PackageItem({
           }
         }}>
         {versions && versions.map((c, i) =>(
-          <TagLink version={c.version} key={c.packageId} onClick={(e) => { e.preventDefault(); console.log('4324324234234324-0'); console.log('4324324234234324--', c.packageId); setSpaceId(c.id); console.log('4324324234234324-1'); } } />
+          <TagLink version={c.version} key={c.packageId} onClick={(e) => { e.preventDefault(); console.log('4324324234234324-0'); console.log('4324324234234324--', c.packageId); setSpaceId(c.packageId); console.log('4324324234234324-1'); } } />
         ))}
       </Box>}
     </Box>
