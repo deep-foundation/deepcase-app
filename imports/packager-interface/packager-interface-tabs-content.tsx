@@ -254,7 +254,7 @@ const PackageItem = React.memo<any>(function PackageItem({
             role='h2'
             width='100%'
             animate={{ 
-              color: "000", 
+              color: "#111720", 
             }}
             variants={variants}
             transition={transition}
@@ -281,6 +281,7 @@ const PackageItem = React.memo<any>(function PackageItem({
               justifyContent: 'flex-start',
               p: 0,
               fontSize: 'sm',
+              color: "#111720",
               mr: 2,
               ...style
             }}
