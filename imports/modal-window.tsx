@@ -70,7 +70,7 @@ export const ModalWindow = React.memo<any>(({
         <Center 
           as={motion.div}
           animate={control}
-          initial='active'
+          initial={portalOpen ? 'active' : 'inactive'}
           variants={backdrop}
           exit={'inactive'}
           width='100vw' 
