@@ -15,13 +15,13 @@ const useAxios = axiosHooks.makeUseAxios({ axios: axios.create() });
 const makeNpmPackagesUrl = (query) => {
   const deepPackageKeyword = 'deep-package';
   const textParameter = encodeURIComponent(`${query} keywords:${deepPackageKeyword}`);
-  return `https://registry.npmjs.com/-/v1/search?text=${textParameter}`;
+  return `https://registry.npmjs.com/-/v1/search?text=${textParameter}&size=250`;
 };
 const makePackagesSearchResults = (deep, packageNamespaceTypeId, packageVersionTypeId, packageActiveTypeId, remotePackages, areLinksPrefetched) => {
   const installedPackages = [];
   const notInstalledPackages = [];
   if (remotePackages?.length > 0) {
-    if (areLinksPrefetched) {
+    if (areLinksPrefetched && deep.minilinks.byType[packageNamespaceTypeId] && deep.minilinks.byType[packageVersionTypeId] && deep.minilinks.byType[packageActiveTypeId]) {
       const namespacesByName = {};
       for (const namespace of deep.minilinks.byType[packageNamespaceTypeId]) {
         const name = namespace?.value?.value;
