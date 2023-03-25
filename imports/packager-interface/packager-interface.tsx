@@ -15,7 +15,7 @@ const useAxios = axiosHooks.makeUseAxios({ axios: axios.create() });
 const makeNpmPackagesUrl = (query) => {
   const deepPackageKeyword = 'deep-package';
   const textParameter = encodeURIComponent(`${query} keywords:${deepPackageKeyword}`);
-  return `https://registry.npmjs.com/-/v1/search?text=${textParameter}`;
+  return `https://registry.npmjs.com/-/v1/search?text=${textParameter}&size=250`;
 };
 const makePackagesSearchResults = (deep, packageNamespaceTypeId, packageVersionTypeId, packageActiveTypeId, remotePackages, areLinksPrefetched) => {
   const installedPackages = [];
