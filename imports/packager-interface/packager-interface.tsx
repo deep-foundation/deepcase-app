@@ -21,7 +21,7 @@ const makePackagesSearchResults = (deep, packageNamespaceTypeId, packageVersionT
   const installedPackages = [];
   const notInstalledPackages = [];
   if (remotePackages?.length > 0) {
-    if (areLinksPrefetched) {
+    if (areLinksPrefetched && deep.minilinks.byType[packageNamespaceTypeId] && deep.minilinks.byType[packageVersionTypeId] && deep.minilinks.byType[packageActiveTypeId]) {
       const namespacesByName = {};
       for (const namespace of deep.minilinks.byType[packageNamespaceTypeId]) {
         const name = namespace?.value?.value;
