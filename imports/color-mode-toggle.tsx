@@ -9,8 +9,8 @@ import { SunIcon, MoonIcon } from '@chakra-ui/icons'
 type ColorModeSwitcherProps = Omit<IconButtonProps, "aria-label">
 
 export const ColorModeSwitcher = () => {
-  // const text = useColorModeValue("dark", "light");
-  // const SwitchIcon = useColorModeValue(MoonIcon, SunIcon);
+  const text = useColorModeValue("dark", "light");
+  const SwitchIcon = useColorModeValue(MoonIcon, SunIcon);
   const { colorMode, toggleColorMode } = useColorMode();
 
   return (
@@ -24,9 +24,8 @@ export const ColorModeSwitcher = () => {
       color="current"
       marginLeft="2"
       onClick={toggleColorMode}
-      icon={<MoonIcon />}
-      // icon={<SwitchIcon />}
-      aria-label={`Switch to mode`}//{`Switch to ${text} mode`}
+      icon={<SwitchIcon />}
+      aria-label={`Switch to ${text} mode`}
     />
   )
 }
