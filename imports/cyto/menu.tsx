@@ -100,45 +100,45 @@ export function CytoMenu({
           <Button borderColor='gray.400' onClick={() => setCytoEditor(true)}>editor</Button>
         </ButtonGroup>
       </HStack>
-      <HStack>
+      <HStack spacing={5}>
         <FormControl display='flex' alignItems='center'>
-          <FormLabel htmlFor='autofocus-on-insert' mb='0'>
+          <FormLabel htmlFor='autofocus-on-insert' mb='0' fontSize='sm' mr='0.25rem'>
             autofocus
           </FormLabel>
           <Switch id='autofocus-on-insert' isChecked={autoFocus} onChange={() => setAutoFocus(!autoFocus)}/>
         </FormControl>
         <FormControl display='flex' alignItems='center'>
-          <FormLabel htmlFor='show-focus' mb='0'>
+          <FormLabel htmlFor='show-focus' mb='0' fontSize='sm' mr='0.25rem'>
             focus
           </FormLabel>
           <Switch id='show-focus' isChecked={focus} onChange={() => setFocus(!focus)}/>
         </FormControl>
         <FormControl display='flex' alignItems='center'>
-          <FormLabel htmlFor='show-extra-switch' mb='0'>
+          <FormLabel htmlFor='show-extra-switch' mb='0' fontSize='sm' mr='0.25rem'>
             debug
           </FormLabel>
           <Switch id='show-extra-switch' isChecked={extra} onChange={() => setExtra(!extra)}/>
         </FormControl>
         <FormControl display='flex' alignItems='center'>
-          <FormLabel htmlFor='show-types-switch' mb='0'>
+          <FormLabel htmlFor='show-types-switch' mb='0' fontSize='sm' mr='0.25rem'>
             types
           </FormLabel>
           <Switch id='show-types-switch' isChecked={showTypes} onChange={() => setShowTypes(!showTypes)}/>
         </FormControl>
         <FormControl display='flex' alignItems='center'>
-          <FormLabel htmlFor='show-promise-loader-switch' mb='0'>
+          <FormLabel htmlFor='show-promise-loader-switch' mb='0' fontSize='sm' mr='0.25rem'>
             promises
           </FormLabel>
           <Switch id='show-promise-loader-switch' isChecked={promiseLoader} onChange={() => setPromiseLoader(!promiseLoader)}/>
         </FormControl>
         <FormControl display='flex' alignItems='center'>
-          <FormLabel htmlFor='show-traveler-switch' mb='0'>
+          <FormLabel htmlFor='show-traveler-switch' mb='0' fontSize='sm' mr='0.25rem'>
             traveler
           </FormLabel>
           <Switch id='show-traveler-switch' isChecked={traveler} onChange={() => setTraveler(!traveler)}/>
         </FormControl>
         <FormControl display='flex' alignItems='center'>
-          <FormLabel htmlFor='breadcrumbs-switch' mb='0'>
+          <FormLabel htmlFor='breadcrumbs-switch' mb='0' fontSize='sm' mr='0.25rem'>
             breadcrumbs
           </FormLabel>
           <Switch id='breadcrumbs-switch' isChecked={breadcrumbs} onChange={() => setBreadcrumbs(!breadcrumbs)}/>
