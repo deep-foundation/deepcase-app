@@ -14,7 +14,9 @@ const tabInstall = {
     }
   },
   inactive: {
-    background: '#e4e4e4',
+    background: '#EDF2F7',
+    borderColor: '#718096',
+    borderWidth: 'thin',
     transition: {
       type: "tween",
       duration: 0.4
@@ -34,7 +36,9 @@ const tabUninstalled = {
     }
   },
   inactive: {
-    background: '#e4e4e4',
+    background: '#EDF2F7',
+    borderColor: '#718096',
+    borderWidth: 'thin',
     transition: {
       type: "tween",
       duration: 0.4
@@ -42,6 +46,8 @@ const tabUninstalled = {
   },
   initial: {
     borderRadius: '5rem',
+    borderColor: '#718096',
+    borderWidth: 'thin',
     originX: 0,
   }
 };

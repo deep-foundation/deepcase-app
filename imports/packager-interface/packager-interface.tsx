@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Box, Button, Flex, IconButton, Input, InputGroup, InputRightElement, Spacer } from '@chakra-ui/react';
+import { Box, Button, Flex, IconButton, Input, InputGroup, InputRightElement, Spacer, useColorModeValue } from '@chakra-ui/react';
 import { motion, useAnimation } from 'framer-motion';
 import { Appearance } from '../component-appearance';
 import { BsSearch } from 'react-icons/bs';
@@ -64,13 +64,9 @@ const makePackagesSearchResults = (deep, packageNamespaceTypeId, packageVersionT
 
 export const PackagerInterface = React.memo<any>(({
   toggle,
-  // search, 
-  // onSearch,
   onClose,
 }:{
   toggle?: boolean;
-  // search?: any;
-  // onSearch?: any;
   onClose?: () => any;
 }) => {
   const inputRef = useRef(null);
@@ -86,9 +82,9 @@ export const PackagerInterface = React.memo<any>(({
   const [ variant, setSelectedVariant ] = useState(0);
 
   const [{ data, loading, error }, refetch] = useAxios(makeNpmPackagesUrl(search));
-  console.log('PackagerInterface', 'data', data)
-  console.log('PackagerInterface', 'loading', loading)
-  console.log('PackagerInterface', 'error', error)
+  // console.log('PackagerInterface', 'data', data)
+  // console.log('PackagerInterface', 'loading', loading)
+  // console.log('PackagerInterface', 'error', error)
 
   const packageNamespaceTypeId = deep.idLocal('@deep-foundation/core', 'PackageNamespace');
   const packageVersionTypeId = deep.idLocal('@deep-foundation/core', 'PackageVersion');
@@ -96,32 +92,37 @@ export const PackagerInterface = React.memo<any>(({
   const { data: prefetched } = deep.useDeepSubscription({
     type_id: { _in: [packageNamespaceTypeId, packageVersionTypeId, packageActiveTypeId ] }
   });
-  console.log('PackagerInterface', 'prefetched?.length', prefetched?.length)
+  // console.log('PackagerInterface', 'prefetched?.length', prefetched?.length)
   const { installedPackages, notInstalledPackages } = makePackagesSearchResults(deep, packageNamespaceTypeId, packageVersionTypeId, packageActiveTypeId, data?.objects, prefetched?.length > 0);
 
-  console.log('search-results', installedPackages, notInstalledPackages)
+  // console.log('search-results', installedPackages, notInstalledPackages)
   const [togglePackager, setTogglePackager] = useState(false);
+  const bg = useColorModeValue('blue.50', 'blue.900')
+  const color = useColorModeValue('white', 'gray.800')
 
   return (<Box float='right' mr='8' mt='4' pos='relative'>
       <Button colorScheme='blue' onClick={() => setTogglePackager(true)} pos='absolute' right={4}>packager</Button>
       <Appearance 
         toggle={togglePackager} 
       >
-        <Box border='1px' borderColor='gray.300' borderRadius='1.2rem' w='35.5rem' bg='gray.50'>
+        <Box border='1px' borderColor='gray.300' borderRadius='1.2rem' w='35.5rem' bg={bg} sx={{ height: 'calc(100vh - 3rem)' }}>
           <Flex 
             minWidth='max-content' 
             alignItems='center' gap='2' 
           >
             <InputGroup size='xs' pl='2'>
               <Input 
+                borderColor='gray.400'
+                bg='whiteAlpha.50'
                 ref={inputRef}
+                color='gray.300'
                 placeholder='search' 
                 sx={{borderRadius: 'full'}}
                 focusBorderColor='primary'
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
-              <InputRightElement children={<BsSearch color='green.500' />} />
+              <InputRightElement children={<BsSearch color='#718096' />} />
             </InputGroup>
             <Spacer />
             <IconButton 
