@@ -17,7 +17,7 @@ import { PackagerInterface } from '../imports/packager-interface/packager-interf
 import { Example } from '../imports/popover-text/popover-text';
 import { Provider } from '../imports/provider';
 import { TextInput, TooltipEmoji } from '../imports/text-cursor-tooltip/text-cursor-tooltip';
-import { Token } from '../token';
+import { Token } from '../imports/token';
 import { elements } from './card';
 
 const CytoGraph = dynamic<CytoGraphProps>(
