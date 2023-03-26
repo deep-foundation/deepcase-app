@@ -105,7 +105,7 @@ export const PackagerInterface = React.memo<any>(({
       <Appearance 
         toggle={togglePackager} 
       >
-        <Box border='1px' borderColor='gray.300' borderRadius='1.2rem' w='35.5rem' bg={bg} sx={{ height: 'calc(100vh - 3rem)' }}>
+        <Box border='1px' borderColor='gray.500' borderRadius='1.2rem' w='35.5rem' bg={bg} sx={{ height: 'calc(100vh - 3rem)' }} overflow='hidden'>
           <Flex 
             minWidth='max-content' 
             alignItems='center' gap='2' 

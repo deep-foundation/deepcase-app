@@ -106,13 +106,13 @@ const ListVersions = React.memo<any>(({
 
   const [{ data, loading, error }, refetch] = useAxios(`https://registry.npmjs.com/${name}`);
 
-  console.log('ListVersions.data', data)
+  // console.log('ListVersions.data', data)
 
   const versions = data ? Object.keys(data.versions) : [latestVersion];
 
   var collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
   versions.sort(collator.compare);
-  console.log('ListVersions.versions', versions)
+  // console.log('ListVersions.versions', versions)
 
   return (<Box as={motion.nav}
       initial={false}
@@ -246,8 +246,9 @@ const PackageItem = React.memo<any>(function PackageItem({
         listStyle: "none", 
         background: 'transparent', 
         p: 1, 
-        borderRadius: 2,
-        border: '1px solid #e2e7ed',
+        borderRadius: '0.5rem',
+        borderWidth: 'thin',
+        borderColor: 'gray.500',
       }}
       >
         <Flex>
