@@ -17,6 +17,7 @@ import { PackagerInterface } from '../imports/packager-interface/packager-interf
 import { Example } from '../imports/popover-text/popover-text';
 import { Provider } from '../imports/provider';
 import { TextInput, TooltipEmoji } from '../imports/text-cursor-tooltip/text-cursor-tooltip';
+import { Token } from '../token';
 import { elements } from './card';
 
 const CytoGraph = dynamic<CytoGraphProps>(
@@ -119,6 +120,12 @@ export default function Page() {
         <Code>/package-publisher</Code>
         <Box w='100%' h='1rem' />
           <PackagePublisher />
+        <Box w='100%' h='1rem' />
+
+        <Box w='100%' h='2rem' />
+        <Code>/token</Code>
+        <Box w='100%' h='1rem' />
+          <Token />
         <Box w='100%' h='1rem' />
 
       </Box>
