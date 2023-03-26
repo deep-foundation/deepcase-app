@@ -16,7 +16,7 @@ export const ColorModeSwitcher = () => {
   return (
     <IconButton
       sx={{
-        position: 'absolute', right: 0, top: 0
+        position: 'fixed', right: 0, top: 0
       }}
       size="md"
       fontSize="lg"

@@ -46,7 +46,7 @@ export function CytoMenu({
   }, [pasteError, valid]);
 
   return <Box 
-    pos='absolute' 
+    pos='fixed' 
     left={0} top={0} 
     // display='grid' 
     // gridTemplateColumns='1fr 0.8fr' 

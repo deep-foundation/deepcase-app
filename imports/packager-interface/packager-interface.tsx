@@ -100,7 +100,7 @@ export const PackagerInterface = React.memo<any>(({
   const bg = useColorModeValue('blue.50', 'blue.900')
   const color = useColorModeValue('white', 'gray.800')
 
-  return (<Box float='right' mr='8' mt='4' pos='relative'>
+  return (<Box right={0} mr='8' mt='4' pos='fixed'>
       <Button colorScheme='blue' onClick={() => setTogglePackager(true)} pos='absolute' right={4}>packager</Button>
       <Appearance 
         toggle={togglePackager} 
