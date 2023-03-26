@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { RiInstallLine, RiUninstallLine } from 'react-icons/ri';
 import { AnimatePresence, DeprecatedLayoutGroupContext, motion, useAnimation } from 'framer-motion';
-import { Box, Button, Divider, Flex, HStack, List, ListItem, Select, Spacer, Text } from '@chakra-ui/react';
+import { Box, Button, Divider, Flex, HStack, List, ListItem, Select, Spacer, Text, useColorModeValue } from '@chakra-ui/react';
 import { Install } from "./icons/install";
 import { TbArrowRotaryFirstRight, TbBookDownload } from 'react-icons/tb';
 import { TagLink } from '../tag-component';
@@ -151,6 +151,7 @@ const ListVersions = React.memo<any>(({
             closed: { rotate: 0 }
           }}
           animate={{ originY: 0.55 }}
+          // @ts-ignore
           transition={{
             type: "tween",
             duration: 0.2
@@ -236,7 +237,7 @@ const PackageItem = React.memo<any>(function PackageItem({
   const [spaceId, setSpaceId] = useSpaceId();
   const [currentVersion, setCurrentVersion] = useState(latestVersion);
 
-  const open = expanded;
+  const color = useColorModeValue('white', 'gray.800');
 
   return (<Box 
       as={motion.li} 
@@ -254,7 +255,7 @@ const PackageItem = React.memo<any>(function PackageItem({
             role='h2'
             width='100%'
             animate={{ 
-              color: "#111720", 
+              // color: color, 
             }}
             variants={variants}
             transition={transition}
@@ -264,7 +265,7 @@ const PackageItem = React.memo<any>(function PackageItem({
               fontSize: 'sm',
               ...style
             }}
-          >{name}</Box>
+          ><Text fontSize='sm' as='h2'>{name}</Text></Box>
           <Box pos='relative' zIndex={3}>
             <ListVersions name={name} latestVersion={latestVersion} currentVersion={currentVersion} setCurrentVersion={setCurrentVersion} />
           </Box>
@@ -281,11 +282,11 @@ const PackageItem = React.memo<any>(function PackageItem({
               justifyContent: 'flex-start',
               p: 0,
               fontSize: 'sm',
-              color: "#111720",
+              // color: color,
               mr: 2,
               ...style
             }}
-          >{description}</Box>}
+          ><Text fontSize='sm'>{description}</Text></Box>}
           <TagLink version='install' leftIcon={TbBookDownload} size='sm' onClick={async (e) => {
             e.preventDefault();
             await deep.insert({
