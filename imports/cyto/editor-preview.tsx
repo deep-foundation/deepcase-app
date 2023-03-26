@@ -86,7 +86,10 @@ export function CytoEditorPreview({
 
   useEffect(() => {
     const value = generatedLink?.value?.value || link?.value?.value;
+    console.log('evalClientHandler', 'useEffect', value);
     evalClientHandler({ value, deep }).then(({ data, error }) => {
+      console.log('evalClientHandler', 'error', error);
+      console.log('evalClientHandler', 'data', data);
       setComponent(() => data);
     });
   }, [link?.value?.value, generatedLink]);
@@ -182,7 +185,10 @@ export function CytoEditorPreview({
             fillSize={fillSize}
             setFillSize={setFillSize}
           >
-            {typeof(Component) === 'function' && [<CatchErrors key={Component.toString()} errorRenderer={() => <div></div>}>
+            {typeof(Component) === 'function' && [<CatchErrors key={Component.toString()} errorRenderer={(error) => {
+              console.log('EditorComponentView', 'errorRenderer', error);
+              return <div>{JSON.stringify(error)}</div>;
+            }}>
               <ClientHandlerRenderer Component={Component} fillSize={fillSize} link={deep?.minilinks?.byId[currentLink?.id]}/>
             </CatchErrors>]}
           </EditorComponentView>]}
