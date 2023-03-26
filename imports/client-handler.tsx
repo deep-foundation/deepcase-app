@@ -1,4 +1,5 @@
 import * as chakra from '@chakra-ui/react';
+import * as icons from '@chakra-ui/icons';
 import dynamic from 'next/dynamic';
 import { DeepClient, useDeep, useDeepSubscription } from "@deep-foundation/deeplinks/imports/client";
 import { evalClientHandler as deepclientEvalClientHandler } from '@deep-foundation/deeplinks/imports/client-handler';
@@ -39,6 +40,7 @@ r.list = {
   'framer-motion': motion,
   're-resizable': Resizable,
   '@monaco-editor/react': MonacoEditor,
+  '@chakra-ui/icons': icons,
   '@deep-foundation/deepcase': {
     useContainer,
     useSpaceId,
