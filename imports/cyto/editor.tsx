@@ -233,7 +233,7 @@ export function CytoEditor({
             // ></EditorHandler>
             // </EditorHandlers>) ||
             rightArea === 'handlers' && (
-              <CytoEditorHandlers linkId={generated && generatedLink ? generatedLink?.id : tab.id}/>
+              <CytoEditorHandlers linkId={generated && generatedLink ? generatedLink?.id : tab?.id}/>
             ) ||
             rightArea === 'preview' && <Box pos='relative'>
               {[<EditorComponentView
