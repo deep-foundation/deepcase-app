@@ -62,6 +62,37 @@ const makePackagesSearchResults = (deep, packageNamespaceTypeId, packageVersionT
   return { installedPackages, notInstalledPackages };
 }
 
+const variants = {
+  show: {
+    scaleX: 1,
+    scaleY: 1,
+    opacity: 1,
+    borderRadius: '0%',
+    display: 'block',
+    transition: { duration: 0.5 }
+  },
+  hide: {
+    scaleX: 0.3,
+    scaleY: 0.1,
+    opacity: 0,
+    borderRadius: '50%',
+    display: 'none',
+    transition: { 
+      duration: 0.5,
+      display: { delay: 0.6 }, 
+      opacity: { duration: 0.4 },
+    }
+  },
+  initial: {
+    originX: 1,
+    originY: 0,
+    scaleX: 0,
+    scaleY: 0,
+    opacity: 0,
+    display: 'none'
+  }
+}
+
 export const PackagerInterface = React.memo<any>(({
   toggle,
   onClose,
@@ -104,6 +135,8 @@ export const PackagerInterface = React.memo<any>(({
       <Button colorScheme='blue' onClick={() => setTogglePackager(true)} pos='absolute' right={4}>packager</Button>
       <Appearance 
         toggle={togglePackager} 
+        variantsAnimation={variants} 
+        initial='initial'
       >
         <Box border='1px' borderColor='gray.500' borderRadius='1.2rem' w='35.5rem' bg={bg} sx={{ height: 'calc(100vh - 3rem)' }} overflow='hidden'>
           <Flex 
