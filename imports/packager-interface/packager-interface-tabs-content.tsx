@@ -65,7 +65,8 @@ const variantsPackage = {
 export interface IPackageInstalledVersion {
   id: number;
   version: string;
-  packageId: number;  
+  packageId: number;
+  isActive: boolean; 
 }
 
 export interface IPackage {
@@ -324,7 +325,7 @@ const PackageItem = React.memo<any>(function PackageItem({
           }
         }}>
         {versions && versions.map((c, i) =>(
-          <TagLink version={c.version} key={c.packageId} onClick={(e) => { e.preventDefault(); console.log('4324324234234324-0'); console.log('4324324234234324--', c.packageId); setSpaceId(c.packageId); console.log('4324324234234324-1'); } } />
+          <TagLink version={c.version} key={c.packageId} colorScheme={c.isActive ? 'orange' : 'blue'} onClick={(e) => { e.preventDefault(); console.log('4324324234234324-0'); console.log('4324324234234324--', c.packageId); setSpaceId(c.packageId); console.log('4324324234234324-1'); } } />
         ))}
       </Box>}
     </Box>
