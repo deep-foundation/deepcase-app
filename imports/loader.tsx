@@ -93,7 +93,7 @@ export const DeepLoader = memo(function DeepLoader({
   const userId = deep.linkId;
   const [promiseLoader, setPromiseLoader] = usePromiseLoader();
   const [breadcrumbs] = useBreadcrumbs();
-  console.log({ breadcrumbs });
+  // console.log({ breadcrumbs });
 
   const spaceQuery = useMemo(() => ({ value: { value: {
     up: {
@@ -137,8 +137,8 @@ export const DeepLoader = memo(function DeepLoader({
   let queries = useMinilinksFilter(
     deep.minilinks,
     useCallback((l, ...args) => {
-      console.log('ABC', l, ...args);
-      console.trace('ABC');
+      // console.log('ABC', l, ...args);
+      // console.trace('ABC');
       return [deep.idLocal('@deep-foundation/core', 'Query'), deep.idLocal('@deep-foundation/core', 'Active')].includes(l.type_id);
     }, [spaceId]),
     useCallback((l, ml) => {
