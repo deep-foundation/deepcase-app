@@ -113,19 +113,31 @@ export function CytoEditor({
     setValue,
   } = useEditorValueSaver(tabId);
 
+  console.log('editor', 'GeneratedFrom idLocal', deep.idLocal('@deep-foundation/core', 'GeneratedFrom'));
+  console.log('editor', 'tabId', tabId);
+
   const generatedLink = useMinilinksFilter(
     deep.minilinks,
     (link) => {
-      return link?.outByType?.[deep.idLocal('@deep-foundation/core', 'GeneratedFrom')]?.[0]?.to_id === tabId;
+      const filterResult = link?.outByType?.[deep.idLocal('@deep-foundation/core', 'GeneratedFrom')]?.[0]?.to_id === tabId;
+      console.log('editor', 'filterResult', filterResult);
+      return filterResult;
     },
     (link, ml) => {
       return ml?.byId[tabId]?.inByType[deep.idLocal('@deep-foundation/core', 'GeneratedFrom')]?.[0]?.from;
     },
   )
+
+  console.log('editor', 'generatedLink', generatedLink);
   
   useEffect(() => {
     const value = generatedLink?.value?.value || tab?.initialValue;
+    console.log('editor', 'evalClientHandler', 'useEffect', value);
     evalClientHandler({ value, deep }).then(({ data, error }) => {
+      console.log('editor','evalClientHandler', 'error', error);
+      console.log('editor','evalClientHandler', 'data', data);
+      if (error)
+        throw error;
       setComponent(() => data);
     });
   }, [tab?.initialValue, generatedLink]);
