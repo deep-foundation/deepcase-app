@@ -343,7 +343,6 @@ export const CytoReactLinksCard = React.memo<any>(({
             style={{
               pointerEvents: switchLayout === 'list' ? 'initial' : 'none',
               position: 'absolute',
-              top: '0.4rem',
               left: 0,
               width: '100%',
               height: '100%',
