@@ -48,6 +48,7 @@ r.list = {
     CustomizableIcon,
     Resize,
     EditorTextArea,
+    ClientHandler,
   },
   'react-icons/bs': {
     BsCheck2, 
