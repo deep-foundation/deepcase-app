@@ -26,6 +26,8 @@ export function CytoMenu({
   const [promiseLoader, setPromiseLoader] = usePromiseLoader();
   const [autoFocus, setAutoFocus] = useAutoFocusOnInsert();
 
+  console.log('cytoEditor', cytoEditor)
+
   const [pasteError, setPasteError] = useState(false);
   const [valid, setValid] = useState<any>(undefined);
   const [container, setContainer] = useContainer();
