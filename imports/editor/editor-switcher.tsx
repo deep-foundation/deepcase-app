@@ -40,7 +40,7 @@ export const EditorSwitcher = React.memo<any>(({
           <FormLabel htmlFor='input-id' mb='0'>
             id
           </FormLabel>
-          <Input id="input-id" value={currentLinkId} onChange={(e) => setCurrentLinkId(parseInt(e.target.value))} />
+          <Input id="input-id" value={currentLinkId} onChange={(e) => setCurrentLinkId(parseInt(e.target.value))} mr='1rem' />
           <FormLabel htmlFor='show-extra-switch' mb='0'>
             fillSize
           </FormLabel>
