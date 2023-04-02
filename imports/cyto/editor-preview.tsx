@@ -87,6 +87,9 @@ export function CytoEditorPreview({
   useEffect(() => {
     const value = generatedLink?.value?.value || link?.value?.value;
     console.log('editor-preview', 'evalClientHandler', 'useEffect', value);
+    if (!value) {
+      return;
+    }
     evalClientHandler({ value, deep }).then(({ data, error }) => {
       console.log('editor-preview', 'evalClientHandler', 'error', error);
       console.log('editor-preview', 'evalClientHandler', 'data', data);

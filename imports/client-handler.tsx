@@ -129,18 +129,19 @@ export function ClientHandler({
   useEffect(() => {
     const value = file?.value?.value;
     console.log('ClientHandler evalClientHandler', { file, value });
-    if (value) {
-      const evalId = ++lastEvalRef.current;
-      evalClientHandler({ value, deep }).then(({ data, error }) => {
-        if (evalId === lastEvalRef.current) {
-          console.log('ClientHandler evalClientHandler setComponent', { file, data, error });
-          if (!error) setComponent(() => data);
-          else setComponent(undefined);
-        } else {
-          console.log('ClientHandler evalClientHandler outdated', { file, data, error, evalId, 'lastEvalRef.current': lastEvalRef.current });
-        }
-      });
+    if (!value) {
+      return;
     }
+    const evalId = ++lastEvalRef.current;
+    evalClientHandler({ value, deep }).then(({ data, error }) => {
+      if (evalId === lastEvalRef.current) {
+        console.log('ClientHandler evalClientHandler setComponent', { file, data, error });
+        if (!error) setComponent(() => data);
+        else setComponent(undefined);
+      } else {
+        console.log('ClientHandler evalClientHandler outdated', { file, data, error, evalId, 'lastEvalRef.current': lastEvalRef.current });
+      }
+    });
   }, [file?.value?.value]);
 
   return (<>

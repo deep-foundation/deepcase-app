@@ -137,6 +137,9 @@ export function CytoEditor({
     console.log('editor', 'evalClientHandler', 'tab?.initialValue', tab?.initialValue);
     const value = generatedLink?.value?.value || tab?.initialValue;
     console.log('editor', 'evalClientHandler', 'useEffect', value);
+    if (!value) {
+      return;
+    }
     evalClientHandler({ value, deep }).then(({ data, error }) => {
       console.log('editor','evalClientHandler', 'error', error);
       console.log('editor','evalClientHandler', 'data', data);
