@@ -64,7 +64,7 @@ export function useCytoStylesheets(): any {
       }
     },
     {
-      selector: '.link-node.hover',
+      selector: '.link-node.hover:not(.unhoverable)',
       style: {
         'z-compound-depth': 'top',
         'overlay-opacity': 0,
