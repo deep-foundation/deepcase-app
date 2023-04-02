@@ -34,7 +34,7 @@ export function useCytoElements(ml, _links, cy, spaceId) {
         ? json : link?.value.value
       );
       if (typeof(_value) === 'string') _value = _value.split('\n')[0];
-      if (_value.length > 15) _value = _value.slice(0, 15)+'...';
+      if (_value.length > 20) _value = _value.slice(0, 11)+'...'+_value.slice(-9, _value.length);
     }
     if (link?.inByType?.[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value) {
       _name = `name:${link?.inByType?.[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value}`;
