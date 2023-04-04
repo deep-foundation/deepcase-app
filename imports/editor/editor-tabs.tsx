@@ -1,8 +1,9 @@
+import { Box, CloseButton as _CloseButton, Flex, IconButton, Spinner, useColorMode } from '@chakra-ui/react';
+import { AnimatePresence, Reorder } from 'framer-motion';
 import React, { useState } from 'react';
-import { Box, Button, Flex, useColorMode, CloseButton as _CloseButton, ButtonGroup, IconButton, Spinner, Center } from '@chakra-ui/react';
-import { useChackraColor } from '../get-color';
+import { isAndroid, isIOS } from 'react-device-detect';
 import { VscChromeClose } from 'react-icons/vsc';
-import { AnimatePresence , Reorder } from 'framer-motion';
+import { useChackraColor } from '../get-color';
 
 interface ITab {
   id: number;
@@ -77,11 +78,13 @@ export interface ITabProps {
   tab: ITab;
   onClick?: (tab: ITab) => void;
   onClose?: (tab: ITab) => void;
+  onSaveTab?: (tab: ITab) => void;
 }
 
 export const EditorTab = React.memo<any>(({
   tab,
   onClick,
+  onSaveTab,
   onClose,
 }:ITabProps) => {
   const {
@@ -95,8 +98,7 @@ export const EditorTab = React.memo<any>(({
   const white = useChackraColor('white');
   const { colorMode } = useColorMode();
 
-  return (
-    <Reorder.Item
+  return (<Reorder.Item
       value={tab}
       as='div'
       id={`tab-${id}`}
@@ -113,59 +115,67 @@ export const EditorTab = React.memo<any>(({
       onPointerDown={() => onClick && onClick(tab)}
     >
       <Box
-      as='button'
-      aria-label={`tab-${id}`}
-      display='flex'
-      alignItems='center'
-      w='max'
-      h='max'
-      lineHeight='1.4'
-      transition='all 0.2s cubic-bezier(.08,.52,.52,1)'
-      border='none'
-      pl='3'
-      pr='2'
-      py='2'
-      borderRadius='none'
-      fontSize='xs'
-      fontWeight='normal'
-      bg={active ? (colorMode == 'light' ? white : gray900) : (colorMode == 'light' ? 'gray.200' : 'whiteAlpha.300')}
-      _notLast={{ 
-        borderRightStyle: 'solid', 
-        borderRightWidth: 1,
-        borderRightColor: colorMode == 'light' ? 'gray.300' : 'whiteAlpha.300' 
-      }}
-      _hover={{ bg: colorMode == 'light' ? white : gray900 }}
-      _active={{
-        transform: 'scale(0.98)',
-      }}
-      _focus={{
-        bg: colorMode == 'light' ? 'gray.200' : 'whiteAlpha.300'
-      }}
-      // onClick={() => onClick && onClick(tab)}
-    >
-      <Box flex='1' mr='2'>
-        {title}
-      </Box>
-      <Box mr='3'>
-        {!saved && <NonSavedIcon /> || loading && <Spinner size='xs' />}
-      </Box>
-      <Box 
-        onClick={(e: any) => {
-          e?.stopPropagation();
-          onClose && onClose(tab);
-        }} 
-        as='button' 
-        aria-label='close tab button'
-        borderRadius='md'
-        p={1}
-        _hover={{
-          bg: colorMode == 'light' ? 'blackAlpha.100' : 'gray.700',
+        as='button'
+        aria-label={`tab-${id}`}
+        display='flex'
+        alignItems='center'
+        w='max'
+        h='max'
+        lineHeight='1.4'
+        transition='all 0.2s cubic-bezier(.08,.52,.52,1)'
+        border='none'
+        pl='3'
+        pr='2'
+        py='2'
+        borderRadius='none'
+        fontSize='xs'
+        fontWeight='normal'
+        bg={active ? (colorMode == 'light' ? white : gray900) : (colorMode == 'light' ? 'gray.200' : 'whiteAlpha.300')}
+        _notLast={{ 
+          borderRightStyle: 'solid', 
+          borderRightWidth: 1,
+          borderRightColor: colorMode == 'light' ? 'gray.300' : 'whiteAlpha.300' 
+        }}
+        _hover={{ bg: colorMode == 'light' ? white : gray900 }}
+        _active={{
+          transform: 'scale(0.98)',
+        }}
+        _focus={{
+          bg: colorMode == 'light' ? 'gray.200' : 'whiteAlpha.300'
         }}
       >
-        <VscChromeClose />
+        <Box flex='1' mr='2'>
+          {title}
+        </Box>
+        {isIOS || isAndroid
+        ? <IconButton
+            colorScheme='gray'
+            isRound
+            size='xs'
+            onClick={() => onSaveTab && onSaveTab(tab)}
+            aria-label='Save button'
+            icon={!saved && <NonSavedIcon /> || loading && <Spinner size='xs' />}
+          />
+        : <Box mr='3'>
+          {!saved && <NonSavedIcon /> || loading && <Spinner size='xs' />}
+        </Box>}
+        <Box 
+          onClick={(e: any) => {
+            e?.stopPropagation();
+            onClose && onClose(tab);
+          }} 
+          as='button' 
+          aria-label='close tab button'
+          borderRadius='md'
+          p={1}
+          _hover={{
+            bg: colorMode == 'light' ? 'blackAlpha.100' : 'gray.700',
+          }}
+        >
+          <VscChromeClose />
+        </Box>
       </Box>
-    </Box>
-  </Reorder.Item>
+    </Reorder.Item>
   )
 })
 
@@ -174,11 +184,13 @@ export const EditorTabs = React.memo<any>(({
   setTabs,
   onClick,
   onClose,
+  onSaveTab,
 }: {
   tabs?: ITab[];
   setTabs?: (tabs: ITab[]) => void;
   onClick?: (tab: ITab) => void;
   onClose?: (tab: ITab) => void;
+  onSaveTab?: (tab: ITab) => void;
 }) => {
   const gray900 = useChackraColor('gray.900');
   const white = useChackraColor('white');
@@ -227,7 +239,7 @@ return (<Reorder.Group
   >
     <AnimatePresence initial={false}>
         {tabs.map(t =>
-          <EditorTab key={t} tab={t} onClick={onClick} onClose={onClose} />
+          <EditorTab key={t} tab={t} onClick={onClick} onSaveTab={onSaveTab} onClose={onClose} />
         )}
       </AnimatePresence>
     </Reorder.Group>

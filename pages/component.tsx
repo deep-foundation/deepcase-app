@@ -20,10 +20,32 @@ import { TextInput, TooltipEmoji } from '../imports/text-cursor-tooltip/text-cur
 import { Token } from '../imports/token';
 import { elements } from './card';
 
+import { isAndroid, isIOS, isWindows, isMacOs } from 'react-device-detect';
+
 const CytoGraph = dynamic<CytoGraphProps>(
   () => import('../imports/cyto/graph').then((m) => m.default),
   { ssr: false }
 );
+
+const Detector = () => {
+  let os = 'unknown';
+
+  if (isAndroid) {
+    os = 'Android';
+  } else if (isIOS) {
+    os = 'iOS';
+  } else if (isWindows) {
+    os = 'Windows';
+  } else if (isMacOs) {
+    os = 'macOS';
+  }
+
+  return (
+    <div>
+      <p>Your operating system is: {os}</p>
+    </div>
+  );
+};
 
 export default function Page() {
   // const minilinks = useMinilinksConstruct();
@@ -126,6 +148,12 @@ export default function Page() {
         <Code>/token</Code>
         <Box w='100%' h='1rem' />
           <Token />
+        <Box w='100%' h='1rem' />
+        
+        <Box w='100%' h='2rem' />
+        <Code>/package-publisher</Code>
+        <Box w='100%' h='1rem' />
+          <Detector />
         <Box w='100%' h='1rem' />
 
       </Box>
