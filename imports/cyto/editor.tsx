@@ -1,28 +1,24 @@
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, Box, HStack, Flex, IconButton, Text, Input, useColorMode } from '@chakra-ui/react';
-import { useDeep, useDeepQuery, useDeepSubscription } from '@deep-foundation/deeplinks/imports/client';
-import { Link, MinilinksInstance, MinilinksResult, useMinilinksApply, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
-import { ClientHandlerRenderer, evalClientHandler } from '../client-handler';
+import { Box, IconButton, Modal, ModalContent, ModalOverlay, Text, useColorMode } from '@chakra-ui/react';
+import { useDeep, useDeepSubscription } from '@deep-foundation/deeplinks/imports/client';
+import { useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
 import { useLocalStore } from '@deep-foundation/store/local';
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { useCytoEditor } from './hooks';
-import { CytoReactLinkAvatar } from '../cyto-react-avatar';
+import { useDebounceCallback } from '@react-hook/debounce';
+import { motion } from 'framer-motion';
+import json5 from 'json5';
+import dynamic from 'next/dynamic';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { TbArrowRotaryFirstRight } from 'react-icons/tb';
+import { VscClearAll } from 'react-icons/vsc';
+import { ClientHandlerRenderer, evalClientHandler } from '../client-handler';
 import { EditorComponentView } from '../editor/editor-component-view';
 import { EditorGrid } from '../editor/editor-grid';
-import { EditorHandler } from '../editor/editor-handler';
-import { EditorHandlers } from '../editor/editor-handlers';
+import { EditorResults } from '../editor/editor-results';
 import { EditorSwitcher } from '../editor/editor-switcher';
 import { CloseButton, EditorTabs } from '../editor/editor-tabs';
 import { EditorTextArea } from '../editor/editor-textarea';
-import json5 from 'json5';
-import { useDebounceCallback } from '@react-hook/debounce';
 import { CatchErrors } from '../react-errors';
 import { CytoEditorHandlers } from './handlers';
-import { VscClearAll } from 'react-icons/vsc';
-import { EditorResults } from '../editor/editor-results';
-import { motion } from 'framer-motion';
-import { TbArrowRotaryFirstRight } from 'react-icons/tb';
-import dynamic from 'next/dynamic';
-import { Resizable } from 're-resizable';
+import { useCytoEditor } from './hooks';
 
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
@@ -315,12 +311,6 @@ export function CytoEditor() {
   
   const languages = refEditor.current?.monaco.languages.getLanguages();
 
-  const [dockSize, setDockSize] = useState(0.3);
-
-  const handleDockResize = (size) => {
-    setDockSize(size);
-  };
-
   const { colorMode } = useColorMode();
 
 
@@ -344,7 +334,6 @@ export function CytoEditor() {
                   onChange={(value) => {
                     setValue(tabId, value);
                     setTab({ ...tab, saved: tab.initialValue === value });
-                    console.log('value123', value);
                   }}
                   onClose={() => {
                     if (tabs.length === 1 && tabs[0]?.id === tab.id) onClose();
