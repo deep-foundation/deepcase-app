@@ -4,7 +4,7 @@ import { useDeep } from "@deep-foundation/deeplinks/imports/client";
 import copy from "copy-to-clipboard";
 import { useState, useEffect, useMemo } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { useSpaceId, useShowTypes, useLayout, useContainer, useShowExtra, useShowFocus, usePromiseLoader, useTraveler, useMediaQuery, useAutoFocusOnInsert, useBreadcrumbs } from "../hooks";
+import { useSpaceId, useShowTypes, useLayout, useContainer, useShowExtra, useShowFocus, usePromiseLoader, useTraveler, useMediaQuery, useAutoFocusOnInsert, useBreadcrumbs, useReserved } from "../hooks";
 import { useCytoEditor } from "./hooks";
 import { IoExitOutline } from 'react-icons/io5';
 import { PackagerInterface } from "../packager-interface/packager-interface";
@@ -34,6 +34,7 @@ export function CytoMenu({
   const [extra, setExtra] = useShowExtra();
   const [focus, setFocus] = useShowFocus();
   const [traveler, setTraveler] = useTraveler();
+  const [reserved, setReserved] = useReserved();
   const [breadcrumbs, setBreadcrumbs] = useBreadcrumbs();
   const deep = useDeep();
   const [max300] = useMediaQuery('(max-width: 300px)');
@@ -145,6 +146,12 @@ export function CytoMenu({
           </FormLabel>
           <Switch id='breadcrumbs-switch' isChecked={breadcrumbs} onChange={() => setBreadcrumbs(!breadcrumbs)}/>
         </FormControl>
+        {/* <FormControl display='flex' alignItems='center'>
+          <FormLabel htmlFor='reserved switch' mb='0' fontSize='sm' mr='0.25rem'>
+            reserved
+          </FormLabel>
+          <Switch id='reserved switch' isChecked={reserved} onChange={() => setReserved(!reserved)}/>
+        </FormControl> */}
       </HStack>
       <HStack>
         <MenuSearch cyRef={cyRef}/>
