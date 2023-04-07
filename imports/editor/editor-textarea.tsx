@@ -17,6 +17,7 @@ interface IEditor {
   onExit?: () => void;
   minimap?: boolean;
   lineNumbers?: string;
+  defaultLanguage?: string;
 }
 
 export const EditorTextArea = React.memo<any>(({
@@ -28,6 +29,7 @@ export const EditorTextArea = React.memo<any>(({
   onExit,
   minimap = true,
   lineNumbers = 'on',
+  defaultLanguage="javascript"
 }:IEditor) => {
   const refValue = React.useRef(value);
   refValue.current = value;
@@ -58,7 +60,7 @@ export const EditorTextArea = React.memo<any>(({
     height="100%"
     width="100%"
     theme={colorMode === 'light' ? 'light' : "vs-dark"}
-    defaultLanguage="javascript"
+    defaultLanguage={defaultLanguage}
     defaultValue={value || ''}
     onChange={onChange}
     onMount={handleEditorDidMount}

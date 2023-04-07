@@ -101,6 +101,8 @@ const ListLanguages = React.memo<any>(({
 }) => {
   const [isOpenListLanguages, setIsOpenListLanguages] = useState(false);
 
+  console.log('currentLanguage', currentLanguage);
+
   return (<Box as={motion.nav}
       initial={false}
       animate={isOpenListLanguages ? "open" : "closed"}
@@ -109,7 +111,6 @@ const ListLanguages = React.memo<any>(({
         // border: 'thin solid #ebebeb',
         width: '50%',
         height: 10,
-        // position: 'absolute',
         top: 0,
         right: 0,
       }}
@@ -211,9 +212,7 @@ const ListLanguages = React.memo<any>(({
   )
 })
 
-export function CytoEditor({
-}: {
-}) {
+export function CytoEditor() {
   const [cytoEditor, setCytoEditor] = useCytoEditor();
   const onClose = useCallback(() => {
     setCytoEditor(false);
@@ -308,31 +307,9 @@ export function CytoEditor({
     import('@monaco-editor/react').then(m => {});
   }, []);
   
-  const [currentLanguage, setCurrentLanguage] = useState(undefined);
-  const model = refEditor.current?.monaco.editor.getModels()[0];
-  const latestLanguage = model?._languageId;
-  if (model) {
-    model.onDidChangeAttached = () => {
-      if (!currentLanguage && model._languageId) setCurrentLanguage(model._languageId);
-    }
-  }
-  
-  console.log('latestLanguageBefore', latestLanguage);
-  
-  useEffect(() => {
-    if (!currentLanguage && latestLanguage) setCurrentLanguage(latestLanguage);
-  }, [latestLanguage, currentLanguage])
+  const [currentLanguage, setCurrentLanguage] = useState('javascript');
   
   const languages = refEditor.current?.monaco.languages.getLanguages();
-  
-  console.log('getModels()', refEditor?.current?.monaco.editor.getModels().length);
-  // const string = String(latestLanguage);
-  // const copy = JSON.parse(JSON.stringify(latestLanguage));
-  // console.log('copy', copy);
-  // const getLanguage = refEditor?.current?.monaco.editor.setModelLanguage(refEditor?.current?.monaco.editor.getModel(), i)
-  console.log('languages', languages);
-  // console.log('string', string);
-  console.log('currentLanguageF', currentLanguage);
 
   const [dockSize, setDockSize] = useState(0.3);
 
@@ -357,6 +334,7 @@ export function CytoEditor({
                 <EditorTextArea
                   refEditor={refEditor}
                   value={currentValue}
+                  defaultLanguage={currentLanguage}
                   onChange={(value) => {
                     setValue(tabId, value);
                     setTab({ ...tab, saved: tab.initialValue === value });
@@ -403,12 +381,12 @@ export function CytoEditor({
                       setLanguage={(i) => {
                         console.log('currentLanguage', currentLanguage);
                         console.log('idi', i);
-                        console.log('latestLanguage', latestLanguage);
+                        // console.log('latestLanguage', latestLanguage);
                         setCurrentLanguage(i);
                         refEditor.current?.monaco.editor.setModelLanguage(refEditor.current?.monaco.editor.getModels()[0], i);
                         console.log('currentLanguage1', currentLanguage);
                         console.log('idi1', i);
-                        console.log('latestLanguage1', latestLanguage);
+                        // console.log('latestLanguage1', latestLanguage);
                       }}
                     />
                   </Box>
