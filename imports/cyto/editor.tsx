@@ -1,4 +1,4 @@
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, Box, HStack, Flex, IconButton, Text, Input } from '@chakra-ui/react';
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, Box, HStack, Flex, IconButton, Text, Input, useColorMode } from '@chakra-ui/react';
 import { useDeep, useDeepQuery, useDeepSubscription } from '@deep-foundation/deeplinks/imports/client';
 import { Link, MinilinksInstance, MinilinksResult, useMinilinksApply, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
 import { ClientHandlerRenderer, evalClientHandler } from '../client-handler';
@@ -100,6 +100,7 @@ const ListLanguages = React.memo<any>(({
   setLanguage,
 }) => {
   const [isOpenListLanguages, setIsOpenListLanguages] = useState(false);
+  const { colorMode } = useColorMode();
 
   return (<Box as={motion.nav}
       initial={false}
@@ -117,7 +118,7 @@ const ListLanguages = React.memo<any>(({
         whileTap={{ scale: 0.97 }}
         onClick={() => setIsOpenListLanguages(!isOpenListLanguages)}
         sx={{
-          background: '#fff',
+          background: colorMode == 'light' ? 'white' : 'gray.900',
           color: '#0080ff',
           border: 'none',
           borderRadius: '0.3rem',
@@ -185,7 +186,7 @@ const ListLanguages = React.memo<any>(({
           height: '15.7rem',
           flexDirection: 'column',
           gap: '0.7rem',
-          background: '#fff',
+          background: colorMode == 'light' ? 'white' : 'gray.900',
           p: 2,
           overflowY: 'scroll',
           overscrollBehavior: 'contain',
@@ -320,6 +321,8 @@ export function CytoEditor() {
     setDockSize(size);
   };
 
+  const { colorMode } = useColorMode();
+
 
   return <>
     <Modal isOpen={cytoEditor} onClose={onClose} size='full'>
@@ -379,7 +382,15 @@ export function CytoEditor() {
                     }
                   }}
                 />
-                <Box w='100%' bg='white' pos='absolute' bottom='0' borderTopColor='#ebebeb' borderTopWidth='thin' p='0.5rem'>
+                <Box 
+                  w='100%' 
+                  pos='absolute' 
+                  bottom='0' 
+                  borderTopColor='#ebebeb' 
+                  borderTopWidth='thin' 
+                  p='0.5rem' 
+                  bg={colorMode == 'light' ? 'white' : 'gray.900'}
+                >
                   <Box pos='relative'>
                     <ListLanguages 
                       languages={languages} 
