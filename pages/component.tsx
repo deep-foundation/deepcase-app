@@ -21,6 +21,7 @@ import { Token } from '../imports/token';
 import { elements } from './card';
 
 import { isAndroid, isIOS, isWindows, isMacOs } from 'react-device-detect';
+import { VerticalSash } from '../imports/editor/editor-grid';
 
 const CytoGraph = dynamic<CytoGraphProps>(
   () => import('../imports/cyto/graph').then((m) => m.default),
@@ -154,6 +155,12 @@ export default function Page() {
         <Code>/package-publisher</Code>
         <Box w='100%' h='1rem' />
           <Detector />
+        <Box w='100%' h='1rem' />
+
+        <Box w='100%' h='2rem' />
+        <Code>/editor-grid</Code>
+        <Box w='100%' h='1rem' />
+          <VerticalSash />
         <Box w='100%' h='1rem' />
 
       </Box>

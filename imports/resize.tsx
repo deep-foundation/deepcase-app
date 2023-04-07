@@ -9,8 +9,8 @@ export const Resize = React.memo<any>(({
   children,
   style 
 }:{ 
-  onChangeSize?: (size: { width: number, height: number }) => any;
-  size?: any;
+  onChangeSize?: (size: { width: number | string, height: number | string }) => any;
+  size?: {width: any, height: any};
   fillSize?: boolean;
   children: any;
   style?: any;  

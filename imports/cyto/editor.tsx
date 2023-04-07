@@ -22,6 +22,8 @@ import { EditorResults } from '../editor/editor-results';
 import { motion } from 'framer-motion';
 import { TbArrowRotaryFirstRight } from 'react-icons/tb';
 import dynamic from 'next/dynamic';
+import { Resizable } from 're-resizable';
+
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
 
@@ -287,7 +289,7 @@ export function CytoEditor({
   const [rightArea, setRightArea] = useState('preview');
   const [generated, setGenerated] = useState('src');
   const [fillSize, setFillSize] = useState(false);
-  const [viewSize, setViewSize] = useState({width: 124, height: 123});
+  const [viewSize, setViewSize] = useState<any>({width: '50%', height: '100%'});
 
   const [Component, setComponent] = useState({});
 
@@ -332,78 +334,86 @@ export function CytoEditor({
   // console.log('string', string);
   console.log('currentLanguageF', currentLanguage);
 
+  const [dockSize, setDockSize] = useState(0.3);
+
+  const handleDockResize = (size) => {
+    setDockSize(size);
+  };
+
+
   return <>
     <Modal isOpen={cytoEditor} onClose={onClose} size='full'>
       <ModalOverlay />
       <ModalContent style={{ height: '100%' }}>
         <EditorGrid
           editorTextAreaElement={<>{[
-            <Box 
-              key={tabId} 
-              sx={{
-                pos: 'relative',
-              }}
-            >
-              <EditorTextArea
-                refEditor={refEditor}
-                value={currentValue}
-                onChange={(value) => {
-                  setValue(tabId, value);
-                  setTab({ ...tab, saved: tab.initialValue === value });
+              <Box 
+                key={tabId} 
+                sx={{
+                  pos: 'relative',
+                  height: '100%'
                 }}
-                onClose={() => {
-                  if (tabs.length === 1 && tabs[0]?.id === tab.id) onClose();
-                  closeTab(tabId);
-                  setValue(tabId, undefined);
-                  focusEditor();
-                }}
-                onSave={async (savedValue) => {
-                  const value = tempValueRef?.current?.[tabId] || savedValue;
-                  const Value = await deep.id({ in: { type_id: { _id: ['@deep-foundation/core', 'Value'] }, from: { typed: { id: { _eq: tab.id } } } } });
-                  const table = Value === deep.idLocal('@deep-foundation/core', 'String') ? 'strings' : Value === deep.idLocal('@deep-foundation/core', 'Number') ? 'numbers' : Value === deep.idLocal('@deep-foundation/core', 'Object') ? 'objects' : undefined;
-                  const type = Value === deep.idLocal('@deep-foundation/core', 'String') ? 'string' : Value === deep.idLocal('@deep-foundation/core', 'Number') ? 'number' : Value === deep.idLocal('@deep-foundation/core', 'Object') ? 'object' : 'undefined';
+              >
+                <EditorTextArea
+                  refEditor={refEditor}
+                  value={currentValue}
+                  onChange={(value) => {
+                    setValue(tabId, value);
+                    setTab({ ...tab, saved: tab.initialValue === value });
+                  }}
+                  onClose={() => {
+                    if (tabs.length === 1 && tabs[0]?.id === tab.id) onClose();
+                    closeTab(tabId);
+                    setValue(tabId, undefined);
+                    focusEditor();
+                  }}
+                  onSave={async (savedValue) => {
+                    const value = tempValueRef?.current?.[tabId] || savedValue;
+                    const Value = await deep.id({ in: { type_id: { _id: ['@deep-foundation/core', 'Value'] }, from: { typed: { id: { _eq: tab.id } } } } });
+                    const table = Value === deep.idLocal('@deep-foundation/core', 'String') ? 'strings' : Value === deep.idLocal('@deep-foundation/core', 'Number') ? 'numbers' : Value === deep.idLocal('@deep-foundation/core', 'Object') ? 'objects' : undefined;
+                    const type = Value === deep.idLocal('@deep-foundation/core', 'String') ? 'string' : Value === deep.idLocal('@deep-foundation/core', 'Number') ? 'number' : Value === deep.idLocal('@deep-foundation/core', 'Object') ? 'object' : 'undefined';
 
-                  let _value;
-                  try {
-                    _value = table === 'strings' ? value : table === 'numbers' ? parseFloat(value) : table === 'objects' ? json5.parse(value) : undefined;
-                  } catch(error) {}
+                    let _value;
+                    try {
+                      _value = table === 'strings' ? value : table === 'numbers' ? parseFloat(value) : table === 'objects' ? json5.parse(value) : undefined;
+                    } catch(error) {}
 
-                  if (!deep.minilinks.byId[tab.id]?.value) {
-                    await deep.insert({ link_id: tab.id, value: _value }, {
-                      table: table,
-                    });
-                    setTab({ ...tab, initialValue: value, loading: false, saved: true });
-                  } else if (type !== 'undefined') {
-                    await deep.update({ link_id: { _eq: tab.id } }, {
-                      value: _value,
-                    }, {
-                      table: `${type}s`,
-                    });
-                    setTab({ ...tab, initialValue: value, loading: false, saved: true });
-                  } else {
-                    setTab({ ...tab, initialValue: value, loading: false, saved: false });
-                  }
-                }}
-              />
-              <Box w='100%' bg='white' pos='absolute' bottom='0' borderTopColor='#ebebeb' borderTopWidth='thin' p='0.5rem'>
-                <Box pos='relative'>
-                  <ListLanguages 
-                    languages={languages} 
-                    currentLanguage={currentLanguage} 
-                    setLanguage={(i) => {
-                      console.log('currentLanguage', currentLanguage);
-                      console.log('idi', i);
-                      console.log('latestLanguage', latestLanguage);
-                      setCurrentLanguage(i);
-                      refEditor.current?.monaco.editor.setModelLanguage(refEditor.current?.monaco.editor.getModels()[0], i);
-                      console.log('currentLanguage1', currentLanguage);
-                      console.log('idi1', i);
-                      console.log('latestLanguage1', latestLanguage);
-                    }}
-                  />
+                    if (!deep.minilinks.byId[tab.id]?.value) {
+                      await deep.insert({ link_id: tab.id, value: _value }, {
+                        table: table,
+                      });
+                      setTab({ ...tab, initialValue: value, loading: false, saved: true });
+                    } else if (type !== 'undefined') {
+                      await deep.update({ link_id: { _eq: tab.id } }, {
+                        value: _value,
+                      }, {
+                        table: `${type}s`,
+                      });
+                      setTab({ ...tab, initialValue: value, loading: false, saved: true });
+                    } else {
+                      setTab({ ...tab, initialValue: value, loading: false, saved: false });
+                    }
+                  }}
+                />
+                <Box w='100%' bg='white' pos='absolute' bottom='0' borderTopColor='#ebebeb' borderTopWidth='thin' p='0.5rem'>
+                  <Box pos='relative'>
+                    <ListLanguages 
+                      languages={languages} 
+                      currentLanguage={currentLanguage} 
+                      setLanguage={(i) => {
+                        console.log('currentLanguage', currentLanguage);
+                        console.log('idi', i);
+                        console.log('latestLanguage', latestLanguage);
+                        setCurrentLanguage(i);
+                        refEditor.current?.monaco.editor.setModelLanguage(refEditor.current?.monaco.editor.getModels()[0], i);
+                        console.log('currentLanguage1', currentLanguage);
+                        console.log('idi1', i);
+                        console.log('latestLanguage1', latestLanguage);
+                      }}
+                    />
+                  </Box>
                 </Box>
               </Box>
-            </Box>
           ]}</>}
           editorTabsElement={<EditorTabs
             tabs={tabs.map((tab) => ({
