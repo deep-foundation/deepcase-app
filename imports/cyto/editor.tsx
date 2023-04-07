@@ -101,8 +101,6 @@ const ListLanguages = React.memo<any>(({
 }) => {
   const [isOpenListLanguages, setIsOpenListLanguages] = useState(false);
 
-  console.log('currentLanguage', currentLanguage);
-
   return (<Box as={motion.nav}
       initial={false}
       animate={isOpenListLanguages ? "open" : "closed"}
@@ -261,7 +259,8 @@ export function CytoEditor() {
   )
 
   // console.log('editor', 'generatedLink', generatedLink);
-  
+  const [currentLanguage, setCurrentLanguage] = useState('plaintext');
+
   useEffect(() => {
     // console.log('editor', 'evalClientHandler', 'generatedLink', generatedLink);
     // console.log('editor', 'evalClientHandler', 'generatedLink?.value?.value', generatedLink?.value?.value);
@@ -272,6 +271,10 @@ export function CytoEditor() {
     if (!value) {
       return;
     }
+    if ((currentLanguage !== 'javascript') && (currentLanguage !== 'typescript')) {
+      return;
+    }
+
     evalClientHandler({ value, deep }).then(({ data, error }) => {
       // console.log('editor','evalClientHandler', 'error', error);
       // console.log('editor','evalClientHandler', 'data', data);
@@ -307,7 +310,7 @@ export function CytoEditor() {
     import('@monaco-editor/react').then(m => {});
   }, []);
   
-  const [currentLanguage, setCurrentLanguage] = useState('javascript');
+
   
   const languages = refEditor.current?.monaco.languages.getLanguages();
 
@@ -338,6 +341,7 @@ export function CytoEditor() {
                   onChange={(value) => {
                     setValue(tabId, value);
                     setTab({ ...tab, saved: tab.initialValue === value });
+                    console.log('value123', value);
                   }}
                   onClose={() => {
                     if (tabs.length === 1 && tabs[0]?.id === tab.id) onClose();
@@ -354,7 +358,9 @@ export function CytoEditor() {
                     let _value;
                     try {
                       _value = table === 'strings' ? value : table === 'numbers' ? parseFloat(value) : table === 'objects' ? json5.parse(value) : undefined;
-                    } catch(error) {}
+                    } catch(error) {
+                      console.log('error123', error);
+                    }
 
                     if (!deep.minilinks.byId[tab.id]?.value) {
                       await deep.insert({ link_id: tab.id, value: _value }, {

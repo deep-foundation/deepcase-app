@@ -1,6 +1,7 @@
 import { useColorMode } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
 import React from 'react';
+import _ from 'lodash';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
 
@@ -61,7 +62,7 @@ export const EditorTextArea = React.memo<any>(({
     width="100%"
     theme={colorMode === 'light' ? 'light' : "vs-dark"}
     defaultLanguage={defaultLanguage}
-    defaultValue={value || ''}
+    defaultValue={_.toString(value) || ''}
     onChange={onChange}
     onMount={handleEditorDidMount}
   />)
