@@ -22,7 +22,7 @@ import { elements } from './card';
 
 import { isAndroid, isIOS, isWindows, isMacOs } from 'react-device-detect';
 import { VerticalSash } from '../imports/editor/editor-grid';
-import { MessagingInterface } from '../imports/messager';
+import { MessagingInterface } from '../imports/messanger';
 
 const CytoGraph = dynamic<CytoGraphProps>(
   () => import('../imports/cyto/graph').then((m) => m.default),
