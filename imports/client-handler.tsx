@@ -113,6 +113,7 @@ export function ClientHandler({
   linkId,
   ml,
   onClose,
+  fillSize,
   ...props
 }: ClientHandlerProps) {
   const deep = useDeep();
@@ -146,7 +147,7 @@ export function ClientHandler({
 
   return (<>
     {(typeof(Component) === 'function')
-    ? <>{[<ClientHandlerRenderer key={Component.toString()} Component={Component} {...props} fillSize={false} link={ml.byId[linkId]} ml={ml} onClose={onClose}/>]}</>
+    ? <>{[<ClientHandlerRenderer key={Component.toString()} Component={Component} {...props} fillSize={fillSize} link={ml.byId[linkId]} ml={ml} onClose={onClose}/>]}</>
     : <div>
         
       </div>}

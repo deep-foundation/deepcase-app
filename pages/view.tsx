@@ -1,101 +1,60 @@
-import { Box, ChakraProvider } from '@chakra-ui/react';
-import { useMinilinksConstruct } from '@deep-foundation/deeplinks/imports/minilinks';
-import dynamic from "next/dynamic";
+import { Box } from '@chakra-ui/react';
+import { DeepProvider, useDeep, useDeepSubscription } from '@deep-foundation/deeplinks/imports/client';
 import { useState } from 'react';
+import { AutoGuest } from '../imports/auto-guest';
+import { ClientHandler } from '../imports/client-handler';
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
-import { CytoGraphProps } from '../imports/cyto/types';
-import { EditorComponentView } from '../imports/editor/editor-component-view';
-import themeChakra from '../imports/theme/theme';
+import { useHandlerId, useLinkId, useSpaceId } from '../imports/hooks';
+import { DeepLoader } from '../imports/loader';
+import { Provider } from '../imports/provider';
 
-const CytoGraph = dynamic<CytoGraphProps>(
-  () => import('../imports/cyto/graph').then((m) => m.default),
-  { ssr: false }
-);
 
-const tabs = [
-  {
-    id: 1,
-    title: 'много букв',
-    saved: true,
-    onClick: () => console.log(1),
-    onClose: () => console.log(1),
-  },
-  {
-    id: 2,
-    title: 456,
-    saved: false,
-    active: true,
-    onClick: () => console.log(2),
-    onClose: () => console.log(2),
-  },
-  {
-    id: 3,
-    title: 'буква',
-    saved: true,
-    loading: true,
-    onClick: () => console.log(3),
-    onClose: () => console.log(3),
-  },
-  {
-    id: 4,
-    title: 423,
-    saved: true,
-    onClick: () => console.log(4),
-    onClose: () => console.log(4),
-  },
-  {
-    id: 5,
-    title: 523,
-    saved: false,
-    onClick: () => console.log(5),
-    onClose: () => console.log(5),
-  },
-];
+export function Content({
+  openPortal,
+}: {
+  openPortal?: () => any;
+}) {
+  const [spaceId, setSpaceId] = useSpaceId();
+  const deep = useDeep();
+  global.deep = deep;
 
-const reasons = [
-  {
-    id: 1,
-    name: 'selector',
-  },
-  {
-    id: 2,
-    name: 'route',
-  },
-  {
-    id: 3,
-    name: 'schedule',
-  },
-  {
-    id: 4,
-    name: 'sync',
-  },
-];
+  global.ml = deep.minilinks;
 
-const handlers = [
-  {
-    id: 1,
+  const [handlerId, setHandlerId] = useHandlerId();
+  const [linkId, setLinkId] = useLinkId();
 
-  },
-];
-
-export default function Page() {
-  // const [spaceId, setSpaceId] = useSpaceId();
-  const spaceId = 234;
-  const minilinks = useMinilinksConstruct();
-  const { ref: mlRef, ml } = minilinks;
-  const [viewSize, setViewSize] = useState({width: 124, height: 123});
+  const { data: files } = useDeepSubscription({
+    up: {
+      parent: {
+        id: linkId
+      }
+    },
+  });
 
   return (<>
-    <ChakraProvider theme={themeChakra}>
-      <>
-        <ColorModeSwitcher/>
-        <Box h='5rem' />
-        <Box pos='relative' width='100%' height='80vh'>
-          <EditorComponentView 
-            size={viewSize}
-            onChangeSize={(viewSize) => setViewSize(viewSize)} />
-        </Box>
-      </>
-    </ChakraProvider>
+    {[<DeepLoader
+      key={spaceId}
+      spaceId={spaceId}
+      />]}
+      <Box w='100vw' h='100vh'>
+        <ClientHandler fillSize={true} handlerId={handlerId} linkId={linkId} ml={deep.minilinks} />
+      </Box>
+    <ColorModeSwitcher/>
+  </>); 
+};
+
+export default function Page() {
+  const [gqlPath, setGqlPath] = useState('');
+  const [gqlSsl, setGqlSsl] = useState('');
+  const [portal, setPortal] = useState(true);
+
+  return (<>
+    <Provider gqlPath={gqlPath} gqlSsl={gqlSsl}>
+      <DeepProvider>
+        <AutoGuest>
+          <Content openPortal={()=>setPortal(true)} />
+        </AutoGuest>
+      </DeepProvider>
+    </Provider>
   </>);
 }

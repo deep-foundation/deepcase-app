@@ -212,3 +212,10 @@ export const useMediaQuery = function useMediaQuery(arg) {
   useEffect(() => setValue(actualValue), [actualValue, isBrowser]);
   return [value, isBrowser];
 }
+
+export function useLinkId() {
+  return useQueryStore<any>('link-id', false);
+};
+export function useHandlerId() {
+  return useQueryStore<any>('handler-id', false);
+};

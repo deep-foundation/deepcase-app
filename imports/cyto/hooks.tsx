@@ -6,6 +6,7 @@ import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { TiArrowBackOutline } from "react-icons/ti";
 import { VscChromeClose, VscVersions } from "react-icons/vsc";
+import { BsArrowsFullscreen } from "react-icons/bs";
 import { useLocalStorage } from "usehooks-ts";
 import { ClientHandler } from "../client-handler";
 import { CytoReactLinksCard } from "../cyto-react-links-card";
@@ -451,6 +452,21 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
                 />
               </PopoverContent>
             </Popover>
+            <Spacer />
+            <IconButton
+              isRound
+              aria-label='open new full tab'
+              size={'xs'}
+              as='a'
+              target='_blank'
+              href={`/view?link-id=${id}&handler-id=${handlerId}`}
+              sx={{
+                _hover: {
+                  transform: 'scale(1.2)',
+                }
+              }}
+              icon={<BsArrowsFullscreen />}
+            />
             <Spacer />
             <IconButton
               isRound
