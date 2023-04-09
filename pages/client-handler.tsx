@@ -9,6 +9,7 @@ import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
 
 
+
 export function Content({
   openPortal,
 }: {
@@ -19,6 +20,8 @@ export function Content({
   global.deep = deep;
 
   global.ml = deep.minilinks;
+
+
 
   const [handlerId, setHandlerId] = useHandlerId();
   const [linkId, setLinkId] = useLinkId();

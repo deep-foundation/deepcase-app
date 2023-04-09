@@ -459,7 +459,7 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
               size={'xs'}
               as='a'
               target='_blank'
-              href={`/view?link-id=${id}&handler-id=${handlerId}`}
+              href={`/client-handler?link-id=${id}&handler-id=${handlerId}`}
               sx={{
                 _hover: {
                   transform: 'scale(1.2)',
