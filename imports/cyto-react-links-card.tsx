@@ -218,13 +218,18 @@ export const CytoReactLinksCard = React.memo<any>(({
 
   useEffect(() => {
     inputRef.current.focus();
-  })
+  }, []);
 
   const selectLink = useCallback((linkId) => {
     setSelectedLink((prevLinkId) => prevLinkId == linkId ? 0 : linkId);
   }, []);
 
-  useHotkeys('up,down', e => {
+  useHotkeys('up,right,down,left', e => {
+    const searchInput = document.activeElement;
+    if (searchInput instanceof HTMLInputElement || searchInput instanceof HTMLTextAreaElement) {
+      return;
+    }
+    
     e.preventDefault();
     e.stopPropagation();
     let index = elements.findIndex(e => e.id == selectedLink);
@@ -234,10 +239,10 @@ export const CytoReactLinksCard = React.memo<any>(({
     let next = elements[index];
     if (!selectedLink) {
       setSelectedLink(next.id);
-    } else if (e.key == 'ArrowUp') {
+    } else if (e.key == 'ArrowUp' || e.key == 'ArrowLeft') {
       next = elements[index == 0 ? elements.length - 1 : index - 1];
       setSelectedLink(next.id);
-    } else if (e.key == 'ArrowDown') {
+    } else if (e.key == 'ArrowDown' || e.key == 'ArrowRight') {
       next = elements[index == elements.length - 1 ? 0 : index + 1];
       setSelectedLink(next.id);
     }
