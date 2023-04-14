@@ -224,7 +224,7 @@ export const CytoReactLinksCard = React.memo<any>(({
     setSelectedLink((prevLinkId) => prevLinkId == linkId ? 0 : linkId);
   }, []);
 
-  useHotkeys('up,right,down,left', e => {
+  useHotkeys('up,down', e => {
     e.preventDefault();
     e.stopPropagation();
     let index = elements.findIndex(e => e.id == selectedLink);
@@ -234,10 +234,10 @@ export const CytoReactLinksCard = React.memo<any>(({
     let next = elements[index];
     if (!selectedLink) {
       setSelectedLink(next.id);
-    } else if (e.key == 'ArrowUp' || e.key == 'ArrowLeft') {
+    } else if (e.key == 'ArrowUp') {
       next = elements[index == 0 ? elements.length - 1 : index - 1];
       setSelectedLink(next.id);
-    } else if (e.key == 'ArrowDown' || e.key == 'ArrowRight') {
+    } else if (e.key == 'ArrowDown') {
       next = elements[index == elements.length - 1 ? 0 : index + 1];
       setSelectedLink(next.id);
     }
