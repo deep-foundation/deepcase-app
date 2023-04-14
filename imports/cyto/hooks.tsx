@@ -763,8 +763,9 @@ export function useCyInitializer({
         {
           content: 'insert',
           select: function(el, ev){
-            // TODO: use insert card size instead or change anchor of InsertCard component from center to top-left
-            openInsertCard({ position: {x: ev.position.x + 190, y: ev.position.y + 150}, from: 0, to: 0 });
+            setTimeout(()=>{
+              openInsertCard({ position: ev.position, from: 0, to: 0 });
+            },1);
           }
         },
         {
