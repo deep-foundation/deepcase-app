@@ -1,13 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { RiInstallLine, RiUninstallLine } from 'react-icons/ri';
 import { AnimatePresence, DeprecatedLayoutGroupContext, motion, useAnimation } from 'framer-motion';
-import { Box, Button, Divider, Flex, HStack, List, ListItem, Select, Spacer, Text, useColorModeValue } from '@chakra-ui/react';
+import { Box, Button, Divider, Flex, HStack, List, ListItem, Menu, MenuButton, MenuItem, MenuList, Select, Spacer, Text, useColorModeValue } from '@chakra-ui/react';
 import { Install } from "./icons/install";
 import { TbArrowRotaryFirstRight, TbBookDownload } from 'react-icons/tb';
 import { TagLink } from '../tag-component';
 import _ from 'lodash';
 import { useSpaceId } from "../hooks";
 import { useDeep } from '@deep-foundation/deeplinks/imports/client';
+import { ChevronDownIcon } from '@chakra-ui/icons';
 
 const axiosHooks = require("axios-hooks");
 const axios = require("axios");
@@ -115,54 +116,21 @@ const ListVersions = React.memo<any>(({
   versions.sort(collator.compare);
   // console.log('ListVersions.versions', versions)
 
-  return (<Box as={motion.nav}
-      initial={false}
-      animate={isOpenListVersions ? "open" : "closed"}
-      sx={{
-        filter: 'drop-shadow(0px 0px 1px #5f6977)',
-        width: '4.6rem',
-        position: 'absolute',
-        top: 0,
-        right: 0,
-      }}
-    >
-      <Box as={motion.button}
-        whileTap={{ scale: 0.97 }}
-        onClick={() => setIsOpenListVersions(!isOpenListVersions)}
-        sx={{
-          background: '#fff',
-          color: '#0080ff',
-          border: 'none',
-          borderRadius: '0.3rem',
-          p: '0.1rem 0.5rem',
-          fontWeight: 700,
-          cursor: 'pointer',
-          w:'100%',
-          textAlign: 'left',
-          mb: '0.3rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <Text fontSize='sm'>{currentVersion}</Text>
-        <Box as={motion.div}
-          variants={{
-            open: { rotate: 180 },
-            closed: { rotate: 0 }
-          }}
-          animate={{ originY: 0.55 }}
-          // @ts-ignore
-          transition={{
-            type: "tween",
-            duration: 0.2
-          }}
-        >
-          <TbArrowRotaryFirstRight />
-        </Box>
-      </Box>
-      <Box
-        as={motion.ul}
+  return (<Menu>
+    <MenuButton 
+    as={motion.nav}
+    initial={false}
+    animate={isOpenListVersions ? "open" : "closed"}
+    sx={{
+      filter: 'drop-shadow(0px 0px 1px #5f6977)',
+      width: '4.6rem',
+      top: 0,
+      right: 0,
+    }} 
+     >
+      Actions
+    </MenuButton>
+    <MenuList as={motion.ul}
         variants={{
           open: {
             clipPath: "inset(0% 0% 0% 0% round 5px)",
@@ -191,10 +159,9 @@ const ListVersions = React.memo<any>(({
           }
         }}
         sx={{
-          zIndex: 44,
-          position: 'relative',
+          // zIndex: 44,
           display: 'flex',
-          height: '4rem',
+          height: '12rem',
           flexDirection: 'column',
           gap: '0.7rem',
           background: '#fff',
@@ -202,10 +169,9 @@ const ListVersions = React.memo<any>(({
           overflowY: 'scroll',
           overscrollBehavior: 'contain',
         }}
-        style={{ pointerEvents: isOpenListVersions ? "auto" : "none" }}
-      >
-        {versions && versions.map(v => (
-          <Box 
+        style={{ pointerEvents: isOpenListVersions ? "auto" : "none" }}>
+          {versions && versions.map(v => (
+          <MenuItem 
             as={motion.li} 
             sx={{listStyle: 'none', display: 'block', fontSize: '0.8rem'}} 
             variants={versionsListVariants}
@@ -215,10 +181,10 @@ const ListVersions = React.memo<any>(({
               setCurrentVersion(v);
               setIsOpenListVersions(false);
             }}
-          >{v}</Box>
+          >{v}</MenuItem>
         ))}
-      </Box>
-    </Box>
+    </MenuList>
+  </Menu>
   )
 })
 
@@ -268,7 +234,9 @@ const PackageItem = React.memo<any>(function PackageItem({
               ...style
             }}
           ><Text fontSize='sm' as='h2'>{name}</Text></Box>
-          <Box pos='relative' zIndex={3}>
+          <Box 
+          // zIndex={3}
+          >
             <ListVersions name={name} latestVersion={latestVersion} currentVersion={currentVersion} setCurrentVersion={setCurrentVersion} />
           </Box>
         </Flex>
