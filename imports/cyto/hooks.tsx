@@ -196,7 +196,7 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
     openInsertCard: (insertedLink: IInsertedLink) => {
       if (insertedLink) {
         setInsertingLink(insertedLink);
-        if (cy) {
+        if (cy) {// TODO: ERR: cy always undefined
           const el = cy.$('#insert-link-card');
           el.unlock();
           if (!insertedLink.from && !insertedLink.to) {
@@ -763,7 +763,8 @@ export function useCyInitializer({
         {
           content: 'insert',
           select: function(el, ev){
-            openInsertCard({ position: ev.position, from: 0, to: 0 });
+            // TODO: use insert card size instead or change anchor of InsertCard component from center to top-left
+            openInsertCard({ position: {x: ev.position.x + 190, y: ev.position.y + 150}, from: 0, to: 0 });
           }
         },
         {
