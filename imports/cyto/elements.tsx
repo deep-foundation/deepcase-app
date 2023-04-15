@@ -127,7 +127,6 @@ export function useCytoElements(ml, _links, cy, spaceId) {
         typeof(link?.value.value) === 'object' && json
         ? json : link?.value.value
       );
-      console.log(`_value: ${_value}`)
     }
     if (link?.inByType?.[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value) {
       _name = `name:${link?.inByType?.[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value}`;
