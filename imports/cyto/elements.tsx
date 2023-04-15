@@ -47,6 +47,10 @@ export function useCytoElements(ml, _links, cy, spaceId) {
       _symbol = ml.byTo[link?.type_id]?.find(l => l.type_id === deep.idLocal('@deep-foundation/core', 'Symbol'))?.value?.value;
     }
 
+    function isValidValue(value) {
+      return value !== null && value !== undefined && !Number.isNaN(value) && value !== '';
+    }
+
     // const parent = link?._applies?.find(q => q.includes('query-'));
     const element = {
       id: link.id,
@@ -56,7 +60,7 @@ export function useCytoElements(ml, _links, cy, spaceId) {
           `${link.id}`
           +(_type ? '\n'+`${_type}` : '')
           +(_name ? '\n'+`${_name}` : '')
-          +(_value !== null && _value !== undefined && !Number.isNaN(_value) && _value !== '' ? '\n'+`${_value}` : '')
+          +(isValidValue(_value) ? '\n'+`${_value}` : '')
           +`\n\n ${_symbol || '📍'}`
         ),
         // parent,
