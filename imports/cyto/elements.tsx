@@ -2,6 +2,7 @@ import { useDeep } from '@deep-foundation/deeplinks/imports/client';
 import json5 from 'json5';
 import { useMemo } from 'react';
 import { useInsertingCytoStore, useShowFocus, useShowTypes } from '../hooks';
+import _ from 'lodash';
 
 export function useCytoElements(ml, _links, cy, spaceId) {
   const [showTypes, setShowTypes] = useShowTypes();
@@ -22,7 +23,7 @@ export function useCytoElements(ml, _links, cy, spaceId) {
     const focus = link?.inByType?.[deep.idLocal('@deep-foundation/core', 'Focus')]?.find(f => f.from_id === spaceId);
     const isFocusSpace = (link.type_id === deep.idLocal('@deep-foundation/core', 'Focus') && link._applies.includes('space')) || (link?.to?.type_id === deep.idLocal('@deep-foundation/core', 'Focus') && link._applies.includes('space'));
 
-    let _value: string | number = '';
+    let _value = '';
     let _name = '';
     let _type = '';
     let _symbol = '';
@@ -33,7 +34,6 @@ export function useCytoElements(ml, _links, cy, spaceId) {
         typeof(link?.value.value) === 'object' && json
         ? json : link?.value.value
       );
-      if(typeof(_value) === 'number') _value = _value.toString()
       if (typeof(_value) === 'string') _value = _value.split('\n')[0];
       if (_value.length > 20) _value = _value.slice(0, 11)+'...'+_value.slice(-9, _value.length);
     }
@@ -56,7 +56,7 @@ export function useCytoElements(ml, _links, cy, spaceId) {
           `${link.id}`
           +(_type ? '\n'+`${_type}` : '')
           +(_name ? '\n'+`${_name}` : '')
-          +(_value || _value  === '0' ? '\n'+`${_value}` : '')
+          +(_value !== null && _value !== undefined && !Number.isNaN(_value) && _value !== '' ? '\n'+`${_value}` : '')
           +`\n\n ${_symbol || '📍'}`
         ),
         // parent,
