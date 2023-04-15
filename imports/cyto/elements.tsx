@@ -26,7 +26,7 @@ export function useCytoElements(ml, _links, cy, spaceId) {
     let _name = '';
     let _type = '';
     let _symbol = '';
-    if (/*labelsConfig?.values && */link?.value?.value) {
+    if (/*labelsConfig?.values && */link?.value?.value !== undefined) {
       let json;
       try { json = json5.stringify(link?.value.value); } catch(error) {}
       _value = (
@@ -56,7 +56,7 @@ export function useCytoElements(ml, _links, cy, spaceId) {
           `${link.id}`
           +(_type ? '\n'+`${_type}` : '')
           +(_name ? '\n'+`${_name}` : '')
-          +(_value ? '\n'+`${_value}` : '')
+          +(_value !== undefined && _value !== '' ? '\n'+`${_value}` : '')
           +`\n\n ${_symbol || '📍'}`
         ),
         // parent,
@@ -127,6 +127,7 @@ export function useCytoElements(ml, _links, cy, spaceId) {
         typeof(link?.value.value) === 'object' && json
         ? json : link?.value.value
       );
+      console.log(`_value: ${_value}`)
     }
     if (link?.inByType?.[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value) {
       _name = `name:${link?.inByType?.[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value}`;
