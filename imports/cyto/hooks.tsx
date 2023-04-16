@@ -90,7 +90,7 @@ export function CytoReactLinksCardInsertNode({
   />;
 };
 
-export function useLinkInserting(elements = [], reactElements = [], focus, cy, ehRef) {
+export function useLinkInserting(elements = [], reactElements = [], focus, cyRef, ehRef) {
   const [insertingLink, setInsertingLink] = useState<IInsertedLink>();
   const [container, setContainer] = useContainer();
   const containerRef = useRefAutofill(container);
@@ -158,7 +158,7 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
     //   if (!from && !to && !!insertLink) focus(linkId, insertLink.position);
     //   return undefined;
     // })
-  }, [cy, types, container, deep.linkId]);
+  }, [cyRef.current, types, container, deep.linkId]);
   const insertLinkRef = useRefAutofill(insertLink);
 
   const TempComponent = useMemo(() => {
@@ -189,7 +189,7 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
   useHotkeys('esc', () => {
     if (insertingCytoRef?.current?.type_id) setInsertingCyto({});
     ehRef?.current?.disableDrawMode();
-    cy?.$('.eh-ghost,.eh-preview')?.remove();
+    cyRef.current?.$('.eh-ghost,.eh-preview')?.remove();
   });
 
   const returning = {
@@ -197,8 +197,8 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
     openInsertCard: (insertedLink: IInsertedLink) => {
       if (insertedLink) {
         setInsertingLink(insertedLink);
-        if (cy) {// TODO: ERR: cy always undefined
-          const el = cy.$('#insert-link-card');
+        if (cyRef.current) {
+          const el = cyRef.current.$('#insert-link-card');
           el.unlock();
           if (!insertedLink.from && !insertedLink.to) {
             el.position(insertedLink.position);
@@ -228,7 +228,7 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
         onCloseComplete: () => {
           if (insertingCytoRef?.current?.type_id) setInsertingCyto({});
           ehRef?.current?.disableDrawMode();
-          cy?.$('.eh-ghost,.eh-preview')?.remove();
+          cyRef.current?.$('.eh-ghost,.eh-preview')?.remove();
         },
       });
       if (!isNode) {
@@ -242,7 +242,7 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
       setInsertingCyto({});
       toast.close(ins.toast);
       ehRef?.current?.disableDrawMode();
-      cy.$('.eh-ghost,.eh-preview').remove();
+      cyRef.current.$('.eh-ghost,.eh-preview').remove();
       if (ins.type_id) {
         insertLinkRef.current(ins.type_id, +from, +to, position);
       } else {
@@ -256,7 +256,7 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
 
   const cyHandledRef = useRef(false);
   useEffect(() => {
-    if (!cy || cyHandledRef.current) return;
+    if (!cyRef.current || cyHandledRef.current) return;
     cyHandledRef.current = true;
     const ehstop = async (event, sourceNode, targetNode, addedEdge) => {
       let { position } = event;
@@ -286,7 +286,7 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
       const ins = insertingCytoRef.current;
       setInsertingCyto({});
       toast.close(ins.toast);
-      if(event.target === cy){
+      if(event.target === cyRef.current){
         if (ins.type_id) {
           if (ins.isPossibleNode) {
             await returningRef.current.insertLink(ins.type_id, 0, 0, event.position);
@@ -322,15 +322,15 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
         returningRef.current?.openInsertCard(undefined);
       }
     };
-    cy.on('ehstop', ehstop);
-    cy.on('ehcomplete', ehcomplete);
-    cy.on('tap', tap);
+    cyRef.current.on('ehstop', ehstop);
+    cyRef.current.on('ehcomplete', ehcomplete);
+    cyRef.current.on('tap', tap);
     return () => {
-      cy.removeListener('ehstop', ehstop);
-      cy.removeListener('ehcomplete', ehcomplete);
-      cy.removeListener('tap', tap);
+      cyRef.current.removeListener('ehstop', ehstop);
+      cyRef.current.removeListener('ehcomplete', ehcomplete);
+      cyRef.current.removeListener('tap', tap);
     };
-  }, [cy]);
+  }, [cyRef.current]);
 
   return returning;
 }
@@ -501,7 +501,7 @@ export function useCyInitializer({
   elementsRef,
   elements,
   reactElements,
-  cy,
+  cyRef,
   setCy,
   ehRef,
   cytoViewportRef,
@@ -509,7 +509,7 @@ export function useCyInitializer({
   elementsRef: any;
   elements: any;
   reactElements: any;
-  cy: any;
+  cyRef: any;
   setCy: any;
   ehRef: any;
   cytoViewportRef: any;
@@ -531,18 +531,18 @@ export function useCyInitializer({
 
   const refDragStartedEvent = useRef<any>();
 
-  const { linkReactElements, toggleLinkReactElement } = useLinkReactElements(elements, reactElements, cy, ml);
+  const { linkReactElements, toggleLinkReactElement } = useLinkReactElements(elements, reactElements, cyRef.current, ml);
 
   const relayout = useCallback(() => {
-    if (cy && cy.elements) {
-      const elements = cy.elements();
+    if (cyRef.current && cyRef.current.elements) {
+      const elements = cyRef.current.elements();
       try {
-        elements.layout(layout(elementsRef.current, cy)).run();
+        elements.layout(layout(elementsRef.current, cyRef.current)).run();
       } catch(error) {
         console.log('relayout error', error);
       }
     }
-  }, [cy, layout]);
+  }, [cyRef.current, layout]);
   const relayoutDebounced = useDebounceCallback(relayout, 500);
   global.relayoutDebounced = relayoutDebounced;
 
@@ -555,8 +555,8 @@ export function useCyInitializer({
     relayoutDebounced();
   });
 
-  const { focus, unfocus, lockingRef } = useCytoFocusMethods(cy, relayoutDebounced);
-  const { startInsertingOfType, openInsertCard, insertLink, drawendInserting, insertingCyto, insertingCytoRef } = useLinkInserting(elements, reactElements, focus, cy, ehRef);
+  const { focus, unfocus, lockingRef } = useCytoFocusMethods(cyRef.current, relayoutDebounced);
+  const { startInsertingOfType, openInsertCard, insertLink, drawendInserting, insertingCyto, insertingCytoRef } = useLinkInserting(elements, reactElements, focus, cyRef, ehRef);
 
   const onLoaded = (ncy) => {
     const locking = lockingRef.current;
@@ -710,7 +710,7 @@ export function useCyInitializer({
           }
         },
         {
-          cy,
+          ncy,
           setCy,
           content: 'insert',
           select: async function(ele){ 

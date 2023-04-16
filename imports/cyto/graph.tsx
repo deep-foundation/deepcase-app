@@ -110,7 +110,7 @@ export default function CytoGraph({
   const elementsRef = useRefAutofill(elements);
 
   const { onLoaded, relayoutDebounced } = useCyInitializer({
-    elementsRef, elements, reactElements, cy, setCy, ehRef, cytoViewportRef
+    elementsRef, elements, reactElements, cyRef, setCy, ehRef, cytoViewportRef
   });
 
   const { layout, setLayout } = useLayout();
@@ -132,7 +132,7 @@ export default function CytoGraph({
           pan={cytoViewportRef?.current?.value?.pan}
           zoom={cytoViewportRef?.current?.value?.zoom}
           style={ { width: '100%', height: '100vh' } }
-        />
+        /> 
         {!!cy && <CytoReactLayout
           cy={cy}
           elements={reactElements}
@@ -142,7 +142,7 @@ export default function CytoGraph({
       <Text position="fixed" left={0} bottom={0} p={4}>
         {pckg.version}
       </Text>
-    </div>
+    </div> 
   </>);
 
   console.timeEnd('CytoGraph');
