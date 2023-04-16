@@ -53,10 +53,9 @@ export const DeepWYSIWYG = React.memo<any>(() => {
               transform: 'scale(1.15)'
             }
         }}>
-          {/* <MarkButton icon={
-            <CustomizableIcon Component={FiBold} value={{color: colorMode === 'dark' ? 'rgb(0, 128, 255)' : 'rgb(50, 128, 5)'}} style={{padding: '0.2rem'}} />} format='bold' />
-          <MarkButton icon={<CustomizableIcon Component={FiItalic} value={{color: colorMode === 'dark' ? 'rgb(0, 128, 255)' : 'rgb(50, 128, 5)'}} style={{padding: '0.2rem'}} />} format="italic" />
-          <MarkButton icon={<CustomizableIcon Component={FiUnderline} value={{color: colorMode === 'dark' ? 'rgb(0, 128, 255)' : 'rgb(50, 128, 5)'}} style={{padding: '0.2rem'}} />} format="underline" /> */}
+          <MarkButton colorMode={colorMode} icon={<FiBold style={{padding: '0.2rem'}} />} format='bold' />
+          <MarkButton colorMode={colorMode} icon={<FiItalic style={{padding: '0.2rem'}} />} format="italic" />
+          <MarkButton colorMode={colorMode} icon={<FiUnderline style={{padding: '0.2rem'}} />} format="underline" />
           <MarkButton colorMode={colorMode} icon={<FiCode style={{padding: '0.2rem'}} />} format="code" />
           <BlockButton colorMode={colorMode} format="heading-one" icon={<TbNumber1 style={{padding: '0.2rem'}} />} />
           <BlockButton colorMode={colorMode} format="heading-two" icon={<TbNumber2 style={{padding: '0.2rem'}} />} />
@@ -138,14 +137,18 @@ const Button = React.forwardRef(
         cursor: 'pointer',
         border: 'thin solid #c5c5c5',
         borderRadius: '0.2rem',
-        backgroundColor: (colorMode === 'dark' && active) ? 'red' : 'gray',
+        backgroundColor: (colorMode === 'dark' && active) 
+          ? '#A8E0FF' 
+          : (colorMode === 'light' && active)
+          ? 'white'
+          : '#E8F1FC',
         color: reversed
           ? active
             ? 'white'
             : '#aaa'
           : active 
-            ? 'gray'
-            : '#ccc'
+            ? '#344055'
+            : 'gray'
       }}
     />
   )
