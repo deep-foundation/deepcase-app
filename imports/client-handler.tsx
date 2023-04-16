@@ -7,13 +7,19 @@ import { useMinilinksFilter } from "@deep-foundation/deeplinks/imports/minilinks
 import * as axios from 'axios';
 import * as axiosHooks from 'axios-hooks';
 import * as classnames from 'classnames';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, PropsWithChildren } from 'react';
 // import * as reacticons from 'react-icons';
 import * as motion from 'framer-motion';
 import * as reactHotkeysHook from 'react-hotkeys-hook';
 import * as debounce from '@react-hook/debounce';
 import * as json5 from 'json5';
 import * as bs from 'react-icons/bs';
+import * as fi from 'react-icons/fi';
+import * as tb from 'react-icons/tb';
+import * as ci from 'react-icons/ci';
+import * as editor from 'slate';
+import * as slate from 'slate-react';
+import isHotkey from 'is-hotkey';
 import Resizable from 're-resizable';
 import { useContainer, useSpaceId } from './hooks';
 import { CytoEditorPreview } from './cyto/editor-preview';
@@ -38,6 +44,9 @@ r.list = {
   '@react-hook/debounce': debounce,
   'json5': json5,
   'framer-motion': motion,
+  'slate': editor,
+  'slate-react': slate,
+  'is-hotkey': isHotkey,
   're-resizable': Resizable,
   '@monaco-editor/react': MonacoEditor,
   '@chakra-ui/icons': icons,
@@ -51,6 +60,9 @@ r.list = {
     ClientHandler,
   },
   'react-icons/bs': bs,
+  'react-icons/fi': fi,
+  'react-icons/ci': ci,
+  'react-icons/tb': tb,
 };
 
 export async function evalClientHandler({

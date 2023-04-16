@@ -1,13 +1,11 @@
 import React, { useState, Ref, PropsWithChildren, useCallback } from 'react';
-import { createEditor, Descendant, Editor, Element as SlateElement, Transforms } from 'slate';
+import { createEditor, Editor, Element as SlateElement, Transforms } from 'slate';
 import { Slate, Editable, withReact, useSlate } from 'slate-react';
-import { Box, IconButton, useColorMode } from '@chakra-ui/react';
-import { motion, useAnimation } from 'framer-motion';
+import { Box, useColorMode } from '@chakra-ui/react';
 import { FiBold, FiItalic, FiUnderline, FiCode } from 'react-icons/fi';
 import { TbNumber1, TbNumber2, TbQuote, TbList, TbListNumbers } from 'react-icons/tb';
 import { CiTextAlignJustify, CiTextAlignCenter, CiTextAlignLeft, CiTextAlignRight } from 'react-icons/ci';
 import isHotkey from 'is-hotkey';
-import { CustomizableIcon } from './icons-provider';
 
 
 const HOTKEYS = {
