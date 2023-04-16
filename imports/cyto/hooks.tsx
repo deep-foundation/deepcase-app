@@ -15,6 +15,7 @@ import { LinkClientHandlerDefault } from "../link-client-handlers/default";
 import { CatchErrors } from "../react-errors";
 import { useEditorTabs } from "./editor";
 import { useCytoFocusMethods } from "./graph";
+import { useRouter } from 'next/router';
 
 export interface IInsertedLink {
   position: { x: number; y: number; };
@@ -408,9 +409,8 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
         containerName: t?.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.from?.value?.value || '',
       })) || [];
 
-      console.log('handlers', { handlers, handler, handlerId, elements });
-
       const onCloseCard = useCallback(() => toggleLinkReactElement(id), [id]);
+
 
       return <div>
         <CatchErrors errorRenderer={(error, reset) => {
@@ -435,7 +435,6 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
                     }
                   }}
                   icon={<VscVersions />}
-                  // onClick={() => console.log('replay')}
                 />
               </PopoverTrigger>
               <PopoverContent h={72}>
@@ -459,7 +458,7 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
               size={'xs'}
               as='a'
               target='_blank'
-              href={`/client-handler?link-id=${id}&handler-id=${handlerId}`}
+              href={`/client-handler?props=%7B"linkId"%3A${id}%2C"handlerId"%3A${handlerId}%7D`}
               sx={{
                 _hover: {
                   transform: 'scale(1.2)',

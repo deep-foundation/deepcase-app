@@ -7,7 +7,8 @@ import { ColorModeSwitcher } from '../imports/color-mode-toggle';
 import { useHandlerId, useLinkId, useSpaceId } from '../imports/hooks';
 import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
-
+import { useRouter } from 'next/router';
+import { useQueryStore } from '@deep-foundation/store/query';
 
 
 export function Content({
@@ -21,10 +22,10 @@ export function Content({
 
   global.ml = deep.minilinks;
 
-
-
   const [handlerId, setHandlerId] = useHandlerId();
   const [linkId, setLinkId] = useLinkId();
+
+  const [props, setProps] = useQueryStore('props', { linkId: 0, handlerId: 0 });
 
   const { data: files } = useDeepSubscription({
     up: {
@@ -40,7 +41,7 @@ export function Content({
       spaceId={spaceId}
       />]}
       <Box w='100vw' h='100vh'>
-        <ClientHandler fillSize={true} handlerId={handlerId} linkId={linkId} ml={deep.minilinks} />
+        <ClientHandler fillSize={true} ml={deep.minilinks} {...props}/>
       </Box>
     <ColorModeSwitcher/>
   </>); 
