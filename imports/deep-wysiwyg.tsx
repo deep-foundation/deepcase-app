@@ -1,12 +1,13 @@
 import React, { useState, Ref, PropsWithChildren, useCallback } from 'react';
 import { createEditor, Descendant, Editor, Element as SlateElement, Transforms } from 'slate';
 import { Slate, Editable, withReact, useSlate } from 'slate-react';
-import { Box, IconButton } from '@chakra-ui/react';
+import { Box, IconButton, useColorMode } from '@chakra-ui/react';
 import { motion, useAnimation } from 'framer-motion';
 import { FiBold, FiItalic, FiUnderline, FiCode } from 'react-icons/fi';
 import { TbNumber1, TbNumber2, TbQuote, TbList, TbListNumbers } from 'react-icons/tb';
 import { CiTextAlignJustify, CiTextAlignCenter, CiTextAlignLeft, CiTextAlignRight } from 'react-icons/ci';
 import isHotkey from 'is-hotkey';
+import { CustomizableIcon } from './icons-provider';
 
 
 const HOTKEYS = {
@@ -20,15 +21,17 @@ const LIST_TYPES = ['numbered-list', 'bulleted-list'];
 const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify'];
 
 export const DeepWYSIWYG = React.memo<any>(() => {
-  // const initialValue = [
-  //   {
-  //     type: 'paragraph',
-  //     children: [{ text: 'A line of text in a paragraph.' }],
-  //   },
-  // ];
+  const initialValue = [
+    {
+      type: 'paragraph',
+      children: [{ text: '' }],
+    },
+  ];
   const renderLeaf = useCallback(props => <Leaf {...props} />, []);
   const renderElement = useCallback(props => <Element {...props} />, []);
   const [editor] = useState(() => withReact(createEditor()));
+
+  const { colorMode } = useColorMode();
 
   return (<Box sx={{
       '& > * > *:nth-of-type(2)': {
@@ -37,30 +40,33 @@ export const DeepWYSIWYG = React.memo<any>(() => {
     }}>
       <Slate editor={editor} value={initialValue}>
         <Box 
-          display='grid' gridTemplateColumns='repeat(auto-fit, minmax(max-content, 1.5rem))' 
+          display='grid' 
+          gridTemplateColumns='repeat(auto-fit, minmax(max-content, 1.5rem))' 
+          gap='0.5rem'
           sx={{ 
             borderLeft: '1px solid #aaa', 
             borderTop: '1px solid #aaa', 
             borderRight: '1px solid #aaa', 
             borderRadius: '0.5rem', 
-            padding: '1rem', 
+            padding: '0.5rem', 
             '& > *:hover': {
               transform: 'scale(1.15)'
             }
         }}>
-          <MarkButton icon={<FiBold />} format='bold' />
-          <MarkButton format="italic" icon={<FiItalic />} />
-          <MarkButton format="underline" icon={<FiUnderline />} />
-          <MarkButton format="code" icon={<FiCode />} />
-          <BlockButton format="heading-one" icon={<TbNumber1 />} />
-          <BlockButton format="heading-two" icon={<TbNumber2 />} />
-          <BlockButton format="block-quote" icon={<TbQuote />} />
-          <BlockButton format="numbered-list" icon={<TbListNumbers />} />
-          <BlockButton format="bulleted-list" icon={<TbList />} />
-          <BlockButton format="left" icon={<CiTextAlignLeft />} />
-          <BlockButton format="center" icon={<CiTextAlignCenter />} />
-          <BlockButton format="right" icon={<CiTextAlignRight />} />
-          <BlockButton format="justify" icon={<CiTextAlignJustify />} />
+          {/* <MarkButton icon={
+            <CustomizableIcon Component={FiBold} value={{color: colorMode === 'dark' ? 'rgb(0, 128, 255)' : 'rgb(50, 128, 5)'}} style={{padding: '0.2rem'}} />} format='bold' />
+          <MarkButton icon={<CustomizableIcon Component={FiItalic} value={{color: colorMode === 'dark' ? 'rgb(0, 128, 255)' : 'rgb(50, 128, 5)'}} style={{padding: '0.2rem'}} />} format="italic" />
+          <MarkButton icon={<CustomizableIcon Component={FiUnderline} value={{color: colorMode === 'dark' ? 'rgb(0, 128, 255)' : 'rgb(50, 128, 5)'}} style={{padding: '0.2rem'}} />} format="underline" /> */}
+          <MarkButton colorMode={colorMode} icon={<FiCode style={{padding: '0.2rem'}} />} format="code" />
+          <BlockButton colorMode={colorMode} format="heading-one" icon={<TbNumber1 style={{padding: '0.2rem'}} />} />
+          <BlockButton colorMode={colorMode} format="heading-two" icon={<TbNumber2 style={{padding: '0.2rem'}} />} />
+          <BlockButton colorMode={colorMode} format="block-quote" icon={<TbQuote style={{padding: '0.2rem'}} />} />
+          <BlockButton colorMode={colorMode} format="numbered-list" icon={<TbListNumbers style={{padding: '0.2rem'}} />} />
+          <BlockButton colorMode={colorMode} format="bulleted-list" icon={<TbList style={{padding: '0.2rem'}} />} />
+          <BlockButton colorMode={colorMode} format="left" icon={<CiTextAlignLeft style={{padding: '0.2rem'}} />} />
+          <BlockButton colorMode={colorMode} format="center" icon={<CiTextAlignCenter style={{padding: '0.2rem'}} />} />
+          <BlockButton colorMode={colorMode} format="right" icon={<CiTextAlignRight style={{padding: '0.2rem'}} />} />
+          <BlockButton colorMode={colorMode} format="justify" icon={<CiTextAlignJustify style={{padding: '0.2rem'}} />} />
         </Box>
         <Editable 
           style={{ border: '1px solid #aaa', borderRadius: '0.5rem', padding: '1rem' }}
@@ -112,12 +118,13 @@ type OrNull<T> = T | null;
 const Button = React.forwardRef(
   (
     {
-      className,
+      colorMode,
       active,
       reversed,
       ...props
     }: PropsWithChildren<
       {
+        colorMode?: string
         active: boolean
         reversed: boolean
       } & BaseProps
@@ -129,13 +136,16 @@ const Button = React.forwardRef(
       ref={ref}
       style={{
         cursor: 'pointer',
+        border: 'thin solid #c5c5c5',
+        borderRadius: '0.2rem',
+        backgroundColor: (colorMode === 'dark' && active) ? 'red' : 'gray',
         color: reversed
           ? active
             ? 'white'
             : '#aaa'
-          : active
-          ? 'black'
-          : '#ccc'
+          : active 
+            ? 'gray'
+            : '#ccc'
       }}
     />
   )
@@ -150,21 +160,23 @@ const Icon = React.forwardRef(
       {...props}
       ref={ref}
       style={{
-          fontSize: 18,
-          verticalAlign: 'text-bottom'
+          fontSize: 24,
+          verticalAlign: 'text-bottom',
         }}
     />
   )
 )
 
-const MarkButton = ({ format, icon }) => {
+const MarkButton = ({ format, icon, colorMode }) => {
   const editor = useSlate()
   return (
     <Button
+      colorMode={colorMode}
       active={isMarkActive(editor, format)}
       onMouseDown={event => {
         event.preventDefault()
-        toggleMark(editor, format)
+        toggleMark(editor, format);
+        console.log("event", format, event, colorMode);
       }}
     >
       <Icon>{icon}</Icon>
@@ -172,10 +184,11 @@ const MarkButton = ({ format, icon }) => {
   )
 }
 
-const BlockButton = ({ format, icon }) => {
+const BlockButton = ({ format, icon, colorMode }) => {
   const editor = useSlate()
   return (
     <Button
+      colorMode={colorMode}
       active={isBlockActive(
         editor,
         format,
@@ -183,70 +196,14 @@ const BlockButton = ({ format, icon }) => {
       )}
       onMouseDown={event => {
         event.preventDefault()
-        toggleBlock(editor, format)
+        toggleBlock(editor, format);
+        console.log("event", format, event);
       }}
     >
       <Icon>{icon}</Icon>
     </Button>
   )
 }
-
-const UniversalButton = React.memo<any>(({
-  ComponentProps,
-  Component = Box,
-  active,
-  reversed,
-  format,
-  children,
-}:{
-  ComponentProps?: any;
-  Component?: any;
-  active?: boolean;
-  reversed?: boolean;
-  format?: string;
-  children?: any;
-}) => {
-  console.log(format);
-  return (<Component 
-      // as={motion.div}
-      // animate={control}
-      // variants={animationVariants}
-      width='max-content'
-      height='24px'
-      lineHeight='1.2'
-      transition='all 0.2s cubic-bezier(.08,.52,.52,1)'
-      border='1px'
-      px='8px'
-      borderRadius='2px'
-      fontSize='14px'
-      fontWeight='semibold'
-      bg='#f5f6f7'
-      borderColor='#ccd0d5'
-      color='#4b4f56'
-      _hover={{ bg: '#ebedf0' }}
-      _active={{
-        bg: '#dddfe2',
-        transform: 'scale(0.98)',
-        borderColor: '#bec3c9',
-      }}
-      _focus={{
-        boxShadow:
-          '0 0 1px 2px rgba(88, 144, 255, .75), 0 1px 1px rgba(0, 0, 0, .15)',
-      }}
-      aria-label={format}
-      sx={{
-        cursor: 'pointer',
-        color: reversed
-          ? active
-            ? 'white'
-            : '#aaa'
-          : active
-          ? 'black'
-          : '#ccc'
-      }}
-      {...ComponentProps}
-    >{123}</Component>)
-})
 
 const isBlockActive = (editor, format, blockType = 'type') => {
   const { selection } = editor
@@ -263,7 +220,7 @@ const isBlockActive = (editor, format, blockType = 'type') => {
   )
 
   return !!match
-};
+}
 
 const toggleMark = (editor, format) => {
   const isActive = isMarkActive(editor, format)
@@ -316,56 +273,6 @@ const toggleBlock = (editor, format) => {
   }
 };
 
-const _MarkButton = ({ format, icon, ComponentProps }:{ format?: string; icon: any; ComponentProps?: any; }) => {
-  const editor = useSlate();
-  console.log(icon);
-  return (
-    <UniversalButton
-      Component={IconButton}
-      icon={icon}
-      isRound
-      aria-label={format}
-      active={isMarkActive(editor, format)}
-      onMouseDown={event => {
-        event.preventDefault()
-        toggleMark(editor, format)
-      }}
-      ComponentProps={ComponentProps}
-    />
-  )
-};
-
-const ButtonEdit = React.memo<any>(({children, format}:{children?: any; format?: string;}) => {
-  return (<Box
-      as='button'
-      height='24px'
-      lineHeight='1.2'
-      transition='all 0.2s cubic-bezier(.08,.52,.52,1)'
-      border='1px'
-      px='8px'
-      borderRadius='2px'
-      fontSize='14px'
-      fontWeight='semibold'
-      bg='#f5f6f7'
-      borderColor='#ccd0d5'
-      color='#4b4f56'
-      _hover={{ bg: '#ebedf0' }}
-      _active={{
-        bg: '#dddfe2',
-        transform: 'scale(0.98)',
-        borderColor: '#bec3c9',
-      }}
-      _focus={{
-        boxShadow:
-          '0 0 1px 2px rgba(88, 144, 255, .75), 0 1px 1px rgba(0, 0, 0, .15)',
-      }}
-      aria-label={format}
-    >
-      {children}
-    </Box>
-  )
-})
-
 const Element = ({ attributes, children, element }) => {
   const style = { textAlign: element.align }
   switch (element.type) {
@@ -413,41 +320,3 @@ const Element = ({ attributes, children, element }) => {
       )
   }
 };
-
-const initialValue = [
-  {
-    type: 'paragraph',
-    children: [
-      { text: 'This is editable ' },
-      { text: 'rich', bold: true },
-      { text: ' text, ' },
-      { text: 'much', italic: true },
-      { text: ' better than a ' },
-      { text: '<textarea>', code: true },
-      { text: '!' },
-    ],
-  },
-  {
-    type: 'paragraph',
-    children: [
-      {
-        text:
-          "Since it's rich text, you can do things like turn a selection of text ",
-      },
-      { text: 'bold', bold: true },
-      {
-        text:
-          ', or add a semantically rendered block quote in the middle of the page, like this:',
-      },
-    ],
-  },
-  {
-    type: 'block-quote',
-    children: [{ text: 'A wise quote.' }],
-  },
-  {
-    type: 'paragraph',
-    align: 'center',
-    children: [{ text: 'Try it out for yourself!' }],
-  },
-]

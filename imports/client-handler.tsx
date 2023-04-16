@@ -13,7 +13,7 @@ import * as motion from 'framer-motion';
 import * as reactHotkeysHook from 'react-hotkeys-hook';
 import * as debounce from '@react-hook/debounce';
 import * as json5 from 'json5';
-import { BsCheck2, BsLightbulbFill, BsLightbulbOff } from 'react-icons/bs';
+import * as bs from 'react-icons/bs';
 import Resizable from 're-resizable';
 import { useContainer, useSpaceId } from './hooks';
 import { CytoEditorPreview } from './cyto/editor-preview';
@@ -50,11 +50,7 @@ r.list = {
     EditorTextArea,
     ClientHandler,
   },
-  'react-icons/bs': {
-    BsCheck2, 
-    BsLightbulbFill, 
-    BsLightbulbOff,
-  },
+  'react-icons/bs': bs,
 };
 
 export async function evalClientHandler({

@@ -23,6 +23,8 @@ import { elements } from './card';
 import { isAndroid, isIOS, isWindows, isMacOs } from 'react-device-detect';
 import { VerticalSash } from '../imports/editor/editor-grid';
 import { MessagingInterface } from '../imports/messanger';
+import { Bubble } from '../imports/bubble';
+import { DarkModeSwitch, Switch } from '../imports/switch-mode';
 
 const CytoGraph = dynamic<CytoGraphProps>(
   () => import('../imports/cyto/graph').then((m) => m.default),
@@ -168,6 +170,18 @@ export default function Page() {
         <Code>/editor-grid</Code>
         <Box w='100%' h='1rem' />
           <MessagingInterface />
+        <Box w='100%' h='1rem' />
+        
+        <Box w='100%' h='2rem' />
+        <Code>/editor-grid</Code>
+        <Box w='100%' h='1rem' />
+          <Bubble />
+        <Box w='100%' h='1rem' />
+
+        <Box w='100%' h='2rem' />
+        <Code>/switch-mode</Code>
+        <Box w='100%' h='1rem' />
+          <Switch />
         <Box w='100%' h='1rem' />
 
       </Box>
