@@ -4,7 +4,7 @@ import { useDeep } from "@deep-foundation/deeplinks/imports/client";
 import copy from "copy-to-clipboard";
 import { useState, useEffect, useMemo } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { useSpaceId, useShowTypes, useLayout, useContainer, useShowExtra, useShowFocus, usePromiseLoader, useTraveler, useMediaQuery, useAutoFocusOnInsert, useBreadcrumbs } from "../hooks";
+import { useSpaceId, useShowTypes, useLayout, useContainer, useShowExtra, useShowFocus, usePromiseLoader, useTraveler, useMediaQuery, useAutoFocusOnInsert, useBreadcrumbs, useReserved } from "../hooks";
 import { useCytoEditor } from "./hooks";
 import { IoExitOutline } from 'react-icons/io5';
 import { PackagerInterface } from "../packager-interface/packager-interface";
@@ -26,12 +26,15 @@ export function CytoMenu({
   const [promiseLoader, setPromiseLoader] = usePromiseLoader();
   const [autoFocus, setAutoFocus] = useAutoFocusOnInsert();
 
+  console.log('cytoEditor', cytoEditor)
+
   const [pasteError, setPasteError] = useState(false);
   const [valid, setValid] = useState<any>(undefined);
   const [container, setContainer] = useContainer();
   const [extra, setExtra] = useShowExtra();
   const [focus, setFocus] = useShowFocus();
   const [traveler, setTraveler] = useTraveler();
+  const [reserved, setReserved] = useReserved();
   const [breadcrumbs, setBreadcrumbs] = useBreadcrumbs();
   const deep = useDeep();
   const [max300] = useMediaQuery('(max-width: 300px)');
@@ -45,14 +48,25 @@ export function CytoMenu({
     return () => clearTimeout(timer);
   }, [pasteError, valid]);
 
-  return <Box 
+  return <>
+  <Box 
     pos='fixed' 
     left={0} top={0} 
     // display='grid' 
     // gridTemplateColumns='1fr 0.8fr' 
     w='max-content'
+    _before={{
+      content: '""',
+      position: "absolute",
+      top: 0,
+      left: 0,
+      bottom: 0,
+      right: 0,
+      border: "2px solid gray",
+      borderRadius: "md"
+    }}
   >
-    <VStack spacing='1rem' m='1rem' align={'flex-start'}>
+    <VStack spacing='0.5rem' m='1rem' align={'flex-start'}>
       <HStack>
         <ButtonGroup size='sm' isAttached variant='outline'>
           <Button disabled borderColor='gray.400'>auth</Button>
@@ -143,13 +157,28 @@ export function CytoMenu({
           </FormLabel>
           <Switch id='breadcrumbs-switch' isChecked={breadcrumbs} onChange={() => setBreadcrumbs(!breadcrumbs)}/>
         </FormControl>
-      </HStack>
-      <HStack>
-        <MenuSearch cyRef={cyRef}/>
+        {/* <FormControl display='flex' alignItems='center'>
+          <FormLabel htmlFor='reserved switch' mb='0' fontSize='sm' mr='0.25rem'>
+            reserved
+          </FormLabel>
+          <Switch id='reserved switch' isChecked={reserved} onChange={() => setReserved(!reserved)}/>
+        </FormControl> */}
       </HStack>
     </VStack>
+
     {/* <Button bgColor='primary' color='white' size='sm' w='4rem' mt={10} mr={4} justifySelf='flex-end' rightIcon={<IoExitOutline />} onClick={openPortal}>Exit</Button> */}
   </Box>;
+  <Box 
+  position="absolute" 
+  top="100px" 
+  left="10px"
+  w='12.5%'
+>
+    <HStack width="100%">
+      <MenuSearch cyRef={cyRef}/>
+    </HStack>
+  </Box>
+  </>
 }
 
 export const MenuSearch = ({ cyRef }: { cyRef?: any; }) => {
