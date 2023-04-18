@@ -770,7 +770,6 @@ export function useCyInitializer({
         {
           content: 'center',
           select: function(el, ev){
-            console.log("FreePhoenix888",{el, ev})
             ncy.pan({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
             ncy.zoom(1);
           }
