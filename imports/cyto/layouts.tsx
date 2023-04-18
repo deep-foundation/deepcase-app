@@ -5,7 +5,7 @@ export const layoutColaPreset = () => ({
   },
   linkDistance: 500,
   manyBodyStrength: -1000,
-  animate: false, // whether to show the layout as it's running
+  animate: true, // whether to show the layout as it's running
   refresh: 10, // number of ticks per frame; higher is faster but more jerky
   maxSimulationTime: 100, // max length in ms to run the layout
   ungrabifyWhileSimulating: false, // so you can't drag nodes during layout
