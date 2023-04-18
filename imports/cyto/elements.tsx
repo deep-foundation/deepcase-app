@@ -9,7 +9,7 @@ export function useCytoElements(ml, _links, cy, spaceId) {
   const [insertingCyto, setInsertingCyto] = useInsertingCytoStore();
   const deep = useDeep();
 
-  const links = _links.slice(0, 200);
+  const links = _links;
 
   console.time('useCytoElements');
 
