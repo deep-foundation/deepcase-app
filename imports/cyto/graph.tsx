@@ -8,7 +8,7 @@ import dagre from 'cytoscape-dagre';
 import { useDeep } from '@deep-foundation/deeplinks/imports/client';
 import cola from 'cytoscape-cola';
 // import COSEBilkent from 'cytoscape-cose-bilkent';
-// import d3Force from 'cytoscape-d3-force';
+import d3Force from 'cytoscape-d3-force';
 // import fcose from 'cytoscape-fcose';
 // import euler from 'cytoscape-euler';
 // import elk from 'cytoscape-elk';
@@ -35,12 +35,12 @@ const CytoscapeComponent = dynamic<any>(
 );
 
 cytoscape.use(dagre);
-cytoscape.use(cola);
+// cytoscape.use(cola);
 // cytoscape.use(COSEBilkent);
 // cytoscape.use(klay);
 // cytoscape.use(elk);
 // cytoscape.use(euler);
-// cytoscape.use(d3Force);
+cytoscape.use(d3Force);
 // cytoscape.use(fcose);
 cytoscape.use(cxtmenu);
 cytoscape.use(edgeConnections);

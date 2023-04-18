@@ -1,5 +1,10 @@
 export const layoutColaPreset = () => ({ 
-  name: 'cola',
+  name: 'd3-force',
+  linkId: function id(d) {
+    return d.id;
+  },
+  linkDistance: 100,
+  manyBodyStrength: -600,
   animate: false, // whether to show the layout as it's running
   refresh: 10, // number of ticks per frame; higher is faster but more jerky
   maxSimulationTime: 100, // max length in ms to run the layout
