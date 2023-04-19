@@ -189,9 +189,9 @@ export function useActiveMethods() {
 };
 
 export function useLayout() {
-  const [layoutName, setLayoutName] = useLocalStore('layout', 'd3-force');
+  const [layoutName, setLayoutName] = useLocalStore('layout', 'cola');
   return {
-    setLayout(name: 'd3-force') {
+    setLayout(name: 'cola' | 'd3-force') {
       setLayoutName(name);
     },
     layout: layouts[layoutName],
