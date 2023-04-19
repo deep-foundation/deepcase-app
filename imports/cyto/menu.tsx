@@ -1,8 +1,8 @@
 import { CloseIcon } from "@chakra-ui/icons";
-import { HStack, ButtonGroup, Button, IconButton, FormControl, FormLabel, Switch, Box, VStack, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Input, Tag, TagLabel, Text } from "@chakra-ui/react";
+import { HStack, ButtonGroup, Button, IconButton, FormControl, FormLabel, Switch, Box, VStack, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Input, Tag, TagLabel, Text, Select } from "@chakra-ui/react";
 import { useDeep } from "@deep-foundation/deeplinks/imports/client";
 import copy from "copy-to-clipboard";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, ChangeEvent } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useSpaceId, useShowTypes, useLayout, useContainer, useShowExtra, useShowFocus, usePromiseLoader, useTraveler, useMediaQuery, useAutoFocusOnInsert, useBreadcrumbs, useReserved } from "../hooks";
 import { useCytoEditor } from "./hooks";
@@ -145,6 +145,19 @@ export function CytoMenu({
             breadcrumbs
           </FormLabel>
           <Switch id='breadcrumbs-switch' isChecked={breadcrumbs} onChange={() => setBreadcrumbs(!breadcrumbs)}/>
+        </FormControl>
+        <FormControl display='flex' alignItems='center'>
+          <FormLabel mb='0' fontSize='sm' mr='0.25rem'>
+            layout
+          </FormLabel>
+          <Select style={{width: '80px'}} onChange={(e: ChangeEvent<HTMLInputElement>)=>{
+              const value = e.target.selectedOptions[0].value;
+              if (value !== 'cola' && value !== 'd3-force') return;
+              setLayout(value)
+            }} value={layout}>
+            <option value='cola'>cola</option>
+            <option value='d3-force'>d3-force</option>
+          </Select>
         </FormControl>
         {/* <FormControl display='flex' alignItems='center'>
           <FormLabel htmlFor='reserved switch' mb='0' fontSize='sm' mr='0.25rem'>
