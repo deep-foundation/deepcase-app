@@ -4,7 +4,7 @@ import { useDeep } from "@deep-foundation/deeplinks/imports/client";
 import copy from "copy-to-clipboard";
 import { useState, useEffect, useMemo, ChangeEvent } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { useSpaceId, useShowTypes, useLayout, useContainer, useShowExtra, useShowFocus, usePromiseLoader, useTraveler, useMediaQuery, useAutoFocusOnInsert, useBreadcrumbs, useReserved } from "../hooks";
+import { useSpaceId, useShowTypes, useLayout, useContainer, useShowExtra, useShowFocus, usePromiseLoader, useTraveler, useMediaQuery, useAutoFocusOnInsert, useBreadcrumbs, useReserved, useLayoutAnimation } from "../hooks";
 import { useCytoEditor } from "./hooks";
 import { IoExitOutline } from 'react-icons/io5';
 import { PackagerInterface } from "../packager-interface/packager-interface";
@@ -36,6 +36,7 @@ export function CytoMenu({
   const [traveler, setTraveler] = useTraveler();
   const [reserved, setReserved] = useReserved();
   const [breadcrumbs, setBreadcrumbs] = useBreadcrumbs();
+  const [layoutAnimation, setLayoutAnimation] = useLayoutAnimation();
   const deep = useDeep();
   const [max300] = useMediaQuery('(max-width: 300px)');
   const [togglePackager, setTogglePackager] = useState(false);
@@ -47,6 +48,12 @@ export function CytoMenu({
     }, 3000);
     return () => clearTimeout(timer);
   }, [pasteError, valid]);
+
+  const handlerChangeLayout = (event: ChangeEvent<HTMLSelectElement>) => {
+    const value = event.target.selectedOptions[0].value;
+    if (value !== 'cola' && value !== 'd3-force') return;
+    setLayout(value)
+  }
 
   return <Box 
     pos='fixed' 
@@ -147,17 +154,21 @@ export function CytoMenu({
           <Switch id='breadcrumbs-switch' isChecked={breadcrumbs} onChange={() => setBreadcrumbs(!breadcrumbs)}/>
         </FormControl>
         <FormControl display='flex' alignItems='center'>
+          <FormLabel htmlFor='animation-layout-switch' mb='0' fontSize='sm' mr='0.25rem'>
+            animation
+          </FormLabel>
+          <Switch id='animation-layout-switch' isChecked={layoutAnimation} onChange={() => setLayoutAnimation(!layoutAnimation)}/>
+        </FormControl>
+        <FormControl display='flex' alignItems='center'>
           <FormLabel mb='0' fontSize='sm' mr='0.25rem'>
             layout
           </FormLabel>
-          <Select style={{width: '80px'}} onChange={(e: ChangeEvent<HTMLInputElement>)=>{
-              const value = e.target.selectedOptions[0].value;
-              if (value !== 'cola' && value !== 'd3-force') return;
-              setLayout(value)
-            }} value={layout}>
-            <option value='cola'>cola</option>
-            <option value='d3-force'>d3-force</option>
-          </Select>
+          <Box width="120px" margin="0 auto">
+            <Select onChange={handlerChangeLayout} value={layoutName}>
+              <option value='cola'>cola</option>
+              <option value='d3-force'>d3-force</option>
+            </Select>
+          </Box>
         </FormControl>
         {/* <FormControl display='flex' alignItems='center'>
           <FormLabel htmlFor='reserved switch' mb='0' fontSize='sm' mr='0.25rem'>

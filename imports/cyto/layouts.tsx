@@ -1,6 +1,6 @@
-export const layoutColaPreset = () => ({ 
+export const layoutColaPreset = ({isAnimate=false}) => ({ 
   name: 'cola',
-  animate: false, // whether to show the layout as it's running
+  animate: isAnimate, // whether to show the layout as it's running
   refresh: 10, // number of ticks per frame; higher is faster but more jerky
   maxSimulationTime: 100, // max length in ms to run the layout
   ungrabifyWhileSimulating: false, // so you can't drag nodes during layout
@@ -36,14 +36,14 @@ export const layoutColaPreset = () => ({
   allConstIter: undefined, // initial layout iterations with all constraints including non-overlap
 });
 
-export const layoutD3ForcePreset = () => ({ 
+export const layoutD3ForcePreset = ({isAnimate=false}) => ({ 
   name: 'd3-force',
   linkId: function id(d) {
     return d.id;
   },
-  linkDistance: 500,
+  linkDistance: 400,
   manyBodyStrength: -1000,
-  animate: true, // whether to show the layout as it's running
+  animate: isAnimate, // whether to show the layout as it's running
   refresh: 10, // number of ticks per frame; higher is faster but more jerky
   maxSimulationTime: 100, // max length in ms to run the layout
   ungrabifyWhileSimulating: false, // so you can't drag nodes during layout

@@ -18,7 +18,7 @@ import edgehandles from 'cytoscape-edgehandles';
 import { Text, useToast } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
 import pckg from '../../package.json';
-import { useContainer, useCytoViewport, useFocusMethods, useInsertingCytoStore, useLayout, useRefAutofill, useShowExtra, useShowTypes, useSpaceId } from '../hooks';
+import { useContainer, useCytoViewport, useFocusMethods, useInsertingCytoStore, useLayout, useRefAutofill, useShowExtra, useShowTypes, useSpaceId, useLayoutAnimation } from '../hooks';
 import { Refstater } from '../refstater';
 import { CytoDropZone } from './drop-zone';
 import { CytoEditor } from './editor';
@@ -114,7 +114,7 @@ export default function CytoGraph({
   });
 
   const { layout, setLayout } = useLayout();
-
+  const [ layoutAnimation ] = useLayoutAnimation();
   const stylesheets = useCytoStylesheets();
 
   const returning = (<>
@@ -126,7 +126,7 @@ export default function CytoGraph({
             if (!cy) onLoaded(_cy);
           }}
           elements={elements}
-          layout={layout(elementsRef.current, cy)}
+          layout={layout({elementsRef: elementsRef.current, cy, isAnimate: layoutAnimation})}
           stylesheet={stylesheets}
           panningEnabled={true}
           pan={cytoViewportRef?.current?.value?.pan}

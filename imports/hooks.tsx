@@ -88,6 +88,9 @@ export function useShowFocus() {
 export function useBreadcrumbs() {
   return useQueryStore<any>('breadcrumbs', false);
 };
+export function useLayoutAnimation() {
+  return useQueryStore<any>('layout-animation', false);
+};
 export function useReserved() {
   return useQueryStore<any>('reserved', false);
 };
