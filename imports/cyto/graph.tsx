@@ -35,7 +35,7 @@ const CytoscapeComponent = dynamic<any>(
 );
 
 cytoscape.use(dagre);
-// cytoscape.use(cola);
+cytoscape.use(cola);
 // cytoscape.use(COSEBilkent);
 // cytoscape.use(klay);
 // cytoscape.use(elk);
