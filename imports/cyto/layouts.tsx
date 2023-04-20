@@ -40,7 +40,7 @@ export const layoutD3ForcePreset = ({isAnimate=false, cy}) => ({
   name: 'd3-force',
   animate: isAnimate, // whether to show the layout as it's running; special 'end' value makes the layout animate like a discrete layout
   maxIterations: 0, // max iterations before the layout will bail out
-  maxSimulationTime: 0, // max length in ms to run the layout
+  maxSimulationTime: 1400, // max length in ms to run the layout
   ungrabifyWhileSimulating: false, // so you can't drag nodes during layout
   fixedAfterDragging: false, // fixed node after dragging
   fit: false, // on every layout reposition of nodes, fit the viewport
@@ -59,11 +59,11 @@ export const layoutD3ForcePreset = ({isAnimate=false, cy}) => ({
     return d.id;
   }, // sets the node id accessor to the specified function
   linkDistance: 200, // sets the distance accessor to the specified number or function
-  linkStrength: function strength(link) {
-    const sourceNode = cy.getElementById(link.source.id);
-    const targetNode = cy.getElementById(link.target.id);
-    return 1 / Math.min(sourceNode.degree(), targetNode.degree());
-  }, // sets the strength accessor to the specified number or function
+  // linkStrength: function strength(link) {
+  //   const sourceNode = cy.getElementById(link.source.id);
+  //   const targetNode = cy.getElementById(link.target.id);
+  //   return 1 / Math.min(sourceNode.degree(), targetNode.degree());
+  // }, // sets the strength accessor to the specified number or function
   linkIterations: 1, // sets the number of iterations per application to the specified number
   manyBodyStrength: -1000, // sets the strength accessor to the specified number or function
   manyBodyTheta: 0.9, // sets the Barnes–Hut approximation criterion to the specified number
