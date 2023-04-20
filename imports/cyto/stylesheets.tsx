@@ -76,6 +76,12 @@ export function useCytoStylesheets(): any {
       }
     },
     {
+      selector: '.link-from-to-not-contain',
+      style: {
+        'target-arrow-shape': 'triangle-tee',
+      }
+    },
+    {
       selector: '.link-to',
       style: {
         'target-arrow-shape': 'triangle',

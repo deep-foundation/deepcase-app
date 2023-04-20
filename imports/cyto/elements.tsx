@@ -149,10 +149,10 @@ export function useCytoElements(ml, _links, cy, spaceId) {
           if (link.to_id) {
             if (ml?.byId?.[link.to_id] && _elements[link.to_id] && ml?.byId?.[link.from_id] && _elements[link.from_id]) {
               elements.push({
-                data: { id: `${link.id}-to`, source: `${link.from_id}`, target: `${link.to_id}`, link },
+                data: { id: `${link.id}-from-to-not-contain`, source: `${link.from_id}`, target: `${link.to_id}`, link },
                 selectable: false,
                 classes: [
-                  'link-to',
+                  'link-from-to-not-contain',
                   ...(focus ? ['focused'] : ['unfocused'])
                 ].join(' '),
               });
