@@ -94,9 +94,10 @@ const textInstall = {
 };
 
 const QuantityPackages = React.memo<any>(({ quantity, borderColor }: { quantity: number; borderColor?: string; }) => {
-  return (<Circle size='1.2rem'
+  return (<Circle size='1.2rem' 
       sx={{
-        border: `1px solid ${borderColor}`}}>
+        w: 'max-content', minW: '1.2rem', p: '0 0.25rem',
+        border: `1px solid ${borderColor}`}} >
       <Text fontSize='xs' fontWeight='bold' color={borderColor}>{quantity}</Text>
     </Circle>
   )
