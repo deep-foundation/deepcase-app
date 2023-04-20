@@ -121,6 +121,7 @@ const ListVersions = React.memo<any>(({
       sx={{
         filter: 'drop-shadow(0px 0px 1px #5f6977)',
         width: '4.6rem',
+        height: isOpenListVersions ? 'max-content' : 0,
         position: 'absolute',
         top: 0,
         right: 0,
