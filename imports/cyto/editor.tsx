@@ -310,6 +310,10 @@ export function CytoEditor() {
 
   
   const languages = refEditor.current?.monaco.languages.getLanguages();
+  const validationTS = refEditor.current?.monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+    noSemanticValidation: true,
+    noSyntaxValidation: true,
+  });
 
   const { colorMode } = useColorMode();
 
@@ -388,6 +392,7 @@ export function CytoEditor() {
                         console.log('currentLanguage', currentLanguage);
                         console.log('idi', i);
                         // console.log('latestLanguage', latestLanguage);
+                        if ( i == 'typescript') validationTS
                         setCurrentLanguage(i);
                         refEditor.current?.monaco.editor.setModelLanguage(refEditor.current?.monaco.editor.getModels()[0], i);
                         console.log('currentLanguage1', currentLanguage);
