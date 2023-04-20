@@ -1,11 +1,12 @@
 import { useDeep } from '@deep-foundation/deeplinks/imports/client';
 import json5 from 'json5';
 import { useMemo } from 'react';
-import { useInsertingCytoStore, useShowFocus, useShowTypes } from '../hooks';
+import { useInsertingCytoStore, useShowFocus, useShowTypes, useShowContain } from '../hooks';
 
 export function useCytoElements(ml, _links, cy, spaceId) {
   const [showTypes, setShowTypes] = useShowTypes();
   const [showFocus, setShowFocus] = useShowFocus();
+  const [showContain, setShowContain] = useShowContain();
   const [insertingCyto, setInsertingCyto] = useInsertingCytoStore();
   const deep = useDeep();
 
@@ -46,6 +47,8 @@ export function useCytoElements(ml, _links, cy, spaceId) {
       _symbol = ml.byTo[link?.type_id]?.find(l => l.type_id === deep.idLocal('@deep-foundation/core', 'Symbol'))?.value?.value;
     }
 
+    const isNotShowContainLinks = !showContain && _type === 'type:Contain';
+
     // const parent = link?._applies?.find(q => q.includes('query-'));
 
     const element = {
@@ -64,7 +67,7 @@ export function useCytoElements(ml, _links, cy, spaceId) {
       },
       selectable: false,
       classes: [
-        'link-node',
+        isNotShowContainLinks ? 'link-disabled' : 'link-node',
         ...(focus ? ['focused'] : ['unfocused']),
       ].join(' '),
       
@@ -137,8 +140,26 @@ export function useCytoElements(ml, _links, cy, spaceId) {
     if (link?.type?.inByType?.[deep.idLocal('@deep-foundation/core', 'Symbol')]?.[0]?.value?.value) {
       _symbol = link?.type?.inByType?.[deep.idLocal('@deep-foundation/core', 'Symbol')]?.[0]?.value?.value;
     }
+
+    const isNotShowContainLinks = !showContain && _type === 'type:Contain';
+
     if (!!cy) {
       if ((isFocusSpace && showFocus) || !isFocusSpace) {
+        if(isNotShowContainLinks) {
+          if (link.to_id) {
+            if (ml?.byId?.[link.to_id] && _elements[link.to_id] && ml?.byId?.[link.from_id] && _elements[link.from_id]) {
+              elements.push({
+                data: { id: `${link.id}-to`, source: `${link.from_id}`, target: `${link.to_id}`, link },
+                selectable: false,
+                classes: [
+                  'link-to',
+                  ...(focus ? ['focused'] : ['unfocused'])
+                ].join(' '),
+              });
+            }
+          }
+          continue
+        };
         if (link.from_id) {
           if (ml?.byId?.[link.from_id] && _elements[link.from_id]) {
             elements.push({
