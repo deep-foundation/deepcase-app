@@ -377,6 +377,9 @@ export const TabComponent = React.memo<any>(({
         sx={{
           w: '100%',
           p: 2,
+          h: 'calc(100% - 5rem)',
+          overflowY: 'scroll',
+          overscrollBehavior: 'contain',
         }}
       >
         <Box 
@@ -386,8 +389,6 @@ export const TabComponent = React.memo<any>(({
             '& > *:not(:last-child)':{
               mb: 2
             },
-            overflowY: 'scroll',
-            overscrollBehavior: 'contain',
           }}
         >
           {installedPackages.map((p, i) => (
@@ -415,6 +416,9 @@ export const TabComponent = React.memo<any>(({
         sx={{
           w: '100%',
           p: 2,
+          h: 'calc(100% - 5rem)',
+          overflowY: 'scroll',
+          overscrollBehavior: 'contain',
         }}
       >
         <Box 
@@ -424,8 +428,6 @@ export const TabComponent = React.memo<any>(({
             '& > *:not(:last-child)':{
               mb: 1
             },
-            overflowY: 'scroll',
-            overscrollBehavior: 'contain',
           }}
         >
           {notInstalledPackages.map((p, i) => (
