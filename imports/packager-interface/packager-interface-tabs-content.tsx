@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { RiInstallLine, RiUninstallLine } from 'react-icons/ri';
-import { AnimatePresence, DeprecatedLayoutGroupContext, motion, useAnimation } from 'framer-motion';
+import { AnimatePresence, DeprecatedLayoutGroupContext, motion, useAnimation, useCycle } from 'framer-motion';
 import { Box, Button, Divider, Flex, HStack, List, ListItem, Select, Spacer, Text, useColorModeValue } from '@chakra-ui/react';
 import { Install } from "./icons/install";
 import { TbArrowRotaryFirstRight, TbBookDownload } from 'react-icons/tb';
@@ -13,28 +13,6 @@ const axiosHooks = require("axios-hooks");
 const axios = require("axios");
 const useAxios = axiosHooks.makeUseAxios({ axios: axios.create() });
 
-const tabTextVariant = {
-  active: {
-    opacity: 1,
-    x: 0,
-    display: "block",
-    transition: {
-      type: "tween",
-      duration: 0.3,
-      delay: 0.3
-    }
-  },
-  inactive: {
-    opacity: 0,
-    x: -30,
-    transition: {
-      type: "tween",
-      duration: 0.3,
-      delay: 0.1
-    },
-    transitionEnd: { display: "none" }
-  }
-};
 
 const variantsPackages = {
   open: {
@@ -88,138 +66,160 @@ interface IPackageProps extends IPackage {
 
 export type Package = IPackage[];
 
-const versionsListVariants = {
-  open: {
-    opacity: 1,
-    y: 0, 
-    transition: { type: "spring", stiffness: 300, damping: 24 }
+const itemVariants = {
+  closed: {
+    opacity: 0
   },
-  closed: { opacity: 0, y: 20, transition: { duration: 0.2 } }
+  open: { opacity: 1 }
+};
+
+const sideVariants = {
+  closed: {
+    transition: {
+      staggerChildren: 0.1,
+      staggerDirection: 1
+    }
+  },
+  open: {
+    y: "2.5rem",
+    transition: {
+      staggerChildren: 0.1,
+      staggerDirection: 1
+    }
+  }
+};
+
+const iconVariants = {
+  closed: {
+    rotate: 0,
+    transition: {
+      type: "tween",
+      duration: 0.2,
+      delay: 0.7
+    }
+  },
+  open: {
+    rotate: 180,
+    transition: {
+      type: "tween",
+      duration: 0.2
+    }
+  }
 };
 
 const ListVersions = React.memo<any>(({ 
   name,
   latestVersion,
   currentVersion,
+  bg,
   setCurrentVersion
 }) => {
-  const [isOpenListVersions, setIsOpenListVersions] = useState(false);
+  const [open, cycleOpen] = useCycle(false, true);
 
   const [{ data, loading, error }, refetch] = useAxios(`https://registry.npmjs.com/${name}`);
-
-  // console.log('ListVersions.data', data)
-
   const versions = data ? Object.keys(data.versions) : [latestVersion];
-
   var collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
   versions.sort(collator.compare);
-  // console.log('ListVersions.versions', versions)
+  
+  const colorOutline = useColorModeValue('#edf2f7', '#1a202c');
 
-  return (<Box as={motion.nav}
-      initial={false}
-      animate={isOpenListVersions ? "open" : "closed"}
-      sx={{
-        filter: 'drop-shadow(0px 0px 1px #5f6977)',
-        width: '4.6rem',
-        height: isOpenListVersions ? 'max-content' : 0,
-        position: 'absolute',
-        top: 0,
-        right: 0,
-      }}
-    >
-      <Box as={motion.button}
-        whileTap={{ scale: 0.97 }}
-        onClick={() => setIsOpenListVersions(!isOpenListVersions)}
-        sx={{
-          background: '#fff',
-          color: '#0080ff',
-          border: 'none',
-          borderRadius: '0.3rem',
-          p: '0.1rem 0.5rem',
-          fontWeight: 700,
-          cursor: 'pointer',
-          w:'100%',
-          textAlign: 'left',
-          mb: '0.3rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <Text fontSize='sm'>{currentVersion}</Text>
-        <Box as={motion.div}
-          variants={{
-            open: { rotate: 180 },
-            closed: { rotate: 0 }
-          }}
-          animate={{ originY: 0.55 }}
-          // @ts-ignore
-          transition={{
-            type: "tween",
-            duration: 0.2
-          }}
-        >
-          <TbArrowRotaryFirstRight />
-        </Box>
+  return (<>
+      <Box position="relative" sx={{ height: 0, width: "7rem" }}>
+        <AnimatePresence>
+          {open && (
+            <Box
+              as={motion.div}
+              animate={{
+                scale: 1,
+                transition: { duration: 0.3, type: "spring" }
+              }}
+              exit={{
+                scale: 0,
+                y: "2rem",
+                transition: { delay: 0.7, duration: 0.3, type: "spring" }
+              }}
+              sx={{
+                height: "2rem",
+                width: "7rem",
+                top: 0,
+                left: 0,
+                position: "absolute"
+              }}
+            >
+              <Box
+                as={motion.ul}
+                initial="closed"
+                animate="open"
+                exit="closed"
+                variants={sideVariants}
+                sx={{
+                  borderRadius: "0.5rem",
+                  position: "relative",
+                  zIndex: 44,
+                  background: bg,
+                  listStyle: "none",
+                  padding: '0.5rem',
+                  height: '11rem',
+                  overflowY: 'scroll',
+                  overscrollBehavior: 'contain',
+                  filter: 'drop-shadow(0px 0px 1px #5f6977)',
+                  outline: `solid 4px ${colorOutline}`,
+                  outlineOffset: '-4px',
+                  '&>*:not(:last-child)': {
+                    pt: '0.2rem',
+                    pb: '0.2rem',
+                  }
+                }}
+              >
+                {versions && versions.map(v => (
+                  <Box
+                    as={motion.li}
+                    key={v}
+                    whileHover={{ scale: 1.1 }}
+                    variants={itemVariants}
+                    // sx={{ color: "#131111" }}
+                    onClick={() => {
+                      setCurrentVersion(v);
+                      cycleOpen();
+                    }}
+                  >
+                    <Text fontSize='sm'>{v}</Text>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+          )}
+        </AnimatePresence>
       </Box>
       <Box
-        as={motion.ul}
-        variants={{
-          open: {
-            clipPath: "inset(0% 0% 0% 0% round 5px)",
-            y: 0,
-            originY: 0.5,
-            originX: 0.5,
-            transition: {
-              type: "spring",
-              bounce: 0,
-              duration: 0.7,
-              delayChildren: 0.3,
-              staggerChildren: 0.05
-            }
-          },
-          closed: {
-            clipPath: "inset(10% 50% 90% 50% round 5px)",
-            originY: 0,
-            originX: 1,
-            y: -26,
-            transition: {
-              type: "spring",
-              bounce: 0,
-              duration: 0.3,
-              delay: 0.3,
-            }
-          }
-        }}
+        position="relative"
         sx={{
-          zIndex: 44,
-          position: 'relative',
-          display: 'flex',
-          height: '4rem',
-          flexDirection: 'column',
-          gap: '0.7rem',
-          background: '#fff',
-          p: 2,
-          overflowY: 'scroll',
-          overscrollBehavior: 'contain',
+          height: "2rem",
+          width: "max-content",
         }}
-        style={{ pointerEvents: isOpenListVersions ? "auto" : "none" }}
       >
-        {versions && versions.map(v => (
-          <Box 
-            as={motion.li} 
-            sx={{listStyle: 'none', display: 'block', fontSize: '0.8rem'}} 
-            variants={versionsListVariants}
-            key={v}
-            role='button'
-            onClick={() => {
-              setCurrentVersion(v);
-              setIsOpenListVersions(false);
+        <Box position="absolute">
+          <Button 
+            as={motion.button} 
+            bg={bg} 
+            onClick={() => cycleOpen()}
+            sx={{
+              height: '2rem',
+              width: '7rem',
+              filter: 'drop-shadow(0px 0px 1px #5f6977)',
             }}
-          >{v}</Box>
-        ))}
+            rightIcon={<Box as={motion.div}
+              variants={iconVariants}
+              animate={open ? "open" : "closed"}
+            >
+              <TbArrowRotaryFirstRight />
+            </Box>}
+          >
+            <Text fontSize='sm'>{currentVersion}</Text>
+          </Button>
+        </Box>
       </Box>
-    </Box>
+    </>
   )
 })
 
@@ -239,7 +239,7 @@ const PackageItem = React.memo<any>(function PackageItem({
   const [spaceId, setSpaceId] = useSpaceId();
   const [currentVersion, setCurrentVersion] = useState(latestVersion);
 
-  const color = useColorModeValue('white', 'gray.800');
+  const color = useColorModeValue('#edf2f7', 'gray.800');
 
   return (<Box 
       as={motion.li} 
@@ -269,8 +269,8 @@ const PackageItem = React.memo<any>(function PackageItem({
               ...style
             }}
           ><Text fontSize='sm' as='h2'>{name}</Text></Box>
-          <Box pos='relative' zIndex={3}>
-            <ListVersions name={name} latestVersion={latestVersion} currentVersion={currentVersion} setCurrentVersion={setCurrentVersion} />
+          <Box pos='relative'>
+            <ListVersions name={name} latestVersion={latestVersion} currentVersion={currentVersion} setCurrentVersion={setCurrentVersion} bg={color} />
           </Box>
         </Flex>
         <Flex 
