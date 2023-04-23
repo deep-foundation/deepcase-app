@@ -70,7 +70,7 @@ export const layoutD3ForcePreset = ({isAnimate=false, cy}) => ({
   linkId: function id(d) {
     return d.id;
   }, // sets the node id accessor to the specified function
-  linkDistance: 300, // sets the distance accessor to the specified number or function
+  linkDistance: 150, // sets the distance accessor to the specified number or function
   // linkStrength: function strength(link) {
   //   const sourceNode = cy.getElementById(link.source.id);
   //   const targetNode = cy.getElementById(link.target.id);
