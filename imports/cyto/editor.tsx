@@ -97,6 +97,42 @@ const ListLanguages = React.memo<any>(({
 }) => {
   const [isOpenListLanguages, setIsOpenListLanguages] = useState(false);
   const { colorMode } = useColorMode();
+  const languagesListRef = useRef<any>(null);
+  const buttonRef = useRef<any>(null);
+  const [searchString, setSearchString] = useState('');
+
+  console.log('searchString', searchString);
+
+  const debouncedSearch = useDebounceCallback((search) => {
+    for (let i = 0; i < languages.length; i++) {
+      const l = languages[i];
+      if (l.id.toLowerCase().startsWith(search)) {
+        languagesListRef.current.children[i].focus();
+        break;
+      }
+    }
+  }, 300);
+
+  const handleKeyDown = (e) => {
+    if (isOpenListLanguages && /^[a-zA-Z]$/.test(e.key)) {
+      e.preventDefault();
+      setSearchString(searchString + e.key.toLowerCase());
+    } else if (isOpenListLanguages && e.key === 'Backspace') {
+      setSearchString(searchString.slice(0, -1));
+    }
+  };
+
+  useEffect(() => {
+    debouncedSearch(searchString);
+  }, [searchString, debouncedSearch]);
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpenListLanguages, languages, searchString, handleKeyDown]);
 
   return (<Box as={motion.nav}
       initial={false}
@@ -111,6 +147,7 @@ const ListLanguages = React.memo<any>(({
       }}
     >
       <Box as={motion.button}
+        ref={buttonRef}
         whileTap={{ scale: 0.97 }}
         onClick={() => setIsOpenListLanguages(!isOpenListLanguages)}
         sx={{
@@ -148,6 +185,9 @@ const ListLanguages = React.memo<any>(({
       </Box>
       <Box
         as={motion.ul}
+        ref={languagesListRef}
+        // @ts-ignore
+        // attrs={{ tabIndex: -1 }}
         variants={{
           open: {
             clipPath: "inset(0% 0% 0% 0% round 5px)",
@@ -196,9 +236,11 @@ const ListLanguages = React.memo<any>(({
             variants={versionsListVariants}
             key={l.id}
             role='button'
+            tabIndex={0}
             onClick={() => {
               setLanguage(l.id);
               setIsOpenListLanguages(false);
+              setSearchString('');
             }}
           >{l.id}</Box>
         ))}
