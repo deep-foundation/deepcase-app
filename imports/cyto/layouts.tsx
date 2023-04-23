@@ -59,11 +59,11 @@ export const layoutD3ForcePreset = ({isAnimate=false, cy}) => ({
   padding: 30, // padding around the simulation
   boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
   /**d3-force API**/
-  // alpha: 1, // sets the current alpha to the specified number in the range [0,1]
-  // alphaMin: 0.001, // sets the minimum alpha to the specified number in the range [0,1]
-  // alphaDecay: 1 - Math.pow(0.001, 1 / 300), // sets the alpha decay rate to the specified number in the range [0,1]
-  // alphaTarget: 0, // sets the current target alpha to the specified number in the range [0,1]
-  // velocityDecay: 0.6, // sets the velocity decay factor to the specified number in the range [0,1]
+  alpha: 1, // sets the current alpha to the specified number in the range [0,1]
+  alphaMin: 0.001, // sets the minimum alpha to the specified number in the range [0,1]
+  alphaDecay: 1 - Math.pow(0.001, 1 / 300), // sets the alpha decay rate to the specified number in the range [0,1]
+  alphaTarget: 0, // sets the current target alpha to the specified number in the range [0,1]
+  velocityDecay: 0.6, // sets the velocity decay factor to the specified number in the range [0,1]
   // collideRadius: 1, // sets the radius accessor to the specified number or function
   // collideStrength: 0.7, // sets the force strength to the specified number in the range [0,1]
   // collideIterations: 1, // sets the number of iterations per application to the specified number
