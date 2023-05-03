@@ -39,6 +39,7 @@
     "classnames": "^2.3.1",
     "copy-to-clipboard": "^3.3.1",
     "cross-env": "^7.0.3",
+    "css-select": "^5.1.0",
     "cytoscape-cola": "^2.5.1",
     "cytoscape-cose-bilkent": "^4.1.0",
     "cytoscape-cxtmenu": "^3.4.0",
