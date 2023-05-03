@@ -65,6 +65,7 @@
     "framer-motion": "^6.3.11",
     "gists": "^2.0.0",
     "graphiql": "^1.4.2",
+    "immutable": "^4.3.0",
     "jquery": "^3.6.0",
     "json5": "^2.2.0",
     "jsonwebtoken": "^8.5.1",
