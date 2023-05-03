@@ -21,6 +21,7 @@ import * as editor from 'slate';
 import * as slate from 'slate-react';
 import Html from 'slate-html-serializer';
 import SoftBreak from 'slate-soft-break';
+import { slateToHtml } from 'slate-serializers';
 import isHotkey from 'is-hotkey';
 import Resizable from 're-resizable';
 import { useContainer, useSpaceId } from './hooks';
@@ -43,6 +44,7 @@ r.list = {
   'classnames': classnames,
   'slate-html-serializer': Html,
   'slate-soft-break': SoftBreak,
+  'slate-serializers': slateToHtml,
   'react-hotkeys-hook': reactHotkeysHook,
   '@react-hook/debounce': debounce,
   'json5': json5,

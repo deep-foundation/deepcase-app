@@ -93,6 +93,7 @@
     "slate-history": "^0.93.0",
     "slate-html-serializer": "^0.8.13",
     "slate-react": "^0.88.2",
+    "slate-serializers": "0.0.32",
     "slate-soft-break": "^0.9.0",
     "three-bmfont-text": "^3.0.1",
     "three-spritetext": "^1.6.2",
