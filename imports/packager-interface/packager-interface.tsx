@@ -128,8 +128,9 @@ export const PackagerInterface = React.memo<any>(({
 
   // console.log('search-results', installedPackages, notInstalledPackages)
   const [togglePackager, setTogglePackager] = useState(false);
-  const bg = useColorModeValue('blue.50', 'blue.900')
-  const color = useColorModeValue('white', 'gray.800')
+  const bg = useColorModeValue('blue.50', 'blue.900');
+  const color = useColorModeValue('white', 'gray.800');
+  const borderColor = useColorModeValue('#d2cece', '#718096');
 
   return (<Box right={0} mr='8' mt='4' pos='fixed'>
       <Button colorScheme='blue' onClick={() => setTogglePackager(true)} pos='absolute' right={4}>packager</Button>
@@ -138,7 +139,7 @@ export const PackagerInterface = React.memo<any>(({
         variantsAnimation={variants} 
         initial='initial'
       >
-        <Box border='1px' borderColor='gray.500' borderRadius='1.2rem' w='35.5rem' bg={bg} sx={{ height: 'calc(100vh - 3rem)' }} overflow='hidden'>
+        <Box borderWidth='thin' borderColor={borderColor} borderRadius='1.2rem' w='35.5rem' bg={bg} sx={{ height: 'calc(100vh - 3rem)' }} overflow='hidden'>
           <Flex 
             minWidth='max-content' 
             alignItems='center' gap='2' 

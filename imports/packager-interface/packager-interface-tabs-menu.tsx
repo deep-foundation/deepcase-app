@@ -37,7 +37,7 @@ const tabUninstalled = {
   },
   inactive: {
     background: '#EDF2F7',
-    borderColor: '#718096',
+    borderColor: '#a0aec0',
     borderWidth: 'thin',
     transition: {
       type: "tween",
@@ -46,7 +46,7 @@ const tabUninstalled = {
   },
   initial: {
     borderRadius: '5rem',
-    borderColor: '#718096',
+    borderColor: '#a0aec0',
     borderWidth: 'thin',
     originX: 0,
   }
@@ -190,7 +190,7 @@ export const TabsPackages = React.memo<any>(({
               variants={textInstall}
               initial='initial'
               sx={{ lineHeight: 1 }}
-            >Install</Text>
+            >Installed</Text>
           </Box>
           <Box>
             <QuantityPackages quantity={quantityInstall} borderColor={selectedTab === 0 ? '#ffffff' : '#3a3a3a'} />
@@ -235,7 +235,7 @@ export const TabsPackages = React.memo<any>(({
               variants={textUninstalled}
               initial='initial'
               sx={{ lineHeight: 1 }}
-            >Not install</Text>
+            >Not installed</Text>
           </Box>
           <Box>
             <QuantityPackages quantity={quantityUninstalled} borderColor={selectedTab === 1 ? '#ffffff' : '#3a3a3a'} />
