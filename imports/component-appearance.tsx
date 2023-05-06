@@ -36,10 +36,12 @@ export const Appearance = React.memo<any>(({
   children, 
   toggle,
   variantsAnimation = variants,
+  styleProps,
 }:{
   children: ReactNode; 
   toggle?: boolean;
   variantsAnimation?: any;
+  styleProps?: any;
 }) => {
   const control = useAnimation();
   useEffect(() => {
@@ -53,7 +55,7 @@ export const Appearance = React.memo<any>(({
   return (<motion.div
       variants={variantsAnimation}
       animate={control}
-      style={{overflow: 'hidden', position: 'relative', width: 'max-content', height: '100%'}}
+      style={{overflow: 'hidden', position: 'relative', width: 'max-content', height: '100%', ...styleProps}}
       initial={variantsAnimation.initial}
     >
       {children}
