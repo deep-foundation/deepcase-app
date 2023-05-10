@@ -54,44 +54,6 @@ const variants = {
     }
   }
 };
-//fix double insert of links
-const SubmitButton = ({ onSubmit, selectedLink, ...props }) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleOnSubmit = async () => {
-    if (isSubmitting) return;
-
-    setIsSubmitting(true);
-    try {
-      if (onSubmit && selectedLink) {
-        await onSubmit(selectedLink);
-      }
-    } catch (error) {
-      console.error('Error during submitting', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <SlideFade in={!!selectedLink} offsetX='-0.5rem' style={{ position: 'absolute', bottom: 0, right: '-2.8rem' }}>
-      <IconButton
-        isRound
-        variant='solid'
-        bg='primary'
-        // color='white'
-        aria-label='submit button'
-        icon={<BsCheck2 />}
-        onClick={handleOnSubmit}
-        isDisabled={isSubmitting}
-        {...props}
-      />
-    </SlideFade>
-  );
-};
-
-export default SubmitButton;
-
 
 export const TypeIcon = React.memo<any>(({
   src,
