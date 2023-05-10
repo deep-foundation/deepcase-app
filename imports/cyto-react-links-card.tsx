@@ -208,6 +208,7 @@ export const CytoReactLinksCard = React.memo<any>(({
 }) => {
   const [switchLayout, setSwitchLayout] = useState('grid');
   const [selectedLink, setSelectedLink] = useState(selectedLinkId);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRef = useRef(null);
 
   const gray900 = useChackraColor('gray.900');
