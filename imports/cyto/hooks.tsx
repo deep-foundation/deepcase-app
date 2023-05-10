@@ -51,13 +51,13 @@ export function CytoReactLinksCardInsertNode({
     containerName: t?.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.from?.value?.value || '',
   }));
   return <CytoReactLinksCard
-   const lowerCasedSearch = search.toLocaleLowerCase();
-     elements={elements.filter(el => (
-      (!!el.linkName?.includes &&
-        el.linkName.toLocaleLowerCase().includes(lowerCasedSearch)) ||
-      (!!el.containerName?.includes &&
-        el.containerName.toLocaleLowerCase().includes(lowerCasedSearch))
-     )}
+      const lowerCasedSearch = search.trim().toLocaleLowerCase();
+       elements={elements.filter(el => (
+        (!!el.linkName?.includes &&
+          el.linkName.toLocaleLowerCase().includes(lowerCasedSearch)) ||
+        (!!el.containerName?.includes &&
+          el.containerName.toLocaleLowerCase().includes(lowerCasedSearch))
+       )}
       search={search}
       onSearch={e => setSearch(e.target.value)}
       onSubmit={async (id) => {
