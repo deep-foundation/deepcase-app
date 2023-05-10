@@ -357,14 +357,28 @@ export const CytoReactLinksCard = React.memo<any>(({
         : <Center height='100%'><DotsLoader /></Center>
       }
       </Box>
-      <SubmitButton
-        selectedLink={selectedLink}
-        onSubmit={async () => {
-          if (selectedLink) {
-            await onSubmit(selectedLink);
-          }
-        }}
-    />
+      <SlideFade in={!!selectedLink} offsetX='-0.5rem' style={{position: 'absolute', bottom: 0, right: '-2.8rem'}}>
+        <IconButton
+          isRound
+          variant='solid'
+          bg='primary'
+          // color='white'
+          aria-label='submit button'
+          icon={<BsCheck2 />}
+          onClick={() => {
+            if (isSubmitting) return;
+            setIsSubmitting(true);
+            if (onSubmit && selectedLink) {
+              try {
+                await onSubmit(selectedLink);                
+              } finally {
+                setIsSubmitting(false);
+              }
+            }
+         }}
+         isDisabled={isSubmitting}
+        />
+      </SlideFade>
       {!!onClose && <Box pos='absolute' top={0} right='-2.8rem'>
         <IconButton
           isRound
