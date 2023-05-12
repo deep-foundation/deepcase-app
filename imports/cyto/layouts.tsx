@@ -49,6 +49,7 @@ export const layoutColaPreset = ({isAnimate=false}) => ({
 });
 
 export const layoutD3ForcePreset = ({isAnimate=false, cy, deep}) => ({
+  deep: ()=>deep,
   name: 'deep-d3-force',
   animate: isAnimate, // whether to show the layout as it's running; special 'end' value makes the layout animate like a discrete layout
   maxIterations: 0, // max iterations before the layout will bail out
