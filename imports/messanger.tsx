@@ -53,7 +53,7 @@ export const MessagingInterface = () => {
   }, [messages]);
 
   return (
-    <Box h="100vh" display="flex" flexDirection="column">
+    <Box h="40vh" display="flex" flexDirection="column">
       <VStack
         flex="1"
         p={4}
