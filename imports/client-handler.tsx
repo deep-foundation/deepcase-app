@@ -29,6 +29,7 @@ import { useContainer, useSpaceId } from './hooks';
 import { CytoEditorPreview } from './cyto/editor-preview';
 import { CustomizableIcon } from './icons-provider';
 import { EditorTextArea } from './editor/editor-textarea';
+import { BubbleArrowLeft } from './svg/bubble-arrow-left';
 import { Resize } from './resize';
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
 
@@ -64,6 +65,7 @@ r.list = {
     Resize,
     EditorTextArea,
     ClientHandler,
+    BubbleArrowLeft,
   },
   'react-icons/bs': bs,
   'react-icons/fi': fi,
