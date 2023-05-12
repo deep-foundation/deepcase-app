@@ -112,19 +112,55 @@ export const DeepLoader = memo(function DeepLoader({
       },
     } : {}),
     _not: {
-      up: {
-        tree_id: { _eq: deep.idLocal('@deep-foundation/core', 'containTree') },
-        self: { _eq: false },
-        parent: {
-          type_id: { _in: [deep.idLocal('@deep-foundation/core', 'Space'), deep.idLocal('@deep-foundation/core', 'Package')] },
+      _and: [
+        // {
+        //   _not: {
+        //     up: {
+        //       tree_id: { _eq: deep.idLocal('@deep-foundation/core', 'containTree') },
+        //       parent_id: { _eq: spaceId },
+        //       depth: { _lte: 2 },
+        //       self: { _eq: false }
+        //     },
+        //   }
+        // },
+        {
+          _not: {
+            in: {
+              type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
+              from_id: { _eq: spaceId }
+            }
+          }
+        },
+        {
           up: {
             tree_id: { _eq: deep.idLocal('@deep-foundation/core', 'containTree') },
             self: { _eq: false },
-            parent_id: { _eq: spaceId },
+            parent: {
+              type_id: { _in: [deep.idLocal('@deep-foundation/core', 'Space'), deep.idLocal('@deep-foundation/core', 'Package')] },
+              up: {
+                tree_id: { _eq: deep.idLocal('@deep-foundation/core', 'containTree') },
+                self: { _eq: false },
+                parent_id: { _eq: spaceId },
+              },
+            },
           },
-        },
-      },
+        }
+      ]
     },
+    // _by_item: {
+    //   _not: {
+    //     tree_id: { _eq: deep.idLocal('@deep-foundation/core', 'containTree') },
+    //     self: { _eq: false },
+    //     parent: {
+    //       type_id: { _in: [deep.idLocal('@deep-foundation/core', 'Space'), deep.idLocal('@deep-foundation/core', 'Package')] },
+    //       up: {
+    //         tree_id: { _eq: deep.idLocal('@deep-foundation/core', 'containTree') },
+    //         self: { _eq: false },
+    //         parent_id: { _eq: spaceId },
+    //       },
+    //     },
+    //   },
+    // },
   } } }), [promiseLoader]);
 
   const breadcrumbsQuery = useMemo(() => ({ value: { value: {

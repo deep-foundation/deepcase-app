@@ -10,6 +10,7 @@ import * as classnames from 'classnames';
 import React, { useCallback, useEffect, useRef, PropsWithChildren } from 'react';
 // import * as reacticons from 'react-icons';
 import * as motion from 'framer-motion';
+import Linkify from 'react-linkify';
 import * as reactHotkeysHook from 'react-hotkeys-hook';
 import * as debounce from '@react-hook/debounce';
 import * as json5 from 'json5';
@@ -68,6 +69,7 @@ r.list = {
   'react-icons/fi': fi,
   'react-icons/ci': ci,
   'react-icons/tb': tb,
+  'react-linkify': Linkify,
 };
 
 export async function evalClientHandler({
