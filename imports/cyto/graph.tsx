@@ -9,6 +9,7 @@ import { useDeep } from '@deep-foundation/deeplinks/imports/client';
 import cola from 'cytoscape-cola';
 // import COSEBilkent from 'cytoscape-cose-bilkent';
 import d3Force from 'cytoscape-d3-force';
+import deepd3Force from 'cytoscape-deep-d3-force';
 // import fcose from 'cytoscape-fcose';
 // import euler from 'cytoscape-euler';
 // import elk from 'cytoscape-elk';
@@ -41,12 +42,13 @@ cytoscape.use(cola);
 // cytoscape.use(elk);
 // cytoscape.use(euler);
 cytoscape.use(d3Force);
+cytoscape.use(deepd3Force);
 // cytoscape.use(fcose);
 cytoscape.use(cxtmenu);
 cytoscape.use(edgeConnections);
 cytoscape.use(edgehandles);
 
-export function useCytoFocusMethods(cy, relayoutDebounced) {
+export function useCytoFocusMethods(cy) {
   const { focus, unfocus } = useFocusMethods();
   const lockingRef = useRef<any>({});
   return {
@@ -60,10 +62,8 @@ export function useCytoFocusMethods(cy, relayoutDebounced) {
         const locking = lockingRef.current;
         if (id) {
           locking[id] = true;
-          el.position(position);
           el.lock();
           const focused = await focus(id, position);
-          relayoutDebounced();
           return focused;
         }
       }
@@ -80,7 +80,6 @@ export function useCytoFocusMethods(cy, relayoutDebounced) {
           el.unlock();
           locking[id] = false;
           unfocus(id);
-          relayoutDebounced();
         }
       }
     }
@@ -109,7 +108,7 @@ export default function CytoGraph({
   const { elements, reactElements } = useCytoElements(deep.minilinks, links, cy, spaceId);
   const elementsRef = useRefAutofill(elements);
 
-  const { onLoaded, relayoutDebounced } = useCyInitializer({
+  const { onLoaded } = useCyInitializer({
     elementsRef, elements, reactElements, cy, setCy, ehRef, cytoViewportRef
   });
 
@@ -126,7 +125,7 @@ export default function CytoGraph({
             if (!cy) onLoaded(_cy);
           }}
           elements={elements}
-          layout={layout({elementsRef: elementsRef.current, cy, isAnimate: layoutAnimation})}
+          layout={layout({elementsRef: elementsRef.current, cy, isAnimate: layoutAnimation, deep})}
           stylesheet={stylesheets}
           panningEnabled={true}
           pan={cytoViewportRef?.current?.value?.pan}

@@ -533,29 +533,29 @@ export function useCyInitializer({
 
   const { linkReactElements, toggleLinkReactElement } = useLinkReactElements(elements, reactElements, cy, ml);
 
-  const relayout = useCallback(() => {
-    if (cy && cy.elements) {
-      const elements = cy.elements();
-      try {
-        elements.layout(layout(elementsRef.current, cy)).run();
-      } catch(error) {
-        console.log('relayout error', error);
-      }
-    }
-  }, [cy, layout]);
-  const relayoutDebounced = useDebounceCallback(relayout, 500);
-  global.relayoutDebounced = relayoutDebounced;
+  // const relayout = useCallback(() => {
+  //   if (cy && cy.elements) {
+  //     const elements = cy.elements();
+  //     try {
+  //       elements.layout(layout(elementsRef.current, cy)).run();
+  //     } catch(error) {
+  //       console.log('relayout error', error);
+  //     }
+  //   }
+  // }, [cy, layout]);
+  // const relayoutDebounced = useDebounceCallback(relayout, 500);
+  // global.relayoutDebounced = relayoutDebounced;
 
-  useEffect(() => {
-    if (!refDragStartedEvent.current) {
-      relayoutDebounced();
-    }
-  }, [extra, layout, showTypes]);
-  useMinilinksHandle(ml, (event, oldLink, newLink) => {
-    relayoutDebounced();
-  });
+  // useEffect(() => {
+  //   if (!refDragStartedEvent.current) {
+  //     relayoutDebounced();
+  //   }
+  // }, [extra, layout, showTypes]);
+  // useMinilinksHandle(ml, (event, oldLink, newLink) => {
+  //   relayoutDebounced();
+  // });
 
-  const { focus, unfocus, lockingRef } = useCytoFocusMethods(cy, relayoutDebounced);
+  const { focus, unfocus, lockingRef } = useCytoFocusMethods(cy);
   const { startInsertingOfType, openInsertCard, insertLink, drawendInserting, insertingCyto, insertingCytoRef } = useLinkInserting(elements, reactElements, focus, cy, ehRef);
 
   const onLoaded = (ncy) => {
@@ -594,7 +594,7 @@ export function useCyInitializer({
           ncy.$(`node, edge`).not(`#${id},#${id}-from,#${id}-to,#${id}-type`).removeClass('hover');
           ncy.$(`#${id},#${id}-from,#${id}-to,#${id}-type`).not(`.unhoverable`).addClass('hover');
         }
-        if (node.locked) {
+        if (node.locked()) {
           node.unlock();
           node.mouseHoverDragging = true;
         }
@@ -796,8 +796,7 @@ export function useCyInitializer({
         const node = ncy.$(`node#${newLink.to_id}`);
         if (!node.mouseHoverDragging) {
           node.unlock();
-          node.position(newLink?.value?.value);
-          relayoutDebounced();
+          // node.position(newLink?.value?.value);
           node.lock();
         }
       }
@@ -843,6 +842,5 @@ export function useCyInitializer({
   };
   return {
     onLoaded,
-    relayoutDebounced,
   };
 }

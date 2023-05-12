@@ -51,7 +51,7 @@ export function CytoMenu({
 
   const handlerChangeLayout = (event: ChangeEvent<HTMLSelectElement>) => {
     const value = event.target.selectedOptions[0].value;
-    if (value !== 'cola' && value !== 'd3-force') return;
+    if (value !== 'cola' && value !== 'deep-d3-force') return;
     setLayout(value)
   }
 
@@ -166,7 +166,7 @@ export function CytoMenu({
           <Box width="120px" margin="0 auto">
             <Select onChange={handlerChangeLayout} value={layoutName}>
               <option value='cola'>cola</option>
-              <option value='d3-force'>d3-force</option>
+              <option value='deep-d3-force'>d3-force</option>
             </Select>
           </Box>
         </FormControl>

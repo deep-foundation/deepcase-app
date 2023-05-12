@@ -44,6 +44,7 @@
     "cytoscape-cxtmenu": "^3.4.0",
     "cytoscape-d3-force": "^1.1.4",
     "cytoscape-dagre": "^2.4.0",
+    "cytoscape-deep-d3-force": "^1.1.8",
     "cytoscape-edge-connections": "^0.4.2",
     "cytoscape-edgehandles": "^4.0.1",
     "cytoscape-elk": "^2.0.2",
