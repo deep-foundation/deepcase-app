@@ -90,8 +90,6 @@ const callEngine = async ({ operation, terminal }: { operation: string; terminal
       operation
     }
   });
-  console.log('result',r);
-  console.log('terminal',terminal);
   if (terminal) {
     terminal?.writeln(JSON.stringify(r.data?.envs));
     terminal?.writeln(r.data?.engineStr);
@@ -163,8 +161,6 @@ const TerminalConnect = React.memo<any>(({
       control.start('shrink');
     }
   }, [control, initializingState]);
-
-  console.log({control, initializingState});
 
   return (
     <AnimatePresence>
@@ -515,7 +511,6 @@ export const Connector = React.memo<any>(({
   }, [control, portalOpen]);
 
   useEffect(() => {
-    console.log('init!', init);
     if (init === InitializingState.initializing) { 
       controlNotInit.start('close');
       controlInit.start('open');
@@ -548,14 +543,11 @@ export const Connector = React.memo<any>(({
   useEffect(() => {
     (async () => {
       const status = await _checkDeeplinksStatus();
-      console.log('status',status.result !== undefined);
-      console.log('initializingState1', init)
       if (status.result !== undefined) {
         setInitLocal(InitializingState.notInit);
         await delay(1000);
         setInitLocal(InitializingState.launched);
       }
-      console.log('portalOpen', portalOpen)
     })();
   }, [portalOpen]);
 
@@ -746,11 +738,7 @@ export const Connector = React.memo<any>(({
                     ariaLabelLeft="go to deepcase"
                     ariaLabelRight="delete local deepcase"
                     // ComponentRightIcon={IoStopOutline}
-                    onClickLeft={() => {
-                      // setInitLocal(InitializingState.launched);
-                      setPortal(false);
-                      console.log({portalOpen});
-                    }} 
+                    onClickLeft={() => setPortal(false)} 
                     onClickRight={() => {
                       setInitLocal(InitializingState.removing)
                     }} 

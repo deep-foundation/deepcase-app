@@ -1,4 +1,4 @@
-import { Box, Circle, Text } from '@chakra-ui/react';
+import { Box, Circle, Text, useColorMode } from '@chakra-ui/react';
 import { AnimatePresence, motion, useAnimation } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
 import { Install } from "./icons/install";
@@ -14,7 +14,16 @@ const tabInstall = {
     }
   },
   inactive: {
-    background: '#EDF2F7',
+    background: '#eeeeee',
+    borderColor: '#718096',
+    borderWidth: 'thin',
+    transition: {
+      type: "tween",
+      duration: 0.4
+    }
+  },
+  inactiveDark: {
+    background: '#19202B',
     borderColor: '#718096',
     borderWidth: 'thin',
     transition: {
@@ -36,7 +45,16 @@ const tabUninstalled = {
     }
   },
   inactive: {
-    background: '#EDF2F7',
+    background: '#eeeeee',
+    borderColor: '#a0aec0',
+    borderWidth: 'thin',
+    transition: {
+      type: "tween",
+      duration: 0.4
+    }
+  },
+  inactiveDark: {
+    background: '#19202B',
     borderColor: '#718096',
     borderWidth: 'thin',
     transition: {
@@ -46,7 +64,7 @@ const tabUninstalled = {
   },
   initial: {
     borderRadius: '5rem',
-    borderColor: '#718096',
+    borderColor: '#a0aec0',
     borderWidth: 'thin',
     originX: 0,
   }
@@ -94,9 +112,10 @@ const textInstall = {
 };
 
 const QuantityPackages = React.memo<any>(({ quantity, borderColor }: { quantity: number; borderColor?: string; }) => {
-  return (<Circle size='1.2rem'
+  return (<Circle size='1.2rem' 
       sx={{
-        border: `1px solid ${borderColor}`}}>
+        w: 'max-content', minW: '1.2rem', p: '0 0.25rem',
+        border: `1px solid ${borderColor}`}} >
       <Text fontSize='xs' fontWeight='bold' color={borderColor}>{quantity}</Text>
     </Circle>
   )
@@ -113,29 +132,34 @@ export const TabsPackages = React.memo<any>(({
   quantityInstall?: number;
   quantityUninstalled?: number;
 }) => {
-  const controlInstall = useAnimation();
-  const controlUninstalled = useAnimation();
+  const controlTabInstall = useAnimation();
+  const controlTabUninstalled = useAnimation();
   const controlTextInstall = useAnimation();
   const controlTextUninstalled = useAnimation();
+  const { colorMode } = useColorMode();
 
   useEffect(() => {
-    if (selectedTab === 0) {
-      controlInstall.start("active"); 
-      controlUninstalled.start("inactive"); 
+    if (selectedTab === 0 && colorMode === 'light') {
+      controlTabInstall.start("active"); 
+      controlTabUninstalled.start("inactive");
       controlTextInstall.start("show"); 
       controlTextUninstalled.start("hide"); 
-    } else if (selectedTab === 1) {
-      controlUninstalled.start("active"); 
-      controlInstall.start("inactive");
+    } else if (selectedTab === 0 && colorMode === 'dark') {
+      controlTabInstall.start("active"); 
+      controlTabUninstalled.start("inactiveDark");
+      controlTextUninstalled.start("show"); 
+    } else if (selectedTab === 1 && colorMode === 'light') {
+      controlTabUninstalled.start("active"); 
+      controlTabInstall.start("inactive");
       controlTextInstall.start("hide"); 
       controlTextUninstalled.start("show"); 
     } else {
-      controlInstall.start("active"); 
-      controlUninstalled.start("inactive"); 
+      controlTabInstall.start("inactiveDark");
+      controlTabUninstalled.start("active"); 
       controlTextInstall.start("show"); 
-      controlTextUninstalled.start("hide");
+      controlTextUninstalled.start("show");
     }
-  }, [controlInstall, controlUninstalled, controlTextInstall, controlTextUninstalled, selectedTab]);
+  }, [controlTabInstall, controlTabUninstalled, controlTextInstall, controlTextUninstalled, selectedTab, colorMode]);
 
   return (<Box
       as={motion.div}
@@ -155,7 +179,7 @@ export const TabsPackages = React.memo<any>(({
         <Box
           as={motion.div}
           role='button'
-          animate={controlInstall}
+          animate={controlTabInstall}
           initial='initial'
           exit='initial'
           variants={tabInstall}
@@ -181,7 +205,16 @@ export const TabsPackages = React.memo<any>(({
               }
             }}
           >
-            <Install stroke={selectedTab === 0 ? '#ffffff' : '#3a3a3a'} />
+            <Install stroke={
+                (selectedTab === 0 && colorMode === 'dark') 
+                ? '#ffffff' 
+                : (selectedTab === 0 && colorMode === 'light') 
+                ? '#ffffff' 
+                : (colorMode === 'dark')
+                ? '#ffffff' 
+                : '#3a3a3a'
+              } 
+            />
             <Text 
               as={motion.div}
               color='whiteAlpha.800'
@@ -189,10 +222,20 @@ export const TabsPackages = React.memo<any>(({
               variants={textInstall}
               initial='initial'
               sx={{ lineHeight: 1 }}
-            >Install</Text>
+            >Installed</Text>
           </Box>
           <Box>
-            <QuantityPackages quantity={quantityInstall} borderColor={selectedTab === 0 ? '#ffffff' : '#3a3a3a'} />
+            <QuantityPackages 
+              quantity={quantityInstall} 
+              borderColor={
+                (selectedTab === 0 && colorMode === 'dark') 
+                ? '#ffffff' 
+                : (selectedTab === 0 && colorMode === 'light') 
+                ? '#ffffff' 
+                : (colorMode === 'dark')
+                ? '#ffffff' 
+                : '#3a3a3a'
+              } />
           </Box>
         </Box>
       </AnimatePresence>
@@ -201,7 +244,7 @@ export const TabsPackages = React.memo<any>(({
           key={1}
           as={motion.div}
           role='button'
-          animate={controlUninstalled}
+          animate={controlTabUninstalled}
           initial='initial'
           exit='initial'
           variants={tabUninstalled}
@@ -227,17 +270,36 @@ export const TabsPackages = React.memo<any>(({
               }
             }}
           >
-            <Uninstall stroke={selectedTab === 1 ? '#ffffff' : '#3a3a3a'} />
+            <Uninstall stroke={
+                (selectedTab === 1 && colorMode === 'dark') 
+                ? '#ffffff' 
+                : (selectedTab === 1) 
+                ? '#ffffff' 
+                : (colorMode === 'dark')
+                ? '#ffffff' 
+                : '#3a3a3a'
+              } 
+            />
             <Text
               as={motion.div}
               animate={controlTextUninstalled}
               variants={textUninstalled}
               initial='initial'
               sx={{ lineHeight: 1 }}
-            >Not install</Text>
+            >Not installed</Text>
           </Box>
           <Box>
-            <QuantityPackages quantity={quantityUninstalled} borderColor={selectedTab === 1 ? '#ffffff' : '#3a3a3a'} />
+            <QuantityPackages 
+              quantity={quantityUninstalled} 
+              borderColor={
+                (selectedTab === 1 && colorMode === 'dark') 
+                ? '#ffffff' 
+                : (selectedTab === 1) 
+                ? '#ffffff' 
+                : (colorMode === 'dark')
+                ? '#ffffff' 
+                : '#3a3a3a'
+              } />
           </Box>
         </Box>
       </AnimatePresence>

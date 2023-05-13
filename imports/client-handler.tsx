@@ -10,6 +10,7 @@ import * as classnames from 'classnames';
 import React, { useCallback, useEffect, useRef, PropsWithChildren } from 'react';
 // import * as reacticons from 'react-icons';
 import * as motion from 'framer-motion';
+import Linkify from 'react-linkify';
 import * as reactHotkeysHook from 'react-hotkeys-hook';
 import * as debounce from '@react-hook/debounce';
 import * as json5 from 'json5';
@@ -19,12 +20,17 @@ import * as tb from 'react-icons/tb';
 import * as ci from 'react-icons/ci';
 import * as editor from 'slate';
 import * as slate from 'slate-react';
+import Html from 'slate-html-serializer';
+import SoftBreak from 'slate-soft-break';
+import { slateToHtml, htmlToSlate } from 'slate-serializers';
 import isHotkey from 'is-hotkey';
 import Resizable from 're-resizable';
 import { useContainer, useSpaceId } from './hooks';
 import { CytoEditorPreview } from './cyto/editor-preview';
 import { CustomizableIcon } from './icons-provider';
 import { EditorTextArea } from './editor/editor-textarea';
+import { BubbleArrowLeft } from './svg/bubble-arrow-left';
+import { CytoReactLinkAvatar } from './cyto-react-avatar';
 import { Resize } from './resize';
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
 
@@ -39,7 +45,9 @@ r.list = {
   'axios': axios,
   'axios-hooks': axiosHooks,
   'classnames': classnames,
-  // 'react-icons': reacticons,
+  'slate-html-serializer': Html,
+  'slate-soft-break': SoftBreak,
+  'slate-serializers': {slateToHtml, htmlToSlate},
   'react-hotkeys-hook': reactHotkeysHook,
   '@react-hook/debounce': debounce,
   'json5': json5,
@@ -58,11 +66,14 @@ r.list = {
     Resize,
     EditorTextArea,
     ClientHandler,
+    BubbleArrowLeft,
+    CytoReactLinkAvatar,
   },
   'react-icons/bs': bs,
   'react-icons/fi': fi,
   'react-icons/ci': ci,
   'react-icons/tb': tb,
+  'react-linkify': Linkify,
 };
 
 export async function evalClientHandler({

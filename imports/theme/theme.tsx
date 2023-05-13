@@ -10,19 +10,59 @@ const config: ThemeConfig = {
 
 const themeChakra = extendTheme({ 
   config,
+  semanticTokens: {
+    colors: {
+      error: 'red.500',
+      text: {
+        default: 'grayText',
+        _dark: 'whiteText',
+      },
+      borderColor: {
+        default: '#d2cece',
+        _dark: '#718096',
+      },
+      backgroundModal: {
+        default: 'blue.50',
+        _dark: 'blue.900',
+      },
+      buttonBackgroundModal: {
+        default: '#eeeeee',
+        _dark: 'cyDark',
+      },
+      buttonInactive: {
+        default: '#eeeeee',
+        _dark: 'blue.900',
+      },
+      switchOn: {
+        default: 'primary',
+        _dark: 'blue.200',
+      },
+      switchOff: {
+        default: '#8a8989',
+        _dark: 'blue.200',
+      },
+      switchThumb: {
+        default: 'whiteText',
+        _dark: 'cyDark',
+      }
+    },
+  },
   styles: {
     global: (props: StyleFunctionProps) => ({
       'body': {
         color: mode('gray.900', 'whiteAlpha.900')(props),
-        bg: mode('gray.100', '#141214')(props),
+        bg: mode('gray.100', 'cyDark')(props),
       },
     }),
   },
   colors: {
     primary: '#0080ff',
+    cyDark: '#141214',
     blue: {
       900: '#19202B',
     },
+    grayText: '#3a3a3a',
+    whiteText: '#ebf8ff',
     gray: {
       900: '#111720',
     },
