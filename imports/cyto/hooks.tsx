@@ -428,6 +428,9 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
                 <IconButton 
                   aria-label='replay to message button'
                   isRound
+                  bg='whiteGray'
+                  borderColor='borderColor'
+                  borderWidth='thin'
                   size={'xs'}
                   sx={{
                     _hover: {
@@ -451,12 +454,14 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
                 />
               </PopoverContent>
             </Popover>
-            <Spacer />
             <IconButton
               isRound
               aria-label='open new full tab'
               size={'xs'}
               as='a'
+              bg='whiteGray'
+              borderColor='borderColor'
+              borderWidth='thin'
               target='_blank'
               href={`/client-handler?props=%7B"linkId"%3A${id}%2C"handlerId"%3A${handlerId}%7D`}
               sx={{
@@ -471,6 +476,9 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
               isRound
               aria-label='close client handler'
               size={'xs'}
+              bg='whiteGray'
+              borderColor='borderColor'
+              borderWidth='thin'
               sx={{
                 _hover: {
                   transform: 'scale(1.2)',

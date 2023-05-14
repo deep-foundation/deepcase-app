@@ -53,6 +53,10 @@ const themeChakra = extendTheme({
         default: '#e5eefc',
         _dark: '#404040',
       },
+      whiteGray: {
+        default: 'whiteText',
+        _dark: 'grayText',
+      }
     },
   },
   styles: {
