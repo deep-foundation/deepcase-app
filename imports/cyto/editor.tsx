@@ -507,7 +507,14 @@ export function CytoEditor() {
             rightArea === 'handlers' && (
               <CytoEditorHandlers linkId={generated && generatedLink ? generatedLink?.id : tab?.id}/>
             ) ||
-            rightArea === 'preview' && <Box pos='relative'>
+            rightArea === 'preview' && <Box 
+                pos='relative' 
+                sx={{
+                  backgroundColor: 'editorPreviewBackground',
+                  backgroundImage: `linear-gradient(-90deg, ${'editorPreviewBackgroundGrid'} 1px, transparent 1px), linear-gradient(0deg, ${'editorPreviewBackgroundGrid'} 1px, transparent 1px), linear-gradient(transparent 0px, ${'editorPreviewBackground'} 1px, ${'editorPreviewBackground'} 20px, transparent 20px), linear-gradient(-90deg, ${'editorPreviewBackgroundGrid'} 1px, transparent 1px), linear-gradient(-90deg, transparent 0px, ${'editorPreviewBackground'} 1px, ${'editorPreviewBackground'} 20px, transparent 20px), linear-gradient(0deg, ${'editorPreviewBackgroundGrid'} 1px, transparent 1px)`,
+                  backgroundSize:'20px 20px, 20px 20px, 20px 20px, 20px 20px, 20px 20px, 20px 20px',
+                }}
+            >
               {[<EditorComponentView
                 key={currentLink?.id}
                 size={viewSize}

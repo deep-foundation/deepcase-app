@@ -26,11 +26,11 @@ const themeChakra = extendTheme({
         _dark: 'blue.900',
       },
       buttonBackgroundModal: {
-        default: '#eeeeee',
+        default: 'gray.10',
         _dark: 'cyDark',
       },
       buttonInactive: {
-        default: '#eeeeee',
+        default: 'gray.10',
         _dark: 'blue.900',
       },
       switchOn: {
@@ -44,7 +44,15 @@ const themeChakra = extendTheme({
       switchThumb: {
         default: 'whiteText',
         _dark: 'cyDark',
-      }
+      },
+      editorPreviewBackground: {
+        default: '#fcfcfc',
+        _dark: 'blue.900',
+      },
+      editorPreviewBackgroundGrid: {
+        default: '#e5eefc',
+        _dark: '#404040',
+      },
     },
   },
   styles: {
@@ -64,6 +72,7 @@ const themeChakra = extendTheme({
     grayText: '#3a3a3a',
     whiteText: '#ebf8ff',
     gray: {
+      10: '#eeeeee',
       900: '#111720',
     },
     cyan: {

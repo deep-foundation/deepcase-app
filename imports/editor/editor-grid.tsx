@@ -29,28 +29,18 @@ export const EditorGrid = React.memo<any>(({
   const white = useChackraColor('white');
   const { colorMode } = useColorMode();
 
-  return (<Box display='flex' flexDir='column' h='100%' bg={colorMode == 'light' ? white : gray900} style={{ opacity: 0.98 }}>
+  return (<Box 
+      display='flex'
+      flexDir='column'
+      h='100%'
+      // bg={colorMode == 'light' ? white : gray900} 
+      sx={{ opacity: 0.98 }}
+    >
       <Flex>
         <Center>{closeAllButtonElement}</Center>
         <Box sx={{width: 'calc(100% - 4rem)'}}>{editorTabsElement}</Box>
         <Center>{closeButtonElement}</Center>
       </Flex>
-      {/* <Box 
-        display='grid' 
-        gridTemplateColumns={columns} 
-        h={'100%'}>
-        {editorTextAreaElement}
-        <Box 
-          display='grid' 
-          gridTemplateRows='1fr max-content' 
-          h={'100%'} 
-          position="relative" 
-          overflow='hidden'
-        >
-          {editorRight}
-          {editorRightSwitch}
-        </Box>
-      </Box>  */}
       <VerticalSash 
         editorTextAreaElement={editorTextAreaElement} 
         editorRight={editorRight} 
