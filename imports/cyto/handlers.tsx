@@ -1,6 +1,6 @@
 import { useSubscription } from '@apollo/client';
 import { ChevronDownIcon } from '@chakra-ui/icons';
-import { Accordion, AccordionItem, AccordionButton, AccordionIcon, AccordionPanel, Box, Flex, SimpleGrid, Text, Button, Spacer, useColorMode, InputGroup, Input, InputRightElement, Tag, TagCloseButton, TagLabel, HStack, VStack, Select, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
+import { Accordion, AccordionItem, AccordionButton, AccordionIcon, AccordionPanel, Box, Flex, SimpleGrid, Text, Button, Spacer, useColorMode, InputGroup, Input, InputRightElement, Tag, TagCloseButton, TagLabel, HStack, VStack, Select, Menu, MenuButton, MenuItem, MenuList, IconButton } from '@chakra-ui/react';
 import { useDeep, useDeepQuery, useDeepSubscription } from '@deep-foundation/deeplinks/imports/client';
 import { generateQuery, generateQueryData } from '@deep-foundation/deeplinks/imports/gql';
 import { Link, useMinilinksApply, useMinilinksQuery, useMinilinksSubscription } from '@deep-foundation/deeplinks/imports/minilinks';
@@ -9,6 +9,7 @@ import { CytoReactLinkAvatar } from '../cyto-react-avatar';
 import { EditorHandler } from '../editor/editor-handler';
 import { useChackraColor } from '../get-color';
 import { useContainer } from '../hooks';
+import { VscCheck, VscDiffAdded } from 'react-icons/vsc';
 
 export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEditorHandlersSupport({
   support,
@@ -82,16 +83,16 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
   const Handle = useCallback((
     isLink
     ? (h) => {
-      return <Box><Tag size='lg' borderRadius='full' variant='solid'>
+      return <Tag size='md' borderRadius='full' variant='solid'>
         <TagLabel>{h.from_id}</TagLabel>
         <TagCloseButton onClick={() => onDelete(h.id)}/>
-      </Tag></Box>;
+      </Tag>;
     }
     : (h) => {
-      return <Box><Tag size='lg' borderRadius='full' variant='solid'>
+      return <Tag size='md' borderRadius='full' variant='solid'>
         <TagLabel>{h.from_id}</TagLabel>
         <TagCloseButton onClick={() => onDelete(h.id)}/>
-      </Tag></Box>;
+      </Tag>;
     }
   ), [deleting]);
 
@@ -118,14 +119,14 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
           value={value}
           onChange={(e) => setValue(e.target.value)}
         />
-        <InputRightElement h='100%'>
-          <Button
+        {value !== '' ? <InputRightElement h='100%'>
+          <IconButton
             marginRight={5} size='md' variant='ghost' onClick={onInsert}
             isLoading={inserting}
-          >
-            +
-          </Button>
-        </InputRightElement>
+            aria-label='save and add id'
+            icon={<VscCheck />}
+          />
+        </InputRightElement> : null}
       </InputGroup>;
     }
     : isPort
@@ -194,26 +195,28 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
     }
   ), []);
 
-  return <div>
+  return <Box width='100%'>
     <Box borderWidth='1px' borderRadius='lg'>
-      <Flex p={3} position='relative'>
+      <Flex p='0.3rem' position='relative'>
         <Text p={1}>
           {HandleName}
         </Text>
         <Spacer />
-        <Button size='sm' variant='outline' onClick={() => setAdding(true)} disabled={!(isLink || isPort || isClient)}>
-          +
-        </Button>
+        <IconButton icon={<VscDiffAdded />} aria-label='insert handle' size='sm' variant='ghost' isRound onClick={() => setAdding(true)} disabled={!(isLink || isPort || isClient)} />
         {adding && <Form value={value} onInsert={onInsert}/>}
       </Flex>
       {!!handles?.length && <>
-        <hr/>
-        <SimpleGrid columns={3} spacing={3} p={3} templateColumns="repeat( auto-fill, minmax(3.5rem, 4.5rem) )">
+        <Box pt='0.5rem' float='left' sx={{
+            '& > *:not(:last-of-type)': {
+              marginRight: '0.5rem'
+            }
+          }}
+        >
           {handles.map(Handle)}
-        </SimpleGrid>
+        </Box>
       </>}
     </Box>
-  </div>;
+  </Box>;
 });
 
 export const CytoEditorHandlersSupport = React.memo<any>(function CytoEditorHandlersSupport({
@@ -250,27 +253,32 @@ export const CytoEditorHandlersSupport = React.memo<any>(function CytoEditorHand
 
   return <AccordionItem>
     <AccordionButton>
-      <Flex w={'100%'}>
+      <Flex w='100%' alignItems='center'>
         <Box flex='1' textAlign='left'>
           Support: {support.id} {support.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value}
         </Box>
         <Spacer/>
-        <Button size='sm' variant='outline' onClick={() => onInsertHandler()}>+</Button>
+        <IconButton aria-label='insert handler' isRound size='sm' variant='ghost' onClick={() => onInsertHandler()} icon={<VscDiffAdded />} />
       </Flex>
       <AccordionIcon />
     </AccordionButton>
-    <AccordionPanel><SimpleGrid spacing={3}>
+    <AccordionPanel pt='0.5rem' pb='0.5rem'><SimpleGrid spacing={3}>
       {handlers?.map((h: any) => (
         <Box borderWidth='2px' borderRadius='lg' borderStyle='dashed' p={2}>
           Handler: <Tag size='md' borderRadius='full' variant='solid'>
         <TagLabel>{h.id}</TagLabel>
         <TagCloseButton onClick={() => onDeleteHandler(h.id)}/>
       </Tag> {h.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || ''}
-          <SimpleGrid marginTop={3} columns={2} spacing={3} width={'100%'}>
+          {/* <SimpleGrid marginTop={3} columns={2} spacing={3} width={'100%'}>
             {support?.outByType[deep.idLocal('@deep-foundation/core', 'SupportsCompatable')]?.map(({ to: handle }) => (
               <CytoEditorHandlersSupportHandle support={support} handler={h} handle={handle}/>
             ))}
-          </SimpleGrid>
+          </SimpleGrid> */}
+          <Flex marginTop='0.5rem' width={'100%'}>
+            {support?.outByType[deep.idLocal('@deep-foundation/core', 'SupportsCompatable')]?.map(({ to: handle }) => (
+              <CytoEditorHandlersSupportHandle support={support} handler={h} handle={handle}/>
+            ))}
+          </Flex>
         </Box>
       ))}
     </SimpleGrid></AccordionPanel>
@@ -319,7 +327,7 @@ export const CytoEditorHandlers = React.memo<any>(function CytoEditorHandlers({
   return <>
     <Box position="relative">
       <Box h='100%' w='100%' overflowY="scroll" position="absolute">
-        <Accordion>
+        <Accordion allowMultiple>
           {supports?.map((support) => {
             return <CytoEditorHandlersSupport support={support} linkId={linkId}/>;
           })}
