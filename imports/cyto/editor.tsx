@@ -19,6 +19,7 @@ import { EditorTextArea } from '../editor/editor-textarea';
 import { CatchErrors } from '../react-errors';
 import { CytoEditorHandlers } from './handlers';
 import { useCytoEditor } from './hooks';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
@@ -101,14 +102,11 @@ const ListLanguages = React.memo<any>(({
   const buttonRef = useRef<any>(null);
   const [searchString, setSearchString] = useState('');
 
-  console.log('searchString', searchString);
-
   const debouncedSearch = useDebounceCallback((search) => {
     for (let i = 0; i < languages.length; i++) {
       const l = languages[i];
       if (l.id.toLowerCase().startsWith(search)) {
         languagesListRef.current.children[i].focus();
-        break;
       }
     }
   }, 300);
@@ -128,11 +126,68 @@ const ListLanguages = React.memo<any>(({
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
-
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpenListLanguages, languages, searchString, handleKeyDown]);
+
+  const selectLanguage = useCallback((l) => {
+    setSearchString((prevLang) => prevLang == l ? 0 : l);
+  }, []);
+
+  useHotkeys('enter', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (searchString) {
+      // @ts-ignore
+      setLanguage(e.srcElement?.computedName);
+      setIsOpenListLanguages(false);
+      setSearchString('');
+    }
+    return console.log('event', e);
+  }, { enableOnTags: ["SELECT","INPUT"] });
+
+  // useHotkeys('up,down', e => {
+  //   e.preventDefault();
+  //   e.stopPropagation();
+  //   let index = languages.findIndex(e => e.id == e.srcElement?.computedName);
+  //   if (index === -1) {
+  //     index = 0;
+  //   }
+  //   let next = languages[index];
+  //   if (!searchString) {
+  //     setSearchString(next.id);
+  //   } else if (e.key == 'ArrowUp') {
+  //     next = languages[index == 0 ? languages.length - 1 : index - 1];
+  //     setSearchString(next.id);
+  //   } else if (e.key == 'ArrowDown') {
+  //     next = languages[index == languages.length - 1 ? 0 : index + 1];
+  //     setSearchString(next.id);
+  //   }
+  // }, { enableOnTags: ["SELECT","INPUT"] });
+
+  // useHotkeys('enter', e => {
+  //   e.preventDefault();
+  //   e.stopPropagation();
+  //   for (let i = 0; i < languages.length; i++) {
+  //     const l = languages[i];
+  //     if (searchString) {
+  //       setLanguage(l.id);
+  //       setIsOpenListLanguages(false);
+  //       setSearchString('');
+  //       break;
+  //     }
+  //   }
+  // }, { enableOnTags: ["INPUT"] });
+  
+  // const str = searchString;
+  // let index = languages.findIndex(e => e.id == e.srcElement?.computedName);
+  // console.log('searchString', searchString);
+  // console.log('currentLanguage', currentLanguage);
+  // console.log('languages', languages);
+  // console.log('languagesListRef', languagesListRef.current?.children);
+  // console.log('index', index);
+  // console.log('str', str);
 
   return (<Box as={motion.nav}
       initial={false}
@@ -241,6 +296,10 @@ const ListLanguages = React.memo<any>(({
               setLanguage(l.id);
               setIsOpenListLanguages(false);
               setSearchString('');
+            }}
+
+            _focus={{
+              p: '0.2rem 0.5rem',
             }}
           >{l.id}</Box>
         ))}
@@ -431,15 +490,9 @@ export function CytoEditor() {
                       languages={languages} 
                       currentLanguage={currentLanguage} 
                       setLanguage={(i) => {
-                        console.log('currentLanguage', currentLanguage);
-                        console.log('idi', i);
-                        // console.log('latestLanguage', latestLanguage);
                         if ( i == 'typescript') validationTS
                         setCurrentLanguage(i);
                         refEditor.current?.monaco.editor.setModelLanguage(refEditor.current?.monaco.editor.getModels()[0], i);
-                        console.log('currentLanguage1', currentLanguage);
-                        console.log('idi1', i);
-                        // console.log('latestLanguage1', latestLanguage);
                       }}
                     />
                   </Box>
