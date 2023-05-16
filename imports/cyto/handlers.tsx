@@ -43,6 +43,7 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
   const [inserting, setInserting] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [container] = useContainer();
+  console.log('HandleName', handle?.inByType?.[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.from.ml.byFrom);
 
   const onInsert = useCallback(async () => {
     setInserting(true);
@@ -83,13 +84,13 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
   const Handle = useCallback((
     isLink
     ? (h) => {
-      return <Tag size='md' borderRadius='full' variant='solid'>
+      return <Tag size='sm' borderRadius='full' variant='solid'>
         <TagLabel>{h.from_id}</TagLabel>
         <TagCloseButton onClick={() => onDelete(h.id)}/>
       </Tag>;
     }
     : (h) => {
-      return <Tag size='md' borderRadius='full' variant='solid'>
+      return <Tag size='sm' borderRadius='full' variant='solid'>
         <TagLabel>{h.from_id}</TagLabel>
         <TagCloseButton onClick={() => onDelete(h.id)}/>
       </Tag>;
@@ -258,30 +259,40 @@ export const CytoEditorHandlersSupport = React.memo<any>(function CytoEditorHand
           Support: {support.id} {support.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value}
         </Box>
         <Spacer/>
-        <IconButton aria-label='insert handler' isRound size='sm' variant='ghost' onClick={() => onInsertHandler()} icon={<VscDiffAdded />} />
+        <IconButton aria-label='insert handler' isRound size='sm' variant='ghost' 
+          onClick={(e) => {
+            e.stopPropagation();
+            onInsertHandler();
+          }} 
+          icon={<VscDiffAdded />} 
+        />
       </Flex>
       <AccordionIcon />
     </AccordionButton>
-    <AccordionPanel pt='0.5rem' pb='0.5rem'><SimpleGrid spacing={3}>
-      {handlers?.map((h: any) => (
-        <Box borderWidth='2px' borderRadius='lg' borderStyle='dashed' p={2}>
-          Handler: <Tag size='md' borderRadius='full' variant='solid'>
-        <TagLabel>{h.id}</TagLabel>
-        <TagCloseButton onClick={() => onDeleteHandler(h.id)}/>
-      </Tag> {h.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || ''}
-          {/* <SimpleGrid marginTop={3} columns={2} spacing={3} width={'100%'}>
-            {support?.outByType[deep.idLocal('@deep-foundation/core', 'SupportsCompatable')]?.map(({ to: handle }) => (
-              <CytoEditorHandlersSupportHandle support={support} handler={h} handle={handle}/>
-            ))}
-          </SimpleGrid> */}
-          <Flex marginTop='0.5rem' width={'100%'}>
-            {support?.outByType[deep.idLocal('@deep-foundation/core', 'SupportsCompatable')]?.map(({ to: handle }) => (
-              <CytoEditorHandlersSupportHandle support={support} handler={h} handle={handle}/>
-            ))}
-          </Flex>
-        </Box>
-      ))}
-    </SimpleGrid></AccordionPanel>
+    <AccordionPanel pt='0.5rem' pb='0.5rem'>
+      <Box
+        display='grid'
+        gridTemplateColumns='repeat(2, 1fr)'
+        gap='0.5rem'
+      >
+        {handlers?.map((h: any) => (
+          <Box borderWidth='2px' borderRadius='lg' borderStyle='dashed' p={2}>
+            Handler: <Tag size='sm' borderRadius='full' variant='solid'>
+              <TagLabel>{h.id}</TagLabel>
+              <TagCloseButton onClick={() => onDeleteHandler(h.id)}/>
+            </Tag> {h.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || ''}
+            <Box
+              width='100%'
+              marginTop='0.5rem' 
+            >
+              {support?.outByType[deep.idLocal('@deep-foundation/core', 'SupportsCompatable')]?.map(({ to: handle }) => (
+                <CytoEditorHandlersSupportHandle support={support} handler={h} handle={handle}/>
+              ))}
+            </Box>
+          </Box>
+        ))}
+      </Box>
+    </AccordionPanel>
   </AccordionItem>;
 });
 
@@ -336,3 +347,4 @@ export const CytoEditorHandlers = React.memo<any>(function CytoEditorHandlers({
     </Box>
   </>;
 });
+
