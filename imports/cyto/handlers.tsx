@@ -101,7 +101,8 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
     isLink || isClient
     ? ({ value, onInsert }: { value: string, onInsert: () => void }) => {
       return <InputGroup
-        position='absolute' w='100%' h='100%' left={0} top={0} borderWidth='1px' borderRadius='lg' bgColor={colorMode == 'light' ? white : gray900}
+        position='absolute' w='100%' 
+        size='md' h='100%' left={0} top={0} borderWidth='1px' borderRadius='lg' bgColor={colorMode == 'light' ? white : gray900}
         onMouseMove={() => {
           clearTimeout(mouseoutRef.current);
         }}
@@ -109,7 +110,7 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
         <Input
           autoFocus
           h='100%'
-          type={'number'}
+          type='number'
           placeholder='id'
           onMouseLeave={onLeave}
           onMouseOver={() => {
@@ -118,12 +119,16 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
           }}
           onBlur={onLeave}
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => {
+            setValue(e.target.value);
+            console.log('value', value);
+          }}
         />
         {value !== '' ? <InputRightElement h='100%'>
           <IconButton
-            marginRight={5} size='md' variant='ghost' onClick={onInsert}
+            size='sm' variant='ghost' onClick={onInsert}
             isLoading={inserting}
+            isRound
             aria-label='save and add id'
             icon={<VscCheck />}
           />
@@ -152,14 +157,15 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
             {ports.map(port => (<MenuItem key={port.id}>{port.id}</MenuItem>))}
           </MenuList>
         </Menu>
-        <InputRightElement h='100%'>
-          <Button
-            marginRight={5} size='md' variant='ghost' onClick={onInsert}
+        {value !== '' ? <InputRightElement h='100%'>
+          <IconButton
+            size='sm' variant='ghost' onClick={onInsert}
             isLoading={inserting}
-          >
-            +
-          </Button>
-        </InputRightElement>
+            isRound
+            aria-label='save and add id'
+            icon={<VscCheck />}
+          />
+        </InputRightElement> : null}
       </InputGroup>;
     }
     : ({ value, onInsert }: { value: string, onInsert: () => void }) => {
@@ -182,32 +188,46 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
           }}
           onBlur={onLeave}
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => {
+            setValue(e.target.value);
+            console.log('value', value);
+          }}
         />
-        <InputRightElement h='100%'>
-          <Button
-            marginRight={5} size='md' variant='ghost' onClick={onInsert}
+        {value !== '' ? <InputRightElement h='100%'>
+          <IconButton
+            size='sm' variant='ghost' onClick={onInsert}
             isLoading={inserting}
-          >
-            +
-          </Button>
-        </InputRightElement>
+            isRound
+            aria-label='save and add id'
+            icon={<VscCheck />}
+          />
+        </InputRightElement> : null}
       </InputGroup>;
     }
   ), []);
 
   return <Box width='100%'>
-    <Box borderWidth='1px' borderRadius='lg'>
-      <Flex p='0.3rem' position='relative'>
-        <Text p={1}>
-          {HandleName}
-        </Text>
-        <Spacer />
-        <IconButton icon={<VscDiffAdded />} aria-label='insert handle' size='sm' variant='ghost' isRound onClick={() => setAdding(true)} disabled={!(isLink || isPort || isClient)} />
-        {adding && <Form value={value} onInsert={onInsert}/>}
-      </Flex>
+    <Box 
+      borderWidth='1px' 
+      borderRadius='lg' 
+      display='flex' 
+      flexDirection='column' 
+    >
+      <Box p='0.5rem'>
+        <Flex position='relative' p='0.3rem'  borderWidth='thin' borderRadius='lg'>
+          <Text p={1}>
+            {HandleName}
+          </Text>
+          <Spacer />
+          <IconButton icon={<VscDiffAdded />} aria-label='insert handle' size='sm' variant='ghost' isRound onClick={() => setAdding(true)} disabled={!(isLink || isPort || isClient)} />
+          {adding && <Form value={value} onInsert={onInsert}/>}
+        </Flex>
+      </Box>
       {!!handles?.length && <>
-        <Box pt='0.5rem' float='left' sx={{
+        <Box 
+          pl='0.5rem' 
+          pb='0.2rem' 
+          float='left' sx={{
             '& > *:not(:last-of-type)': {
               marginRight: '0.5rem'
             }
@@ -277,13 +297,19 @@ export const CytoEditorHandlersSupport = React.memo<any>(function CytoEditorHand
       >
         {handlers?.map((h: any) => (
           <Box borderWidth='2px' borderRadius='lg' borderStyle='dashed' p={2}>
-            Handler: <Tag size='sm' borderRadius='full' variant='solid'>
-              <TagLabel>{h.id}</TagLabel>
-              <TagCloseButton onClick={() => onDeleteHandler(h.id)}/>
-            </Tag> {h.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || ''}
+            <Box marginBottom='0.5rem'>
+              <Text>Handler:</Text> <Tag size='sm' borderRadius='full' variant='solid'>
+                <TagLabel>{h.id}</TagLabel>
+                <TagCloseButton onClick={() => onDeleteHandler(h.id)}/>
+              </Tag> {h.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || ''}
+            </Box>
             <Box
-              width='100%'
-              marginTop='0.5rem' 
+              width='100%' 
+              sx={{
+                '& > *:not(:last-of-type)': {
+                  mb: '0.5rem',
+                }
+              }}
             >
               {support?.outByType[deep.idLocal('@deep-foundation/core', 'SupportsCompatable')]?.map(({ to: handle }) => (
                 <CytoEditorHandlersSupportHandle support={support} handler={h} handle={handle}/>
