@@ -425,8 +425,8 @@ export function CytoEditor() {
       <ModalContent style={{ height: '100%' }}>
         <EditorGrid
           editorTextAreaElement={<>{[
-              <Box 
-                key={tabId} 
+              <Box
+                key={tabId}
                 sx={{
                   pos: 'relative',
                   height: '100%'
@@ -569,7 +569,7 @@ export function CytoEditor() {
                 }}
             >
               {[<EditorComponentView
-                key={currentLink?.id}
+                key={currentLink?.id || 0}
                 size={viewSize}
                 onChangeSize={(viewSize) => setViewSize(viewSize)}
                 fillSize={fillSize}
