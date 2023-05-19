@@ -358,6 +358,7 @@ export const MenuSearch = ({ cyRef, bg }: { cyRef?: any; bg?: any; }) => {
           <Text as="h1">byId</Text>
           {byId.map(link => (console.log({ selected, link }),
             <Tag
+              key={link.id}
               borderRadius='full'
               variant='solid'
               colorScheme={selected === link.id ? 'primary' : 'default'}
@@ -374,6 +375,7 @@ export const MenuSearch = ({ cyRef, bg }: { cyRef?: any; bg?: any; }) => {
           <Text as="h1">byContain</Text>
           {byContain.map(link => (
             <Tag
+              key={link.id}
               borderRadius='full'
               variant='solid'
               colorScheme={selected === link.id ? 'primary' : 'default'}
@@ -390,6 +392,7 @@ export const MenuSearch = ({ cyRef, bg }: { cyRef?: any; bg?: any; }) => {
           <Text as="h1">byValue</Text>
           {byValue.map(link => (
             <Tag
+              key={link.id}
               borderRadius='full'
               variant='solid'
               colorScheme={selected === link.id ? 'primary' : 'default'}
