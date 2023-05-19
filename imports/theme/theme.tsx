@@ -46,7 +46,7 @@ const themeChakra = extendTheme({
         _dark: 'cyDark',
       },
       editorPreviewBackground: {
-        default: '#fcfcfc',
+        default: 'whiteBg',
         _dark: 'blue.900',
       },
       editorPreviewBackgroundGrid: {
@@ -56,6 +56,26 @@ const themeChakra = extendTheme({
       whiteGray: {
         default: 'whiteText',
         _dark: 'grayText',
+      },
+      colorOutline: {
+        default: '#edf2f7',
+        _dark: '#1a202c'
+      },
+      bgColor: {
+        default: '#edf2f7',
+        _dark: 'gray.900',
+      },
+      bgLanguagesButton: {
+        default: 'gray.200',
+        _dark: 'gray.700',
+      },
+      lightDark: {
+        default: 'white',
+        _dark: 'gray.700'
+      },
+      handlersInput: {
+        default: 'white',
+        _dark: 'gray.900'
       }
     },
   },
@@ -75,6 +95,7 @@ const themeChakra = extendTheme({
     },
     grayText: '#3a3a3a',
     whiteText: '#ebf8ff',
+    whiteBg: '#fcfcfc',
     gray: {
       10: '#eeeeee',
       900: '#111720',

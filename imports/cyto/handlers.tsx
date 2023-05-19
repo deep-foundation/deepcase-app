@@ -102,7 +102,7 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
     ? ({ value, onInsert }: { value: string, onInsert: () => void }) => {
       return <InputGroup
         position='absolute' w='100%' 
-        size='md' h='100%' left={0} top={0} borderWidth='1px' borderRadius='lg' bgColor={colorMode == 'light' ? white : gray900}
+        size='md' h='100%' left={0} top={0} borderWidth='1px' borderRadius='lg' bgColor='handlersInput'
         onMouseMove={() => {
           clearTimeout(mouseoutRef.current);
         }}
@@ -138,7 +138,7 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
     : isPort
     ? ({ value, onInsert }: { value: string, onInsert: () => void }) => {
       return <InputGroup
-        position='absolute' w='100%' h='100%' left={0} top={0} borderWidth='1px' borderRadius='lg' bgColor={colorMode == 'light' ? white : gray900}
+        position='absolute' w='100%' h='100%' left={0} top={0} borderWidth='1px' borderRadius='lg' bgColor='handlersInput'
         onMouseMove={() => {
           clearTimeout(mouseoutRef.current);
         }}
@@ -170,7 +170,7 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
     }
     : ({ value, onInsert }: { value: string, onInsert: () => void }) => {
       return <InputGroup
-        position='absolute' w='100%' h='100%' left={0} top={0} borderWidth='1px' borderRadius='lg' bgColor={colorMode == 'light' ? white : gray900}
+        position='absolute' w='100%' h='100%' left={0} top={0} borderWidth='1px' borderRadius='lg' bgColor='handlersInput'
         onMouseMove={() => {
           clearTimeout(mouseoutRef.current);
         }}

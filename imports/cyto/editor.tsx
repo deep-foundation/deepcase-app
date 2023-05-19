@@ -1,17 +1,16 @@
-import { Box, IconButton, Modal, ModalContent, ModalOverlay, Text, useColorMode } from '@chakra-ui/react';
+import { Box, IconButton, Modal, ModalContent, ModalOverlay, useColorMode } from '@chakra-ui/react';
 import { useDeep, useDeepSubscription } from '@deep-foundation/deeplinks/imports/client';
 import { useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
 import { useLocalStore } from '@deep-foundation/store/local';
 import { useDebounceCallback } from '@react-hook/debounce';
-import { motion } from 'framer-motion';
 import json5 from 'json5';
 import dynamic from 'next/dynamic';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { TbArrowRotaryFirstRight } from 'react-icons/tb';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { VscClearAll } from 'react-icons/vsc';
 import { ClientHandlerRenderer, evalClientHandler } from '../client-handler';
 import { EditorComponentView } from '../editor/editor-component-view';
 import { EditorGrid } from '../editor/editor-grid';
+import { ListLanguages } from '../editor/editor-lang-list';
 import { EditorResults } from '../editor/editor-results';
 import { EditorSwitcher } from '../editor/editor-switcher';
 import { CloseButton, EditorTabs } from '../editor/editor-tabs';
@@ -19,7 +18,6 @@ import { EditorTextArea } from '../editor/editor-textarea';
 import { CatchErrors } from '../react-errors';
 import { CytoEditorHandlers } from './handlers';
 import { useCytoEditor } from './hooks';
-import { useHotkeys } from 'react-hotkeys-hook';
 
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
@@ -82,232 +80,6 @@ export function useEditorTabs() {
   };
 }
 
-const versionsListVariants = {
-  open: {
-    opacity: 1,
-    y: 0, 
-    transition: { type: "spring", stiffness: 300, damping: 24 }
-  },
-  closed: { opacity: 0, y: 20, transition: { duration: 0.2 } }
-};
-
-const ListLanguages = React.memo<any>(({ 
-  languages = [],
-  currentLanguage,
-  setLanguage,
-}) => {
-  const [isOpenListLanguages, setIsOpenListLanguages] = useState(false);
-  const { colorMode } = useColorMode();
-  const languagesListRef = useRef<any>(null);
-  const buttonRef = useRef<any>(null);
-  const [searchString, setSearchString] = useState('');
-
-  const debouncedSearch = useDebounceCallback((search) => {
-    for (let i = 0; i < languages.length; i++) {
-      const l = languages[i];
-      if (l.id.toLowerCase().startsWith(search)) {
-        languagesListRef.current.children[i].focus();
-      }
-    }
-  }, 300);
-
-  const handleKeyDown = (e) => {
-    if (isOpenListLanguages && /^[a-zA-Z]$/.test(e.key)) {
-      e.preventDefault();
-      setSearchString(searchString + e.key.toLowerCase());
-    } else if (isOpenListLanguages && e.key === 'Backspace') {
-      setSearchString(searchString.slice(0, -1));
-    }
-  };
-
-  useEffect(() => {
-    debouncedSearch(searchString);
-  }, [searchString, debouncedSearch]);
-
-  useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isOpenListLanguages, languages, searchString, handleKeyDown]);
-
-  const selectLanguage = useCallback((l) => {
-    setSearchString((prevLang) => prevLang == l ? 0 : l);
-  }, []);
-
-  useHotkeys('enter', e => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (searchString) {
-      // @ts-ignore
-      setLanguage(e.srcElement?.computedName);
-      setIsOpenListLanguages(false);
-      setSearchString('');
-    }
-    return console.log('event', e);
-  }, { enableOnTags: ["SELECT","INPUT"] });
-
-  // useHotkeys('up,down', e => {
-  //   e.preventDefault();
-  //   e.stopPropagation();
-  //   let index = languages.findIndex(e => e.id == e.srcElement?.computedName);
-  //   if (index === -1) {
-  //     index = 0;
-  //   }
-  //   let next = languages[index];
-  //   if (!searchString) {
-  //     setSearchString(next.id);
-  //   } else if (e.key == 'ArrowUp') {
-  //     next = languages[index == 0 ? languages.length - 1 : index - 1];
-  //     setSearchString(next.id);
-  //   } else if (e.key == 'ArrowDown') {
-  //     next = languages[index == languages.length - 1 ? 0 : index + 1];
-  //     setSearchString(next.id);
-  //   }
-  // }, { enableOnTags: ["SELECT","INPUT"] });
-
-  // useHotkeys('enter', e => {
-  //   e.preventDefault();
-  //   e.stopPropagation();
-  //   for (let i = 0; i < languages.length; i++) {
-  //     const l = languages[i];
-  //     if (searchString) {
-  //       setLanguage(l.id);
-  //       setIsOpenListLanguages(false);
-  //       setSearchString('');
-  //       break;
-  //     }
-  //   }
-  // }, { enableOnTags: ["INPUT"] });
-  
-  // const str = searchString;
-  // let index = languages.findIndex(e => e.id == e.srcElement?.computedName);
-  // console.log('searchString', searchString);
-  // console.log('currentLanguage', currentLanguage);
-  // console.log('languages', languages);
-  // console.log('languagesListRef', languagesListRef.current?.children);
-  // console.log('index', index);
-  // console.log('str', str);
-
-  return (<Box as={motion.nav}
-      initial={false}
-      animate={isOpenListLanguages ? "open" : "closed"}
-      sx={{
-        filter: 'drop-shadow(0px 0px 1px #5f6977)',
-        // border: 'thin solid #ebebeb',
-        width: '50%',
-        height: 10,
-        top: 0,
-        right: 0,
-      }}
-    >
-      <Box as={motion.button}
-        ref={buttonRef}
-        whileTap={{ scale: 0.97 }}
-        onClick={() => setIsOpenListLanguages(!isOpenListLanguages)}
-        sx={{
-          background: colorMode == 'light' ? 'white' : 'gray.900',
-          color: '#0080ff',
-          border: 'none',
-          borderRadius: '0.3rem',
-          p: '0.1rem 0.5rem',
-          fontWeight: 700,
-          cursor: 'pointer',
-          w:'100%',
-          h: 'inherit',
-          textAlign: 'left',
-          mb: '0.3rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <Text fontSize='sm'>{currentLanguage}</Text>
-        <Box as={motion.div}
-          variants={{
-            open: { rotate: -180 },
-            closed: { rotate: 0 }
-          }}
-          animate={{ originY: 0.55 }}
-          // @ts-ignore
-          transition={{
-            type: "tween",
-            duration: 0.2
-          }}
-        >
-          <TbArrowRotaryFirstRight />
-        </Box>
-      </Box>
-      <Box
-        as={motion.ul}
-        ref={languagesListRef}
-        // @ts-ignore
-        // attrs={{ tabIndex: -1 }}
-        variants={{
-          open: {
-            clipPath: "inset(0% 0% 0% 0% round 5px)",
-            y: -300,
-            originY: 0,
-            originX: 0.5,
-            transition: {
-              type: "spring",
-              bounce: 0,
-              duration: 0.7,
-              delayChildren: 0.3,
-              staggerChildren: 0.05
-            }
-          },
-          closed: {
-            clipPath: "inset(10% 50% 90% 50% round 5px)",
-            originY: 0,
-            originX: 1,
-            y: -60,
-            transition: {
-              type: "spring",
-              bounce: 0,
-              duration: 0.3,
-              delay: 0.3,
-            }
-          }
-        }}
-        sx={{
-          zIndex: 44,
-          position: 'absolute',
-          display: 'flex',
-          height: '15.7rem',
-          flexDirection: 'column',
-          gap: '0.7rem',
-          background: colorMode == 'light' ? 'white' : 'gray.900',
-          p: 2,
-          overflowY: 'scroll',
-          overscrollBehavior: 'contain',
-        }}
-        style={{ pointerEvents: isOpenListLanguages ? "auto" : "none" }}
-      >
-        {languages.map(l => (
-          <Box 
-            as={motion.li} 
-            sx={{listStyle: 'none', display: 'block', fontSize: '0.8rem'}} 
-            variants={versionsListVariants}
-            key={l.id}
-            role='button'
-            tabIndex={0}
-            onClick={() => {
-              setLanguage(l.id);
-              setIsOpenListLanguages(false);
-              setSearchString('');
-            }}
-
-            _focus={{
-              p: '0.2rem 0.5rem',
-            }}
-          >{l.id}</Box>
-        ))}
-      </Box>
-    </Box>
-  )
-})
-
 export function CytoEditor() {
   const [cytoEditor, setCytoEditor] = useCytoEditor();
   const onClose = useCallback(() => {
@@ -348,7 +120,6 @@ export function CytoEditor() {
     deep.minilinks,
     (link) => {
       const filterResult = link?.outByType?.[deep.idLocal('@deep-foundation/core', 'GeneratedFrom')]?.[0]?.to_id === tabId;
-      // console.log('editor', 'filterResult', filterResult);
       return filterResult;
     },
     (link, ml) => {
@@ -356,16 +127,10 @@ export function CytoEditor() {
     },
   )
 
-  // console.log('editor', 'generatedLink', generatedLink);
   const [currentLanguage, setCurrentLanguage] = useState('plaintext');
 
   useEffect(() => {
-    // console.log('editor', 'evalClientHandler', 'generatedLink', generatedLink);
-    // console.log('editor', 'evalClientHandler', 'generatedLink?.value?.value', generatedLink?.value?.value);
-    // console.log('editor', 'evalClientHandler', 'tab', tab);
-    // console.log('editor', 'evalClientHandler', 'tab?.initialValue', tab?.initialValue);
     const value = generatedLink?.value?.value || tab?.initialValue;
-    // console.log('editor', 'evalClientHandler', 'useEffect', value);
     if (!value) {
       return;
     }
@@ -374,8 +139,6 @@ export function CytoEditor() {
     }
 
     evalClientHandler({ value, deep }).then(({ data, error }) => {
-      // console.log('editor','evalClientHandler', 'error', error);
-      // console.log('editor','evalClientHandler', 'data', data);
       if (error)
         throw error;
       setComponent(() => data);
@@ -408,7 +171,6 @@ export function CytoEditor() {
     import('@monaco-editor/react').then(m => {});
   }, []);
   
-
   
   const languages = refEditor.current?.monaco.languages.getLanguages();
   const validationTS = refEditor.current?.monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
@@ -418,86 +180,86 @@ export function CytoEditor() {
 
   const { colorMode } = useColorMode();
 
-
   return <>
-    <Modal isOpen={cytoEditor} onClose={onClose} size='full'>
+    <Modal isOpen={cytoEditor} onClose={onClose} size='full' onEsc={onClose}>
       <ModalOverlay />
-      <ModalContent style={{ height: '100%' }}>
+      <ModalContent sx={{ height: '100vh', overflow: 'initial' }}>
         <EditorGrid
           editorTextAreaElement={<>{[
-              <Box 
-                key={tabId} 
-                sx={{
-                  pos: 'relative',
-                  height: '100%'
+            <Box 
+              key={tabId} 
+              sx={{
+                pos: 'relative',
+                height: '100%'
+              }}
+            >
+              <EditorTextArea
+                refEditor={refEditor}
+                value={currentValue}
+                defaultLanguage={currentLanguage}
+                onChange={(value) => {
+                  setValue(tabId, value);
+                  setTab({ ...tab, saved: tab.initialValue === value });
                 }}
+                onClose={() => {
+                  if (tabs.length === 1 && tabs[0]?.id === tab.id) onClose();
+                  closeTab(tabId);
+                  setValue(tabId, undefined);
+                  focusEditor();
+                }}
+                onSave={async (savedValue) => {
+                  const value = tempValueRef?.current?.[tabId] || savedValue;
+                  const Value = await deep.id({ in: { type_id: { _id: ['@deep-foundation/core', 'Value'] }, from: { typed: { id: { _eq: tab.id } } } } });
+                  const table = Value === deep.idLocal('@deep-foundation/core', 'String') ? 'strings' : Value === deep.idLocal('@deep-foundation/core', 'Number') ? 'numbers' : Value === deep.idLocal('@deep-foundation/core', 'Object') ? 'objects' : undefined;
+                  const type = Value === deep.idLocal('@deep-foundation/core', 'String') ? 'string' : Value === deep.idLocal('@deep-foundation/core', 'Number') ? 'number' : Value === deep.idLocal('@deep-foundation/core', 'Object') ? 'object' : 'undefined';
+
+                  let _value;
+                  try {
+                    _value = table === 'strings' ? value : table === 'numbers' ? parseFloat(value) : table === 'objects' ? json5.parse(value) : undefined;
+                  } catch(error) {
+                    console.log('error123', error);
+                  }
+
+                  if (!deep.minilinks.byId[tab.id]?.value) {
+                    await deep.insert({ link_id: tab.id, value: _value }, {
+                      table: table,
+                    });
+                    setTab({ ...tab, initialValue: value, loading: false, saved: true });
+                  } else if (type !== 'undefined') {
+                    await deep.update({ link_id: { _eq: tab.id } }, {
+                      value: _value,
+                    }, {
+                      table: `${type}s`,
+                    });
+                    setTab({ ...tab, initialValue: value, loading: false, saved: true });
+                  } else {
+                    setTab({ ...tab, initialValue: value, loading: false, saved: false });
+                  }
+                }}
+              />
+              <Box 
+                w='100%' 
+                pos='absolute' 
+                bottom='0' 
+                borderTopColor='borderColor' 
+                borderTopWidth='thin' 
+                p='0.5rem' 
+                height='auto'
+                bg='lightDark'
               >
-                <EditorTextArea
-                  refEditor={refEditor}
-                  value={currentValue}
-                  defaultLanguage={currentLanguage}
-                  onChange={(value) => {
-                    setValue(tabId, value);
-                    setTab({ ...tab, saved: tab.initialValue === value });
-                  }}
-                  onClose={() => {
-                    if (tabs.length === 1 && tabs[0]?.id === tab.id) onClose();
-                    closeTab(tabId);
-                    setValue(tabId, undefined);
-                    focusEditor();
-                  }}
-                  onSave={async (savedValue) => {
-                    const value = tempValueRef?.current?.[tabId] || savedValue;
-                    const Value = await deep.id({ in: { type_id: { _id: ['@deep-foundation/core', 'Value'] }, from: { typed: { id: { _eq: tab.id } } } } });
-                    const table = Value === deep.idLocal('@deep-foundation/core', 'String') ? 'strings' : Value === deep.idLocal('@deep-foundation/core', 'Number') ? 'numbers' : Value === deep.idLocal('@deep-foundation/core', 'Object') ? 'objects' : undefined;
-                    const type = Value === deep.idLocal('@deep-foundation/core', 'String') ? 'string' : Value === deep.idLocal('@deep-foundation/core', 'Number') ? 'number' : Value === deep.idLocal('@deep-foundation/core', 'Object') ? 'object' : 'undefined';
-
-                    let _value;
-                    try {
-                      _value = table === 'strings' ? value : table === 'numbers' ? parseFloat(value) : table === 'objects' ? json5.parse(value) : undefined;
-                    } catch(error) {
-                      console.log('error123', error);
-                    }
-
-                    if (!deep.minilinks.byId[tab.id]?.value) {
-                      await deep.insert({ link_id: tab.id, value: _value }, {
-                        table: table,
-                      });
-                      setTab({ ...tab, initialValue: value, loading: false, saved: true });
-                    } else if (type !== 'undefined') {
-                      await deep.update({ link_id: { _eq: tab.id } }, {
-                        value: _value,
-                      }, {
-                        table: `${type}s`,
-                      });
-                      setTab({ ...tab, initialValue: value, loading: false, saved: true });
-                    } else {
-                      setTab({ ...tab, initialValue: value, loading: false, saved: false });
-                    }
-                  }}
-                />
-                <Box 
-                  w='100%' 
-                  pos='absolute' 
-                  bottom='0' 
-                  borderTopColor='#ebebeb' 
-                  borderTopWidth='thin' 
-                  p='0.5rem' 
-                  bg={colorMode == 'light' ? 'white' : 'gray.900'}
-                >
-                  <Box pos='relative'>
-                    <ListLanguages 
-                      languages={languages} 
-                      currentLanguage={currentLanguage} 
-                      setLanguage={(i) => {
-                        if ( i == 'typescript') validationTS
-                        setCurrentLanguage(i);
-                        refEditor.current?.monaco.editor.setModelLanguage(refEditor.current?.monaco.editor.getModels()[0], i);
-                      }}
-                    />
-                  </Box>
+                <Box pos='relative' height='100%'>
+                  <ListLanguages 
+                    languages={languages} 
+                    currentLanguage={currentLanguage} 
+                    setLanguage={(i) => {
+                      if ( i == 'typescript') validationTS
+                      setCurrentLanguage(i);
+                      refEditor.current?.monaco.editor.setModelLanguage(refEditor.current?.monaco.editor.getModels()[0], i);
+                    }}
+                  />
                 </Box>
               </Box>
+            </Box>
           ]}</>}
           editorTabsElement={<EditorTabs
             tabs={tabs.map((tab) => ({
