@@ -589,10 +589,10 @@ export function useCyInitializer({
       disableBrowserGestures: true // during an edge drawing gesture, disable browser gestures such as two-finger trackpad swipe and pinch-to-zoom
     });
     const layoutstart = () => {
-      console.time('layout');
+      // console.time('layout');
     };
     const layoutstop = () => {
-      console.timeEnd('layout');
+      // console.timeEnd('layout');
     };
     const mouseover = function(e) {
       var node = e.target;

@@ -7,13 +7,11 @@ import axios from 'axios';
 
 let counter = 0;
 
-const NEXT_PUBLIC_GQL_SSL = process.env.NEXT_PUBLIC_GQL_SSL;
-const NEXT_PUBLIC_GQL_PATH = process.env.NEXT_PUBLIC_GQL_PATH;
-const NEXT_PUBLIC_DEEPLINKS_PATH = NEXT_PUBLIC_GQL_PATH.slice(0, -4);
-
 export function CytoDropZone({
   cy,
   children,
+  gqlPath,
+  gqlSsl,
   render=({
     getRootProps,
     input,
@@ -33,6 +31,8 @@ export function CytoDropZone({
   ),
 }: {
   cy?: any;
+  gqlPath: string;
+  gqlSsl: boolean;
   render?: any;
   children?: any;
 }) {
@@ -73,7 +73,7 @@ export function CytoDropZone({
         var formData = new FormData();
         formData.append("file", file);
         console.log('drop-zone formData', formData);
-        await axios.post(`${NEXT_PUBLIC_GQL_SSL ? 'https://' : 'http://'}${NEXT_PUBLIC_DEEPLINKS_PATH}/file`, formData, {
+        await axios.post(`http${gqlSsl ? 's' : ''}://${gqlPath}/file`, formData, {
           headers: {
             'linkId': id,
             "Authorization": `Bearer ${deep.token}`,

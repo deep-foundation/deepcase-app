@@ -331,7 +331,7 @@ export function CytoEditor() {
                 }}
             >
               {[<EditorComponentView
-                key={currentLink?.id}
+                key={currentLink?.id || 0}
                 size={viewSize}
                 onChangeSize={(viewSize) => setViewSize(viewSize)}
                 fillSize={fillSize}
