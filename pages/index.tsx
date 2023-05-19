@@ -64,8 +64,8 @@ export function Content({
   </>); 
 };
 
-export default function Page() {
-  const [gqlPath, setGqlPath] = useState('');
+export default function Page(props) {
+  const [gqlPath, setGqlPath] = useState(props.gqlPath);
   const [gqlSsl, setGqlSsl] = useState('');
   const [portal, setPortal] = useState(true);
 
@@ -87,4 +87,12 @@ export default function Page() {
       </DeepProvider>
     </Provider>
   </>);
+}
+
+export async function getStaticProps() {
+  return {
+    props: {
+      gqlPath: process.env.NEXT_PUBLIC_GQL_PATH,
+    },
+  };
 }
