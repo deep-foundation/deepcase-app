@@ -120,8 +120,6 @@ const ListVersions = React.memo<any>(({
   const versions = data ? Object.keys(data.versions) : [latestVersion];
   var collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
   versions.sort(collator.compare);
-  
-  const colorOutline = useColorModeValue('#edf2f7', '#1a202c');
 
   return (<>
       <Box position="relative" sx={{ height: 0, width: "7rem" }}>
@@ -163,7 +161,8 @@ const ListVersions = React.memo<any>(({
                   overflowY: 'scroll',
                   overscrollBehavior: 'contain',
                   filter: 'drop-shadow(0px 0px 1px #5f6977)',
-                  outline: `solid 4px ${colorOutline}`,
+                  outline: `solid 4px`,
+                  outlineColor: 'colorOutline',
                   outlineOffset: '-4px',
                   '&>*:not(:last-child)': {
                     pt: '0.2rem',
@@ -239,8 +238,6 @@ const PackageItem = React.memo<any>(function PackageItem({
   const [spaceId, setSpaceId] = useSpaceId();
   const [currentVersion, setCurrentVersion] = useState(latestVersion);
 
-  const color = useColorModeValue('#edf2f7', 'gray.800');
-
   return (<Box 
       as={motion.li} 
       variants={variantsPackage} 
@@ -270,7 +267,7 @@ const PackageItem = React.memo<any>(function PackageItem({
             }}
           ><Text fontSize='sm' as='h2'>{name}</Text></Box>
           <Box pos='relative'>
-            <ListVersions name={name} latestVersion={latestVersion} currentVersion={currentVersion} setCurrentVersion={setCurrentVersion} bg={color} />
+            <ListVersions name={name} latestVersion={latestVersion} currentVersion={currentVersion} setCurrentVersion={setCurrentVersion} bg='bgColor' />
           </Box>
         </Flex>
         <Flex 
