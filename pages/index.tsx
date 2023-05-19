@@ -12,6 +12,9 @@ import { Provider } from '../imports/provider';
 import { useRefstarter } from '../imports/refstater';
 import { Connector } from '../imports/connector/connector';
 import { PackagerInterface } from '../imports/packager-interface/packager-interface';
+import getConfig from 'next/config'
+
+const { publicRuntimeConfig } = getConfig();
 
 // const CytoGraph = dynamic<CytoGraphProps>(
 //   () => import('../imports/cyto/graph').then((m) => m.default),
@@ -92,7 +95,7 @@ export default function Page(props) {
 export async function getStaticProps() {
   return {
     props: {
-      gqlPath: process.env.NEXT_PUBLIC_GQL_PATH,
+      gqlPath: publicRuntimeConfig.NEXT_PUBLIC_GQL_PATH,
     },
   };
 }
