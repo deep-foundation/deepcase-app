@@ -90,14 +90,12 @@ const callEngine = async ({ serverUrl, operation, terminal }: { serverUrl: strin
 const TerminalConnect = React.memo<any>(({
   initializingState = undefined, 
   setInitLocal, 
-  key,
   serverUrl,
 }:{
   initializingState?: InitializingState; 
   closeTerminal: () => any; 
   setInitLocal: (state) => any; 
   terminalClosed: boolean; 
-  key: any;
   serverUrl: string;
 }) => {
   const terminalBoxRef = useRef<any>();
@@ -152,7 +150,7 @@ const TerminalConnect = React.memo<any>(({
   return (
     <AnimatePresence>
       <Box 
-        key={key}
+        key={432432}
         as={motion.div}
         overflow='auto'
         sx={{ overscrollBehavior: 'contain'}}
