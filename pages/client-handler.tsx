@@ -1,4 +1,4 @@
-import { Box } from '@chakra-ui/react';
+import { Box, Center } from '@chakra-ui/react';
 import { DeepProvider, useDeep, useDeepSubscription } from '@deep-foundation/deeplinks/imports/client';
 import { useState } from 'react';
 import { AutoGuest } from '../imports/auto-guest';
@@ -9,6 +9,7 @@ import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
 import { useQueryStore } from '@deep-foundation/store/query';
 import getConfig from 'next/config'
+import { DotsLoader } from '../imports/dot-loader';
 
 const { publicRuntimeConfig } = getConfig();
 
@@ -25,11 +26,13 @@ export function Content({
 
   const [props, setProps] = useQueryStore('props', { linkId: 0, handlerId: 0 });
 
-  const { data } = useDeepSubscription({
+  const { data, loading, error } = useDeepSubscription({
     up: {
-      parent_id: props.linkId
+      parent_id: { _eq: props.linkId }
     },
   });
+
+  console.log('props.linkId', props.linkId, 'data.length', data.length, 'loading', loading, 'error', error)
 
   return (<>
     {[<DeepLoader
@@ -37,7 +40,23 @@ export function Content({
       spaceId={spaceId}
       />]}
       <Box w='100vw' h='100vh'>
-        <ClientHandler fillSize={true} ml={deep.minilinks} {...props}/>
+        { props.linkId > 0 && data.length > 0 ?
+          [<ClientHandler key={props.linkId} fillSize={true} ml={deep.minilinks} {...props}/>] :
+
+          // TODO: sometimes loading is false and data.length == 0, but just after that goes non-empty data (possible bug in useDeepSubscription)
+
+          // props.linkId > 0  && !loading && data.length <= 0 ? 
+          // [<Center height='100%'>
+          //   <Box 
+          //     display='flex'
+          //     alignItems='center'
+          //     justifyContent='center'
+          //     h='100%'>
+          //       Link {props.linkId} is not found.
+          //   </Box>
+          // </Center>] :
+          [<Center height='100%'><DotsLoader /></Center>]
+        } 
       </Box>
     <ColorModeSwitcher/>
   </>); 
