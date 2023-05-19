@@ -205,17 +205,9 @@ export function useRefAutofill<T>(value: T) {
   return ref;
 }
 
-
 export const useMediaQuery = function useMediaQuery(arg) {
   const [actualValue, isBrowser] = useMediaQueryChakra(arg);
   const [value, setValue] = useState(false);
   useEffect(() => setValue(actualValue), [actualValue, isBrowser]);
   return [value, isBrowser];
 }
-
-export function useLinkId() {
-  return useQueryStore<any>('link-id', false);
-};
-export function useHandlerId() {
-  return useQueryStore<any>('handler-id', false);
-};

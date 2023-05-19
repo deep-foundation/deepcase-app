@@ -91,6 +91,8 @@ export default function CytoGraph({
   links = [],
   cytoViewportRef,
   cyRef,
+  gqlPath,
+  gqlSsl,
 }: CytoGraphProps){
   console.time('CytoGraph');
   const deep = useDeep();
@@ -120,7 +122,10 @@ export default function CytoGraph({
   const returning = (<>
     <Refstater useHook={useCytoViewport as any} stateRef={cytoViewportRef}/>
     <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
-      <CytoDropZone cy={cy}>
+      <CytoDropZone
+        cy={cy}
+        gqlPath={gqlPath}
+        gqlSsl={gqlSsl}>
         <CytoscapeComponent
           cy={(_cy) => {
             if (!cy) onLoaded(_cy);

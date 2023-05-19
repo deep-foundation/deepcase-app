@@ -1,15 +1,11 @@
 
 import { Box, Button, Code, Heading, HStack } from '@chakra-ui/react';
 import { DeepProvider } from '@deep-foundation/deeplinks/imports/client';
-import { useMinilinksConstruct } from '@deep-foundation/deeplinks/imports/minilinks';
-import dynamic from "next/dynamic";
 import { useState } from 'react';
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
 import { Appearance } from '../imports/component-appearance';
 import { GridComponent } from '../imports/component/grid-component';
-import { Connector } from '../imports/connector/connector';
 import { QueryClientHandler } from '../imports/cyto/query-client-handler';
-import { CytoGraphProps } from '../imports/cyto/types';
 import { DeepWYSIWYG } from '../imports/deep-wysiwyg';
 import { DotsLoader } from '../imports/dot-loader';
 import { PackagePublisher } from '../imports/package-publisher';
@@ -25,10 +21,6 @@ import { VerticalSash } from '../imports/editor/editor-grid';
 import { MessagingInterface } from '../imports/messanger';
 import { DarkModeSwitch, Switch } from '../imports/switch-mode';
 
-const CytoGraph = dynamic<CytoGraphProps>(
-  () => import('../imports/cyto/graph').then((m) => m.default),
-  { ssr: false }
-);
 
 const Detector = () => {
   let os = 'unknown';

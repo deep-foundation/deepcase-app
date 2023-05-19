@@ -11,23 +11,8 @@ import { DockerWarning } from './docker-warning';
 import axios from 'axios';
 
 const DOCKER = process.env.DOCKER || '0';
-const NEXT_PUBLIC_DEEPLINKS_URL = process.env.NEXT_PUBLIC_DEEPLINKS_URL || 'http://localhost:3006';
-const NEXT_PUBLIC_DEEPLINKS_SERVER = process.env.NEXT_PUBLIC_DEEPLINKS_SERVER || 'http://localhost:3007';
-
-const _checkDeeplinksStatus = async () => {
-  let status;
-  let err;
-  try {
-    // DL may be not in docker, when DC in docker, so we use host.docker.internal instead of docker-network link deep_links_1
-    status = await axios.get(`${+DOCKER ? 'http://host.docker.internal:3006' : NEXT_PUBLIC_DEEPLINKS_URL}/api/healthz`, { validateStatus: status => true, timeout: 7000 });
-  } catch(e){
-    err = e;
-  }
-  return { result: status?.data?.docker, error: err };
-};
 
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
-
 
 const ConnectorGrid = React.memo<any>(({
   children, 
@@ -78,11 +63,11 @@ const displayAnimation = {
   }
 };
 
-const callEngine = async ({ operation, terminal }: { operation: string; terminal?: any}) => {
+const callEngine = async ({ serverUrl, operation, terminal }: { serverUrl: string; operation: string; terminal?: any}) => {
   terminal?.resize(terminal.cols,terminal.rows);
   const r = await axios({ 
     method: 'post',
-    url: `${NEXT_PUBLIC_DEEPLINKS_SERVER}/api/deeplinks`,
+    url: `${serverUrl}/api/deeplinks`,
     headers: {
       'Content-Type': 'application/json'
     },
@@ -106,12 +91,14 @@ const TerminalConnect = React.memo<any>(({
   initializingState = undefined, 
   setInitLocal, 
   key,
+  serverUrl,
 }:{
   initializingState?: InitializingState; 
   closeTerminal: () => any; 
   setInitLocal: (state) => any; 
   terminalClosed: boolean; 
   key: any;
+  serverUrl: string;
 }) => {
   const terminalBoxRef = useRef<any>();
   const terminalRef = useRef<any>();
@@ -139,9 +126,9 @@ const TerminalConnect = React.memo<any>(({
       // animation.start('display');
       setTimeout(async() => {
         terminalRef?.current?.resize(terminalRef.current.cols,terminalRef.current.rows);
-        await callEngine({ operation: 'init', terminal: terminalRef.current });
-        await callEngine({ operation: 'migrate', terminal: terminalRef.current });
-        await callEngine({ operation: 'check', terminal: terminalRef.current });
+        await callEngine({ serverUrl, operation: 'init', terminal: terminalRef.current });
+        await callEngine({ serverUrl, operation: 'migrate', terminal: terminalRef.current });
+        await callEngine({ serverUrl, operation: 'check', terminal: terminalRef.current });
 
         await delay(2000);
         setInitLocal(InitializingState.launched);
@@ -151,7 +138,7 @@ const TerminalConnect = React.memo<any>(({
         // animation.start('display');
         setTimeout(async() => {
           terminalRef?.current?.resize(terminalRef.current.cols,terminalRef.current.rows);
-          await callEngine({ operation: 'reset', terminal: terminalRef.current });
+          await callEngine({ serverUrl, operation: 'reset', terminal: terminalRef.current });
           // control.start('shrink');
           await delay(2000);
           setInitLocal(InitializingState.notInit);
@@ -459,14 +446,18 @@ export const Connector = React.memo<any>(({
   setPortal,
   gqlPath,
   gqlSsl,
+  serverUrl,
+  deeplinksUrl,
   setGqlPath,
-  setGqlSsl, 
+  setGqlSsl,
   // onClosePortal,
 }:{
   portalOpen?: boolean;
   setPortal?: (state?: boolean) => any;
   gqlPath: string;
   gqlSsl: boolean;
+  serverUrl: string;
+  deeplinksUrl: string;
   setGqlPath: (path: string) => any;
   setGqlSsl: (ssl: boolean) => any; 
   // onClosePortal: (portalOpen: boolean) => any;
@@ -488,6 +479,18 @@ export const Connector = React.memo<any>(({
   const onClosePortal = () => setPortal(false);
   
   const [remoteRouts, setArr] = useState([]);
+
+  const checkDeeplinksStatus = async () => {
+    let status;
+    let err;
+    try {
+      // DL may be not in docker, when DC in docker, so we use host.docker.internal instead of docker-network link deep_links_1
+      status = await axios.get(`${+DOCKER ? 'http://host.docker.internal:3006' : deeplinksUrl}/api/healthz`, { validateStatus: status => true, timeout: 7000 });
+    } catch(e){
+      err = e;
+    }
+    return { result: status?.data?.docker, error: err };
+  };
   
   const add = () => {
     setArr((remoteRouts) => [
@@ -542,7 +545,7 @@ export const Connector = React.memo<any>(({
 
   useEffect(() => {
     (async () => {
-      const status = await _checkDeeplinksStatus();
+      const status = await checkDeeplinksStatus();
       if (status.result !== undefined) {
         setInitLocal(InitializingState.notInit);
         await delay(1000);
@@ -553,9 +556,9 @@ export const Connector = React.memo<any>(({
 
   useEffect(() => {
     (async () => {
-      const dockerStatus = await callEngine({ operation: 'dock' });
+      const dockerStatus = await callEngine({ serverUrl, operation: 'dock' });
       if (dockerStatus?.data?.result?.stdout?.[0] !== '{') setIsExistDocker(false);
-      const dockerComposeStatus = await callEngine({ operation: 'compose' });
+      const dockerComposeStatus = await callEngine({ serverUrl, operation: 'compose' });
       if (!/^-?\d+$/.test(dockerComposeStatus?.data?.result?.stdout?.[0])) setIsExistDocker(false);
     })();
   }, []);
@@ -607,7 +610,7 @@ export const Connector = React.memo<any>(({
                   onDeleteValue={(e) => {
                     if (gqlPath == rr.value) {
                       setGqlPath('');
-                      setGqlSsl(undefined);
+                      setGqlSsl(false);
                     }
                     remove(rr.id)
                     }
@@ -765,7 +768,8 @@ export const Connector = React.memo<any>(({
           <TerminalConnect 
             initializingState={init} 
             setInitLocal={(state)=>setInitLocal(state)}
-            key={21121} />
+            key={21121}
+            serverUrl={serverUrl} />
         </ConnectorGrid>
       </Box>
     </ModalWindow>

@@ -10,9 +10,6 @@ import { Appearance } from "../component-appearance";
 import { useAutoFocusOnInsert, useBreadcrumbs, useContainer, useLayout, useMediaQuery, usePromiseLoader, useReserved, useShowExtra, useShowFocus, useShowTypes, useSpaceId, useTraveler } from "../hooks";
 import { useCytoEditor } from "./hooks";
 
-const NEXT_PUBLIC_GQL_PATH = process.env.NEXT_PUBLIC_GQL_PATH || 'localhost:3006/gql';
-const NEXT_PUBLIC_GQL_SSL = process.env.NEXT_PUBLIC_GQL_SSL || '0';
-
 const variants = {
   show: {
     scaleX: 1,
@@ -101,9 +98,13 @@ const DeepSwitch = React.memo(({
 
 export function CytoMenu({
   cyRef,
+  gqlPath,
+  gqlSsl,
   openPortal,
 }: {
   cyRef?: any;
+  gqlPath: string,
+  gqlSsl: boolean,
   openPortal?: () => any;
 }) {
   const [spaceId, setSpaceId] = useSpaceId();
@@ -223,7 +224,7 @@ export function CytoMenu({
                 }} borderColor='gray.400' background='buttonBackgroundModal'>{valid ? 'login token' : 'paste token'}</Button>
               </ButtonGroup>
               <ButtonGroup size='sm' isAttached variant='outline' color='text'>
-                <Button borderColor='gray.400' background='buttonBackgroundModal' as='a' href={`http${+NEXT_PUBLIC_GQL_SSL ? 's' : ''}://${NEXT_PUBLIC_GQL_PATH}`} target="_blank">gql</Button>
+                <Button borderColor='gray.400' background='buttonBackgroundModal' as='a' href={`http${gqlSsl ? 's' : ''}://${gqlPath}`} target="_blank">gql</Button>
               </ButtonGroup>
               <ButtonGroup size='sm' isAttached variant='outline' color='text'>
                 <Button borderColor='gray.400' background='buttonBackgroundModal' onClick={() => setCytoEditor(true)}>editor</Button>

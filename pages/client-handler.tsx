@@ -4,12 +4,13 @@ import { useState } from 'react';
 import { AutoGuest } from '../imports/auto-guest';
 import { ClientHandler } from '../imports/client-handler';
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
-import { useHandlerId, useLinkId, useSpaceId } from '../imports/hooks';
+import { useSpaceId } from '../imports/hooks';
 import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
-import { useRouter } from 'next/router';
 import { useQueryStore } from '@deep-foundation/store/query';
+import getConfig from 'next/config'
 
+const { publicRuntimeConfig } = getConfig();
 
 export function Content({
   openPortal,
@@ -22,16 +23,11 @@ export function Content({
 
   global.ml = deep.minilinks;
 
-  const [handlerId, setHandlerId] = useHandlerId();
-  const [linkId, setLinkId] = useLinkId();
-
   const [props, setProps] = useQueryStore('props', { linkId: 0, handlerId: 0 });
 
-  const { data: files } = useDeepSubscription({
+  const { data } = useDeepSubscription({
     up: {
-      parent: {
-        id: linkId
-      }
+      parent_id: props.linkId
     },
   });
 
@@ -47,9 +43,12 @@ export function Content({
   </>); 
 };
 
-export default function Page() {
-  const [gqlPath, setGqlPath] = useState('');
-  const [gqlSsl, setGqlSsl] = useState('');
+export default function Page(props: {
+  gqlPath: string;
+  gqlSsl: boolean;
+}) {
+  const [gqlPath, setGqlPath] = useState(props.gqlPath);
+  const [gqlSsl, setGqlSsl] = useState(props.gqlSsl);
   const [portal, setPortal] = useState(true);
 
   return (<>
@@ -61,4 +60,13 @@ export default function Page() {
       </DeepProvider>
     </Provider>
   </>);
+}
+
+export async function getStaticProps() {
+  return {
+    props: {
+      gqlPath: publicRuntimeConfig?.NEXT_PUBLIC_GQL_PATH || 'localhost:3006/gql',
+      gqlSsl: !!+publicRuntimeConfig?.NEXT_PUBLIC_GQL_SSL || false,
+    },
+  };
 }

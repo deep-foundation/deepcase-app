@@ -17,16 +17,13 @@ export function ProviderConnected({
   return <>{children}</>;
 }
 
-export const NEXT_PUBLIC_GQL_PATH = process.env.NEXT_PUBLIC_GQL_PATH;
-export const NEXT_PUBLIC_GQL_SSL = !!+process.env.NEXT_PUBLIC_GQL_SSL;
-
 export function Provider({
   gqlPath,
   gqlSsl,
   children,
 }: {
   gqlPath?: string;
-  gqlSsl?: string;
+  gqlSsl?: boolean;
   children: JSX.Element;
 }) {
   const ThemeProviderCustom = ChakraProvider;
@@ -41,7 +38,7 @@ export function Provider({
         <QueryStoreProvider>
           <LocalStoreProvider>
             <TokenProvider>
-              <ApolloClientTokenizedProvider options={useMemo(() => ({ client: 'deeplinks-app', path: gqlPath ? gqlPath : NEXT_PUBLIC_GQL_PATH, ssl: gqlSsl ? gqlSsl : NEXT_PUBLIC_GQL_SSL, ws: !!process?.browser }), [gqlPath, gqlSsl])}>
+              <ApolloClientTokenizedProvider options={useMemo(() => ({ client: 'deeplinks-app', path: gqlPath, ssl: gqlSsl, ws: !!process?.browser }), [gqlPath, gqlSsl])}>
                 <ProviderConnected>
                   {children}
                 </ProviderConnected>

@@ -27,8 +27,12 @@ const CytoMenu = dynamic<any>(
 
 export function Content({
   openPortal,
+  gqlPath,
+  gqlSsl,
 }: {
   openPortal?: () => any;
+  gqlPath: string;
+  gqlSsl: boolean;
 }) {
   const cytoViewportRef = useRefstarter<{ pan: { x: number; y: number; }; zoom: number }>();
   const cyRef = useRef();
@@ -60,16 +64,22 @@ export function Content({
       key={spaceId}
       spaceId={spaceId}
       />]}
-    <CytoGraph links={links} cyRef={cyRef} cytoViewportRef={cytoViewportRef}/>
-    <CytoMenu cyRef={cyRef} cytoViewportRef={cytoViewportRef} openPortal={openPortal} />
+    <CytoGraph gqlPath={gqlPath} gqlSsl={gqlSsl} links={links} cyRef={cyRef} cytoViewportRef={cytoViewportRef}/>
+    <CytoMenu  gqlPath={gqlPath} gqlSsl={gqlSsl} cyRef={cyRef} cytoViewportRef={cytoViewportRef} openPortal={openPortal} />
     <ColorModeSwitcher/>
     <PackagerInterface />
   </>); 
 };
 
-export default function Page(props) {
+export default function Page(props: {
+  gqlPath: string;
+  gqlSsl: boolean;
+  serverUrl: string;
+  deeplinksUrl: string;
+}) {
+  const { serverUrl, deeplinksUrl } = props;
   const [gqlPath, setGqlPath] = useState(props.gqlPath);
-  const [gqlSsl, setGqlSsl] = useState('');
+  const [gqlSsl, setGqlSsl] = useState(props.gqlSsl);
   const [portal, setPortal] = useState(true);
 
   return (<>
@@ -80,12 +90,14 @@ export default function Page(props) {
             portalOpen={portal}
             setPortal={setPortal}
             // onClosePortal={() => setPortal(portal)}
-            gqlPath
-            gqlSsl
+            gqlPath={gqlPath}
+            gqlSsl={gqlSsl}
+            serverUrl={serverUrl}
+            deeplinksUrl={deeplinksUrl} // TODO: Do we really need this? Does not gqlPath + gqlSsl is enough? Should we check status for the remote deeplinks or only for local? Ping to @Menzorg
             setGqlPath={(path) => setGqlPath(path)}
             setGqlSsl={(ssl) => setGqlSsl(ssl)}
           />
-          <Content openPortal={()=>setPortal(true)} />
+          <Content gqlPath={gqlPath} gqlSsl={gqlSsl} openPortal={()=>setPortal(true)} />
         </AutoGuest>
       </DeepProvider>
     </Provider>
@@ -95,7 +107,10 @@ export default function Page(props) {
 export async function getStaticProps() {
   return {
     props: {
-      gqlPath: publicRuntimeConfig.NEXT_PUBLIC_GQL_PATH || '',
+      gqlPath: publicRuntimeConfig?.NEXT_PUBLIC_GQL_PATH || 'localhost:3006/gql',
+      gqlSsl: !!+publicRuntimeConfig?.NEXT_PUBLIC_GQL_SSL || false,
+      serverUrl: publicRuntimeConfig?.NEXT_PUBLIC_DEEPLINKS_SERVER || 'http://localhost:3007',
+      deeplinksUrl: publicRuntimeConfig?.NEXT_PUBLIC_DEEPLINKS_URL || 'http://localhost:3006',
     },
   };
 }
