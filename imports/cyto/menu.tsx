@@ -114,7 +114,7 @@ export function CytoMenu({
   const [promiseLoader, setPromiseLoader] = usePromiseLoader();
   const [autoFocus, setAutoFocus] = useAutoFocusOnInsert();
 
-  console.log('cytoEditor', cytoEditor)
+  // console.log('cytoEditor', cytoEditor)
 
   const [pasteError, setPasteError] = useState(false);
   const [valid, setValid] = useState<any>(undefined);
@@ -334,7 +334,7 @@ export const MenuSearch = ({ cyRef, bg }: { cyRef?: any; bg?: any; }) => {
   useEffect(() => {
     setSelected(all[index]?.id);
   }, [index]);
-  console.log({ all });
+  // console.log({ all });
 
   // useHotkeys<any>('enter', e => {
   //   e.preventDefault();

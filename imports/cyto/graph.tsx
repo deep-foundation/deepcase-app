@@ -94,7 +94,7 @@ export default function CytoGraph({
   gqlPath,
   gqlSsl,
 }: CytoGraphProps){
-  console.time('CytoGraph');
+  // console.time('CytoGraph');
   const deep = useDeep();
   const [spaceId, setSpaceId] = useSpaceId();
   const [container, setContainer] = useContainer();
@@ -150,7 +150,7 @@ export default function CytoGraph({
     </div>
   </>);
 
-  console.timeEnd('CytoGraph');
+  // console.timeEnd('CytoGraph');
 
   return returning;
 }
