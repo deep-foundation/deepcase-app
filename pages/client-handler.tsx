@@ -53,6 +53,7 @@ export function Content({
                 Link {props.linkId} is not found.
             </Box>
           </Center>] :
+
           [<Center height='100%'><DotsLoader /></Center>]
         } 
       </Box>
