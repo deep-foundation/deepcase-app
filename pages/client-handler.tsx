@@ -43,18 +43,16 @@ export function Content({
         { props.linkId > 0 && data.length > 0 ?
           [<ClientHandler key={props.linkId} fillSize={true} ml={deep.minilinks} {...props}/>] :
 
-          // TODO: sometimes loading is false and data.length == 0, but just after that goes non-empty data (possible bug in useDeepSubscription)
-
-          // props.linkId > 0  && !loading && data.length <= 0 ? 
-          // [<Center height='100%'>
-          //   <Box 
-          //     display='flex'
-          //     alignItems='center'
-          //     justifyContent='center'
-          //     h='100%'>
-          //       Link {props.linkId} is not found.
-          //   </Box>
-          // </Center>] :
+          props.linkId > 0  && !loading && data.length <= 0 ? 
+          [<Center height='100%'>
+            <Box 
+              display='flex'
+              alignItems='center'
+              justifyContent='center'
+              h='100%'>
+                Link {props.linkId} is not found.
+            </Box>
+          </Center>] :
           [<Center height='100%'><DotsLoader /></Center>]
         } 
       </Box>
