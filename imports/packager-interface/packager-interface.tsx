@@ -162,7 +162,10 @@ export const PackagerInterface = React.memo<any>(({
               colorScheme='current'
               isRound 
               icon={<SlClose />} 
-              onClick={() => setTogglePackager(false)} 
+              onClick={() => {
+                setTogglePackager(false);
+                setSearch('');
+              }}
             />
           </Flex>
           <TabsPackages 

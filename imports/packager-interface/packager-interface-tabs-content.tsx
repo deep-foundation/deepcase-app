@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { RiInstallLine, RiUninstallLine } from 'react-icons/ri';
-import { AnimatePresence, DeprecatedLayoutGroupContext, motion, useAnimation, useCycle } from 'framer-motion';
+import { AnimatePresence, DeprecatedLayoutGroupContext, animate, motion, useAnimation, useCycle } from 'framer-motion';
 import { Box, Button, Divider, Flex, HStack, List, ListItem, Select, Spacer, Text, useColorModeValue } from '@chakra-ui/react';
 import { Install } from "./icons/install";
 import { TbArrowRotaryFirstRight, TbBookDownload } from 'react-icons/tb';
@@ -59,6 +59,7 @@ interface IPackageProps extends IPackage {
   expanded?: boolean | number;
   onOpen?: (e: any) => any;
   style?: any;
+  animate?: any;
   variants?: any;
   transition?: any;
   latestVersion: string;
@@ -229,6 +230,7 @@ const PackageItem = React.memo<any>(function PackageItem({
   name, 
   description,
   versions, 
+  animate,
   style,
   variants = {},
   transition = {},
@@ -248,15 +250,16 @@ const PackageItem = React.memo<any>(function PackageItem({
         borderRadius: '0.5rem',
         borderWidth: 'thin',
         borderColor: 'gray.500',
+        '& > *:not(:last-of-type)': {
+          mb: '0.5rem',
+        }
       }}
       >
         <Flex>
           <Box as={motion.div}
             role='h2'
             width='100%'
-            animate={{ 
-              // color: color, 
-            }}
+            animate={animate}
             variants={variants}
             transition={transition}
             sx={{
@@ -276,6 +279,7 @@ const PackageItem = React.memo<any>(function PackageItem({
         >
           {description && <Box as={motion.div}
             width='100%'
+            animate={animate}
             variants={variants}
             transition={transition}
             sx={{
@@ -315,7 +319,7 @@ const PackageItem = React.memo<any>(function PackageItem({
         </Flex>
 
       {versions && <Divider />}
-      {versions && <Text fontSize='xs'>Installed Versions:</Text>}
+      {versions && <Text fontSize='xs' sx={{ mb: '0.2rem' }}>Installed Versions:</Text>}
       {versions && <Box sx={{
           float: 'revert', 
           '& > *:not(:last-of-type)': {
