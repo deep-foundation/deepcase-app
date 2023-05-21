@@ -3,6 +3,25 @@ import isHotkey from 'is-hotkey';
 import React, { PropsWithChildren, Ref, useCallback, useState } from 'react';
 import { Editor, Element as SlateElement, Transforms, createEditor } from 'slate';
 import { Editable, Slate, useSlate, withReact } from 'slate-react';
+import {
+  FiBold,
+  FiItalic,
+  FiUnderline,
+  FiCode,
+} from 'react-icons/fi';
+import {
+  TbNumber1,
+  TbNumber2,
+  TbQuote,
+  TbListNumbers,
+  TbList,
+} from 'react-icons/tb';
+import {
+  CiTextAlignLeft,
+  CiTextAlignCenter,
+  CiTextAlignRight,
+  CiTextAlignJustify,
+} from 'react-icons/ci';
 
 
 const HOTKEYS = {
@@ -21,7 +40,7 @@ const LIST_TYPES = ['numbered-list', 'bulleted-list'];
 const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify'];
   
   // Only objects editor.
-export const DeepWysiwyg = React.memo<any>(({ fillSize, style, link, FormattingBlock }) => {
+export const DeepWysiwyg = React.memo<any>(({ fillSize, style, link, children }) => {
   const initialValue = [
     {
       type: 'paragraph',
@@ -35,7 +54,7 @@ export const DeepWysiwyg = React.memo<any>(({ fillSize, style, link, FormattingB
   const renderLeaf = useCallback(props => <Leaf {...props} />, []);
   const renderElement = useCallback(props => <Element {...props} state={color} />, []);
   const [editor] = useState(() => withReact(createEditor()));
-
+  const { colorMode } = useColorMode();
   const [viewSize, setViewSize] = useState({width: 300, height: 300});
 
 // const randomBorderColor = Math.floor(Math.random()*16777215).toString(16);
@@ -128,12 +147,13 @@ export const DeepWysiwyg = React.memo<any>(({ fillSize, style, link, FormattingB
       }
     };
   return (<Box sx={{
+      w: fillSize ? '100%' : '28.29rem',
       '& > * > *:nth-of-type(2)': {
         // backgroundColor: 'red',
       }
     }}>
       <Slate editor={editor} value={initialValue}>
-        {FormattingBlock}
+        {children}
         <Editable 
           style={{ border: '1px solid #aaa', borderRadius: '0.5rem', padding: '1rem' }}
           spellCheck

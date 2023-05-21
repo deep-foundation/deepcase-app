@@ -6,7 +6,7 @@ import { ColorModeSwitcher } from '../imports/color-mode-toggle';
 import { Appearance } from '../imports/component-appearance';
 import { GridComponent } from '../imports/component/grid-component';
 import { QueryClientHandler } from '../imports/cyto/query-client-handler';
-import { DeepWYSIWYG } from '../imports/deep-wysiwyg';
+// import { DeepWYSIWYG } from '../imports/deep-wysiwyg';
 import { DotsLoader } from '../imports/dot-loader';
 import { PackagePublisher } from '../imports/package-publisher';
 import { PackagerInterface } from '../imports/packager-interface/packager-interface';
@@ -20,6 +20,7 @@ import { isAndroid, isIOS, isWindows, isMacOs } from 'react-device-detect';
 import { VerticalSash } from '../imports/editor/editor-grid';
 import { MessagingInterface } from '../imports/messanger';
 import { DarkModeSwitch, Switch } from '../imports/switch-mode';
+import { DeepWysiwyg } from '../imports/deep-wysiwyg';
 
 
 const Detector = () => {
@@ -119,24 +120,24 @@ export default function Page() {
         <Box w='100%' h='2rem' />
         <Code>/deep-wysiwyg</Code>
         <Box w='100%' h='1rem' />
-          <DeepWYSIWYG />
+          <DeepWysiwyg />
         <Box w='100%' h='1rem' />
 
 
         <Box w='100%' h='2rem' />
         <Code>/packager-interface</Code>
         <Box w='100%' h='1rem' />
-          <PackagerInterface 
+          {/* <PackagerInterface 
             toggle={togglePackager} 
             onClose={() => setTogglePackager(false)}
-          />
+          /> */}
           <Button colorScheme='teal' onClick={() => setTogglePackager(true)}>push me</Button>
         <Box w='100%' h='1rem' />
 
         <Box w='100%' h='2rem' />
         <Code>/package-publisher</Code>
         <Box w='100%' h='1rem' />
-          <PackagePublisher />
+          {/* <PackagePublisher /> */}
         <Box w='100%' h='1rem' />
 
         <Box w='100%' h='2rem' />
