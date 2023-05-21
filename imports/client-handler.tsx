@@ -31,7 +31,7 @@ import { CustomizableIcon } from './icons-provider';
 import { EditorTextArea } from './editor/editor-textarea';
 import { BubbleArrowLeft } from './svg/bubble-arrow-left';
 import { CytoReactLinkAvatar } from './cyto-react-avatar';
-import { DeepWysiwyg } from './deep-wysiwyg';
+import { DeepWysiwyg, BlockButton, MarkButton } from './deep-wysiwyg';
 import { Resize } from './resize';
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
 
@@ -70,6 +70,8 @@ r.list = {
     BubbleArrowLeft,
     CytoReactLinkAvatar,
     DeepWysiwyg,
+    BlockButton,
+    MarkButton,
   },
   'react-icons/bs': bs,
   'react-icons/fi': fi,
