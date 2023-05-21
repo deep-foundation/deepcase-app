@@ -1,11 +1,8 @@
-import React, { useState, Ref, PropsWithChildren, useCallback } from 'react';
-import { createEditor, Editor, Element as SlateElement, Transforms } from 'slate';
-import { Slate, Editable, withReact, useSlate } from 'slate-react';
 import { Box, Heading, useColorMode } from '@chakra-ui/react';
-import { FiBold, FiItalic, FiUnderline, FiCode } from 'react-icons/fi';
-import { TbNumber1, TbNumber2, TbQuote, TbList, TbListNumbers } from 'react-icons/tb';
-import { CiTextAlignJustify, CiTextAlignCenter, CiTextAlignLeft, CiTextAlignRight } from 'react-icons/ci';
 import isHotkey from 'is-hotkey';
+import React, { PropsWithChildren, Ref, useCallback, useState } from 'react';
+import { Editor, Element as SlateElement, Transforms, createEditor } from 'slate';
+import { Editable, Slate, useSlate, withReact } from 'slate-react';
 
 
 const HOTKEYS = {
