@@ -155,7 +155,7 @@ export const DeepWysiwyg = React.memo<any>(({ fillSize, style, link, children })
       <Slate editor={editor} value={initialValue}>
         {children}
         <Editable 
-          style={{ border: '1px solid #aaa', borderRadius: '0.5rem', padding: '1rem' }}
+          style={{ border: '1px solid #aaa', borderRadius: '0.5rem', padding: '1rem', backgroundColor: 'backgroundModal' }}
           spellCheck
           autoFocus
           renderElement={renderElement}
