@@ -36,7 +36,6 @@ export const DeepWysiwyg = React.memo<any>(({ fillSize, style, link, FormattingB
   const renderElement = useCallback(props => <Element {...props} state={color} />, []);
   const [editor] = useState(() => withReact(createEditor()));
 
-  const { colorMode } = useColorMode();
   const [viewSize, setViewSize] = useState({width: 300, height: 300});
 
 // const randomBorderColor = Math.floor(Math.random()*16777215).toString(16);
