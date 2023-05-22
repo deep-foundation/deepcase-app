@@ -23,6 +23,7 @@ import {
   CiTextAlignJustify,
 } from 'react-icons/ci';
 import { motion, useAnimation } from 'framer-motion';
+import { slateToHtml } from 'slate-serializers';
 
 
 const HOTKEYS = {
@@ -43,6 +44,10 @@ interface IEditor {
   topmenu?: boolean;
   borderRadiusEditor?: number;
   borderWidthEditor?: string;
+  paddingEditor?: number;
+  handleKeyPress?: () => any;
+  onChange?: () => any;
+  initialValue: any;
 };
 
 type OrNull<T> = T | null;
@@ -52,14 +57,36 @@ const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify'];
 
 const topmenuVariants = {
   initial: {
-    y: '0%',
+    scale: 1,
+    opacity: 1,
   }, 
   hide: {
-    y: '-80%',
+    scale: 0,
+    opacity: 0,
+    position: 'absolute',
+    top: 0,
+    transition: { 
+      duration: 0.2, type: 'spring',
+      top: { delay: 0.3 },
+    }
+  },
+  show: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.2, type: 'spring' }
+  }
+};
+
+const boxVariants = {
+  initial: {
+    height: '100%',
+  }, 
+  hide: {
+    height: '50%',
     transition: { duration: 0.3, type: 'spring' }
   },
   show: {
-    y: '0%',
+    height: '100%',
     transition: { duration: 0.3, type: 'spring' }
   }
 }
@@ -72,13 +99,20 @@ export const DeepWysiwyg = React.memo<any>(({
   topmenu,
   borderRadiusEditor = 0.5,
   borderWidthEditor = 'thin',
+  paddingEditor = 1,
+  handleKeyPress,
+  onChange,
+  initialValue,
 }:IEditor) => {
-  const initialValue = [
-    {
-      type: 'paragraph',
-      children: [{ text: '' }],
-    },
-  ];
+  // const initialValue = [
+  //   {
+  //     type: 'paragraph',
+  //     children: [{ text: '' }],
+  //   },
+  // ];
+  // const [ value, setValue ] = useState(initialValue);
+  // const serializedToHtml = slateToHtml(initialValue);
+  // console.log('serializedToHtml', serializedToHtml);
   
   const random = Math.floor(Math.random()*16777215).toString(16);
   const [color, setColor] = useState(random);
@@ -88,14 +122,17 @@ export const DeepWysiwyg = React.memo<any>(({
   const [editor] = useState(() => withReact(createEditor()));
   const { colorMode } = useColorMode();
   const control = useAnimation();
+  const boxControl = useAnimation();
 
   useEffect(() => {
     if (topmenu) {
       control.start('hide');
+      boxControl.start('hide');
     } else {
       control.start('show');
+      boxControl.start('show');
     }
-  }, [topmenu, control])
+  }, [topmenu, control, boxControl])
 
 // const randomBorderColor = Math.floor(Math.random()*16777215).toString(16);
 
@@ -187,19 +224,28 @@ export const DeepWysiwyg = React.memo<any>(({
       }
   };
 
-  return (<Box sx={{
-      w: fillSize ? '100%' : '28.29rem',
-      '& > * > *:nth-of-type(2)': {
-      }
-    }}>
-      <Slate editor={editor} value={initialValue}>
+  return (<Box 
+      // as={motion.div} animate={boxControl} variants={boxVariants} initial='initial'
+      sx={{
+        w: fillSize ? '100%' : '28.29rem',
+        '& > * > *:nth-of-type(2)': {
+        }
+      }}
+    >
+      <Slate 
+        editor={editor} 
+        value={initialValue} 
+      >
         <Box 
+          as={motion.div} animate={control} 
+          // @ts-ignore
+          variants={topmenuVariants} 
+          initial='initial'
           display='grid' 
           gridTemplateColumns='repeat(auto-fit, minmax(max-content, 1.5rem))' 
           gap='0.5rem'
           sx={{  
             backgroundColor: 'handlersInput',
-            opacity: 1,
             borderLeftWidth: 'thin', 
             borderTopWidth: 'thin', 
             borderRightWidth: 'thin', 
@@ -232,13 +278,13 @@ export const DeepWysiwyg = React.memo<any>(({
           <BlockButton colorMode={colorMode} format="right" icon={<CiTextAlignRight style={{padding: '0.2rem'}} />} />
           <BlockButton colorMode={colorMode} format="justify" icon={<CiTextAlignJustify style={{padding: '0.2rem'}} />} />
         </Box>
-        <Box as={motion.div} animate={control} variants={topmenuVariants} initial='initial'>
+        {/* <Box > */}
           <Editable 
             style={{ 
               borderWidth: borderWidthEditor, 
               borderColor: colorMode === 'light' ? '#d2cece' : '#718096', 
               borderRadius: `${borderRadiusEditor}rem`, 
-              padding: '1rem', 
+              padding: `${paddingEditor}rem`, 
               backgroundColor: colorMode === 'light' ? 'white' : '#111720' }}
             spellCheck
             autoFocus
@@ -252,9 +298,10 @@ export const DeepWysiwyg = React.memo<any>(({
                   toggleMark(editor, mark)
                 }
               }
+              handleKeyPress
             }}
           />
-        </Box>
+        {/* </Box> */}
       </Slate>
     </Box>
   )

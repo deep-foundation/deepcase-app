@@ -76,6 +76,14 @@ const themeChakra = extendTheme({
       handlersInput: {
         default: 'white',
         _dark: 'gray.900'
+      },
+      borderInputMessage: {
+        default: '#e6e6e6',
+        _dark: '#29303b'
+      },
+      sendMessagePlane: {
+        default: 'gray.700',
+        _dark: 'whiteText',
       }
     },
   },
