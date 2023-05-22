@@ -416,7 +416,7 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
         <CatchErrors errorRenderer={(error, reset) => {
           return <div>{String(error)}</div>;
         }}>
-          <Flex>
+          <Flex mb='0.25rem' minW='7rem'>
             <Popover
               isLazy
               isOpen={isOpen}
@@ -433,6 +433,7 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
                   borderWidth='thin'
                   size={'xs'}
                   sx={{
+                    marginRight: '0.5rem',
                     _hover: {
                       transform: 'scale(1.2)',
                     }
