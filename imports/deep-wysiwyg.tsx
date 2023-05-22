@@ -1,6 +1,6 @@
 import { Box, Heading, useColorMode } from '@chakra-ui/react';
 import isHotkey from 'is-hotkey';
-import React, { PropsWithChildren, Ref, useCallback, useState } from 'react';
+import React, { PropsWithChildren, Ref, useCallback, useEffect, useState } from 'react';
 import { Editor, Element as SlateElement, Transforms, createEditor } from 'slate';
 import { Editable, Slate, useSlate, withReact } from 'slate-react';
 import {
@@ -22,6 +22,7 @@ import {
   CiTextAlignRight,
   CiTextAlignJustify,
 } from 'react-icons/ci';
+import { motion, useAnimation } from 'framer-motion';
 
 
 const HOTKEYS = {
@@ -34,13 +35,44 @@ interface BaseProps {
   className: string
   [key: string]: unknown
 };
+
+interface IEditor {
+  fillSize?: boolean; 
+  style?: any; 
+  link?: any; 
+  topmenu?: boolean;
+  borderRadiusEditor?: number;
+  borderWidthEditor?: string;
+};
+
 type OrNull<T> = T | null;
 
 const LIST_TYPES = ['numbered-list', 'bulleted-list'];
 const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify'];
+
+const topmenuVariants = {
+  initial: {
+    y: '0%',
+  }, 
+  hide: {
+    y: '-80%',
+    transition: { duration: 0.3, type: 'spring' }
+  },
+  show: {
+    y: '0%',
+    transition: { duration: 0.3, type: 'spring' }
+  }
+}
   
   // Only objects editor.
-export const DeepWysiwyg = React.memo<any>(({ fillSize, style, link, children }) => {
+export const DeepWysiwyg = React.memo<any>(({ 
+  fillSize, 
+  style, 
+  link, 
+  topmenu,
+  borderRadiusEditor = 0.5,
+  borderWidthEditor = 'thin',
+}:IEditor) => {
   const initialValue = [
     {
       type: 'paragraph',
@@ -55,7 +87,15 @@ export const DeepWysiwyg = React.memo<any>(({ fillSize, style, link, children })
   const renderElement = useCallback(props => <Element {...props} state={color} />, []);
   const [editor] = useState(() => withReact(createEditor()));
   const { colorMode } = useColorMode();
-  const [viewSize, setViewSize] = useState({width: 300, height: 300});
+  const control = useAnimation();
+
+  useEffect(() => {
+    if (topmenu) {
+      control.start('hide');
+    } else {
+      control.start('show');
+    }
+  }, [topmenu, control])
 
 // const randomBorderColor = Math.floor(Math.random()*16777215).toString(16);
 
@@ -145,31 +185,76 @@ export const DeepWysiwyg = React.memo<any>(({ fillSize, style, link, children })
           </p>
         )
       }
-    };
+  };
+
   return (<Box sx={{
       w: fillSize ? '100%' : '28.29rem',
       '& > * > *:nth-of-type(2)': {
-        // backgroundColor: 'red',
       }
     }}>
       <Slate editor={editor} value={initialValue}>
-        {children}
-        <Editable 
-          style={{ border: '1px solid #aaa', borderRadius: '0.5rem', padding: '1rem', backgroundColor: 'backgroundModal' }}
-          spellCheck
-          autoFocus
-          renderElement={renderElement}
-          renderLeaf={renderLeaf}
-          onKeyDown={event => {
-            for (const hotkey in HOTKEYS) {
-              if (isHotkey(hotkey, event as any)) {
-                event.preventDefault()
-                const mark = HOTKEYS[hotkey]
-                toggleMark(editor, mark)
-              }
+        <Box 
+          display='grid' 
+          gridTemplateColumns='repeat(auto-fit, minmax(max-content, 1.5rem))' 
+          gap='0.5rem'
+          sx={{  
+            backgroundColor: 'handlersInput',
+            opacity: 1,
+            borderLeftWidth: 'thin', 
+            borderTopWidth: 'thin', 
+            borderRightWidth: 'thin', 
+            borderLeftColor: 'borderColor', 
+            borderTopColor: 'borderColor', 
+            borderRightColor: 'borderColor', 
+            borderRadius: '0.5rem', 
+            padding: '0.5rem', 
+            '& > *:hover': {
+              transform: 'scale(1.15)'
             }
-          }}
-        />
+        }}> 
+          <MarkButton colorMode={colorMode} icon={<FiBold style={{padding: '0.2rem'}} />} format='bold' />
+          <MarkButton colorMode={colorMode} icon={<FiItalic style={{padding: '0.2rem'}} />} format="italic" />
+          <MarkButton colorMode={colorMode} icon={<FiUnderline style={{padding: '0.2rem'}} />} format="underline" />
+          <MarkButton colorMode={colorMode} icon={<FiCode style={{padding: '0.2rem'}} />} format="code" />
+          
+          <BlockButton colorMode={colorMode} format="heading-one" icon={<TbNumber1 style={{padding: '0.2rem'}} />} />
+          <BlockButton colorMode={colorMode} format="heading-two" icon={<TbNumber2 style={{padding: '0.2rem'}} />} />
+          <BlockButton 
+            colorMode={colorMode} 
+            format="block-quote" 
+            icon={<TbQuote style={{padding: '0.2rem'}} />} 
+            setColor={() => setColor(random)}
+          />
+          <BlockButton colorMode={colorMode} format="numbered-list" icon={<TbListNumbers style={{padding: '0.2rem'}} />} />
+          <BlockButton colorMode={colorMode} format="bulleted-list" icon={<TbList style={{padding: '0.2rem'}} />} />
+          <BlockButton colorMode={colorMode} format="left" icon={<CiTextAlignLeft style={{padding: '0.2rem'}} />} />
+          <BlockButton colorMode={colorMode} format="center" icon={<CiTextAlignCenter style={{padding: '0.2rem'}} />} />
+          <BlockButton colorMode={colorMode} format="right" icon={<CiTextAlignRight style={{padding: '0.2rem'}} />} />
+          <BlockButton colorMode={colorMode} format="justify" icon={<CiTextAlignJustify style={{padding: '0.2rem'}} />} />
+        </Box>
+        <Box as={motion.div} animate={control} variants={topmenuVariants} initial='initial'>
+          <Editable 
+            style={{ 
+              borderWidth: borderWidthEditor, 
+              borderColor: colorMode === 'light' ? '#d2cece' : '#718096', 
+              borderRadius: `${borderRadiusEditor}rem`, 
+              padding: '1rem', 
+              backgroundColor: colorMode === 'light' ? 'white' : '#111720' }}
+            spellCheck
+            autoFocus
+            renderElement={renderElement}
+            renderLeaf={renderLeaf}
+            onKeyDown={event => {
+              for (const hotkey in HOTKEYS) {
+                if (isHotkey(hotkey, event as any)) {
+                  event.preventDefault()
+                  const mark = HOTKEYS[hotkey]
+                  toggleMark(editor, mark)
+                }
+              }
+            }}
+          />
+        </Box>
       </Slate>
     </Box>
   )
