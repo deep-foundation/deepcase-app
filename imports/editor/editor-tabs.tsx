@@ -123,26 +123,25 @@ export const EditorTab = React.memo<any>(({
         h='max'
         lineHeight='1.4'
         transition='all 0.2s cubic-bezier(.08,.52,.52,1)'
-        border='none'
+        // border='none'
         pl='3'
         pr='2'
         py='2'
         borderRadius='none'
         fontSize='xs'
         fontWeight='normal'
-        bg={active ? (colorMode == 'light' ? white : gray900) : (colorMode == 'light' ? 'gray.200' : 'whiteAlpha.300')}
-        _notLast={{ 
-          borderRightStyle: 'solid', 
-          borderRightWidth: 1,
-          borderRightColor: colorMode == 'light' ? 'gray.300' : 'whiteAlpha.300' 
-        }}
-        _hover={{ bg: colorMode == 'light' ? white : gray900 }}
+        bg={active ? 'handlersInput' : 'bgLanguagesButton'}
+        borderRightWidth='thin'
+        borderRightColor='borderColor' 
+        // _notLast={{ 
+        // }}
+        _hover={{ bg: active ? 'handlersInput' : 'whiteGray' }}
         _active={{
           transform: 'scale(0.98)',
         }}
-        _focus={{
-          bg: colorMode == 'light' ? 'gray.200' : 'whiteAlpha.300'
-        }}
+        // _focus={{
+        //   bg: 'text'
+        // }}
       >
         <Box flex='1' mr='2'>
           {title}
@@ -229,8 +228,7 @@ return (<Reorder.Group
       alignItems :"center",
       flexWrap: "nowrap",
       overflowX: "auto",
-      borderBottomStyle: 'solid', 
-      borderBottomWidth: 1, 
+      borderBottomWidth: 'thin', 
       borderBottomColor: colorMode == 'light' ? 'blackAlpha.200' : 'whiteAlpha.200',
       WebkitOverflowScrolling: "touch",
       msOverflowStyle: "-ms-autohiding-scrollbar",
