@@ -1,8 +1,8 @@
 import { Box, Heading, useColorMode } from '@chakra-ui/react';
 import isHotkey from 'is-hotkey';
-import React, { PropsWithChildren, Ref, useCallback, useEffect, useState } from 'react';
+import React, { PropsWithChildren, Ref, useCallback, useEffect, useState, useMemo, useRef } from 'react';
 import { Editor, Element as SlateElement, Transforms, createEditor } from 'slate';
-import { Editable, Slate, useSlate, withReact } from 'slate-react';
+import { Editable, Slate, useFocused, useSlate, withReact } from 'slate-react';
 import {
   FiBold,
   FiItalic,
@@ -23,8 +23,11 @@ import {
   CiTextAlignJustify,
 } from 'react-icons/ci';
 import { motion, useAnimation } from 'framer-motion';
-import { slateToHtml } from 'slate-serializers';
-
+import { slateToHtml, htmlToSlate } from 'slate-serializers';
+import { useDebounceCallback } from '@react-hook/debounce';
+import { useHotkeys } from 'react-hotkeys-hook';
+import json5 from 'json5';
+import { useDeep } from '@deep-foundation/deeplinks/imports/client';
 
 const HOTKEYS = {
   'mod+b': 'bold',
@@ -39,15 +42,16 @@ interface BaseProps {
 
 interface IEditor {
   fillSize?: boolean; 
-  style?: any; 
-  link?: any; 
   topmenu?: boolean;
   borderRadiusEditor?: number;
   borderWidthEditor?: string;
   paddingEditor?: number;
   handleKeyPress?: () => any;
-  onChange?: () => any;
+  onChange?: (result: { value: string; slateValue: any; }) => any;
+  value?: string;
   initialValue: any;
+  onFocusChanged: (isFocused: boolean) => void;
+  autoFocus?: boolean;
 };
 
 type OrNull<T> = T | null;
@@ -91,28 +95,130 @@ const boxVariants = {
   }
 }
   
+const Leaf = ({ attributes, children, leaf }) => {
+  if (leaf.bold) {
+    children = <strong>{children}</strong>
+  }
+
+  if (leaf.code) {
+    children = <code>{children}</code>
+  }
+
+  if (leaf.italic) {
+    children = <em>{children}</em>
+  }
+
+  if (leaf.underline) {
+    children = <u>{children}</u>
+  }
+
+  return <span {...attributes}>{children}</span>
+};
+
+const Element = ({ attributes, children, element, state }) => {
+  const style = { textAlign: element.align }
+  switch (element.type) {
+    case 'block-quote':
+      return (
+        <blockquote
+          style={{
+            fontSize: '1.4em',
+            width: '100%',
+            margin: '0 0',
+            fontFamily: 'Open Sans',
+            fontStyle: 'italic',
+            color: '#555555',
+            padding: '1.2em 1.2rem 1.2em 1.7rem',
+            borderLeft: `3px solid #${state}`,
+            lineHeight: '1.1',
+            position: 'relative',
+            background: '#f3f3f3',
+            style
+          }} {...attributes}>
+          {children}
+        </blockquote>
+      )
+    case 'bulleted-list':
+      return (
+        <ul style={style} {...attributes}>
+          {children}
+        </ul>
+      )
+    case 'heading-one':
+      return (
+        <Heading as='h1' size='xl' noOfLines={1} sx={style} {...attributes}>
+          {children}
+        </Heading>
+      )
+    case 'heading-two':
+      return (
+        <Heading as='h2' size='lg' noOfLines={1} sx={style} {...attributes}>
+          {children}
+        </Heading>
+      )
+    // case 'highlight':
+    //   return (
+    //     <Highlight query={undefined} sx={{px: '1', py: '1', bg: 'blue.300', ...style}} {...attributes}>
+    //       {children}
+    //     </Highlight>
+    //   )
+    case 'list-item':
+      return (
+        <li style={style} {...attributes}>
+          {children}
+        </li>
+      )
+    case 'numbered-list':
+      return (
+        <ol style={style} {...attributes}>
+          {children}
+        </ol>
+      )
+    default:
+      return (
+        <p style={style} {...attributes}>
+          {children}
+        </p>
+      )
+    }
+};
+
+const FocusCatcher = ({
+  onFocusChanged
+}: {
+  onFocusChanged: (isFocused: boolean) => void;
+}) => {
+  const focused = useFocused();
+  useEffect(() => {
+    onFocusChanged && onFocusChanged(focused);
+  }, [focused]);
+  return null;
+};
+
   // Only objects editor.
 export const DeepWysiwyg = React.memo<any>(({ 
-  fillSize, 
-  style, 
-  link, 
+  fillSize,
   topmenu,
   borderRadiusEditor = 0.5,
   borderWidthEditor = 'thin',
   paddingEditor = 1,
   handleKeyPress,
   onChange,
-  initialValue,
+  value,
+  initialValue = [
+    {
+      type: 'paragraph',
+      children: [{ text: '' }],
+    },
+  ],
+  onFocusChanged,
+  autoFocus = false,
 }:IEditor) => {
-  // const initialValue = [
-  //   {
-  //     type: 'paragraph',
-  //     children: [{ text: '' }],
-  //   },
-  // ];
-  // const [ value, setValue ] = useState(initialValue);
-  // const serializedToHtml = slateToHtml(initialValue);
-  // console.log('serializedToHtml', serializedToHtml);
+  const _value = useMemo(() => {
+    if (typeof(value) === 'string' && !!value) {
+      return htmlToSlate(value);
+    } else return initialValue;
+  }, [value, initialValue]);
   
   const random = Math.floor(Math.random()*16777215).toString(16);
   const [color, setColor] = useState(random);
@@ -136,94 +242,7 @@ export const DeepWysiwyg = React.memo<any>(({
 
 // const randomBorderColor = Math.floor(Math.random()*16777215).toString(16);
 
-  const Leaf = ({ attributes, children, leaf }) => {
-    if (leaf.bold) {
-      children = <strong>{children}</strong>
-    }
-
-    if (leaf.code) {
-      children = <code>{children}</code>
-    }
-
-    if (leaf.italic) {
-      children = <em>{children}</em>
-    }
-
-    if (leaf.underline) {
-      children = <u>{children}</u>
-    }
-
-    return <span {...attributes}>{children}</span>
-  };
-  
-  const Element = ({ attributes, children, element, state }) => {
-    const style = { textAlign: element.align }
-    switch (element.type) {
-      case 'block-quote':
-        return (
-          <blockquote
-            style={{
-              fontSize: '1.4em',
-              width: '100%',
-              margin: '0 0',
-              fontFamily: 'Open Sans',
-              fontStyle: 'italic',
-              color: '#555555',
-              padding: '1.2em 1.2rem 1.2em 1.7rem',
-              borderLeft: `3px solid #${state}`,
-              lineHeight: '1.1',
-              position: 'relative',
-              background: '#f3f3f3',
-              style
-            }} {...attributes}>
-            {children}
-          </blockquote>
-        )
-      case 'bulleted-list':
-        return (
-          <ul style={style} {...attributes}>
-            {children}
-          </ul>
-        )
-      case 'heading-one':
-        return (
-          <Heading as='h1' size='xl' noOfLines={1} sx={style} {...attributes}>
-            {children}
-          </Heading>
-        )
-      case 'heading-two':
-        return (
-          <Heading as='h2' size='lg' noOfLines={1} sx={style} {...attributes}>
-            {children}
-          </Heading>
-        )
-      // case 'highlight':
-      //   return (
-      //     <Highlight query={undefined} sx={{px: '1', py: '1', bg: 'blue.300', ...style}} {...attributes}>
-      //       {children}
-      //     </Highlight>
-      //   )
-      case 'list-item':
-        return (
-          <li style={style} {...attributes}>
-            {children}
-          </li>
-        )
-      case 'numbered-list':
-        return (
-          <ol style={style} {...attributes}>
-            {children}
-          </ol>
-        )
-      default:
-        return (
-          <p style={style} {...attributes}>
-            {children}
-          </p>
-        )
-      }
-  };
-
+  console.log({ _value, initialValue });
   return (<Box 
       // as={motion.div} animate={boxControl} variants={boxVariants} initial='initial'
       sx={{
@@ -234,8 +253,18 @@ export const DeepWysiwyg = React.memo<any>(({
     >
       <Slate 
         editor={editor} 
-        value={initialValue} 
+        value={_value} 
+        onChange={(value) => {
+          const serializedToHtml = slateToHtml(value);
+          onChange && onChange({
+            value: serializedToHtml,
+            slateValue: value,
+          });
+        }}
       >
+        <FocusCatcher
+          onFocusChanged={onFocusChanged}
+        />
         <Box 
           as={motion.div} animate={control} 
           // @ts-ignore
@@ -287,7 +316,7 @@ export const DeepWysiwyg = React.memo<any>(({
               padding: `${paddingEditor}rem`, 
               backgroundColor: colorMode === 'light' ? 'white' : '#111720' }}
             spellCheck
-            autoFocus
+            autoFocus={autoFocus}
             renderElement={renderElement}
             renderLeaf={renderLeaf}
             onKeyDown={event => {
@@ -470,3 +499,39 @@ const Icon = React.forwardRef(({
     />
   )
 )
+
+export function useStringSaver(link): {
+  value: string;
+  setValue: (value: string) => void;
+  onFocusChanged: (isFocused: boolean) => void;
+} {
+  const deep = useDeep();
+  const [value, setValue] = useState(link?.value?.value || '');
+  const focusedRef = useRef(false);
+  const save = async (value) => {
+    try {
+      if (!link.value) deep.insert({
+        link_id: link.id, value,
+      }, { table: 'strings' });
+      deep.update({ link_id: link.id }, { value }, { table: 'strings' });
+    } catch(error) {}
+  };
+  const saveDebounced = useDebounceCallback(async(value) => {
+    await save(value);
+  }, 500);
+  useEffect(() => {
+    if (focusedRef.current) saveDebounced(value);
+  }, [value]);
+  useEffect(() => {
+    console.log('on link value change', { focused: focusedRef.current, value: link?.value?.value });
+    if (!focusedRef.current) setValue(link?.value?.value);
+  }, [link?.value?.value]);
+  const onFocusChanged = useCallback((isFocused) => {
+    focusedRef.current = isFocused;
+  }, []);
+  return {
+    value,
+    setValue,
+    onFocusChanged,
+  };
+}
