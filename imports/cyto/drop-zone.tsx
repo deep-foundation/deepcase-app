@@ -73,7 +73,7 @@ export function CytoDropZone({
         var formData = new FormData();
         formData.append("file", file);
         console.log('drop-zone formData', formData);
-        await axios.post(`http${gqlSsl ? 's' : ''}://${gqlPath}/file`, formData, {
+        await axios.post(`http${gqlSsl ? 's' : ''}://${gqlPath.slice(0, -4)}/file`, formData, {
           headers: {
             'linkId': id,
             "Authorization": `Bearer ${deep.token}`,
