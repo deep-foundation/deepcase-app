@@ -1,5 +1,5 @@
 
-import { Box, Button, Code, Heading, HStack } from '@chakra-ui/react';
+import { Box, Button, Code, Heading, HStack, ChakraProvider } from '@chakra-ui/react';
 import { DeepProvider } from '@deep-foundation/deeplinks/imports/client';
 import { useState } from 'react';
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
@@ -22,6 +22,8 @@ import { MessagingInterface } from '../imports/messanger';
 import { DarkModeSwitch, Switch } from '../imports/switch-mode';
 import { DeepWysiwyg } from '../imports/deep-wysiwyg';
 import { Example as Ex } from '../imports/cyto-react-links-packages';
+import { useMinilinksConstruct } from '@deep-foundation/deeplinks/imports/minilinks';
+import themeChakra from '../imports/theme/theme';
 
 
 const Detector = () => {
@@ -45,8 +47,8 @@ const Detector = () => {
 };
 
 export default function Page() {
-  // const minilinks = useMinilinksConstruct();
-  // const { ref: mlRef, ml } = minilinks;
+  const minilinks = useMinilinksConstruct();
+  const { ref: mlRef, ml } = minilinks;
   const [toggle, setToggle] = useState(false);
   const [togglePackager, setTogglePackager] = useState(false);
   const [portal, setPortal] = useState(false);
@@ -60,7 +62,7 @@ export default function Page() {
   return (<>
     <Provider>
    <DeepProvider>
-
+   <ChakraProvider theme={themeChakra}>
       <>
       <ColorModeSwitcher/>
       <Box p={{sm: 7, md: 20}}>
@@ -179,6 +181,7 @@ export default function Page() {
 
       </Box>
     </>
+    </ChakraProvider>
    </DeepProvider>
     </Provider>
   </>);
