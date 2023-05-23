@@ -108,7 +108,7 @@ const iconVariants = {
   }
 };
 
-const ListVersions = React.memo<any>(({ 
+export const ListVersions = React.memo<any>(({ 
   name,
   latestVersion,
   currentVersion,
@@ -223,7 +223,7 @@ const ListVersions = React.memo<any>(({
   )
 })
 
-const PackageItem = React.memo<any>(function PackageItem({
+export const PackageItem = React.memo<any>(function PackageItem({
   id,
   expanded, 
   onOpen, 

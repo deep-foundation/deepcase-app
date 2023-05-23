@@ -21,6 +21,7 @@ import { VerticalSash } from '../imports/editor/editor-grid';
 import { MessagingInterface } from '../imports/messanger';
 import { DarkModeSwitch, Switch } from '../imports/switch-mode';
 import { DeepWysiwyg } from '../imports/deep-wysiwyg';
+import { Example as Ex } from '../imports/cyto-react-links-packages';
 
 
 const Detector = () => {
@@ -168,6 +169,12 @@ export default function Page() {
         <Code>/switch-mode</Code>
         <Box w='100%' h='1rem' />
           <Switch />
+        <Box w='100%' h='1rem' />
+      
+        <Box w='100%' h='2rem' />
+        <Code>/cyto-react-links-packages</Code>
+        <Box w='100%' h='1rem' />
+          <Ex />
         <Box w='100%' h='1rem' />
 
       </Box>
