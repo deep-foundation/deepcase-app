@@ -26,7 +26,6 @@ import { motion, useAnimation } from 'framer-motion';
 import { slateToHtml, htmlToSlate } from 'slate-serializers';
 import { useDebounceCallback } from '@react-hook/debounce';
 import { useHotkeys } from 'react-hotkeys-hook';
-import json5 from 'json5';
 import { useDeep } from '@deep-foundation/deeplinks/imports/client';
 
 const HOTKEYS = {
@@ -241,8 +240,6 @@ export const DeepWysiwyg = React.memo<any>(({
   }, [topmenu, control, boxControl])
 
 // const randomBorderColor = Math.floor(Math.random()*16777215).toString(16);
-
-  console.log({ _value, initialValue });
   return (<Box 
       // as={motion.div} animate={boxControl} variants={boxVariants} initial='initial'
       sx={{

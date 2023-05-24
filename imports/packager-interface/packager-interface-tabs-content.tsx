@@ -62,7 +62,7 @@ interface IPackageProps extends IPackage {
   animate?: any;
   variants?: any;
   transition?: any;
-  latestVersion: string;
+  latestVersion?: string;
 }
 
 export type Package = IPackage[];
@@ -209,8 +209,8 @@ export const ListVersions = React.memo<any>(({
               filter: 'drop-shadow(0px 0px 1px #5f6977)',
             }}
             rightIcon={<Box as={motion.div}
-              variants={iconVariants}
-              animate={open ? "open" : "closed"}
+            variants={iconVariants}
+            animate={open ? "open" : "closed"}
             >
               <TbArrowRotaryFirstRight />
             </Box>}
@@ -327,7 +327,14 @@ export const PackageItem = React.memo<any>(function PackageItem({
           }
         }}>
         {versions && versions.map((c, i) =>(
-          <TagLink version={c.version} key={c.packageId} colorScheme={c.isActive ? 'orange' : 'blue'} onClick={(e) => { e.preventDefault(); console.log('4324324234234324-0'); console.log('4324324234234324--', c.packageId); setSpaceId(c.packageId); console.log('4324324234234324-1'); } } />
+          <TagLink 
+            version={c.version} 
+            key={c.packageId} 
+            colorScheme={c.isActive ? 'orange' : 'blue'} 
+            onClick={(e) => { 
+              e.preventDefault(); 
+              setSpaceId(c.packageId);  
+            }} />
         ))}
       </Box>}
     </Box>
