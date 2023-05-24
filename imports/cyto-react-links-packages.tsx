@@ -5,6 +5,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { DotsLoader } from './dot-loader';
 import { TbArrowRotaryFirstRight, TbBookDownload, TbAtom } from 'react-icons/tb';
 import { GridPanel } from './cyto-react-links-card';
+import _ from 'lodash';
 
 
 const TypeExample = () => <Box className="type" sx={{ w: '3rem', height: '3rem', bg: 'sendMessagePlane' }} />;
@@ -46,7 +47,10 @@ export interface IPackage {
   version: string;
   packageId?: number;
   isActive?: boolean; 
-  typeElements?: {}[];
+  typeElements?: {
+    id: number;
+    src?: any;
+  }[];
 }
 
 interface IPackageProps extends IPackage {
@@ -72,11 +76,6 @@ const Package = React.memo(({
       display='flex' 
       width='100%' 
       alignItems='center'
-      sx={{
-        '& > *:not(:last-child)': {
-          mr: '0.5rem'
-        }
-      }}
     >
       <Box as={motion.div}
         role='h2'
@@ -121,24 +120,24 @@ const arrElem = [
     src: '#',
   },{
     id: 4,
-    src: '#',
+    src: '=',
   },
 ]
 
-export const PackageItemAccordion = React.memo<any>(({
+const PackageItemAccordion = React.memo<any>(({
   id,
   name,
   version,
   isActive,
   typeElements = arrElem,
 }:IPackage) => {
-  const [expanded, setExpanded] = useState<false | number>(0);
+  const [expanded, setExpanded] = useState<false | number>(false);
   const isOpen = id === expanded;
 
   return (<>
     <Box as={motion.div}
       initial={false}
-      // animate={{ backgroundColor: isOpen ? 'switchOff' : 'switchOn' }}
+      whileHover={{ scale: 0.99, type: 'spring' }}
       onClick={() => setExpanded(isOpen ? false : id)}
       sx={{
         width: '100%',
@@ -151,8 +150,11 @@ export const PackageItemAccordion = React.memo<any>(({
         color: 'text',
         cursor: 'pointer',
         height: '3rem',
-        marginBottom: isOpen ? '0' : '0.5rem',
+        marginBottom: isOpen ? 0 : '0.2rem',
         p: '0.5rem',
+        _last : {
+          marginBottom: 0,
+        }
       }}
     >
       <Package 
@@ -175,6 +177,7 @@ export const PackageItemAccordion = React.memo<any>(({
           }}
           // @ts-ignore
           transition={{ duration: 0.8, ease: [0.04, 0.62, 0.23, 0.98] }}
+          sx={{transformOrigin: 'top center',}}
         >
           <GridPanel data={typeElements}  />
         </Box>
@@ -207,28 +210,15 @@ const packages = [
 
 export const PackagesBlock = React.memo<any>(() => {
   return (<Box 
-      // as={motion.section}
-      // animate={controlUninstalled}
-      // variants={variantsUninstalled}
-      // initial='initial'
-      // exit='initial'
       sx={{
         w: '100%',
         p: 2,
-        h: 'calc(100% - 5rem)',
+        h: '100%',
         overflowY: 'scroll',
         overscrollBehavior: 'contain',
       }}
     >
-      <Box 
-        // as={motion.ul} 
-        // variants={variantsPackages} 
-        sx={{
-          '& > *:not(:last-child)':{
-            mb: 1
-          },
-        }}
-      >
+      <Box>
       {packages.map((p, i) => (
         <PackageItemAccordion 
           id={p.id} 
@@ -239,8 +229,6 @@ export const PackagesBlock = React.memo<any>(() => {
       ))}
       </Box>
     </Box>
-    // accordionIds.map((i) => (
-    // ))
   )
 })
 
