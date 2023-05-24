@@ -8,22 +8,6 @@ import { GridPanel } from './cyto-react-links-card';
 import _ from 'lodash';
 
 
-const TypeExample = () => <Box className="type" sx={{ w: '3rem', height: '3rem', bg: 'sendMessagePlane' }} />;
-
-export const OneLink = React.memo<any>(() => {
-  return (<Box as={motion.div}
-    variants={{ collapsed: { scale: 0.8 }, open: { scale: 1 } }}
-    // @ts-ignore
-    transition={{ duration: 0.8 }}
-    sx={{
-      padding: '20px',
-      transformOrigin: 'top center',
-    }}
-  >
-    <TypeExample />
-  </Box>);
-})
-
 const iconVariants = {
   closed: {
     rotate: 0,
