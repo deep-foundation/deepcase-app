@@ -21,7 +21,7 @@ import { VerticalSash } from '../imports/editor/editor-grid';
 import { MessagingInterface } from '../imports/messanger';
 import { DarkModeSwitch, Switch } from '../imports/switch-mode';
 import { DeepWysiwyg } from '../imports/deep-wysiwyg';
-import { Example as Ex } from '../imports/cyto-react-links-packages';
+import { PackagesBlock } from '../imports/cyto-react-links-packages';
 import { useMinilinksConstruct } from '@deep-foundation/deeplinks/imports/minilinks';
 import themeChakra from '../imports/theme/theme';
 
@@ -53,11 +53,7 @@ export default function Page() {
   const [togglePackager, setTogglePackager] = useState(false);
   const [portal, setPortal] = useState(false);
   const [nested, setNested] = useState(false);
-  // const [viewSize, setViewSize] = useState({width: 200, height: 150});
-
-  // const blackAlpha = useChackraColor('blackAlpha.200');
-  // const whiteAlpha = useChackraColor('whiteAlpha.200');
-  // const colorGrayToWhite = useColorModeValue(blackAlpha, whiteAlpha);
+  const [topMenu, setTopmenu] = useState(true);
 
   return (<>
     <Provider>
@@ -123,7 +119,12 @@ export default function Page() {
         <Box w='100%' h='2rem' />
         <Code>/deep-wysiwyg</Code>
         <Box w='100%' h='1rem' />
-          <DeepWysiwyg />
+          <DeepWysiwyg topmenu={topMenu} />
+        <Box w='100%' h='1rem' />
+        <Button colorScheme='teal' onClick={() => {
+          setTopmenu(!topMenu);
+          console.log('topMenu', topMenu);
+        }}>topmenu</Button>
         <Box w='100%' h='1rem' />
 
 
@@ -176,7 +177,7 @@ export default function Page() {
         <Box w='100%' h='2rem' />
         <Code>/cyto-react-links-packages</Code>
         <Box w='100%' h='1rem' />
-          <Ex />
+          <PackagesBlock />
         <Box w='100%' h='1rem' />
 
       </Box>
