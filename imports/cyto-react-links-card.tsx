@@ -87,21 +87,27 @@ export const TypeIcon = React.memo<any>(({
     </Box>
 })
 
-const GridPanel = React.memo<any>(({
+export const GridPanel = React.memo<any>(({
   borderColor,
   borderColorSelected,
   data,
   selectedLink,
   onSelectLink,
+  gridTemplateColumns = 'repeat( auto-fill, minmax(.5rem, 1.5rem) )',
+  columnGap = 2,
+  rowGap = 2,
 }:{
   borderColor?: string;
   borderColorSelected?: string;
   data: IGridPanel[];
   selectedLink: number;
   onSelectLink?: (linkId: number) => any;
+  gridTemplateColumns?: string;
+  columnGap?: number;
+  rowGap?: number;
 }) => {
   return (
-    <Box display='grid' gridTemplateColumns='repeat( auto-fill, minmax(.5rem, 1.5rem) )' p='2' columnGap={2} rowGap={2}>
+    <Box display='grid' gridTemplateColumns={gridTemplateColumns} p='2' columnGap={columnGap} rowGap={rowGap}>
       {data.map(d => (<TypeIcon
         key={d.id}
         borderWidth={selectedLink === d.id ? 2 : 1}
