@@ -180,6 +180,8 @@ export default function Page() {
           <PackagesBlock />
         <Box w='100%' h='1rem' />
 
+        <Box w='100%' h='15rem' />
+
       </Box>
     </>
     </ChakraProvider>

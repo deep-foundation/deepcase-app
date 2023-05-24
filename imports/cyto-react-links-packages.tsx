@@ -4,6 +4,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { DotsLoader } from './dot-loader';
 import { TbArrowRotaryFirstRight, TbBookDownload, TbAtom } from 'react-icons/tb';
+import { GridPanel } from './cyto-react-links-card';
+
 
 const TypeExample = () => <Box className="type" sx={{ w: '3rem', height: '3rem', bg: 'sendMessagePlane' }} />;
 
@@ -44,6 +46,7 @@ export interface IPackage {
   version: string;
   packageId?: number;
   isActive?: boolean; 
+  typeElements?: {}[];
 }
 
 interface IPackageProps extends IPackage {
@@ -106,11 +109,28 @@ const Package = React.memo(({
   )
 })
 
+const arrElem = [
+  {
+    id: 1,
+    src: '#',
+  },{
+    id: 2,
+    src: '#',
+  },{
+    id: 3,
+    src: '#',
+  },{
+    id: 4,
+    src: '#',
+  },
+]
+
 export const PackageItemAccordion = React.memo<any>(({
   id,
   name,
   version,
   isActive,
+  typeElements = arrElem,
 }:IPackage) => {
   const [expanded, setExpanded] = useState<false | number>(0);
   const isOpen = id === expanded;
@@ -156,7 +176,7 @@ export const PackageItemAccordion = React.memo<any>(({
           // @ts-ignore
           transition={{ duration: 0.8, ease: [0.04, 0.62, 0.23, 0.98] }}
         >
-         <OneLink />
+          <GridPanel data={typeElements}  />
         </Box>
       )}
     </AnimatePresence>
