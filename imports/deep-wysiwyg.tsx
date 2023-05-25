@@ -21,12 +21,14 @@ import {
   CiTextAlignCenter,
   CiTextAlignRight,
   CiTextAlignJustify,
+  CiPenpot,
 } from 'react-icons/ci';
 import { motion, useAnimation } from 'framer-motion';
 import { slateToHtml, htmlToSlate } from 'slate-serializers';
 import { useDebounceCallback } from '@react-hook/debounce';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useDeep } from '@deep-foundation/deeplinks/imports/client';
+import { ClientHandler } from './client-handler';
 
 const HOTKEYS = {
   'mod+b': 'bold',
@@ -143,6 +145,12 @@ const Element = ({ attributes, children, element, state }) => {
           {children}
         </ul>
       )
+    // case 'client-handler':
+    //   return (
+    //     <ClientHandler style={style} {...attributes}>
+    //       {children}
+    //     </ClientHandler>
+    //   )
     case 'heading-one':
       return (
         <Heading as='h1' size='xl' noOfLines={1} sx={style} {...attributes}>
@@ -303,6 +311,7 @@ export const DeepWysiwyg = React.memo<any>(({
           <BlockButton colorMode={colorMode} format="center" icon={<CiTextAlignCenter style={{padding: '0.2rem'}} />} />
           <BlockButton colorMode={colorMode} format="right" icon={<CiTextAlignRight style={{padding: '0.2rem'}} />} />
           <BlockButton colorMode={colorMode} format="justify" icon={<CiTextAlignJustify style={{padding: '0.2rem'}} />} />
+          {/* <BlockButton colorMode={colorMode} format="client-handler" icon={<CiPenpot style={{padding: '0.2rem'}} />} /> */}
         </Box>
         {/* <Box > */}
           <Editable 
