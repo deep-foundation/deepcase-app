@@ -50,6 +50,8 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
             ${{ runner.os }}-
+      - name: Install latest npm
+        run: npm i -g npm@latest
       - name: Install dc dependencies
         run: npm ci --force
       - name: Install electron dependencies

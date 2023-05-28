@@ -46,6 +46,8 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
             ${{ runner.os }}-
+      - name: install latest npm
+        run: npm i -g npm@latest
       - name: ci
         run: npm ci
       - name: pull dl
