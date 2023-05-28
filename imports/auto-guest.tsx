@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Debug from 'debug';
 import { useSpaceId } from "./hooks";
 import { useEngineConnected } from "./engine";
+import { useLocalStore } from "@deep-foundation/store/local";
 
 const debug = Debug('deepcase:auto-guest');
 
@@ -17,6 +18,8 @@ export function AutoGuest({
   const [spaceId, setSpaceId] = useSpaceId();
   const [connected, setConnected] = useEngineConnected();
   const [isAuth, setIsAuth] = useState(false);
+  const [t] = useLocalStore('dc-dg-token', '');
+  console.log({ token, deep, t });
   useEffect(() => {
     // const isAuth = !!(deep.linkId && token && token === deep.token);
     // We use as axiom - deep.token already synced with token
@@ -35,6 +38,7 @@ export function AutoGuest({
     // fill
     if (!token) (async () => {
       const g = await deep.guest();
+      console.log('g', g);
       if (g.error) setConnected(false);
     })();
     setIsAuth(isAuth);

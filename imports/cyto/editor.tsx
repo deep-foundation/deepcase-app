@@ -97,7 +97,7 @@ export function CytoEditor() {
     setTabs,
   } = useEditorTabs();
 
-  const [currentLinkId, setCurrentLinkId] = useState(tab?.id);
+  const [currentLinkId, setCurrentLinkId] = useState(tab?.id || 0);
   const { data: [currentLink = deep?.minilinks?.byId[tab?.id]] = [] } = useDeepSubscription({
     id: currentLinkId || 0,
   });

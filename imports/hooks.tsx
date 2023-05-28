@@ -9,8 +9,6 @@ import { useMediaQuery as useMediaQueryChakra } from '@chakra-ui/react';
 export const defaultLeftWidth = 10;
 export const defaultCardWidth = 300;
 
-const defaultGraphiqlHeight = 300;
-
 // export function useShowTypes() {
 //   return useQueryStore('show-types', false);
 // }
@@ -24,7 +22,7 @@ export function usePromiseLoader() {
   return useQueryStore('promise-loader', false);
 }
 export function useTraveler() {
-  return useQueryStore('traveler', true);
+  return useQueryStore('traveler', false);
 }
 export function useContainer() {
   const [spaceId] = useSpaceId();
@@ -69,9 +67,6 @@ export function useSpaceId() {
 // };
 export function useWindowSize() {
   return useLocalStore('window-size', { width: 800, height: 500 });
-};
-export function useGraphiqlHeight() {
-  return useLocalStore('graphiql-height', defaultGraphiqlHeight);
 };
 export function useAutoFocusOnInsert() {
   return useLocalStore('autofocus-on-insert', true);

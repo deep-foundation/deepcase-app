@@ -7,7 +7,6 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { TiArrowBackOutline } from "react-icons/ti";
 import { VscChromeClose, VscVersions } from "react-icons/vsc";
 import { BsArrowsFullscreen } from "react-icons/bs";
-import { useLocalStorage } from "usehooks-ts";
 import { ClientHandler } from "../client-handler";
 import { CytoReactLinksCard } from "../cyto-react-links-card";
 import { useContainer, useInsertingCytoStore, useLayout, useRefAutofill, useShowExtra, useShowTypes, useSpaceId, useAutoFocusOnInsert } from "../hooks";
@@ -16,11 +15,15 @@ import { CatchErrors } from "../react-errors";
 import { useEditorTabs } from "./editor";
 import { useCytoFocusMethods } from "./graph";
 import { useRouter } from 'next/router';
+import { useQueryStore } from '@deep-foundation/store/query';
+import { initializeTraveler } from "./traveler";
 
 export interface IInsertedLink {
   position: { x: number; y: number; };
   from: number; to: number;
 };
+
+const delay = (time) => new Promise(res => setTimeout(res, time));
 
 export interface IInsertedLinkProps {
   insertingLink?: IInsertedLink;
@@ -503,7 +506,7 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
 }
 
 export function useCytoEditor() {
-  return useLocalStorage('cyto-editor', false);
+  return useQueryStore('cyto-editor', false);
 }
 
 export function useCyInitializer({
@@ -532,6 +535,8 @@ export function useCyInitializer({
   const [cytoEditor, setCytoEditor] = useCytoEditor();
   const containerRef = useRefAutofill(container);
   const ml = deep.minilinks;
+  const spaceIdRef = useRefAutofill(spaceId);
+  const deepRef = useRefAutofill(deep);
 
   const {
     addTab,
@@ -665,7 +670,10 @@ export function useCyInitializer({
 
     const nodeMenu = ncy.cxtmenu({
       selector: '.link-node',
-      outsideMenuCancel: 10,
+      // outsideMenuCancel: 10,
+      openMenuEvents: 'cxttapstart taphold ctxmenu-nodeMenu-open',
+      closeMenuEvents: 'ctxmenu-nodeMenu-close',
+      outsideMenuCancel: false,
       commands: [
         {
           content: 'editor',
@@ -761,12 +769,26 @@ export function useCyInitializer({
             }
           }
         },
+        {
+          content: (ele) => `traveler (${traveler.findTravlers()?.length})`,
+          select: async function(ele){
+            const id = ele.data('link')?.id;
+            if (id) {
+              await delay(60);
+              ele.emit('ctxmenu-nodeMenu-close');
+              await delay(60);
+              ele.emit('ctxmenu-travelerMenu-open');
+            }
+          }
+        },
       ]
     });
+
+    const traveler = initializeTraveler(ncy, deepRef, spaceIdRef);
   
     const bodyMenu = ncy.cxtmenu({
       selector: 'core',
-      outsideMenuCancel: 10,
+      outsideMenuCancel: false,
       commands: [
         {
           content: 'insert',
@@ -848,6 +870,7 @@ export function useCyInitializer({
 
       nodeMenu.destroy();
       bodyMenu.destroy();
+      traveler.destroy();
     };
   };
   return {

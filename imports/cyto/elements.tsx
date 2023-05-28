@@ -1,7 +1,7 @@
 import { useDeep } from '@deep-foundation/deeplinks/imports/client';
 import json5 from 'json5';
 import { useMemo } from 'react';
-import { useInsertingCytoStore, useShowFocus, useShowTypes } from '../hooks';
+import { useInsertingCytoStore, useShowFocus, useShowTypes, useTraveler } from '../hooks';
 
 export function useCytoElements(ml, _links, cy, spaceId) {
   const [showTypes, setShowTypes] = useShowTypes();

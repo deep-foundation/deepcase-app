@@ -20,7 +20,6 @@ import * as tb from 'react-icons/tb';
 import * as ci from 'react-icons/ci';
 import * as editor from 'slate';
 import * as slate from 'slate-react';
-import Html from 'slate-html-serializer';
 import SoftBreak from 'slate-soft-break';
 import { slateToHtml, htmlToSlate } from 'slate-serializers';
 import isHotkey from 'is-hotkey';
@@ -46,7 +45,6 @@ r.list = {
   'axios': axios,
   'axios-hooks': axiosHooks,
   'classnames': classnames,
-  'slate-html-serializer': Html,
   'slate-soft-break': SoftBreak,
   'slate-serializers': {slateToHtml, htmlToSlate},
   'react-hotkeys-hook': reactHotkeysHook,

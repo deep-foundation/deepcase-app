@@ -6,7 +6,7 @@ import { useCallback, useRef, useState } from 'react';
 import { AutoGuest } from '../imports/auto-guest';
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
 import CytoGraph from '../imports/cyto/graph';
-import { useBreadcrumbs, useShowExtra, useSpaceId } from '../imports/hooks';
+import { useBreadcrumbs, useShowExtra, useSpaceId, useTraveler } from '../imports/hooks';
 import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
 import { useRefstarter } from '../imports/refstater';
@@ -37,6 +37,7 @@ export function Content({
   const cytoViewportRef = useRefstarter<{ pan: { x: number; y: number; }; zoom: number }>();
   const cyRef = useRef();
   const [spaceId, setSpaceId] = useSpaceId();
+  const [traveler, setTraveler] = useTraveler();
   const deep = useDeep();
   global.deep = deep;
 
@@ -48,15 +49,34 @@ export function Content({
     deep.minilinks,
     useCallback((l) => true, []),
     useCallback((l, ml) => {
-      const result =  (
+      let Traveler;
+      try {
+        Traveler = deep.idLocal('@deep-foundation/deepcase', 'Traveler');
+      } catch(e) {}
+      let result =  (
         extra
         ? ml.links
         : ml.links.filter(l => (
           !!l._applies.find((a: string) => !!~a.indexOf('query-') || a === 'space' || a === 'breadcrumbs')
         ))
       );
+      if (Traveler && !traveler) {
+        result = result.filter(l => (
+          !(l.type_id === Traveler) // Traveler
+          &&
+          !(l.type_id === deep.idLocal('@deep-foundation/core', 'Contain') && l?.to?.type_id === Traveler) // Traveler Contain
+          &&
+          !(l.inByType?.[Traveler]?.length) // Traveler Query
+          &&
+          !(l.type_id === deep.idLocal('@deep-foundation/core', 'Contain') && l?.to?.inByType?.[Traveler]?.length) // Traveler Query Contain
+          &&
+          !(l.type_id === deep.idLocal('@deep-foundation/core', 'Active') && l?.to?.inByType?.[Traveler]?.length) // Traveler Query Active
+          &&
+          !(l.type_id === deep.idLocal('@deep-foundation/core', 'Contain') && l?.to?.type_id === deep.idLocal('@deep-foundation/core', 'Active') && l?.to?.to?.inByType?.[Traveler]?.length) // Traveler Query Active Contain
+        ));
+      }
       return result;
-    }, [extra, breadcrumbs]),
+    }, [extra, breadcrumbs, traveler]),
   ) || [];
 
   return (<>
