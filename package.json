@@ -2,6 +2,7 @@
   "name": "@deep-foundation/deepcase",
   "version": "0.1.0-beta.2",
   "license": "Unlicense",
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "rm -rf app && next build",
@@ -19,7 +20,7 @@
     "@chakra-ui/icons": "^2.0.19",
     "@chakra-ui/react": "^2.6.1",
     "@chakra-ui/theme-tools": "^2.0.16",
-    "@deep-foundation/deeplinks": "^0.0.175",
+    "@deep-foundation/deeplinks": "^0.0.178",
     "@deep-foundation/hasura": "0.0.44",
     "@deep-foundation/materialized-path": "0.0.24",
     "@deep-foundation/react-hasura": "0.0.15",
