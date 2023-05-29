@@ -20,9 +20,9 @@ export function Content({
 }) {
   const [spaceId, setSpaceId] = useSpaceId();
   const deep = useDeep();
-  global.deep = deep;
-
-  global.ml = deep.minilinks;
+  const globalAny:any = global;
+  globalAny.deep = deep;
+  globalAny.ml = deep.minilinks;
 
   const [props, setProps] = useQueryStore('props', { linkId: 0, handlerId: 0 });
 

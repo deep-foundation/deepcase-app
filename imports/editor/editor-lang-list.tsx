@@ -105,7 +105,7 @@ export const ListLanguages = React.memo<any>(({
       setSearchString('');
     }
     return console.log('event', e);
-  }, { enableOnTags: ["SELECT","INPUT"] });
+  }, { enableOnFormTags: ["SELECT","INPUT"] });
   
 
   return (<>

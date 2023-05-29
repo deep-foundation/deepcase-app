@@ -247,7 +247,7 @@ export const CytoReactLinksCard = React.memo<any>(({
       next = elements[index == elements.length - 1 ? 0 : index + 1];
       setSelectedLink(next.id);
     }
-  }, { enableOnTags: ["TEXTAREA", "INPUT"] });
+  }, { enableOnFormTags: ["TEXTAREA", "INPUT"] });
 
   useHotkeys('enter', e => {
     e.preventDefault();
@@ -255,13 +255,13 @@ export const CytoReactLinksCard = React.memo<any>(({
     if (selectedLink) {
       onSubmit && onSubmit(selectedLink);
     }
-  }, { enableOnTags: ["TEXTAREA", "INPUT"] });
+  }, { enableOnFormTags: ["TEXTAREA", "INPUT"] });
 
   useHotkeys('tab', e => {
     e.preventDefault();
     e.stopPropagation();
     setSwitchLayout((v) => v === 'grid' ? 'list' : 'grid')
-  }, { enableOnTags: ["TEXTAREA", "INPUT"] });
+  }, { enableOnFormTags: ["TEXTAREA", "INPUT"] });
 
   return (<>
       <Box

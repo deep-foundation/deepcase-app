@@ -112,7 +112,7 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
     if (insertingCyto?.type_id) {
       setInsertingCyto(undefined);
     }
-  }, { enableOnTags: ["TEXTAREA", "INPUT"] });
+  }, { enableOnFormTags: ["TEXTAREA", "INPUT"] });
 
   const types = useMinilinksFilter(
     ml,
@@ -558,7 +558,8 @@ export function useCyInitializer({
     }
   }, [cy, layout]);
   const relayoutDebounced = useDebounceCallback(relayout, 500);
-  global.relayoutDebounced = relayoutDebounced;
+  const globalAny:any = global;
+  globalAny.relayoutDebounced = relayoutDebounced;
 
   useEffect(() => {
     if (!refDragStartedEvent.current) {

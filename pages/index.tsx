@@ -39,9 +39,9 @@ export function Content({
   const [spaceId, setSpaceId] = useSpaceId();
   const [traveler, setTraveler] = useTraveler();
   const deep = useDeep();
-  global.deep = deep;
-
-  global.ml = deep.minilinks;
+  const globalAny:any = global;
+  globalAny.deep = deep;
+  globalAny.ml = deep.minilinks;
   const [extra, setExtra] = useShowExtra();
   const [breadcrumbs, setBreadcrumbs] = useBreadcrumbs();
 
