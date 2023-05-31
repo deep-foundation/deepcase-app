@@ -19,7 +19,7 @@ export function AutoGuest({
   const [connected, setConnected] = useEngineConnected();
   const [isAuth, setIsAuth] = useState(false);
   const [t] = useLocalStore('dc-dg-token', '');
-  console.log({ token, deep, t });
+  // console.log({ token, deep, t });
   useEffect(() => {
     // const isAuth = !!(deep.linkId && token && token === deep.token);
     // We use as axiom - deep.token already synced with token
