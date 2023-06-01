@@ -56,6 +56,7 @@ export const EditorTextArea = React.memo<any>(({
       minimap: {
         enabled: minimap
       },
+      // @ts-ignore
       lineNumbers: lineNumbers,
     }}
     height="100%"

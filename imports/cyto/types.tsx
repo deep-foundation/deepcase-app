@@ -4,4 +4,6 @@ export interface CytoGraphProps {
   links: Link<number>[];
   cytoViewportRef?: any;
   cyRef?: any;
+  gqlPath: string;
+  gqlSsl: boolean;
 };

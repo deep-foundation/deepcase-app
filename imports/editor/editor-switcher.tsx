@@ -28,19 +28,19 @@ export const EditorSwitcher = React.memo<any>(({
   return(
     <HStack 
       spacing={4} 
-      width='100%' 
+      width='100%'
       justifyContent='flex-end' 
       px={4} py={2} 
       borderTopStyle='solid' 
       borderTopWidth={1} 
-      borderTopColor={colorMode == 'light' ? 'blackAlpha.200' : 'whiteAlpha.200'}
+      borderTopColor='borderColor'
     >
       {area == 'preview' && <>
         <FormControl display='flex' alignItems='center'>
           <FormLabel htmlFor='input-id' mb='0'>
             id
           </FormLabel>
-          <Input id="input-id" value={currentLinkId} onChange={(e) => setCurrentLinkId(parseInt(e.target.value) || 0)} mr='1rem' />
+          <Input id="input-id" value={currentLinkId} size='sm' onChange={(e) => setCurrentLinkId(parseInt(e.target.value) || 0)} mr='1rem' />
           <FormLabel htmlFor='show-extra-switch' mb='0'>
             fillSize
           </FormLabel>

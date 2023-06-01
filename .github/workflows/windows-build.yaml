@@ -38,7 +38,7 @@ jobs:
           ssh://git@github.com/
       - uses: actions/setup-node@v1
         with:
-          node-version: '14.15'
+          node-version: '16.20'
       - name: Configure Node caching
         uses: actions/cache@v2
         env:
@@ -56,16 +56,18 @@ jobs:
         run: npm install --global node-gyp@latest
       - name: Set node config to use python2.7
         run: npm config set python python2.7
+      - name: Install latest npm
+        run: npm i -g npm@latest
       - name: Install dc dependencies
         run: npm ci --force
       - name: Install electron dependencies
         run: cd electron && npm ci
       - name: pull dl
         run: cd node_modules/@deep-foundation && rm -r deeplinks && git clone https://github.com/deep-foundation/deeplinks.git && cd deeplinks && npm ci && npm run package:build && rm -r node_modules && rm -r package-lock.json && cd ../../.. && rm -r electron/node_modules/@deep-foundation/deeplinks && cp -r node_modules/@deep-foundation/deeplinks electron/node_modules/@deep-foundation/deeplinks
-      - name: pull hasura
-        run: cd node_modules/@deep-foundation && rm -r hasura && git clone https://github.com/deep-foundation/hasura.git && cd hasura && npm ci && npm run package:build && rm -r node_modules && rm -r package-lock.json && cd ../../.. && rm -r electron/node_modules/@deep-foundation/hasura && cp -r node_modules/@deep-foundation/hasura electron/node_modules/@deep-foundation/hasura
-      - name: pull store
-        run: cd node_modules/@deep-foundation && rm -r store && git clone https://github.com/deep-foundation/store.git && cd store && npm ci && npm run package:build && rm -r node_modules && rm -r package-lock.json && cd ../../.. && rm -r electron/node_modules/@deep-foundation/store && cp -r node_modules/@deep-foundation/store electron/node_modules/@deep-foundation/store
+      # - name: pull hasura
+      #   run: cd node_modules/@deep-foundation && rm -r hasura && git clone https://github.com/deep-foundation/hasura.git && cd hasura && npm ci && npm run package:build && rm -r node_modules && rm -r package-lock.json && cd ../../.. && rm -r electron/node_modules/@deep-foundation/hasura && cp -r node_modules/@deep-foundation/hasura electron/node_modules/@deep-foundation/hasura
+      # - name: pull store
+      #   run: cd node_modules/@deep-foundation && rm -r store && git clone https://github.com/deep-foundation/store.git && cd store && npm ci && npm run package:build && rm -r node_modules && rm -r package-lock.json && cd ../../.. && rm -r electron/node_modules/@deep-foundation/store && cp -r node_modules/@deep-foundation/store electron/node_modules/@deep-foundation/store
       - name: build next
         run: npm run build && npm run export && npx rimraf electron/app && npx cap copy electron
       - name: Build distribution

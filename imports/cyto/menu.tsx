@@ -10,9 +10,6 @@ import { Appearance } from "../component-appearance";
 import { useAutoFocusOnInsert, useBreadcrumbs, useContainer, useLayout, useMediaQuery, usePromiseLoader, useReserved, useShowExtra, useShowFocus, useShowTypes, useSpaceId, useTraveler, useLayoutAnimation } from "../hooks";
 import { useCytoEditor } from "./hooks";
 
-const NEXT_PUBLIC_GQL_PATH = process.env.NEXT_PUBLIC_GQL_PATH || 'localhost:3006/gql';
-const NEXT_PUBLIC_GQL_SSL = process.env.NEXT_PUBLIC_GQL_SSL || '0';
-
 const variants = {
   show: {
     scaleX: 1,
@@ -101,9 +98,13 @@ const DeepSwitch = React.memo(({
 
 export function CytoMenu({
   cyRef,
+  gqlPath,
+  gqlSsl,
   openPortal,
 }: {
   cyRef?: any;
+  gqlPath: string,
+  gqlSsl: boolean,
   openPortal?: () => any;
 }) {
   const [spaceId, setSpaceId] = useSpaceId();
@@ -113,7 +114,7 @@ export function CytoMenu({
   const [promiseLoader, setPromiseLoader] = usePromiseLoader();
   const [autoFocus, setAutoFocus] = useAutoFocusOnInsert();
 
-  console.log('cytoEditor', cytoEditor)
+  // console.log('cytoEditor', cytoEditor)
 
   const [pasteError, setPasteError] = useState(false);
   const [valid, setValid] = useState<any>(undefined);
@@ -230,7 +231,7 @@ const handlerChangeLayout = (event: ChangeEvent<HTMLSelectElement>) => {
                 }} borderColor='gray.400' background='buttonBackgroundModal'>{valid ? 'login token' : 'paste token'}</Button>
               </ButtonGroup>
               <ButtonGroup size='sm' isAttached variant='outline' color='text'>
-                <Button borderColor='gray.400' background='buttonBackgroundModal' as='a' href={`http${+NEXT_PUBLIC_GQL_SSL ? 's' : ''}://${NEXT_PUBLIC_GQL_PATH}`} target="_blank">gql</Button>
+                <Button borderColor='gray.400' background='buttonBackgroundModal' as='a' href={`http${gqlSsl ? 's' : ''}://${gqlPath}`} target="_blank">gql</Button>
               </ButtonGroup>
               <ButtonGroup size='sm' isAttached variant='outline' color='text'>
                 <Button borderColor='gray.400' background='buttonBackgroundModal' onClick={() => setCytoEditor(true)}>editor</Button>
@@ -361,7 +362,7 @@ export const MenuSearch = ({ cyRef, bg }: { cyRef?: any; bg?: any; }) => {
   useEffect(() => {
     setSelected(all[index]?.id);
   }, [index]);
-  console.log({ all });
+  // console.log({ all });
 
   // useHotkeys<any>('enter', e => {
   //   e.preventDefault();
@@ -385,6 +386,7 @@ export const MenuSearch = ({ cyRef, bg }: { cyRef?: any; bg?: any; }) => {
           <Text as="h1">byId</Text>
           {byId.map(link => (console.log({ selected, link }),
             <Tag
+              key={link.id}
               borderRadius='full'
               variant='solid'
               colorScheme={selected === link.id ? 'primary' : 'default'}
@@ -401,6 +403,7 @@ export const MenuSearch = ({ cyRef, bg }: { cyRef?: any; bg?: any; }) => {
           <Text as="h1">byContain</Text>
           {byContain.map(link => (
             <Tag
+              key={link.id}
               borderRadius='full'
               variant='solid'
               colorScheme={selected === link.id ? 'primary' : 'default'}
@@ -417,6 +420,7 @@ export const MenuSearch = ({ cyRef, bg }: { cyRef?: any; bg?: any; }) => {
           <Text as="h1">byValue</Text>
           {byValue.map(link => (
             <Tag
+              key={link.id}
               borderRadius='full'
               variant='solid'
               colorScheme={selected === link.id ? 'primary' : 'default'}

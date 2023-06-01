@@ -20,7 +20,6 @@ import * as tb from 'react-icons/tb';
 import * as ci from 'react-icons/ci';
 import * as editor from 'slate';
 import * as slate from 'slate-react';
-import Html from 'slate-html-serializer';
 import SoftBreak from 'slate-soft-break';
 import { slateToHtml, htmlToSlate } from 'slate-serializers';
 import isHotkey from 'is-hotkey';
@@ -31,6 +30,7 @@ import { CustomizableIcon } from './icons-provider';
 import { EditorTextArea } from './editor/editor-textarea';
 import { BubbleArrowLeft } from './svg/bubble-arrow-left';
 import { CytoReactLinkAvatar } from './cyto-react-avatar';
+import { DeepWysiwyg, BlockButton, MarkButton, useStringSaver } from './deep-wysiwyg';
 import { Resize } from './resize';
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
 
@@ -45,7 +45,6 @@ r.list = {
   'axios': axios,
   'axios-hooks': axiosHooks,
   'classnames': classnames,
-  'slate-html-serializer': Html,
   'slate-soft-break': SoftBreak,
   'slate-serializers': {slateToHtml, htmlToSlate},
   'react-hotkeys-hook': reactHotkeysHook,
@@ -68,6 +67,10 @@ r.list = {
     ClientHandler,
     BubbleArrowLeft,
     CytoReactLinkAvatar,
+    DeepWysiwyg,
+    useStringSaver,
+    BlockButton,
+    MarkButton,
   },
   'react-icons/bs': bs,
   'react-icons/fi': fi,

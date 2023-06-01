@@ -6,7 +6,7 @@ import { useLocalStore } from '@deep-foundation/store/local';
 import { useApolloClient } from '@deep-foundation/react-hasura/use-apollo-client';
 import { useApolloClientRegenerator } from '@deep-foundation/react-hasura/apollo-client-regenerator';
 
-const _call = (options: ICallOptions) => axios.post(`${process.env.NEXT_PUBLIC_DEEPLINKS_SERVER}/api/deeplinks`, options).then(console.log, console.log);
+const _call = (serverUrl: string, options: ICallOptions) => axios.post(`${serverUrl}/api/deeplinks`, options).then(console.log, console.log);
 
 export const NEXT_PUBLIC_ENGINES = !!+process.env.NEXT_PUBLIC_ENGINES;
 
@@ -28,7 +28,7 @@ export function useEnginePath() {
   return useLocalStore('dc-path', '');
 }
 
-export function useEngine() {
+export function useEngine(serverUrl: string) {
   const client = useApolloClient();
   const [connected, setConnected] = useEngineConnected();
   const [operation, setOperation] = useState('');
@@ -37,7 +37,7 @@ export function useEngine() {
     if (['reset', 'sleep'].includes(options.operation)) {
       setConnected(false);
     }
-    await _call(options);
+    await _call(serverUrl, options);
     if (['run'].includes(options.operation)) {
       setConnected(true);
     }

@@ -13,7 +13,9 @@ import deepd3Force from 'cytoscape-deep-d3-force';
 // import fcose from 'cytoscape-fcose';
 // import euler from 'cytoscape-euler';
 // import elk from 'cytoscape-elk';
-import cxtmenu from 'cytoscape-cxtmenu';
+// import cxtmenu from 'cytoscape-cxtmenu';
+import cxtmenu from './cxtmenu';
+// import cxtmenu from '@lsvih/cytoscape-cxtmenu/src/index';
 import edgehandles from 'cytoscape-edgehandles';
 // import cytoscapeLasso from 'cytoscape-lasso';
 import { Text, useToast } from '@chakra-ui/react';
@@ -90,8 +92,10 @@ export default function CytoGraph({
   links = [],
   cytoViewportRef,
   cyRef,
+  gqlPath,
+  gqlSsl,
 }: CytoGraphProps){
-  console.time('CytoGraph');
+  // console.time('CytoGraph');
   const deep = useDeep();
   const [spaceId, setSpaceId] = useSpaceId();
   const [container, setContainer] = useContainer();
@@ -119,7 +123,10 @@ export default function CytoGraph({
   const returning = (<>
     <Refstater useHook={useCytoViewport as any} stateRef={cytoViewportRef}/>
     <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
-      <CytoDropZone cy={cy}>
+      <CytoDropZone
+        cy={cy}
+        gqlPath={gqlPath}
+        gqlSsl={gqlSsl}>
         <CytoscapeComponent
           cy={(_cy) => {
             if (!cy) onLoaded(_cy);
@@ -144,7 +151,7 @@ export default function CytoGraph({
     </div>
   </>);
 
-  console.timeEnd('CytoGraph');
+  // console.timeEnd('CytoGraph');
 
   return returning;
 }

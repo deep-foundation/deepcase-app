@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { RiInstallLine, RiUninstallLine } from 'react-icons/ri';
-import { AnimatePresence, DeprecatedLayoutGroupContext, motion, useAnimation, useCycle } from 'framer-motion';
+import { AnimatePresence, DeprecatedLayoutGroupContext, animate, motion, useAnimation, useCycle } from 'framer-motion';
 import { Box, Button, Divider, Flex, HStack, List, ListItem, Select, Spacer, Text, useColorModeValue } from '@chakra-ui/react';
 import { Install } from "./icons/install";
 import { TbArrowRotaryFirstRight, TbBookDownload } from 'react-icons/tb';
@@ -59,9 +59,10 @@ interface IPackageProps extends IPackage {
   expanded?: boolean | number;
   onOpen?: (e: any) => any;
   style?: any;
+  animate?: any;
   variants?: any;
   transition?: any;
-  latestVersion: string;
+  latestVersion?: string;
 }
 
 export type Package = IPackage[];
@@ -107,7 +108,7 @@ const iconVariants = {
   }
 };
 
-const ListVersions = React.memo<any>(({ 
+export const ListVersions = React.memo<any>(({ 
   name,
   latestVersion,
   currentVersion,
@@ -120,8 +121,6 @@ const ListVersions = React.memo<any>(({
   const versions = data ? Object.keys(data.versions) : [latestVersion];
   var collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
   versions.sort(collator.compare);
-  
-  const colorOutline = useColorModeValue('#edf2f7', '#1a202c');
 
   return (<>
       <Box position="relative" sx={{ height: 0, width: "7rem" }}>
@@ -163,7 +162,8 @@ const ListVersions = React.memo<any>(({
                   overflowY: 'scroll',
                   overscrollBehavior: 'contain',
                   filter: 'drop-shadow(0px 0px 1px #5f6977)',
-                  outline: `solid 4px ${colorOutline}`,
+                  outline: `solid 4px`,
+                  outlineColor: 'colorOutline',
                   outlineOffset: '-4px',
                   '&>*:not(:last-child)': {
                     pt: '0.2rem',
@@ -209,8 +209,8 @@ const ListVersions = React.memo<any>(({
               filter: 'drop-shadow(0px 0px 1px #5f6977)',
             }}
             rightIcon={<Box as={motion.div}
-              variants={iconVariants}
-              animate={open ? "open" : "closed"}
+            variants={iconVariants}
+            animate={open ? "open" : "closed"}
             >
               <TbArrowRotaryFirstRight />
             </Box>}
@@ -223,13 +223,14 @@ const ListVersions = React.memo<any>(({
   )
 })
 
-const PackageItem = React.memo<any>(function PackageItem({
+export const PackageItem = React.memo<any>(function PackageItem({
   id,
   expanded, 
   onOpen, 
   name, 
   description,
   versions, 
+  animate,
   style,
   variants = {},
   transition = {},
@@ -238,8 +239,6 @@ const PackageItem = React.memo<any>(function PackageItem({
   const deep = useDeep();
   const [spaceId, setSpaceId] = useSpaceId();
   const [currentVersion, setCurrentVersion] = useState(latestVersion);
-
-  const color = useColorModeValue('#edf2f7', 'gray.800');
 
   return (<Box 
       as={motion.li} 
@@ -251,15 +250,16 @@ const PackageItem = React.memo<any>(function PackageItem({
         borderRadius: '0.5rem',
         borderWidth: 'thin',
         borderColor: 'gray.500',
+        '& > *:not(:last-of-type)': {
+          mb: '0.5rem',
+        }
       }}
       >
         <Flex>
           <Box as={motion.div}
             role='h2'
             width='100%'
-            animate={{ 
-              // color: color, 
-            }}
+            animate={animate}
             variants={variants}
             transition={transition}
             sx={{
@@ -270,7 +270,7 @@ const PackageItem = React.memo<any>(function PackageItem({
             }}
           ><Text fontSize='sm' as='h2'>{name}</Text></Box>
           <Box pos='relative'>
-            <ListVersions name={name} latestVersion={latestVersion} currentVersion={currentVersion} setCurrentVersion={setCurrentVersion} bg={color} />
+            <ListVersions name={name} latestVersion={latestVersion} currentVersion={currentVersion} setCurrentVersion={setCurrentVersion} bg='bgColor' />
           </Box>
         </Flex>
         <Flex 
@@ -279,6 +279,7 @@ const PackageItem = React.memo<any>(function PackageItem({
         >
           {description && <Box as={motion.div}
             width='100%'
+            animate={animate}
             variants={variants}
             transition={transition}
             sx={{
@@ -318,7 +319,7 @@ const PackageItem = React.memo<any>(function PackageItem({
         </Flex>
 
       {versions && <Divider />}
-      {versions && <Text fontSize='xs'>Installed Versions:</Text>}
+      {versions && <Text fontSize='xs' sx={{ mb: '0.2rem' }}>Installed Versions:</Text>}
       {versions && <Box sx={{
           float: 'revert', 
           '& > *:not(:last-of-type)': {
@@ -326,7 +327,14 @@ const PackageItem = React.memo<any>(function PackageItem({
           }
         }}>
         {versions && versions.map((c, i) =>(
-          <TagLink version={c.version} key={c.packageId} colorScheme={c.isActive ? 'orange' : 'blue'} onClick={(e) => { e.preventDefault(); console.log('4324324234234324-0'); console.log('4324324234234324--', c.packageId); setSpaceId(c.packageId); console.log('4324324234234324-1'); } } />
+          <TagLink 
+            version={c.version} 
+            key={c.packageId} 
+            colorScheme={c.isActive ? 'orange' : 'blue'} 
+            onClick={(e) => { 
+              e.preventDefault(); 
+              setSpaceId(c.packageId);  
+            }} />
         ))}
       </Box>}
     </Box>

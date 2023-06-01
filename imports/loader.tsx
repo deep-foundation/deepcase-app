@@ -300,14 +300,14 @@ export const DeepLoader = memo(function DeepLoader({
         deep.minilinks?.apply(r, 'client-handlers');
       }}
     /></>
-    {queries?.map((f, i) => (<><DeepLoaderActive
+    {queries?.map((f, i) => (<DeepLoaderActive
       key={`DEEPCASE_QUERY_${f.id}`}
       name={`DEEPCASE_QUERY_${f.id}`}
       query={f}
       onChange={(r) => {
         deep.minilinks?.apply(r, `query-${f.id}`);
       }}
-    /></>))}
+    />))}
     <><DeepLoaderActive
       key={`DEEPCASE_INSERTABLE_TYPES`}
       name={`DEEPCASE_INSERTABLE_TYPES`}
