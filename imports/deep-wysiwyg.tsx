@@ -53,6 +53,9 @@ interface IEditor {
   initialValue: any;
   onFocusChanged: (isFocused: boolean) => void;
   autoFocus?: boolean;
+  width?: string;
+  borderColorEditor?: any;
+  backgroundColorEditor?: any;
 };
 
 type OrNull<T> = T | null;
@@ -212,6 +215,7 @@ export const DeepWysiwyg = React.memo<any>(({
   handleKeyPress,
   onChange,
   value,
+  width = '28.29rem',
   initialValue = [
     {
       type: 'paragraph',
@@ -220,6 +224,8 @@ export const DeepWysiwyg = React.memo<any>(({
   ],
   onFocusChanged,
   autoFocus = false,
+  borderColorEditor,
+  backgroundColorEditor,
 }:IEditor) => {
   const _value = useMemo(() => {
     if (typeof(value) === 'string' && !!value) {
@@ -251,7 +257,7 @@ export const DeepWysiwyg = React.memo<any>(({
   return (<Box 
       // as={motion.div} animate={boxControl} variants={boxVariants} initial='initial'
       sx={{
-        w: fillSize ? '100%' : '28.29rem',
+        w: fillSize ? '100%' : width,
         '& > * > *:nth-of-type(2)': {
         }
       }}
@@ -317,10 +323,11 @@ export const DeepWysiwyg = React.memo<any>(({
           <Editable 
             style={{ 
               borderWidth: borderWidthEditor, 
-              borderColor: colorMode === 'light' ? '#d2cece' : '#718096', 
+              borderColor: borderColorEditor,  //  colorMode === 'light' ? '#d2cece' : '#718096'
               borderRadius: `${borderRadiusEditor}rem`, 
               padding: `${paddingEditor}rem`, 
-              backgroundColor: colorMode === 'light' ? 'white' : '#111720' }}
+              backgroundColor: backgroundColorEditor, //colorMode === 'light' ? 'white' : '#111720' 
+            }}
             spellCheck
             autoFocus={autoFocus}
             renderElement={renderElement}
