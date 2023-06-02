@@ -73,15 +73,10 @@ const topmenuVariants = {
     opacity: 0,
     position: 'absolute',
     top: 0,
-    transition: { 
-      duration: 0.2, type: 'spring',
-      top: { delay: 0.3 },
-    }
   },
   show: {
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.2, type: 'spring' }
   }
 };
 
@@ -281,8 +276,10 @@ export const DeepWysiwyg = React.memo<any>(({
           // @ts-ignore
           variants={topmenuVariants} 
           initial='initial'
-          display='grid' 
-          gridTemplateColumns='repeat(auto-fit, minmax(max-content, 1.5rem))' 
+          // display='grid' 
+          // gridTemplateColumns='repeat(auto-fit, minmax(max-content, 1.5rem))' 
+          display='flex'
+          overflowX='scroll'
           gap='0.5rem'
           sx={{  
             backgroundColor: 'handlersInput',
@@ -323,10 +320,10 @@ export const DeepWysiwyg = React.memo<any>(({
           <Editable 
             style={{ 
               borderWidth: borderWidthEditor, 
-              borderColor: borderColorEditor,  //  colorMode === 'light' ? '#d2cece' : '#718096'
+              borderColor: borderColorEditor,
               borderRadius: `${borderRadiusEditor}rem`, 
               padding: `${paddingEditor}rem`, 
-              backgroundColor: backgroundColorEditor, //colorMode === 'light' ? 'white' : '#111720' 
+              backgroundColor: backgroundColorEditor,
             }}
             spellCheck
             autoFocus={autoFocus}
