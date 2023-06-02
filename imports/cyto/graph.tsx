@@ -8,7 +8,8 @@ import dagre from 'cytoscape-dagre';
 import { useDeep } from '@deep-foundation/deeplinks/imports/client';
 import cola from 'cytoscape-cola';
 // import COSEBilkent from 'cytoscape-cose-bilkent';
-// import d3Force from 'cytoscape-d3-force';
+import d3Force from 'cytoscape-d3-force';
+import deepd3Force from 'cytoscape-deep-d3-force';
 // import fcose from 'cytoscape-fcose';
 // import euler from 'cytoscape-euler';
 // import elk from 'cytoscape-elk';
@@ -20,7 +21,7 @@ import edgehandles from 'cytoscape-edgehandles';
 import { Text, useToast } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
 import pckg from '../../package.json';
-import { useContainer, useCytoViewport, useFocusMethods, useInsertingCytoStore, useLayout, useRefAutofill, useShowExtra, useShowTypes, useSpaceId } from '../hooks';
+import { useContainer, useCytoViewport, useFocusMethods, useInsertingCytoStore, useLayout, useRefAutofill, useShowExtra, useShowTypes, useSpaceId, useLayoutAnimation } from '../hooks';
 import { Refstater } from '../refstater';
 import { CytoDropZone } from './drop-zone';
 import { CytoEditor } from './editor';
@@ -42,13 +43,14 @@ cytoscape.use(cola);
 // cytoscape.use(klay);
 // cytoscape.use(elk);
 // cytoscape.use(euler);
-// cytoscape.use(d3Force);
+cytoscape.use(d3Force);
+cytoscape.use(deepd3Force);
 // cytoscape.use(fcose);
 cytoscape.use(cxtmenu);
 cytoscape.use(edgeConnections);
 cytoscape.use(edgehandles);
 
-export function useCytoFocusMethods(cy, relayoutDebounced) {
+export function useCytoFocusMethods(cy) {
   const { focus, unfocus } = useFocusMethods();
   const lockingRef = useRef<any>({});
   return {
@@ -62,10 +64,8 @@ export function useCytoFocusMethods(cy, relayoutDebounced) {
         const locking = lockingRef.current;
         if (id) {
           locking[id] = true;
-          el.position(position);
           el.lock();
           const focused = await focus(id, position);
-          relayoutDebounced();
           return focused;
         }
       }
@@ -82,7 +82,6 @@ export function useCytoFocusMethods(cy, relayoutDebounced) {
           el.unlock();
           locking[id] = false;
           unfocus(id);
-          relayoutDebounced();
         }
       }
     }
@@ -113,12 +112,12 @@ export default function CytoGraph({
   const { elements, reactElements } = useCytoElements(deep.minilinks, links, cy, spaceId);
   const elementsRef = useRefAutofill(elements);
 
-  const { onLoaded, relayoutDebounced } = useCyInitializer({
+  const { onLoaded } = useCyInitializer({
     elementsRef, elements, reactElements, cy, setCy, ehRef, cytoViewportRef
   });
 
   const { layout, setLayout } = useLayout();
-
+  const [ layoutAnimation ] = useLayoutAnimation();
   const stylesheets = useCytoStylesheets();
 
   const returning = (<>
@@ -133,7 +132,7 @@ export default function CytoGraph({
             if (!cy) onLoaded(_cy);
           }}
           elements={elements}
-          layout={layout(elementsRef.current, cy)}
+          layout={layout({elementsRef: elementsRef.current, cy, isAnimate: layoutAnimation, deep})}
           stylesheet={stylesheets}
           panningEnabled={true}
           pan={cytoViewportRef?.current?.value?.pan}

@@ -1,12 +1,13 @@
 import { useDeep } from '@deep-foundation/deeplinks/imports/client';
 import json5 from 'json5';
-import { useMemo } from 'react';
-import { useInsertingCytoStore, useShowFocus, useShowTypes, useTraveler } from '../hooks';
+import { useMemo, useRef } from 'react';
+import { useInsertingCytoStore, useShowFocus, useShowTypes } from '../hooks';
 
 export function useCytoElements(ml, _links, cy, spaceId) {
   const [showTypes, setShowTypes] = useShowTypes();
   const [showFocus, setShowFocus] = useShowFocus();
   const [insertingCyto, setInsertingCyto] = useInsertingCytoStore();
+  const oldElements = useRef([]);
   const deep = useDeep();
 
   const links = _links;
@@ -48,6 +49,9 @@ export function useCytoElements(ml, _links, cy, spaceId) {
 
     // const parent = link?._applies?.find(q => q.includes('query-'));
 
+    const has_focus = !!focus?.value?.value?.x;
+    const existed = !!oldElements.current.find((oldLink) => oldLink.id === link.id)
+
     const element = {
       id: link.id,
       data: {
@@ -68,8 +72,8 @@ export function useCytoElements(ml, _links, cy, spaceId) {
         ...(focus ? ['focused'] : ['unfocused']),
       ].join(' '),
       
-      ...(focus?.value?.value?.x ? {
-        position: focus?.value?.value?.x ? focus?.value?.value : {},
+      ...(has_focus ? {
+        position: !existed ? focus?.value?.value : {},
         locked: !!focus,
       } : {}),
       focused: !!focus,
@@ -184,6 +188,7 @@ export function useCytoElements(ml, _links, cy, spaceId) {
     }
   }
 
+  oldElements.current = elements;
   // console.timeEnd('useCytoElements');
 
   return {
