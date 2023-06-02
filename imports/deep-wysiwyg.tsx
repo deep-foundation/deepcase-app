@@ -115,7 +115,37 @@ const Leaf = ({ attributes, children, leaf }) => {
 };
 
 const Element = ({ attributes, children, element, state }) => {
-  const style = { textAlign: element.align }
+  const [handlerId, setHandlerId] = useState();
+  const deep = useDeep();
+
+  const types = [];
+  const handlers = deep.useMinilinksQuery({
+    type_id: deep.idLocal('@deep-foundation/core', 'Handler'),
+    in: {
+      type_id: deep.idLocal('@deep-foundation/core', 'HandleClient'),
+      _or: types.map(type => ({ from_id: { _eq: type } })),
+    },
+  });
+
+  useEffect(() => {
+    if (!handlerId) {
+      const handler: any = handlers?.[0];
+      if (handler) {
+        setHandlerId(handler.id);
+      }
+    }
+  }, [handlers]);
+
+  const handler = handlers.find(h => h.id === handlerId);
+  const elements = handlers?.map(t => ({
+    id: t?.id,
+    src:  t?.inByType[deep.idLocal('@deep-foundation/core', 'Symbol')]?.[0]?.value?.value || t.id,
+    linkName: t?.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || t.id,
+    containerName: t?.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.from?.value?.value || '',
+  })) || [];
+  const ml = deep.minilinks;
+
+  const style = { textAlign: element.align };
   switch (element.type) {
     case 'block-quote':
       return (
@@ -145,7 +175,7 @@ const Element = ({ attributes, children, element, state }) => {
       )
     // case 'client-handler':
     //   return (
-    //     <ClientHandler style={style} {...attributes}>
+    //     <ClientHandler style={style} handlerId={handler?.id} linkId={1} ml={ml} {...attributes}>
     //       {children}
     //     </ClientHandler>
     //   )
@@ -249,6 +279,7 @@ export const DeepWysiwyg = React.memo<any>(({
   }, [topmenu, control, boxControl])
 
 // const randomBorderColor = Math.floor(Math.random()*16777215).toString(16);
+  console.log('_value', _value);
   return (<Box 
       // as={motion.div} animate={boxControl} variants={boxVariants} initial='initial'
       sx={{
@@ -276,8 +307,6 @@ export const DeepWysiwyg = React.memo<any>(({
           // @ts-ignore
           variants={topmenuVariants} 
           initial='initial'
-          // display='grid' 
-          // gridTemplateColumns='repeat(auto-fit, minmax(max-content, 1.5rem))' 
           display='flex'
           overflowX='scroll'
           gap='0.5rem'
@@ -430,6 +459,7 @@ export const BlockButton = React.memo<any>(({ format, icon, colorMode, setColor 
         if(format === 'block-quote') {
           setColor();
         }
+        console.log('format', format);
       }}
     >
       <Icon>{icon}</Icon>
