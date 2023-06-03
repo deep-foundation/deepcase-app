@@ -671,10 +671,9 @@ export function useCyInitializer({
 
     const nodeMenu = ncy.cxtmenu({
       selector: '.link-node',
-      // outsideMenuCancel: 10,
+      outsideMenuCancel: 10,
       openMenuEvents: 'cxttapstart taphold ctxmenu-nodeMenu-open',
       closeMenuEvents: 'ctxmenu-nodeMenu-close',
-      outsideMenuCancel: false,
       commands: [
         {
           content: 'editor',
@@ -771,7 +770,7 @@ export function useCyInitializer({
           }
         },
         {
-          content: (ele) => `traveler (${traveler.findTravlers()?.length})`,
+          content: (ele) => `traveler (${traveler.findTravlers(undefined, ele.data('link')?.id)?.length})`,
           select: async function(ele){
             const id = ele.data('link')?.id;
             if (id) {
@@ -789,7 +788,7 @@ export function useCyInitializer({
   
     const bodyMenu = ncy.cxtmenu({
       selector: 'core',
-      outsideMenuCancel: false,
+      outsideMenuCancel: 10,
       commands: [
         {
           content: 'insert',

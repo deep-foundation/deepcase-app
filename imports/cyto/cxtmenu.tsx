@@ -354,6 +354,7 @@ export const cxtmenu = function(params){
     let restoreBoxSeln = function(){
       if( boxEnabled ){
         cy.boxSelectionEnabled( true );
+        console.log('boxSelectionEnabled', true)
       }
     };
 
@@ -362,6 +363,9 @@ export const cxtmenu = function(params){
       restoreZoom();
       restorePan();
       restoreBoxSeln();
+      cy.$('node,edge').forEach(node => {
+        node.style('events', 'yes');
+      });
     };
 
     window.addEventListener('resize', updatePixelRatio);
@@ -373,6 +377,9 @@ export const cxtmenu = function(params){
       })
 
       .on(`${options.openMenuEvents}`, options.selector, function(e){
+        e.preventDefault();
+        e.stopPropagation();
+
         target = this; // Remember which node the context menu is for
         let ele = this;
         let isCy = this === cy;
@@ -402,6 +409,10 @@ export const cxtmenu = function(params){
         }
 
         function openMenu(){
+          cy.$('node,edge').forEach(node => {
+            node.style('events', 'no');
+          });
+
           if( !commands || commands.length === 0 ){ return; }
 
           zoomEnabled = cy.userZoomingEnabled();
@@ -412,6 +423,8 @@ export const cxtmenu = function(params){
 
           boxEnabled = cy.boxSelectionEnabled();
           cy.boxSelectionEnabled( false );
+
+          console.log('boxSelectionEnabled', false);
 
           grabbable = target.grabbable &&  target.grabbable();
           if( grabbable ){
@@ -464,7 +477,6 @@ export const cxtmenu = function(params){
       })
 
       .on('cxtdrag tapdrag', options.selector, dragHandler = function(e){
-
         if( !inGesture ){ return; }
         e.preventDefault(); // Otherwise, on mobile, the pull-down refresh gesture gets activated
 
@@ -557,7 +569,7 @@ export const cxtmenu = function(params){
         }
       })
 
-      .on(`cxttapend tapend ${options?.closeMenuEvents || ''}`, function(){
+      .on(`cxttapend tapend ${options?.closeMenuEvents || ''}`, function(e){
         parent.style.display = 'none';
         if( activeCommandI !== undefined ){
           let select = commands[ activeCommandI ].select;

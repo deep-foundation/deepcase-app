@@ -2,7 +2,7 @@
 import { DeepProvider, useDeep } from '@deep-foundation/deeplinks/imports/client';
 import { Link, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
 import dynamic from "next/dynamic";
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { AutoGuest } from '../imports/auto-guest';
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
 import CytoGraph from '../imports/cyto/graph';
@@ -45,19 +45,21 @@ export function Content({
   const [extra, setExtra] = useShowExtra();
   const [breadcrumbs, setBreadcrumbs] = useBreadcrumbs();
 
+  const TravelerRef = useRef(0);
+  useEffect(() => { (async () => {
+    TravelerRef.current = await deep.id('@deep-foundation/deepcase', 'Traveler');
+  })(); }, []);
+
   const links: Link<number>[] = useMinilinksFilter(
     deep.minilinks,
     useCallback((l) => true, []),
     useCallback((l, ml) => {
-      let Traveler;
-      try {
-        Traveler = deep.idLocal('@deep-foundation/deepcase', 'Traveler');
-      } catch(e) {}
+      const Traveler = TravelerRef.current;
       let result =  (
         extra
         ? ml.links
         : ml.links.filter(l => (
-          !!l._applies.find((a: string) => !!~a.indexOf('query-') || a === 'space' || a === 'breadcrumbs')
+          !!l._applies.find((a: string) => !!~a.indexOf('query-') || a === 'space' || a === 'breadcrumbs' || a === 'not-loaded-ends')
         ))
       );
       if (Traveler && !traveler) {
@@ -77,6 +79,7 @@ export function Content({
       }
       return result;
     }, [extra, breadcrumbs, traveler]),
+    1000,
   ) || [];
 
   return (<>
