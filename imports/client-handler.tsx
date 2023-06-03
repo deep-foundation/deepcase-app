@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import { DeepClient, useDeep, useDeepSubscription } from "@deep-foundation/deeplinks/imports/client";
 import { evalClientHandler as deepclientEvalClientHandler } from '@deep-foundation/deeplinks/imports/client-handler';
 import { useMinilinksFilter } from "@deep-foundation/deeplinks/imports/minilinks";
-import * as axios from 'axios';
+import axios from 'axios';
 import * as axiosHooks from 'axios-hooks';
 import * as classnames from 'classnames';
 import React, { useCallback, useEffect, useRef, PropsWithChildren } from 'react';
