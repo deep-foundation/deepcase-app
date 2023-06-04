@@ -1,37 +1,32 @@
 import { Box, Heading, useColorMode } from '@chakra-ui/react';
+import { useDeep } from '@deep-foundation/deeplinks/imports/client';
+import { useDebounceCallback } from '@react-hook/debounce';
+import { motion, useAnimation } from 'framer-motion';
 import isHotkey from 'is-hotkey';
-import React, { PropsWithChildren, Ref, useCallback, useEffect, useState, useMemo, useRef } from 'react';
-import { Editor, Element as SlateElement, Transforms, createEditor } from 'slate';
-import { Editable, Slate, useFocused, useSlate, withReact } from 'slate-react';
+import React, { PropsWithChildren, Ref, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  CiPenpot,
+  CiTextAlignCenter,
+  CiTextAlignJustify,
+  CiTextAlignLeft,
+  CiTextAlignRight,
+} from 'react-icons/ci';
 import {
   FiBold,
+  FiCode,
   FiItalic,
   FiUnderline,
-  FiCode,
 } from 'react-icons/fi';
 import {
+  TbList,
+  TbListNumbers,
   TbNumber1,
   TbNumber2,
   TbQuote,
-  TbListNumbers,
-  TbList,
 } from 'react-icons/tb';
-import {
-  CiTextAlignLeft,
-  CiTextAlignCenter,
-  CiTextAlignRight,
-  CiTextAlignJustify,
-  CiPenpot,
-} from 'react-icons/ci';
-import { motion, useAnimation } from 'framer-motion';
-import { slateToHtml, htmlToSlate } from 'slate-serializers';
-import { useDebounceCallback } from '@react-hook/debounce';
-import { useHotkeys } from 'react-hotkeys-hook';
-import { useDeep, useDeepSubscription } from '@deep-foundation/deeplinks/imports/client';
-import { ClientHandler } from './client-handler';
-import { DotsLoader } from './dot-loader';
-import { Appearance } from './component-appearance';
-import { CatchErrors } from './react-errors';
+import { Editor, Element as SlateElement, Transforms, createEditor } from 'slate';
+import { Editable, Slate, useFocused, useSlate, withReact } from 'slate-react';
+import { htmlToSlate, slateToHtml } from 'slate-serializers';
 import { ClientHandlerSlateProxy } from './client-handler-slate-proxy';
 
 const HOTKEYS = {
