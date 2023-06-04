@@ -31,6 +31,8 @@ import { useDeep, useDeepSubscription } from '@deep-foundation/deeplinks/imports
 import { ClientHandler } from './client-handler';
 import { DotsLoader } from './dot-loader';
 import { Appearance } from './component-appearance';
+import { CatchErrors } from './react-errors';
+import { ClientHandlerSlateProxy } from './client-handler-slate-proxy';
 
 const HOTKEYS = {
   'mod+b': 'bold',
@@ -117,43 +119,7 @@ const Leaf = ({ attributes, children, leaf }) => {
 };
 
 const Element = ({ attributes, children, element, state }) => {
-  const [handlerId, setHandlerId] = useState();
-  const deep = useDeep();
-
-  const types = [];
-  const handlers = deep.useMinilinksQuery({
-    type_id: deep.idLocal('@deep-foundation/core', 'Handler'),
-    in: {
-      type_id: deep.idLocal('@deep-foundation/core', 'HandleClient'),
-      _or: types.map(type => ({ from_id: { _eq: type } })),
-    },
-  });
-
-  useEffect(() => {
-    if (!handlerId) {
-      const handler: any = handlers?.[0];
-      if (handler) {
-        setHandlerId(handler.id);
-      }
-    }
-  }, [handlers]);
-
-  const handler = handlers.find(h => h.id === handlerId);
-  const elements = handlers?.map(t => ({
-    id: t?.id,
-    src:  t?.inByType[deep.idLocal('@deep-foundation/core', 'Symbol')]?.[0]?.value?.value || t.id,
-    linkName: t?.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || t.id,
-    containerName: t?.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.from?.value?.value || '',
-  })) || [];
-  const ml = deep.minilinks;
-  console.log('ml', ml);
-
-  const { data, loading, error } = useDeepSubscription({
-    up: {
-      parent_id: { _eq: 1010 }
-    },
-  });
-
+ 
   const style = { textAlign: element.align };
   switch (element.type) {
     case 'block-quote':
@@ -184,10 +150,7 @@ const Element = ({ attributes, children, element, state }) => {
       )
     case 'client-handler':
       return (
-        <div>
-          <ClientHandler handlerId={737} linkId={1010} ml={ml} />
-          {children}
-        </div>
+        <ClientHandlerSlateProxy children={children} />
       )
     case 'heading-one':
       return (
