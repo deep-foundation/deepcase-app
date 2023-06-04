@@ -27,8 +27,10 @@ import { motion, useAnimation } from 'framer-motion';
 import { slateToHtml, htmlToSlate } from 'slate-serializers';
 import { useDebounceCallback } from '@react-hook/debounce';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { useDeep } from '@deep-foundation/deeplinks/imports/client';
+import { useDeep, useDeepSubscription } from '@deep-foundation/deeplinks/imports/client';
 import { ClientHandler } from './client-handler';
+import { DotsLoader } from './dot-loader';
+import { Appearance } from './component-appearance';
 
 const HOTKEYS = {
   'mod+b': 'bold',
@@ -144,6 +146,13 @@ const Element = ({ attributes, children, element, state }) => {
     containerName: t?.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.from?.value?.value || '',
   })) || [];
   const ml = deep.minilinks;
+  console.log('ml', ml);
+
+  const { data, loading, error } = useDeepSubscription({
+    up: {
+      parent_id: { _eq: 1010 }
+    },
+  });
 
   const style = { textAlign: element.align };
   switch (element.type) {
@@ -173,12 +182,13 @@ const Element = ({ attributes, children, element, state }) => {
           {children}
         </ul>
       )
-    // case 'client-handler':
-    //   return (
-    //     <ClientHandler style={style} handlerId={handler?.id} linkId={1} ml={ml} {...attributes}>
-    //       {children}
-    //     </ClientHandler>
-    //   )
+    case 'client-handler':
+      return (
+        <div>
+          <ClientHandler handlerId={737} linkId={1010} ml={ml} />
+          {children}
+        </div>
+      )
     case 'heading-one':
       return (
         <Heading as='h1' size='xl' noOfLines={1} sx={style} {...attributes}>
@@ -343,7 +353,7 @@ export const DeepWysiwyg = React.memo<any>(({
           <BlockButton colorMode={colorMode} format="center" icon={<CiTextAlignCenter style={{padding: '0.2rem'}} />} />
           <BlockButton colorMode={colorMode} format="right" icon={<CiTextAlignRight style={{padding: '0.2rem'}} />} />
           <BlockButton colorMode={colorMode} format="justify" icon={<CiTextAlignJustify style={{padding: '0.2rem'}} />} />
-          {/* <BlockButton colorMode={colorMode} format="client-handler" icon={<CiPenpot style={{padding: '0.2rem'}} />} /> */}
+          <BlockButton colorMode={colorMode} format="client-handler" icon={<CiPenpot style={{padding: '0.2rem'}} />} />
         </Box>
         {/* <Box > */}
           <Editable 
