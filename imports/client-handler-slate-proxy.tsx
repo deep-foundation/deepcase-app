@@ -34,7 +34,6 @@ export const ClientHandlerSlateProxy = ({ children }) => {
   //   containerName: t?.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.from?.value?.value || '',
   // })) || [];
   const ml = deep.minilinks;
-  console.log('ml', ml);
 
   function extractFirstGroup(text) {
     const regex = /##(\d+)/g;
@@ -46,9 +45,6 @@ export const ClientHandlerSlateProxy = ({ children }) => {
 
   const text = children?.[0]?.props?.parent?.children?.[0]?.text || '';
   const linkId = extractFirstGroup(text);
-  console.log('children', children);
-  console.log('text', text);
-  console.log('linkId', linkId);
   const { data, loading, error } = useDeepSubscription({
     up: {
       parent_id: { _eq: linkId }
