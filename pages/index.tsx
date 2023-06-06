@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { AutoGuest } from '../imports/auto-guest';
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
 import CytoGraph from '../imports/cyto/graph';
-import { useBreadcrumbs, useShowExtra, useSpaceId, useTraveler } from '../imports/hooks';
+import { useBreadcrumbs, useRefAutofill, useShowExtra, useSpaceId, useTraveler } from '../imports/hooks';
 import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
 import { useRefstarter } from '../imports/refstater';
@@ -44,6 +44,7 @@ export function Content({
   globalAny.ml = deep.minilinks;
   const [extra, setExtra] = useShowExtra();
   const [breadcrumbs, setBreadcrumbs] = useBreadcrumbs();
+  const travelerRef = useRefAutofill(traveler);
 
   const TravelerRef = useRef(0);
   useEffect(() => { (async () => {
@@ -55,13 +56,14 @@ export function Content({
     useCallback((l) => true, []),
     useCallback((l, ml) => {
       const Traveler = TravelerRef.current;
+      const traveler = travelerRef.current;
       let result =  (
         extra
         ? ml.links
         : ml.links.filter(l => (
           !!l._applies.find((a: string) => !!~a.indexOf('query-') || a === 'space' || a === 'breadcrumbs' || a === 'not-loaded-ends')
         ))
-      );
+      )
       if (Traveler && !traveler) {
         result = result.filter(l => (
           !(l.type_id === Traveler) // Traveler
