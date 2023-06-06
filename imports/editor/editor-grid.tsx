@@ -172,7 +172,7 @@ export const VerticalSash = ({
             gridTemplateRows='1fr max-content' 
             h='100%'
             position="relative" 
-            overflow='scroll'
+            overflowY='scroll'
           >
             {/* Right pane content goes here */}
             {editorRight}
