@@ -44,7 +44,7 @@
     "cytoscape-cose-bilkent": "^4.1.0",
     "cytoscape-cxtmenu": "^3.5.0",
     "cytoscape-d3-force": "^1.1.4",
-    "cytoscape-deep-d3-force": "^1.2.0",
+    "cytoscape-deep-d3-force": "^1.2.2",
     "cytoscape-dagre": "^2.5.0",
     "cytoscape-edge-connections": "^0.5.0",
     "cytoscape-edgehandles": "^4.0.1",
