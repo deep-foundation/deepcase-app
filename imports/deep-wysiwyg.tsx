@@ -23,11 +23,14 @@ import {
   TbNumber1,
   TbNumber2,
   TbQuote,
+  TbBrandVscode,
 } from 'react-icons/tb';
 import { Editor, Element as SlateElement, Transforms, createEditor } from 'slate';
 import { Editable, Slate, useFocused, useSlate, withReact } from 'slate-react';
 import { htmlToSlate, slateToHtml } from 'slate-serializers';
 import { ClientHandlerSlateProxy } from './client-handler-slate-proxy';
+import dynamic from 'next/dynamic';
+const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
 
 const HOTKEYS = {
   'mod+b': 'bold',
@@ -114,7 +117,21 @@ const Leaf = ({ attributes, children, leaf }) => {
 };
 
 const Element = ({ attributes, children, element, state }) => {
- 
+  const { colorMode } = useColorMode();
+  const [value, setValue] = useState('');
+  const editorRef = useRef(null);
+  const boxRef = useRef(null);
+
+  function handleEditorDidMount(editor, monaco) {
+    editorRef.current = editor;
+    const container = boxRef.current;
+    const updateHeight = () => {
+      container.style.height = `${editor.getContentHeight()}px`;
+      editor.layout();
+    };
+    editor.onDidContentSizeChange(updateHeight);
+  }
+
   const style = { textAlign: element.align };
   switch (element.type) {
     case 'block-quote':
@@ -146,6 +163,32 @@ const Element = ({ attributes, children, element, state }) => {
     case 'client-handler':
       return (
         <ClientHandlerSlateProxy children={children} />
+      )
+    case 'code-editor':
+      return (
+        <div>
+          <Box minHeight='5rem' width='100%' resize='vertical' overflow='auto' ref={boxRef}>
+            <MonacoEditor
+              options={{
+                minimap: {
+                  enabled: false
+                },
+                lineNumbers: 'off',
+                wordWrap: 'on',
+                scrollBeyondLastLine: false,
+                wrappingStrategy: 'advanced',
+              }}
+              height="100%"
+              width="100%"
+              theme={colorMode === 'light' ? 'light' : "vs-dark"}
+              defaultLanguage="json"
+              defaultValue='markdown'
+              onChange={(value) => setValue(value)}
+              onMount={handleEditorDidMount}
+            />
+          </Box>
+          {children}
+        </div>
       )
     case 'heading-one':
       return (
@@ -312,6 +355,7 @@ export const DeepWysiwyg = React.memo<any>(({
           <BlockButton colorMode={colorMode} format="right" icon={<CiTextAlignRight style={{padding: '0.2rem'}} />} />
           <BlockButton colorMode={colorMode} format="justify" icon={<CiTextAlignJustify style={{padding: '0.2rem'}} />} />
           <BlockButton colorMode={colorMode} format="client-handler" icon={<CiPenpot style={{padding: '0.2rem'}} />} />
+          <BlockButton colorMode={colorMode} format="code-editor" icon={<TbBrandVscode style={{padding: '0.2rem'}} />} />
         </Box>
         {/* <Box > */}
           <Editable 
