@@ -7,6 +7,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { TiArrowBackOutline } from "react-icons/ti";
 import { VscChromeClose, VscVersions } from "react-icons/vsc";
 import { BsArrowsFullscreen } from "react-icons/bs";
+import { useLocalStorage } from "usehooks-ts";
 import { ClientHandler } from "../client-handler";
 import { CytoReactLinksCard } from "../cyto-react-links-card";
 import { useContainer, useInsertingCytoStore, useLayout, useRefAutofill, useShowExtra, useShowTypes, useSpaceId, useAutoFocusOnInsert } from "../hooks";
@@ -14,16 +15,11 @@ import { LinkClientHandlerDefault } from "../link-client-handlers/default";
 import { CatchErrors } from "../react-errors";
 import { useEditorTabs } from "./editor";
 import { useCytoFocusMethods } from "./graph";
-import { useRouter } from 'next/router';
-import { useQueryStore } from '@deep-foundation/store/query';
-import { initializeTraveler } from "./traveler";
 
 export interface IInsertedLink {
   position: { x: number; y: number; };
   from: number; to: number;
 };
-
-const delay = (time) => new Promise(res => setTimeout(res, time));
 
 export interface IInsertedLinkProps {
   insertingLink?: IInsertedLink;
@@ -50,7 +46,7 @@ export function CytoReactLinksCardInsertNode({
 
   const elements = (types || [])?.map(t => ({
     id: t.id,
-    src: t?.inByType[deep.idLocal('@deep-foundation/core', 'Symbol')]?.[0]?.value?.value || t.id,
+    src:  t?.inByType[deep.idLocal('@deep-foundation/core', 'Symbol')]?.[0]?.value?.value || t.id,
     linkName: t?.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || t.id,
     containerName: t?.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.from?.value?.value || '',
   }));
@@ -62,9 +58,9 @@ export function CytoReactLinksCardInsertNode({
       (!!el.containerName?.includes &&
         el.containerName.toLocaleLowerCase().includes(lowerCasedSearch))
     ))}
-    search={search}
-    onSearch={e => setSearch(e.target.value)}
-    onSubmit={async (id) => {
+      search={search}
+      onSearch={e => setSearch(e.target.value)}
+      onSubmit={async (id) => {
       const insertable = ml.links.filter(l => l._applies.includes('insertable-types'));
       const type = insertable?.find(t => t.id === id);
       const isNode = !type.from_id && !type.to_id;
@@ -118,7 +114,7 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
     if (insertingCyto?.type_id) {
       setInsertingCyto(undefined);
     }
-  }, { enableOnFormTags: ["TEXTAREA", "INPUT"] });
+  }, { enableOnTags: ["TEXTAREA", "INPUT"] });
 
   const types = useMinilinksFilter(
     ml,
@@ -140,14 +136,10 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
         from_id: spaceIdRef.current,
         type_id: deep.idLocal('@deep-foundation/core', 'Focus'),
         object: { data: { value: position } },
-        ...(containerRef.current ? {
-          in: {
-            data: {
-              type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
-              from_id: containerRef.current
-            }
-          }
-        } : {}),
+        ...(containerRef.current ? { in: { data: {
+          type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
+          from_id: containerRef.current
+        } } } : {}),
       });
     }
     if (container && type_id !== deep.idLocal('@deep-foundation/core', 'Contain')) {
@@ -160,8 +152,8 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
       type_id: type_id,
       ...(valued === deep.idLocal('@deep-foundation/core', 'String') ? { string: { data: { value: '' } } } :
         valued === deep.idLocal('@deep-foundation/core', 'Number') ? { number: { data: { value: 0 } } } :
-          valued === deep.idLocal('@deep-foundation/core', 'Object') ? { object: { data: { value: {} } } } :
-            {}),
+        valued === deep.idLocal('@deep-foundation/core', 'Object') ? { object: { data: { value: {} } } } :
+        {}),
       ...(!!inArray.length ? { in: { data: inArray } } : {}),
       from_id: from || 0,
       to_id: to || 0,
@@ -294,12 +286,12 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
       const to = targetNode?.data('link')?.id;
       if (from && to) returning.drawendInserting(position, from, to);
     };
-    const tap = async function (event) {
+    const tap = async function(event){
       ehRef?.current?.disableDrawMode();
       const ins = insertingCytoRef.current;
       setInsertingCyto({});
       toast.close(ins.toast);
-      if (event.target === cy) {
+      if(event.target === cy){
         if (ins.type_id) {
           if (ins.isPossibleNode) {
             await returningRef.current.insertLink(ins.type_id, 0, 0, event.position);
@@ -393,7 +385,7 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
       const [search, setSearch] = useState('');
 
       const types = [];
-      for (let cursor = deep.minilinks?.byId?.[id]; cursor && cursor.type != cursor; cursor = cursor.type) {
+      for(let cursor = deep.minilinks?.byId?.[id]; cursor && cursor.type != cursor; cursor = cursor.type) {
         types.push(cursor.id);
       }
 
@@ -417,19 +409,20 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
       const handler = handlers.find(h => h.id === handlerId);
       const elements = handlers?.map(t => ({
         id: t?.id,
-        src: t?.inByType[deep.idLocal('@deep-foundation/core', 'Symbol')]?.[0]?.value?.value || t.id,
+        src:  t?.inByType[deep.idLocal('@deep-foundation/core', 'Symbol')]?.[0]?.value?.value || t.id,
         linkName: t?.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || t.id,
         containerName: t?.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.from?.value?.value || '',
       })) || [];
 
-      const onCloseCard = useCallback(() => toggleLinkReactElement(id), [id]);
+      console.log('handlers', { handlers, handler, handlerId, elements });
 
+      const onCloseCard = useCallback(() => toggleLinkReactElement(id), [id]);
 
       return <div>
         <CatchErrors errorRenderer={(error, reset) => {
           return <div>{String(error)}</div>;
         }}>
-          <Flex mb='0.25rem' minW='7rem'>
+          <Flex>
             <Popover
               isLazy
               isOpen={isOpen}
@@ -438,20 +431,17 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
               placement='right-start'
             >
               <PopoverTrigger>
-                <IconButton
+                <IconButton 
                   aria-label='replay to message button'
                   isRound
-                  bg='whiteGray'
-                  borderColor='borderColor'
-                  borderWidth='thin'
                   size={'xs'}
                   sx={{
-                    marginRight: '0.5rem',
                     _hover: {
                       transform: 'scale(1.2)',
                     }
                   }}
                   icon={<VscVersions />}
+                  // onClick={() => console.log('replay')}
                 />
               </PopoverTrigger>
               <PopoverContent h={72}>
@@ -468,16 +458,14 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
                 />
               </PopoverContent>
             </Popover>
+            <Spacer />
             <IconButton
               isRound
               aria-label='open new full tab'
               size={'xs'}
               as='a'
-              bg='whiteGray'
-              borderColor='borderColor'
-              borderWidth='thin'
               target='_blank'
-              href={`/client-handler?props=%7B"linkId"%3A${id}%2C"handlerId"%3A${handlerId}%7D`}
+              href={`/client-handler?link-id=${id}&handler-id=${handlerId}`}
               sx={{
                 _hover: {
                   transform: 'scale(1.2)',
@@ -490,9 +478,6 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
               isRound
               aria-label='close client handler'
               size={'xs'}
-              bg='whiteGray'
-              borderColor='borderColor'
-              borderWidth='thin'
               sx={{
                 _hover: {
                   transform: 'scale(1.2)',
@@ -503,7 +488,7 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
             />
           </Flex>
           {!handler?.id && <Alert status='error'><AlertIcon />Compatible HandleClient not found.</Alert>}
-          {!!handler?.id && <ClientHandler handlerId={handler?.id} linkId={id} ml={ml} onClose={onCloseCard} />}
+          {!!handler?.id && <ClientHandler handlerId={handler?.id} linkId={id} ml={ml} onClose={onCloseCard}/>}
         </CatchErrors>
       </div>;
     };
@@ -516,7 +501,7 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
 }
 
 export function useCytoEditor() {
-  return useQueryStore('cyto-editor', false);
+  return useLocalStorage('cyto-editor', false);
 }
 
 export function useCyInitializer({
@@ -545,8 +530,6 @@ export function useCyInitializer({
   const [cytoEditor, setCytoEditor] = useCytoEditor();
   const containerRef = useRefAutofill(container);
   const ml = deep.minilinks;
-  const spaceIdRef = useRefAutofill(spaceId);
-  const deepRef = useRefAutofill(deep);
 
   const {
     addTab,
@@ -562,14 +545,13 @@ export function useCyInitializer({
       const elements = cy.elements();
       try {
         elements.layout(layout(elementsRef.current, cy)).run();
-      } catch (error) {
+      } catch(error) {
         console.log('relayout error', error);
       }
     }
   }, [cy, layout]);
   const relayoutDebounced = useDebounceCallback(relayout, 500);
-  const globalAny: any = global;
-  globalAny.relayoutDebounced = relayoutDebounced;
+  global.relayoutDebounced = relayoutDebounced;
 
   useEffect(() => {
     if (!refDragStartedEvent.current) {
@@ -606,12 +588,12 @@ export function useCyInitializer({
       disableBrowserGestures: true // during an edge drawing gesture, disable browser gestures such as two-finger trackpad swipe and pinch-to-zoom
     });
     const layoutstart = () => {
-      // console.time('layout');
+      console.time('layout');
     };
     const layoutstop = () => {
-      // console.timeEnd('layout');
+      console.timeEnd('layout');
     };
-    const mouseover = function (e) {
+    const mouseover = function(e) {
       var node = e.target;
       if (!node.is(':parent')) {
         const id = node?.data('link')?.id;
@@ -625,7 +607,7 @@ export function useCyInitializer({
         }
       }
     };
-    const mouseout = function (e) {
+    const mouseout = function(e) {
       var node = e.target;
       if (!node.is(':parent')) {
         const id = node?.data('link')?.id;
@@ -638,25 +620,25 @@ export function useCyInitializer({
         }
       }
     };
-    const click = function (e) {
+    const click = function(e) {
       var node = e.target;
       const id = node?.data('link')?.id;
       if (id) {
         toggleLinkReactElement(id);
       }
     };
-    const tapstart = function (evt) {
+    const tapstart = function(evt){
       var node = evt.target;
       refDragStartedEvent.current = evt;
     };
     let dragendData: any = undefined;
-    const tapend = function (evt) {
+    const tapend = function(evt){
       var node = evt.target;
       refDragStartedEvent.current = undefined;
       dragendData = { position: evt.position };
       evt.target.emit('dragend');
     };
-    const dragend = async function (evt) {
+    const dragend = async function(evt){
       var node = evt.target;
       const id = node?.data('link')?.id;
       const ins = insertingCytoRef.current;
@@ -665,14 +647,12 @@ export function useCyInitializer({
           type_id: ins.type_id,
           from_id: ins?.from,
           to_id: ins?.from,
-          in: {
-            data: [
-              {
-                from_id: containerRef.current,
-                type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
-              },
-            ]
-          },
+          in: { data: [
+            {
+              from_id: containerRef.current,
+              type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
+            },
+          ] },
         });
       } else if (id) {
         focus(node, dragendData?.position);
@@ -684,12 +664,10 @@ export function useCyInitializer({
     const nodeMenu = ncy.cxtmenu({
       selector: '.link-node',
       outsideMenuCancel: 10,
-      openMenuEvents: 'cxttapstart taphold ctxmenu-nodeMenu-open',
-      closeMenuEvents: 'ctxmenu-nodeMenu-close',
       commands: [
         {
           content: 'editor',
-          select: function (ele) {
+          select: function(ele){
             const id = ele.data('link')?.id;
             if (id) {
               addTab({
@@ -703,7 +681,7 @@ export function useCyInitializer({
         },
         {
           content: 'unlock',
-          select: function (ele) {
+          select: function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
               unfocus(ele);
@@ -713,7 +691,7 @@ export function useCyInitializer({
         },
         {
           content: 'delete',
-          select: async function (ele) {
+          select: async function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
               if (confirm(`Are you shure whant to delete this link?`)) {
@@ -724,7 +702,7 @@ export function useCyInitializer({
         },
         {
           content: 'delete down',
-          select: async function (ele) {
+          select: async function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
               if (confirm(`Are you shure whant to delete all links down by contain tree?`)) {
@@ -742,7 +720,7 @@ export function useCyInitializer({
           cy,
           setCy,
           content: 'insert',
-          select: async function (ele) {
+          select: async function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
               startInsertingOfType(id, 0, 0);
@@ -751,7 +729,7 @@ export function useCyInitializer({
         },
         {
           content: 'login',
-          select: async function (ele) {
+          select: async function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
               const { linkId } = await deep.login({ linkId: +id });
@@ -764,7 +742,7 @@ export function useCyInitializer({
         },
         {
           content: 'space',
-          select: async function (ele) {
+          select: async function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
               setSpaceId(+id);
@@ -774,46 +752,32 @@ export function useCyInitializer({
         },
         {
           content: 'container',
-          select: async function (ele) {
+          select: async function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
               setContainer(+id);
             }
           }
         },
-        {
-          content: (ele) => `traveler (${traveler.findTravlers(undefined, ele.data('link')?.id)?.length})`,
-          select: async function (ele) {
-            const id = ele.data('link')?.id;
-            if (id) {
-              await delay(60);
-              ele.emit('ctxmenu-nodeMenu-close');
-              await delay(60);
-              ele.emit('ctxmenu-travelerMenu-open');
-            }
-          }
-        },
       ]
     });
-
-    const traveler = initializeTraveler(ncy, deepRef, spaceIdRef);
-
+  
     const bodyMenu = ncy.cxtmenu({
       selector: 'core',
       outsideMenuCancel: 10,
       commands: [
         {
           content: 'insert',
-          select: function (el, ev) {
-            setTimeout(() => {
+          select: function(el, ev){
+            setTimeout(()=>{
               openInsertCard({ position: ev.position, from: 0, to: 0 });
-            }, 1);
+            },1);
           }
         },
         {
           content: 'center',
-          select: function (el, ev) {
-            ncy.pan({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+          select: function(el, ev){
+            ncy.pan({ x: 0, y: 0 });
             ncy.zoom(1);
           }
         }
@@ -821,7 +785,7 @@ export function useCyInitializer({
     });
 
     // edgehandles bug fix, clear previous edgehandles
-    const cxttapstart = async function (event) {
+    const cxttapstart = async function(event){
       ncy.$('.eh-ghost,.eh-preview').remove();
     };
 
@@ -829,7 +793,7 @@ export function useCyInitializer({
       // on update link or link value - unlock reposition lock
       if (
         newLink.type_id === deep.idLocal('@deep-foundation/core', 'Focus') && newLink?.value?.value?.x &&
-
+        
         // if true - we remember how WE lock it, ok, we have updatefrom db...
         // if undefined - we not know lock/not lock... just update from db...
         // if false - we must stop update from db, we already unlock it on client, and not need to update focus from db... it mistake
@@ -877,12 +841,11 @@ export function useCyInitializer({
       ncy.removeListener('layoutstart', layoutstart);
       ncy.removeListener('layoutstop', layoutstop);
       ncy.removeListener('viewport', viewport);
-
+      
       ml.emitter.removeListener('updated', updatedListener);
 
       nodeMenu.destroy();
       bodyMenu.destroy();
-      traveler.destroy();
     };
   };
   return {
