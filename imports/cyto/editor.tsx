@@ -179,9 +179,6 @@ export function CytoEditor() {
     noSyntaxValidation: true,
   });
 
-  console.log('languages', languages);
-  console.log('languages', languages);
-
   const { colorMode } = useColorMode();
 
   return <>
