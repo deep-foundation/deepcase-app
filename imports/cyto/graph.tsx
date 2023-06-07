@@ -132,7 +132,7 @@ export default function CytoGraph({
           pan={cytoViewportRef?.current?.value?.pan}
           zoom={cytoViewportRef?.current?.value?.zoom}
           style={ { width: '100%', height: '100vh' } }
-        /> 
+        />
         {!!cy && <CytoReactLayout
           cy={cy}
           elements={reactElements}
