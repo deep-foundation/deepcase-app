@@ -153,6 +153,7 @@ export function CytoEditor() {
   const [generated, setGenerated] = useState('src');
   const [fillSize, setFillSize] = useState(false);
   const [viewSize, setViewSize] = useState<any>({width: '50%', height: '100%'});
+  const [editorMounted, setEditorMounted] = useState(false);
 
   const [Component, setComponent] = useState({});
 
@@ -236,6 +237,7 @@ export function CytoEditor() {
                     setTab({ ...tab, initialValue: value, loading: false, saved: false });
                   }
                 }}
+                onMount={() => setEditorMounted(true)}
               />
               <Box 
                 w='100%' 

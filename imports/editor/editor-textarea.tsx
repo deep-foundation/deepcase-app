@@ -19,6 +19,7 @@ interface IEditor {
   minimap?: boolean;
   lineNumbers?: string;
   defaultLanguage?: string;
+  onMount?: (editor: any, monaco: any) => any;
 }
 
 export const EditorTextArea = React.memo<any>(({
@@ -30,7 +31,8 @@ export const EditorTextArea = React.memo<any>(({
   onExit,
   minimap = true,
   lineNumbers = 'on',
-  defaultLanguage="javascript"
+  defaultLanguage="javascript",
+  onMount,
 }:IEditor) => {
   const refValue = React.useRef(value);
   refValue.current = value;
@@ -48,6 +50,7 @@ export const EditorTextArea = React.memo<any>(({
     editor.addCommand([monaco.KeyMod.CtrlCmd | monaco.KeyCode.Escape], () => {
       onExit && onExit();
     });
+    onMount(editor, monaco);
   }
 
   return (<MonacoEditor
