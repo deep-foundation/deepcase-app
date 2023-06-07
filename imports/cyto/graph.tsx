@@ -142,7 +142,7 @@ export default function CytoGraph({
       <Text position="fixed" left={0} bottom={0} p={4}>
         {pckg.version}
       </Text>
-    </div> 
+    </div>
   </>);
 
   console.timeEnd('CytoGraph');
