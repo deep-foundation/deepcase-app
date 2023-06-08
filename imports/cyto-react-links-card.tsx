@@ -224,13 +224,18 @@ export const CytoReactLinksCard = React.memo<any>(({
 
   useEffect(() => {
     inputRef.current.focus();
-  })
+  }, []);
 
   const selectLink = useCallback((linkId) => {
     setSelectedLink((prevLinkId) => prevLinkId == linkId ? 0 : linkId);
   }, []);
 
   useHotkeys('up,right,down,left', e => {
+    const searchInput = document.activeElement;
+    if (searchInput instanceof HTMLInputElement || searchInput instanceof HTMLTextAreaElement) {
+      return;
+    }
+    
     e.preventDefault();
     e.stopPropagation();
     let index = elements.findIndex(e => e.id == selectedLink);
