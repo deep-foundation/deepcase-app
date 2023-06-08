@@ -50,7 +50,7 @@ export const EditorTextArea = React.memo<any>(({
     editor.addCommand([monaco.KeyMod.CtrlCmd | monaco.KeyCode.Escape], () => {
       onExit && onExit();
     });
-    onMount(editor, monaco);
+    onMount && onMount(editor, monaco);
   }
 
   return (<MonacoEditor
