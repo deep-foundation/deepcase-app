@@ -178,7 +178,7 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cyRef
       from_id: from || 0,
       to_id: to || 0,
     });
-  }, [cy, types, container, deep.linkId]);
+  }, [cyRef.current, types, container, deep.linkId]);
   const updateLinkRef = useRefAutofill(updateLink);
 
   const TempComponent = useMemo(() => {
@@ -247,7 +247,7 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cyRef
         onCloseComplete: () => {
           if (updatingCytoRef?.current?.id) setUpdatingCyto({});
           ehRef?.current?.disableDrawMode();
-          cy?.$('.eh-ghost,.eh-preview')?.remove();
+          cyRef.current?.$('.eh-ghost,.eh-preview')?.remove();
         },
       });
       ehRef?.current?.enableDrawMode();
@@ -299,7 +299,7 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cyRef
       setUpdatingCyto({});
       toast.close(upd.toast);
       ehRef?.current?.disableDrawMode();
-      cy.$('.eh-ghost,.eh-preview').remove();
+      cyRef.current.$('.eh-ghost,.eh-preview').remove();
       updateLinkRef.current(upd.id, +from, +to, position);
     },
   };
