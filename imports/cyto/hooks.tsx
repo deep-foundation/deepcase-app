@@ -319,7 +319,7 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
           ins.from = +sourceNode?.id();
           ins.to = +targetNode?.id();
           ins._selfLink = true;
-          setInsertingCyto({ ...ins, from: +sourceNode?.id(), to: +targetNode?.id(), _selfLink: true });
+          setInsertingCyto({ ...ins, from: +sourceNode?.id(), to: +sourceNode?.id(), _selfLink: true });
         } else {
           setInsertingCyto({});
         }
@@ -333,7 +333,7 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cy, e
             upd._selfLink = true;
             setUpdatingCyto({ ...upd, from: 0, to: 0, _selfLink: true });
           } else {
-            returning.drawendUpdating(position, upd.from, upd.to);
+            returning.drawendUpdating(position, upd.from, upd.from);
           }
         }
         toast.close(upd.toast);
