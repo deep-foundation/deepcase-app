@@ -57,6 +57,7 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
       } }
     });
     setInserting(false);
+    setValue('');
   }, [value, container]);
 
   const onDelete = useCallback(async (handleId) => {

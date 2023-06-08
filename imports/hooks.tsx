@@ -69,7 +69,7 @@ export function useWindowSize() {
   return useLocalStore('window-size', { width: 800, height: 500 });
 };
 export function useAutoFocusOnInsert() {
-  return useLocalStore('autofocus-on-insert', true);
+  return useQueryStore('autofocus-on-insert', true);
 };
 export function useShowExtra() {
   return useQueryStore<any>('show-extra', false);
