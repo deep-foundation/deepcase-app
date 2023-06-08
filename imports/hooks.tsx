@@ -54,6 +54,21 @@ export function useInsertingCytoStore() {
     {},
   );
 }
+
+export interface IUpdatingCytoStore{
+  id?: number;
+  toast?: any;
+  _selfLink?: boolean;
+  from?: number;
+  to?: number;
+}
+
+export function useUpdatingCytoStore() {
+  return useQueryStore<IUpdatingCytoStore>(
+    'dc-dg-upd',
+    {},
+  );
+}
 export function useScreenFind() {
   return useQueryStore<any>('screen-find', '');
 }
