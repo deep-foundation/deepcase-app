@@ -99,23 +99,21 @@ export function useFocusMethods() {
   return useMemo(() => {
     return {
       unfocus: async (id) => {
-        const spaceIdRefCurrent = spaceIdRef.current
         console.log('unfocus', { spaceId, id });
-        const whereF = { type_id: deep.idLocal('@deep-foundation/core', 'Focus'), from_id: spaceIdRefCurrent, to_id: id };
+        const whereF = { type_id: deep.idLocal('@deep-foundation/core', 'Focus'), from_id: spaceIdRef.current, to_id: id };
         const where = {
           _or: [
             whereF,
-            { type_id: deep.idLocal('@deep-foundation/core', 'Contain'), from_id: spaceIdRefCurrent, to: whereF },
+            { type_id: deep.idLocal('@deep-foundation/core', 'Contain'), from_id: spaceIdRef.current, to: whereF },
           ],
         };
         console.log('unfocused', await deep.delete(where));
       },
       focus: async (id, value: { x: number; y: number; z: number; }) => {
-        const spaceIdRefCurrent = spaceIdRef.current
         console.log('focus', { spaceId, id, value });
         const q = await deep.select({
           type_id: deep.idLocal('@deep-foundation/core', 'Focus'),
-          from_id: spaceIdRefCurrent,
+          from_id: spaceIdRef.current,
           to_id: id,
         });
         const focus = q?.data?.[0];
@@ -123,12 +121,12 @@ export function useFocusMethods() {
         if (!focusId) {
           const { data: [{ id: newFocusId }] } = await deep.insert({
             type_id: deep.idLocal('@deep-foundation/core', 'Focus'),
-            from_id: spaceIdRefCurrent,
+            from_id: spaceIdRef.current,
             to_id: id,
             object: { data: { value } },
             in: { data: {
               type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
-              from_id: spaceIdRefCurrent
+              from_id: spaceIdRef.current
             } },
           });
           focusId = newFocusId;
@@ -143,10 +141,10 @@ export function useFocusMethods() {
             }, { table: 'objects' });
           }
         }
-        console.log('focused', { spaceIdRefCurrent, id, value, focusId });
+        console.log('focused', { spaceIdRefCurrent: spaceIdRef.current, id, value, focusId });
       }
     };
-  }, [spaceId, spaceIdRef.current]);
+  }, []);
 };
 export function useActiveMethods() {
   const [spaceId] = useSpaceId();
