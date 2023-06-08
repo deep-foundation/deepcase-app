@@ -27,9 +27,9 @@ const iconVariants = {
 };
 export interface IPackage {
   id?: number;
-  name: string;
-  version: string;
-  packageId?: number;
+  src?: string;
+  containerName?: string;
+  version?: string;
   isActive?: boolean; 
   typeElements?: {
     id: number;
@@ -37,7 +37,7 @@ export interface IPackage {
   }[];
 }
 
-interface IPackageProps extends IPackage {
+export interface IPackageProps extends IPackage {
   isOpen?: boolean;
   leftIcon?: any;
   size?: string;
@@ -46,14 +46,13 @@ interface IPackageProps extends IPackage {
 }
 
 const Package = React.memo(({
-  name,
+  containerName,
   version,
   isActive,
   isOpen,
   leftIcon = TbAtom,
   size='sm',
   borderRadius='full',
-  colorScheme = 'blue'
 }:IPackageProps,
 ) => {
   return (<Box 
@@ -73,10 +72,10 @@ const Package = React.memo(({
           fontSize: 'sm',
         }}
       >
-        <Text fontSize='sm' as='h2'>{name}</Text>
+        <Text fontSize='sm' as='h2'>{containerName}</Text>
       </Box>
       <Box>
-        <Tag size={size} variant='subtle' colorScheme={colorScheme} borderRadius={borderRadius} sx={{verticalAlign: 'initial'}}>
+        <Tag size={size} variant='subtle' colorScheme={isActive ? 'orange' : 'blue'} borderRadius={borderRadius} sx={{verticalAlign: 'initial'}}>
           <TagLeftIcon as={leftIcon} />
           <TagLabel>{version}</TagLabel>
         </Tag>
@@ -110,7 +109,7 @@ const arrElem = [
 
 const PackageItemAccordion = React.memo<any>(({
   id,
-  name,
+  containerName,
   version,
   isActive,
   typeElements = arrElem,
@@ -133,8 +132,8 @@ const PackageItemAccordion = React.memo<any>(({
         borderColor: 'borderInputMessage',
         color: 'text',
         cursor: 'pointer',
-        height: '3rem',
-        marginBottom: isOpen ? 0 : '0.2rem',
+        height: '2rem',
+        marginBottom: isOpen ? 0 : '0.5rem',
         p: '0.5rem',
         _last : {
           marginBottom: 0,
@@ -142,7 +141,7 @@ const PackageItemAccordion = React.memo<any>(({
       }}
     >
       <Package 
-        name={name}
+        containerName={containerName}
         version={version}
         isActive={isActive}
         isOpen={isOpen}
@@ -170,29 +169,29 @@ const PackageItemAccordion = React.memo<any>(({
   </>);
 })
 
-const packages = [
-  {
-    id: 0,
-    name: '@deep-foundation/core/tramp-pam-pam',
-    version: '0.0.0',
-  }, 
-  {
-    id: 1,
-    name: '@deep-foundation/core/tramp-pam-pam',
-    version: '0.0.0',
-  }, 
-  {
-    id: 2,
-    name: '@deep-foundation/core/tramp-pam-pam',
-    version: '0.0.0',
-  }, 
-  {
-    id: 3,
-    name: '@deep-foundation/core/tramp-pam-pam',
-    version: '0.0.0',
-  }];
+// const packages = [
+//   {
+//     id: 0,
+//     name: '@deep-foundation/core/tramp-pam-pam',
+//     version: '0.0.0',
+//   }, 
+//   {
+//     id: 1,
+//     name: '@deep-foundation/core/tramp-pam-pam',
+//     version: '0.0.0',
+//   }, 
+//   {
+//     id: 2,
+//     name: '@deep-foundation/core/tramp-pam-pam',
+//     version: '0.0.0',
+//   }, 
+//   {
+//     id: 3,
+//     name: '@deep-foundation/core/tramp-pam-pam',
+//     version: '0.0.0',
+//   }];
 
-export const PackagesBlock = React.memo<any>(() => {
+export const PackagesBlock = React.memo<any>(({packages}:{packages :IPackageProps[]}) => {
   return (<Box 
       sx={{
         w: '100%',
@@ -203,14 +202,14 @@ export const PackagesBlock = React.memo<any>(() => {
       }}
     >
       <Box>
-      {packages.map((p, i) => (
-        <PackageItemAccordion 
-          id={p.id} 
-          key={i} 
-          name={p.name}
-          version={p.version}
-        />
-      ))}
+        {packages && packages.map((p) => (
+          <PackageItemAccordion 
+            id={p.id} 
+            key={p.id} 
+            containerName={p.containerName}
+            version={p.version}
+          />
+        ))}
       </Box>
     </Box>
   )
