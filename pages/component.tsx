@@ -1,16 +1,11 @@
 
-import { Box, Button, Code, Heading, HStack } from '@chakra-ui/react';
+import { Box, Button, Code, Heading, HStack, ChakraProvider } from '@chakra-ui/react';
 import { DeepProvider } from '@deep-foundation/deeplinks/imports/client';
-import { useMinilinksConstruct } from '@deep-foundation/deeplinks/imports/minilinks';
-import dynamic from "next/dynamic";
 import { useState } from 'react';
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
 import { Appearance } from '../imports/component-appearance';
 import { GridComponent } from '../imports/component/grid-component';
-import { Connector } from '../imports/connector/connector';
 import { QueryClientHandler } from '../imports/cyto/query-client-handler';
-import { CytoGraphProps } from '../imports/cyto/types';
-import { DeepWYSIWYG } from '../imports/deep-wysiwyg';
 import { DotsLoader } from '../imports/dot-loader';
 import { PackagePublisher } from '../imports/package-publisher';
 import { PackagerInterface } from '../imports/packager-interface/packager-interface';
@@ -23,12 +18,12 @@ import { elements } from './card';
 import { isAndroid, isIOS, isWindows, isMacOs } from 'react-device-detect';
 import { VerticalSash } from '../imports/editor/editor-grid';
 import { MessagingInterface } from '../imports/messanger';
-import { DarkModeSwitch, Switch } from '../imports/switch-mode';
+import { Switch } from '../imports/switch-mode';
+import { DeepWysiwyg } from '../imports/deep-wysiwyg';
+import { PackagesBlock } from '../imports/cyto-react-links-packages';
+import { useMinilinksConstruct } from '@deep-foundation/deeplinks/imports/minilinks';
+import themeChakra from '../imports/theme/theme';
 
-const CytoGraph = dynamic<CytoGraphProps>(
-  () => import('../imports/cyto/graph').then((m) => m.default),
-  { ssr: false }
-);
 
 const Detector = () => {
   let os = 'unknown';
@@ -51,22 +46,18 @@ const Detector = () => {
 };
 
 export default function Page() {
-  // const minilinks = useMinilinksConstruct();
-  // const { ref: mlRef, ml } = minilinks;
+  const minilinks = useMinilinksConstruct();
+  const { ref: mlRef, ml } = minilinks;
   const [toggle, setToggle] = useState(false);
   const [togglePackager, setTogglePackager] = useState(false);
   const [portal, setPortal] = useState(false);
   const [nested, setNested] = useState(false);
-  // const [viewSize, setViewSize] = useState({width: 200, height: 150});
-
-  // const blackAlpha = useChackraColor('blackAlpha.200');
-  // const whiteAlpha = useChackraColor('whiteAlpha.200');
-  // const colorGrayToWhite = useColorModeValue(blackAlpha, whiteAlpha);
+  const [topMenu, setTopmenu] = useState(true);
 
   return (<>
     <Provider>
    <DeepProvider>
-
+   <ChakraProvider theme={themeChakra}>
       <>
       <ColorModeSwitcher/>
       <Box p={{sm: 7, md: 20}}>
@@ -125,26 +116,31 @@ export default function Page() {
         <Box w='100%' h='1rem' />
         */}
         <Box w='100%' h='2rem' />
-        <Code>/deep-wysiwyg</Code>
+        {/* <Code>/deep-wysiwyg</Code>
         <Box w='100%' h='1rem' />
-          <DeepWYSIWYG />
+          <DeepWysiwyg topmenu={topMenu} />
         <Box w='100%' h='1rem' />
+        <Button colorScheme='teal' onClick={() => {
+          setTopmenu(!topMenu);
+          console.log('topMenu', topMenu);
+        }}>topmenu</Button>
+        <Box w='100%' h='1rem' /> */}
 
 
         <Box w='100%' h='2rem' />
         <Code>/packager-interface</Code>
         <Box w='100%' h='1rem' />
-          <PackagerInterface 
+          {/* <PackagerInterface 
             toggle={togglePackager} 
             onClose={() => setTogglePackager(false)}
-          />
+          /> */}
           <Button colorScheme='teal' onClick={() => setTogglePackager(true)}>push me</Button>
         <Box w='100%' h='1rem' />
 
         <Box w='100%' h='2rem' />
         <Code>/package-publisher</Code>
         <Box w='100%' h='1rem' />
-          <PackagePublisher />
+          {/* <PackagePublisher /> */}
         <Box w='100%' h='1rem' />
 
         <Box w='100%' h='2rem' />
@@ -176,9 +172,18 @@ export default function Page() {
         <Box w='100%' h='1rem' />
           <Switch />
         <Box w='100%' h='1rem' />
+      
+        <Box w='100%' h='2rem' />
+        <Code>/cyto-react-links-packages</Code>
+        <Box w='100%' h='1rem' />
+          <PackagesBlock />
+        <Box w='100%' h='1rem' />
+
+        <Box w='100%' h='15rem' />
 
       </Box>
     </>
+    </ChakraProvider>
    </DeepProvider>
     </Provider>
   </>);

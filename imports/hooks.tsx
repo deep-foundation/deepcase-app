@@ -9,8 +9,6 @@ import { useMediaQuery as useMediaQueryChakra } from '@chakra-ui/react';
 export const defaultLeftWidth = 10;
 export const defaultCardWidth = 300;
 
-const defaultGraphiqlHeight = 300;
-
 // export function useShowTypes() {
 //   return useQueryStore('show-types', false);
 // }
@@ -24,7 +22,7 @@ export function usePromiseLoader() {
   return useQueryStore('promise-loader', false);
 }
 export function useTraveler() {
-  return useQueryStore('traveler', true);
+  return useQueryStore('traveler', false);
 }
 export function useContainer() {
   const [spaceId] = useSpaceId();
@@ -56,6 +54,21 @@ export function useInsertingCytoStore() {
     {},
   );
 }
+
+export interface IUpdatingCytoStore{
+  id?: number;
+  toast?: any;
+  _selfLink?: boolean;
+  from?: number;
+  to?: number;
+}
+
+export function useUpdatingCytoStore() {
+  return useQueryStore<IUpdatingCytoStore>(
+    'dc-dg-upd',
+    {},
+  );
+}
 export function useScreenFind() {
   return useQueryStore<any>('screen-find', '');
 }
@@ -70,11 +83,8 @@ export function useSpaceId() {
 export function useWindowSize() {
   return useLocalStore('window-size', { width: 800, height: 500 });
 };
-export function useGraphiqlHeight() {
-  return useLocalStore('graphiql-height', defaultGraphiqlHeight);
-};
 export function useAutoFocusOnInsert() {
-  return useLocalStore('autofocus-on-insert', true);
+  return useQueryStore('autofocus-on-insert', true);
 };
 export function useShowExtra() {
   return useQueryStore<any>('show-extra', false);
@@ -205,17 +215,9 @@ export function useRefAutofill<T>(value: T) {
   return ref;
 }
 
-
 export const useMediaQuery = function useMediaQuery(arg) {
   const [actualValue, isBrowser] = useMediaQueryChakra(arg);
   const [value, setValue] = useState(false);
   useEffect(() => setValue(actualValue), [actualValue, isBrowser]);
   return [value, isBrowser];
 }
-
-export function useLinkId() {
-  return useQueryStore<any>('link-id', false);
-};
-export function useHandlerId() {
-  return useQueryStore<any>('handler-id', false);
-};

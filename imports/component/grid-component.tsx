@@ -133,7 +133,6 @@ export const GridComponent = React.memo<any>(({
     setWidthMount(refMount.current?.clientWidth);
     setWidthUnmount(refUnmount.current?.clientWidth);
     setViewSize({width: ref.current?.clientWidth, height: ref.current?.clientHeight});
-    console.log({height: ref.current?.clientHeight, width: ref.current?.clientWidth, widthMount, widthUnmount});
   }, []);
 
   const blackAlpha = useChackraColor('blackAlpha.200');

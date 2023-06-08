@@ -1,5 +1,5 @@
 import Debug from 'debug';
-import { gql } from 'apollo-boost';
+import { gql } from '@apollo/client';
 import forEach from 'lodash/forEach';
 
 interface Node {

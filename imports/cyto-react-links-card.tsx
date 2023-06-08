@@ -87,21 +87,27 @@ export const TypeIcon = React.memo<any>(({
     </Box>
 })
 
-const GridPanel = React.memo<any>(({
+export const GridPanel = React.memo<any>(({
   borderColor,
   borderColorSelected,
   data,
   selectedLink,
   onSelectLink,
+  gridTemplateColumns = 'repeat( auto-fill, minmax(.5rem, 1.5rem) )',
+  columnGap = 2,
+  rowGap = 2,
 }:{
   borderColor?: string;
   borderColorSelected?: string;
   data: IGridPanel[];
   selectedLink: number;
   onSelectLink?: (linkId: number) => any;
+  gridTemplateColumns?: string;
+  columnGap?: number;
+  rowGap?: number;
 }) => {
   return (
-    <Box display='grid' gridTemplateColumns='repeat( auto-fill, minmax(.5rem, 1.5rem) )' p='2' columnGap={2} rowGap={2}>
+    <Box display='grid' gridTemplateColumns={gridTemplateColumns} p='2' columnGap={columnGap} rowGap={rowGap}>
       {data.map(d => (<TypeIcon
         key={d.id}
         borderWidth={selectedLink === d.id ? 2 : 1}
@@ -241,7 +247,7 @@ export const CytoReactLinksCard = React.memo<any>(({
       next = elements[index == elements.length - 1 ? 0 : index + 1];
       setSelectedLink(next.id);
     }
-  }, { enableOnTags: ["TEXTAREA", "INPUT"] });
+  }, { enableOnFormTags: ["TEXTAREA", "INPUT"] });
 
   useHotkeys('enter', e => {
     e.preventDefault();
@@ -249,13 +255,13 @@ export const CytoReactLinksCard = React.memo<any>(({
     if (selectedLink) {
       onSubmit && onSubmit(selectedLink);
     }
-  }, { enableOnTags: ["TEXTAREA", "INPUT"] });
+  }, { enableOnFormTags: ["TEXTAREA", "INPUT"] });
 
   useHotkeys('tab', e => {
     e.preventDefault();
     e.stopPropagation();
     setSwitchLayout((v) => v === 'grid' ? 'list' : 'grid')
-  }, { enableOnTags: ["TEXTAREA", "INPUT"] });
+  }, { enableOnFormTags: ["TEXTAREA", "INPUT"] });
 
   return (<>
       <Box

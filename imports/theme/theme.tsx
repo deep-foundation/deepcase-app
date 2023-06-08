@@ -10,20 +10,102 @@ const config: ThemeConfig = {
 
 const themeChakra = extendTheme({ 
   config,
+  semanticTokens: {
+    colors: {
+      error: 'red.500',
+      text: {
+        default: 'grayText',
+        _dark: 'whiteText',
+      },
+      borderColor: {
+        default: '#d2cece',
+        _dark: '#718096',
+      },
+      backgroundModal: {
+        default: 'blue.50',
+        _dark: 'blue.900',
+      },
+      buttonBackgroundModal: {
+        default: 'gray.10',
+        _dark: 'cyDark',
+      },
+      buttonInactive: {
+        default: 'gray.10',
+        _dark: 'blue.900',
+      },
+      switchOn: {
+        default: 'primary',
+        _dark: 'blue.200',
+      },
+      switchOff: {
+        default: '#8a8989',
+        _dark: 'blue.200',
+      },
+      switchThumb: {
+        default: 'whiteText',
+        _dark: 'cyDark',
+      },
+      editorPreviewBackground: {
+        default: 'whiteBg',
+        _dark: 'blue.900',
+      },
+      editorPreviewBackgroundGrid: {
+        default: '#e5eefc',
+        _dark: '#404040',
+      },
+      whiteGray: {
+        default: 'whiteText',
+        _dark: 'grayText',
+      },
+      colorOutline: {
+        default: '#edf2f7',
+        _dark: '#1a202c'
+      },
+      bgColor: {
+        default: '#edf2f7',
+        _dark: 'gray.900',
+      },
+      bgLanguagesButton: {
+        default: 'gray.200',
+        _dark: 'gray.700',
+      },
+      lightDark: {
+        default: 'white',
+        _dark: 'gray.700'
+      },
+      handlersInput: {
+        default: 'white',
+        _dark: 'gray.900'
+      },
+      borderInputMessage: {
+        default: '#e6e6e6',
+        _dark: '#29303b'
+      },
+      sendMessagePlane: {
+        default: 'gray.700',
+        _dark: 'whiteText',
+      }
+    },
+  },
   styles: {
     global: (props: StyleFunctionProps) => ({
       'body': {
         color: mode('gray.900', 'whiteAlpha.900')(props),
-        bg: mode('gray.100', '#141214')(props),
+        bg: mode('gray.100', 'cyDark')(props),
       },
     }),
   },
   colors: {
     primary: '#0080ff',
+    cyDark: '#141214',
     blue: {
       900: '#19202B',
     },
+    grayText: '#3a3a3a',
+    whiteText: '#ebf8ff',
+    whiteBg: '#fcfcfc',
     gray: {
+      10: '#eeeeee',
       900: '#111720',
     },
     cyan: {
