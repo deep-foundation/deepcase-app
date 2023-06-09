@@ -1,15 +1,14 @@
 import { Box, Center } from '@chakra-ui/react';
 import { DeepProvider, useDeep, useDeepSubscription } from '@deep-foundation/deeplinks/imports/client';
+import { useQueryStore } from '@deep-foundation/store/query';
+import getConfig from 'next/config';
 import { useState } from 'react';
 import { AutoGuest } from '../imports/auto-guest';
 import { ClientHandler } from '../imports/client-handler';
-import { ColorModeSwitcher } from '../imports/color-mode-toggle';
+import { DotsLoader } from '../imports/dot-loader';
 import { useSpaceId } from '../imports/hooks';
 import { DeepLoader } from '../imports/loader';
 import { Provider } from '../imports/provider';
-import { useQueryStore } from '@deep-foundation/store/query';
-import getConfig from 'next/config'
-import { DotsLoader } from '../imports/dot-loader';
 
 const { publicRuntimeConfig } = getConfig();
 
@@ -55,7 +54,6 @@ export function Content({
           [<Center height='100%'><DotsLoader /></Center>]
         } 
       </Box>
-    <ColorModeSwitcher/>
   </>); 
 };
 
