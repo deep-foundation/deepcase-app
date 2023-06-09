@@ -32,8 +32,6 @@ export function Content({
     },
   });
 
-  console.log('props.linkId', props.linkId, 'data.length', data.length, 'loading', loading, 'error', error)
-
   return (<>
     {[<DeepLoader
       key={spaceId}
