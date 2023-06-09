@@ -72,6 +72,7 @@
     "json5": "^2.2.3",
     "jsonwebtoken": "^9.0.0",
     "leven-sort": "^4.0.0",
+    "markup-it": "^13.0.0",
     "next": "13.3",
     "next-env": "^1.1.1",
     "normalize.css": "^8.0.1",
