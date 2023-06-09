@@ -8,6 +8,7 @@ import { TagLink } from '../tag-component';
 import _ from 'lodash';
 import { useSpaceId } from "../hooks";
 import { useDeep } from '@deep-foundation/deeplinks/imports/client';
+import { Loading } from '../loading-motion-bubble';
 
 const axiosHooks = require("axios-hooks");
 const axios = require("axios");
@@ -239,18 +240,20 @@ export const PackageItem = React.memo<any>(function PackageItem({
   const deep = useDeep();
   const [spaceId, setSpaceId] = useSpaceId();
   const [currentVersion, setCurrentVersion] = useState(latestVersion);
+  const [notInstall, setNotInstall] = useState(false);
 
   return (<Box 
       as={motion.li} 
       variants={variantsPackage} 
       sx={{
+        position: 'relative',
         listStyle: "none", 
         background: 'transparent', 
         p: 1, 
         borderRadius: '0.5rem',
         borderWidth: 'thin',
         borderColor: 'gray.500',
-        '& > *:not(:last-of-type)': {
+        '& > *:first-of-type': {
           mb: '0.5rem',
         }
       }}
@@ -293,6 +296,7 @@ export const PackageItem = React.memo<any>(function PackageItem({
           ><Text fontSize='sm'>{description}</Text></Box>}
           <TagLink version='install' leftIcon={TbBookDownload} size='sm' onClick={async (e) => {
             e.preventDefault();
+            setNotInstall(true);
             await deep.insert({
               type_id: await deep.id('@deep-foundation/core', 'PackageQuery'),
               string: { data: { value: `${name}@${currentVersion}` }},
@@ -337,6 +341,39 @@ export const PackageItem = React.memo<any>(function PackageItem({
             }} />
         ))}
       </Box>}
+      {notInstall
+      ? <>
+          <Box 
+            position='absolute' 
+            top={0} 
+            left={0}
+            width='100%'
+            height='100%'
+            backdropFilter='blur(3px)'
+            borderRadius='0.5rem'
+          >
+            <Box  width='100%' height='100%' position='relative' />
+          </Box>
+          <Flex 
+            align='center' 
+            justify='center' 
+            position='absolute' 
+            top={0}
+            left={0}
+            width='100%' 
+            height='100%'
+          >
+            <Loading 
+              width='0.7rem' 
+              height='0.7rem' 
+              widthFlex='max-content'
+              justifyFlex='center'
+              borderRadiusBubble='0.5rem'
+              backgroundBubble='#0080ff'
+            />
+          </Flex>
+        </>
+      : null}
     </Box>
   )
 })
@@ -434,7 +471,7 @@ export const TabComponent = React.memo<any>(({
           variants={variantsPackages} 
           sx={{
             '& > *:not(:last-child)':{
-              mb: 1
+              mb: 2
             },
           }}
         >

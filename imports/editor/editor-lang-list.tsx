@@ -1,6 +1,6 @@
 import { Box, Button, Text } from '@chakra-ui/react';
 import { useDebounceCallback } from '@react-hook/debounce';
-import { AnimatePresence, useCycle, motion, useAnimation } from 'framer-motion';
+import { AnimatePresence, useCycle, motion, useAnimation, LazyMotion, domAnimation } from 'framer-motion';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { TbArrowRotaryFirstRight } from 'react-icons/tb';
@@ -108,7 +108,7 @@ export const ListLanguages = React.memo<any>(({
   }, { enableOnFormTags: ["SELECT","INPUT"] });
   
 
-  return (<>
+  return (<LazyMotion features={domAnimation}>
       <Box position='relative' sx={{ height: 0, width: '100%' }}>
         <AnimatePresence>
           {open && (
@@ -215,6 +215,6 @@ export const ListLanguages = React.memo<any>(({
           </Button>
         </Box>
       </Box>
-    </>
+    </LazyMotion>
   )
 })

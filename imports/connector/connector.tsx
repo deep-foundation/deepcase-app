@@ -9,6 +9,7 @@ import { CustomizableIcon } from "../icons-provider";
 import { ModalWindow } from "../modal-window";
 import { DockerWarning } from './docker-warning';
 import axios from 'axios';
+import { Loading } from '../loading-motion-bubble';
 
 const DOCKER = process.env.DOCKER || '0';
 
@@ -175,66 +176,6 @@ const TerminalConnect = React.memo<any>(({
         />
       </Box>
     </AnimatePresence>
-  )
-});
-
-const Loading = React.memo<any>(({text}: {text: string;}) => {
-  return (<Flex width='100%' justify='space-between' pt={2} pb={2}>
-      <Text color='gray.400' fontSize='sm' as='kbd' mr='0.125rem'>{text}</Text>
-      <Box 
-        display='flex' 
-        w='100%' 
-        justifyContent='flex-start' 
-        alignItems='flex-end'
-        sx={{
-          pb: '0.3125rem',
-          '& > *:not(:last-of-type)': {
-            mr: 1
-          }
-        }}
-      >
-        <motion.div 
-          style={{
-            width: 3,
-            height: 3,
-            borderRadius: 0.5,
-            backgroundColor: "#A0AEC0",
-          }}
-          animate={{ scale: [0, 1, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        />
-        <motion.div
-          style={{
-            width: 3,
-            height: 3,
-            borderRadius: 0.5,
-            backgroundColor: "#A0AEC0",
-          }}
-          animate={{ scale: [0, 1, 0] }}
-          transition={{ duration: 2, repeat: Infinity, delay: 0.4  }}
-        />
-        <motion.div
-          style={{
-            width: 3,
-            height: 3,
-            borderRadius: 0.5,
-            backgroundColor: "#A0AEC0",
-          }}
-          animate={{ scale: [0, 1, 0] }}
-          transition={{ duration: 2, repeat: Infinity, delay: 0.8  }}
-        />
-        <motion.div
-          style={{
-            width: 3,
-            height: 3,
-            borderRadius: 0.5,
-            backgroundColor: "#A0AEC0",
-          }}
-          animate={{ scale: [0, 1, 0] }}
-          transition={{ duration: 2, repeat: Infinity, delay: 1.6  }}
-        />
-      </Box>
-    </Flex>
   )
 });
 
@@ -555,9 +496,15 @@ export const Connector = React.memo<any>(({
   useEffect(() => {
     (async () => {
       const dockerStatus = await callEngine({ serverUrl, operation: 'dock' });
+      // console.log('docker', dockerStatus);
+      // console.log('docker', dockerStatus?.data?.result?.stdout?.[0]);
+      // console.log('docker', dockerStatus?.data?.result?.stdout?.[0] !== '{');
       if (dockerStatus?.data?.result?.stdout?.[0] !== '{') setIsExistDocker(false);
       const dockerComposeStatus = await callEngine({ serverUrl, operation: 'compose' });
-      if (!/^-?\d+$/.test(dockerComposeStatus?.data?.result?.stdout?.[0])) setIsExistDocker(false);
+      // console.log('docker', dockerComposeStatus);
+      // console.log('docker', dockerComposeStatus?.data?.result?.stdout.toString());
+      // console.log('docker', !/^-?[a-z0-9]+\r?\n?$/.test(dockerComposeStatus?.data?.result?.stdout.toString()));
+      if (!/^-?[a-z0-9]+\r?\n?$/.test(dockerComposeStatus?.data?.result?.stdout.toString())) setIsExistDocker(false);
     })();
   }, []);
 
@@ -699,7 +646,12 @@ export const Connector = React.memo<any>(({
                   variants={initArea}
                   onClick={() => setInitLocal(InitializingState.initialized)} 
                 >
-                  <Loading text="Initializing"/>
+                  <Loading text="Initializing" 
+                    sxFlex={{pt: 2, pb: 2}}
+                    sx={{
+                      pb: '0.3125rem',
+                    }}
+                  />
                 </Box>
                 <Box 
                   key={InitializingState.initialized}
@@ -758,7 +710,15 @@ export const Connector = React.memo<any>(({
                   initial='initializing'
                   variants={initArea}
                 >
-                  <Loading text="Removing"/>
+                  <Loading text="Removing" 
+                    sxFlex={{pt: 2, pb: 2}}
+                    sx={{
+                      pb: '0.3125rem',
+                      '& > *:not(:last-of-type)': {
+                        mr: 1
+                      }
+                    }} 
+                  />
                 </Box>
               </AnimatePresence>
             </Box>

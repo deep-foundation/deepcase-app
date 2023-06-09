@@ -6,7 +6,6 @@ import { ColorModeSwitcher } from '../imports/color-mode-toggle';
 import { Appearance } from '../imports/component-appearance';
 import { GridComponent } from '../imports/component/grid-component';
 import { QueryClientHandler } from '../imports/cyto/query-client-handler';
-// import { DeepWYSIWYG } from '../imports/deep-wysiwyg';
 import { DotsLoader } from '../imports/dot-loader';
 import { PackagePublisher } from '../imports/package-publisher';
 import { PackagerInterface } from '../imports/packager-interface/packager-interface';
@@ -19,7 +18,7 @@ import { elements } from './card';
 import { isAndroid, isIOS, isWindows, isMacOs } from 'react-device-detect';
 import { VerticalSash } from '../imports/editor/editor-grid';
 import { MessagingInterface } from '../imports/messanger';
-import { DarkModeSwitch, Switch } from '../imports/switch-mode';
+import { Switch } from '../imports/switch-mode';
 import { DeepWysiwyg } from '../imports/deep-wysiwyg';
 import { PackagesBlock } from '../imports/cyto-react-links-packages';
 import { useMinilinksConstruct } from '@deep-foundation/deeplinks/imports/minilinks';
@@ -117,7 +116,7 @@ export default function Page() {
         <Box w='100%' h='1rem' />
         */}
         <Box w='100%' h='2rem' />
-        <Code>/deep-wysiwyg</Code>
+        {/* <Code>/deep-wysiwyg</Code>
         <Box w='100%' h='1rem' />
           <DeepWysiwyg topmenu={topMenu} />
         <Box w='100%' h='1rem' />
@@ -125,7 +124,7 @@ export default function Page() {
           setTopmenu(!topMenu);
           console.log('topMenu', topMenu);
         }}>topmenu</Button>
-        <Box w='100%' h='1rem' />
+        <Box w='100%' h='1rem' /> */}
 
 
         <Box w='100%' h='2rem' />

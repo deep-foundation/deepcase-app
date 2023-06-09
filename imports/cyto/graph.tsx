@@ -113,7 +113,7 @@ export default function CytoGraph({
   const elementsRef = useRefAutofill(elements);
 
   const { onLoaded } = useCyInitializer({
-    elementsRef, elements, reactElements, cy, setCy, ehRef, cytoViewportRef
+    elementsRef, elements, reactElements, cyRef, setCy, ehRef, cytoViewportRef
   });
 
   const { layout, setLayout } = useLayout();

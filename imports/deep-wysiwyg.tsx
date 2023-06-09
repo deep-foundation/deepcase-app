@@ -1,34 +1,36 @@
 import { Box, Heading, useColorMode } from '@chakra-ui/react';
+import { useDeep } from '@deep-foundation/deeplinks/imports/client';
+import { useDebounceCallback } from '@react-hook/debounce';
+import { motion, useAnimation } from 'framer-motion';
 import isHotkey from 'is-hotkey';
-import React, { PropsWithChildren, Ref, useCallback, useEffect, useState, useMemo, useRef } from 'react';
-import { Editor, Element as SlateElement, Transforms, createEditor } from 'slate';
-import { Editable, Slate, useFocused, useSlate, withReact } from 'slate-react';
+import React, { PropsWithChildren, Ref, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  CiPenpot,
+  CiTextAlignCenter,
+  CiTextAlignJustify,
+  CiTextAlignLeft,
+  CiTextAlignRight,
+} from 'react-icons/ci';
 import {
   FiBold,
+  FiCode,
   FiItalic,
   FiUnderline,
-  FiCode,
 } from 'react-icons/fi';
 import {
+  TbList,
+  TbListNumbers,
   TbNumber1,
   TbNumber2,
   TbQuote,
-  TbListNumbers,
-  TbList,
+  TbBrandVscode,
 } from 'react-icons/tb';
-import {
-  CiTextAlignLeft,
-  CiTextAlignCenter,
-  CiTextAlignRight,
-  CiTextAlignJustify,
-  CiPenpot,
-} from 'react-icons/ci';
-import { motion, useAnimation } from 'framer-motion';
-import { slateToHtml, htmlToSlate } from 'slate-serializers';
-import { useDebounceCallback } from '@react-hook/debounce';
-import { useHotkeys } from 'react-hotkeys-hook';
-import { useDeep } from '@deep-foundation/deeplinks/imports/client';
-import { ClientHandler } from './client-handler';
+import { Editor, Element as SlateElement, Transforms, createEditor } from 'slate';
+import { Editable, Slate, useFocused, useSlate, withReact } from 'slate-react';
+import { htmlToSlate, slateToHtml } from 'slate-serializers';
+import { ClientHandlerSlateProxy } from './client-handler-slate-proxy';
+import dynamic from 'next/dynamic';
+const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
 
 const HOTKEYS = {
   'mod+b': 'bold',
@@ -115,35 +117,20 @@ const Leaf = ({ attributes, children, leaf }) => {
 };
 
 const Element = ({ attributes, children, element, state }) => {
-  const [handlerId, setHandlerId] = useState();
-  const deep = useDeep();
+  const { colorMode } = useColorMode();
+  const [value, setValue] = useState('');
+  const editorRef = useRef(null);
+  const boxRef = useRef(null);
 
-  const types = [];
-  const handlers = deep.useMinilinksQuery({
-    type_id: deep.idLocal('@deep-foundation/core', 'Handler'),
-    in: {
-      type_id: deep.idLocal('@deep-foundation/core', 'HandleClient'),
-      _or: types.map(type => ({ from_id: { _eq: type } })),
-    },
-  });
-
-  useEffect(() => {
-    if (!handlerId) {
-      const handler: any = handlers?.[0];
-      if (handler) {
-        setHandlerId(handler.id);
-      }
-    }
-  }, [handlers]);
-
-  const handler = handlers.find(h => h.id === handlerId);
-  const elements = handlers?.map(t => ({
-    id: t?.id,
-    src:  t?.inByType[deep.idLocal('@deep-foundation/core', 'Symbol')]?.[0]?.value?.value || t.id,
-    linkName: t?.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || t.id,
-    containerName: t?.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.from?.value?.value || '',
-  })) || [];
-  const ml = deep.minilinks;
+  function handleEditorDidMount(editor, monaco) {
+    editorRef.current = editor;
+    const container = boxRef.current;
+    const updateHeight = () => {
+      container.style.height = `${editor.getContentHeight()}px`;
+      editor.layout();
+    };
+    editor.onDidContentSizeChange(updateHeight);
+  }
 
   const style = { textAlign: element.align };
   switch (element.type) {
@@ -173,12 +160,36 @@ const Element = ({ attributes, children, element, state }) => {
           {children}
         </ul>
       )
-    // case 'client-handler':
-    //   return (
-    //     <ClientHandler style={style} handlerId={handler?.id} linkId={1} ml={ml} {...attributes}>
-    //       {children}
-    //     </ClientHandler>
-    //   )
+    case 'client-handler':
+      return (
+        <ClientHandlerSlateProxy children={children} />
+      )
+    case 'code-editor':
+      return (
+        <div>
+          <Box minHeight='5rem' width='100%' resize='vertical' overflow='auto' ref={boxRef}>
+            <MonacoEditor
+              options={{
+                minimap: {
+                  enabled: false
+                },
+                lineNumbers: 'off',
+                wordWrap: 'on',
+                scrollBeyondLastLine: false,
+                wrappingStrategy: 'advanced',
+              }}
+              height="100%"
+              width="100%"
+              theme={colorMode === 'light' ? 'light' : "vs-dark"}
+              defaultLanguage="json"
+              defaultValue='markdown'
+              onChange={(value) => setValue(value)}
+              onMount={handleEditorDidMount}
+            />
+          </Box>
+          {children}
+        </div>
+      )
     case 'heading-one':
       return (
         <Heading as='h1' size='xl' noOfLines={1} sx={style} {...attributes}>
@@ -343,7 +354,8 @@ export const DeepWysiwyg = React.memo<any>(({
           <BlockButton colorMode={colorMode} format="center" icon={<CiTextAlignCenter style={{padding: '0.2rem'}} />} />
           <BlockButton colorMode={colorMode} format="right" icon={<CiTextAlignRight style={{padding: '0.2rem'}} />} />
           <BlockButton colorMode={colorMode} format="justify" icon={<CiTextAlignJustify style={{padding: '0.2rem'}} />} />
-          {/* <BlockButton colorMode={colorMode} format="client-handler" icon={<CiPenpot style={{padding: '0.2rem'}} />} /> */}
+          <BlockButton colorMode={colorMode} format="client-handler" icon={<CiPenpot style={{padding: '0.2rem'}} />} />
+          <BlockButton colorMode={colorMode} format="code-editor" icon={<TbBrandVscode style={{padding: '0.2rem'}} />} />
         </Box>
         {/* <Box > */}
           <Editable 

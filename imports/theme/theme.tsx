@@ -11,6 +11,9 @@ const config: ThemeConfig = {
 const themeChakra = extendTheme({ 
   config,
   semanticTokens: {
+    fontSizes: {
+      xxs: '0.55rem',
+    },
     colors: {
       error: 'red.500',
       text: {
