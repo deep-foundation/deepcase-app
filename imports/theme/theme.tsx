@@ -48,6 +48,10 @@ const themeChakra = extendTheme({
         default: 'whiteText',
         _dark: 'cyDark',
       },
+      switchModeBorder: {
+        default: 'blue.500',
+        _dark: 'blue.200',
+      },
       editorPreviewBackground: {
         default: 'whiteBg',
         _dark: 'blue.900',
