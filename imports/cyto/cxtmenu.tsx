@@ -332,6 +332,8 @@ export const cxtmenu = function(params){
     let boxEnabled;
     let gestureStartEvent;
     let hoverOn;
+    let cytoEvents = true;
+    let deepGestured = true;
 
     let restoreZoom = function(){
       if( zoomEnabled ){
@@ -358,15 +360,54 @@ export const cxtmenu = function(params){
       }
     };
 
+    let activateCytoEvents = function(){
+      console.log('activateCytoEvents', cytoEvents);
+      if (cytoEvents) cy.$('node,edge').forEach(node => {
+        node.style('events', 'yes');
+      });
+      cytoEvents = true;
+    };
+
+
+    let deactivateCytoEvents = function(){
+      console.log('deactivateCytoEvents', cytoEvents);
+      if (!cytoEvents) cy.$('node,edge').forEach(node => {
+        node.style('events', 'no');
+      });
+      cytoEvents = false;
+    };
+
     let restoreGestures = function(){
+      console.log('restoreGestures', deepGestured);
+      if (deepGestured) return
       restoreGrab();
       restoreZoom();
       restorePan();
       restoreBoxSeln();
-      cy.$('node,edge').forEach(node => {
-        node.style('events', 'yes');
-      });
+      activateCytoEvents();
+      deepGestured = true;
     };
+
+    let disableGestures = function() {
+      console.log('disableGestures', deepGestured);
+      if (!deepGestured) return
+      zoomEnabled = cy.userZoomingEnabled();
+      cy.userZoomingEnabled( false );
+
+      panEnabled = cy.userPanningEnabled();
+      cy.userPanningEnabled( false );
+
+      boxEnabled = cy.boxSelectionEnabled();
+      cy.boxSelectionEnabled( false );
+
+      console.log('boxSelectionEnabled', false);
+
+      grabbable = target.grabbable &&  target.grabbable();
+      if( grabbable ){
+        target.ungrabify();
+      }
+      deepGestured = false;
+    }
 
     window.addEventListener('resize', updatePixelRatio);
 
@@ -409,27 +450,11 @@ export const cxtmenu = function(params){
         }
 
         function openMenu(){
-          cy.$('node,edge').forEach(node => {
-            node.style('events', 'no');
-          });
+          deactivateCytoEvents();
 
           if( !commands || commands.length === 0 ){ return; }
-
-          zoomEnabled = cy.userZoomingEnabled();
-          cy.userZoomingEnabled( false );
-
-          panEnabled = cy.userPanningEnabled();
-          cy.userPanningEnabled( false );
-
-          boxEnabled = cy.boxSelectionEnabled();
-          cy.boxSelectionEnabled( false );
-
-          console.log('boxSelectionEnabled', false);
-
-          grabbable = target.grabbable &&  target.grabbable();
-          if( grabbable ){
-            target.ungrabify();
-          }
+          
+          disableGestures();
 
           let rp, rw, rh, rs;
           if( !isCy && ele && ele.isNode instanceof Function && ele.isNode() && !ele.isParent() && !options.atMouse ){
@@ -515,11 +540,14 @@ export const cxtmenu = function(params){
         }
 
         r = rw/2 + (options.menuRadius instanceof Function ? options.menuRadius(target) : Number(options.menuRadius));
-        if( d < rs + options.spotlightPadding
-            || (typeof options.outsideMenuCancel === "number" && d > r + options.activePadding + options.outsideMenuCancel)){ //
+        if(/* d < rs + options.spotlightPadding
+            || */(typeof options.outsideMenuCancel === "number" && d > r + options.activePadding + options.outsideMenuCancel)){ //
 
           queueDrawBg(r, rs);
+          // restoreGestures();
           return;
+        } else {
+          // disableGestures();
         }
         queueDrawBg(r, rs);
 
