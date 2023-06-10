@@ -496,9 +496,15 @@ export const Connector = React.memo<any>(({
   useEffect(() => {
     (async () => {
       const dockerStatus = await callEngine({ serverUrl, operation: 'dock' });
+      // console.log('docker', dockerStatus);
+      // console.log('docker', dockerStatus?.data?.result?.stdout?.[0]);
+      // console.log('docker', dockerStatus?.data?.result?.stdout?.[0] !== '{');
       if (dockerStatus?.data?.result?.stdout?.[0] !== '{') setIsExistDocker(false);
       const dockerComposeStatus = await callEngine({ serverUrl, operation: 'compose' });
-      if (!/^-?\d+$/.test(dockerComposeStatus?.data?.result?.stdout?.[0])) setIsExistDocker(false);
+      // console.log('docker', dockerComposeStatus);
+      // console.log('docker', dockerComposeStatus?.data?.result?.stdout.toString());
+      // console.log('docker', !/^-?[a-z0-9]+\r?\n?$/.test(dockerComposeStatus?.data?.result?.stdout.toString()));
+      if (!/^-?[a-z0-9]+\r?\n?$/.test(dockerComposeStatus?.data?.result?.stdout.toString())) setIsExistDocker(false);
     })();
   }, []);
 

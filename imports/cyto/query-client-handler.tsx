@@ -1,8 +1,6 @@
-import { Box, Stack, IconButton, HStack } from '@chakra-ui/react';
-import { useLocalStore } from '@deep-foundation/store/local';
-import { useDebounceCallback } from '@react-hook/debounce';
+import { Box, IconButton } from '@chakra-ui/react';
 import { motion, useAnimation } from 'framer-motion';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BsCheck2, BsLightbulbFill, BsLightbulbOff } from 'react-icons/bs';
 import { EditorTextArea } from '../editor/editor-textarea';
 import { CustomizableIcon } from '../icons-provider';

@@ -11,6 +11,9 @@ const config: ThemeConfig = {
 const themeChakra = extendTheme({ 
   config,
   semanticTokens: {
+    fontSizes: {
+      xxs: '0.55rem',
+    },
     colors: {
       error: 'red.500',
       text: {
@@ -44,6 +47,10 @@ const themeChakra = extendTheme({
       switchThumb: {
         default: 'whiteText',
         _dark: 'cyDark',
+      },
+      switchModeBorder: {
+        default: 'blue.500',
+        _dark: 'blue.200',
       },
       editorPreviewBackground: {
         default: 'whiteBg',

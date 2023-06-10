@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AutoGuest } from '../imports/auto-guest';
 import { ColorModeSwitcher } from '../imports/color-mode-toggle';
+import { Switch } from '../imports/switch-mode';
 import CytoGraph from '../imports/cyto/graph';
 import { useBreadcrumbs, useRefAutofill, useShowExtra, useSpaceId, useTraveler } from '../imports/hooks';
 import { DeepLoader } from '../imports/loader';
@@ -91,7 +92,7 @@ export function Content({
       />]}
     <CytoGraph gqlPath={gqlPath} gqlSsl={gqlSsl} links={links} cyRef={cyRef} cytoViewportRef={cytoViewportRef}/>
     <CytoMenu  gqlPath={gqlPath} gqlSsl={gqlSsl} cyRef={cyRef} cytoViewportRef={cytoViewportRef} openPortal={openPortal} />
-    <ColorModeSwitcher/>
+    <Switch />
     <PackagerInterface />
   </>); 
 };
