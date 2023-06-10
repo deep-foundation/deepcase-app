@@ -194,7 +194,7 @@ export function initializeTraveler(ncy, deepRef, spaceIdRef) {
         }
       }))((id) => ({
         down: {
-          tree_id: { _eq: 0 },
+          tree_id: { _eq: deepRef.current.idLocal('@deep-foundation/core', 'typesTree') },
           link_id: { _eq: deepRef.current.minilinks.byId[id].type_id },
         },
       })),
