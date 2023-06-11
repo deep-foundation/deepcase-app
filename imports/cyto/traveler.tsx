@@ -1,23 +1,5 @@
-import { Alert, AlertIcon, Box, Flex, HStack, IconButton, Popover, PopoverContent, PopoverTrigger, Spacer, Spinner, useDisclosure, useToast } from "@chakra-ui/react";
-import { useDeep, useDeepQuery, useDeepSubscription } from "@deep-foundation/deeplinks/imports/client";
-import { useMinilinksFilter, useMinilinksHandle, useMinilinksQuery } from "@deep-foundation/deeplinks/imports/minilinks";
-import { useDebounceCallback } from "@react-hook/debounce";
-import { useState, useMemo, useCallback, useEffect, useRef } from "react";
-import { useHotkeys } from "react-hotkeys-hook";
-import { TiArrowBackOutline } from "react-icons/ti";
-import { VscChromeClose, VscVersions } from "react-icons/vsc";
-import { BsArrowsFullscreen } from "react-icons/bs";
-import { ClientHandler } from "../client-handler";
-import { CytoReactLinksCard } from "../cyto-react-links-card";
-import { useContainer, useInsertingCytoStore, useLayout, useRefAutofill, useShowExtra, useShowTypes, useSpaceId, useAutoFocusOnInsert } from "../hooks";
-import { LinkClientHandlerDefault } from "../link-client-handlers/default";
-import { CatchErrors } from "../react-errors";
-import { useEditorTabs } from "./editor";
-import { useCytoFocusMethods } from "./graph";
-import { useRouter } from 'next/router';
-import { useQueryStore } from '@deep-foundation/store/query';
-import _isEqual from 'lodash/isEqual';
 import _flatten from 'lodash/flatten';
+import _isEqual from 'lodash/isEqual';
 
 export function initializeTraveler(ncy, deepRef, spaceIdRef) {
   let Traveler;
