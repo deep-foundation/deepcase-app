@@ -60,11 +60,17 @@ export function CytoReactLinksCardInsertNode({
     linkName: t?.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || t.id,
     containerName: t?.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.from?.value?.value || '',
   }));
+  const lowerCasedSearch = search.trim().toLocaleLowerCase();
   return <CytoReactLinksCard
-    elements={elements.filter(el => (!!el?.linkName?.includes && el?.linkName?.toLocaleLowerCase()?.includes(search) || el?.containerName?.includes && el?.containerName?.toLocaleLowerCase()?.includes(search)))}
-    search={search}
-    onSearch={e => setSearch(e.target.value)}
-    onSubmit={async (id) => {
+    elements={elements.filter(el => (
+      (!!el.linkName?.includes &&
+        el.linkName.toLocaleLowerCase().includes(lowerCasedSearch)) ||
+      (!!el.containerName?.includes &&
+        el.containerName.toLocaleLowerCase().includes(lowerCasedSearch))
+    ))}
+      search={search}
+      onSearch={e => setSearch(e.target.value)}
+      onSubmit={async (id) => {
       const insertable = ml.links.filter(l => l._applies.includes('insertable-types'));
       const type = insertable?.find(t => t.id === id);
       const isNode = !type.from_id && !type.to_id;
