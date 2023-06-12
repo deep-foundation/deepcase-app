@@ -71,30 +71,8 @@ export function CytoReactLinksCardInsertNode({
       const type = insertable?.find(t => t.id === id);
       const isNode = !type.from_id && !type.to_id;
       setInsertingCyto({});
-      if (isNode) {
-        // await deep.insert({
-        //   type_id: id,
-        //   in: { data: [
-        //     {
-        //       from_id: container,
-        //       type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
-        //     },
-        //     {
-        //       from_id: container,
-        //       type_id: deep.idLocal('@deep-foundation/core', 'Focus'),
-        //       object: { data: { value: insertingLink.position } },
-        //       in: { data: {
-        //         type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
-        //         from_id: container
-        //       } },
-        //     },
-        //   ] },
-        // });
-        setInsertingLink(undefined);
-      } else {
-        returningRef?.current.startInsertingOfType(id, type.from_id, type.to_id);
-        setInsertingLink(undefined);
-      }
+      returningRef?.current.startInsertingOfType(id, type.from_id, type.to_id);
+      setInsertingLink(undefined);
     }}
   />;
 };
