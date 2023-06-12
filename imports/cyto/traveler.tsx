@@ -138,6 +138,7 @@ export function initializeTraveler(ncy, deepRef, spaceIdRef) {
       })),
       ((query) => ({
         content: (ele) => `down ${findTravlers(query(ele.data('link')?.id), ele.data('link')?.id)?.length ? 'x' : '+'}`,
+        contentStyle: { fontSize: '0.9rem', transform: 'rotate(-70deg)' },
         select: async function(ele){ 
           const id = ele.data('link')?.id;
           if (id) {
@@ -152,6 +153,7 @@ export function initializeTraveler(ncy, deepRef, spaceIdRef) {
       })),
       ((query) => ({
         content: (ele) => `typed ${findTravlers(query(ele.data('link')?.id), ele.data('link')?.id)?.length ? 'x' : '+'}`,
+        contentStyle: { fontSize: '0.9rem', transform: 'rotate(70deg)' },
         select: async function(ele){ 
           const id = ele.data('link')?.id;
           if (id) {
@@ -186,6 +188,7 @@ export function initializeTraveler(ncy, deepRef, spaceIdRef) {
       })),
       ((query) => ({
         content: (ele) => `types ${findTravlers(query(ele.data('link')?.id), ele.data('link')?.id)?.length ? 'x' : '+'}`,
+        contentStyle: { fontSize: '0.9rem', transform: 'rotate(-70deg)' },
         select: async function(ele){ 
           const id = ele.data('link')?.id;
           if (id) {

@@ -17,6 +17,7 @@ import { useCytoFocusMethods } from "./graph";
 import { useRouter } from 'next/router';
 import { useQueryStore } from '@deep-foundation/store/query';
 import { initializeTraveler } from "./traveler";
+import { MdFolderDelete } from 'react-icons/md';
 
 export interface IInsertedLink {
   position: { x: number; y: number; };
@@ -744,12 +745,20 @@ export function useCyInitializer({
 
     const nodeMenu = ncy.cxtmenu({
       selector: '.link-node',
+      menuRadius: function(ele){ return 108; },
       outsideMenuCancel: 10,
       openMenuEvents: 'cxttapstart taphold ctxmenu-nodeMenu-open',
       closeMenuEvents: 'ctxmenu-nodeMenu-close',
+      activeFillColor: 'rgba(0, 128, 255, 0.75)', // the colour used to indicate the selected command
+      activePadding: 2, // additional size in pixels for the active command
+      indicatorSize: 16, // the size in pixels of the pointer to the active command, will default to the node size if the node size is smaller than the indicator size, 
+      separatorWidth: 3, // the empty spacing in pixels between successive commands
+      spotlightPadding: 3, // extra spacing in pixels between the element and the spotlight
+      adaptativeNodeSpotlightRadius: true,
       commands: [
         {
           content: 'editor',
+          contentStyle: { fontSize: '0.9rem', transform: 'rotate(70deg)' },
           select: function(ele){
             const id = ele.data('link')?.id;
             if (id) {
@@ -764,6 +773,7 @@ export function useCyInitializer({
         },
         {
           content: 'unlock',
+          contentStyle: { fontSize: '0.9rem', transform: 'rotate(35deg)' },
           select: function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
@@ -785,6 +795,7 @@ export function useCyInitializer({
         },
         {
           content: 'delete down',
+          contentStyle: { fontSize: '0.7rem', transform: 'rotate(-35deg)' },
           select: async function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
@@ -803,6 +814,7 @@ export function useCyInitializer({
           ncy,
           setCy,
           content: 'insert',
+          contentStyle: { fontSize: '0.9rem', transform: 'rotate(-70deg)' },
           select: async function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
@@ -812,6 +824,7 @@ export function useCyInitializer({
         },
         {
           content: 'update',
+          contentStyle: { fontSize: '0.9rem', transform: 'rotate(70deg)' },
           select: async function(ele) {
             const id = ele.data('link')?.id;
             if (id) {
@@ -821,6 +834,7 @@ export function useCyInitializer({
         },
         {
           content: 'login',
+          contentStyle: { fontSize: '0.9rem', transform: 'rotate(35deg)' },
           select: async function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
@@ -844,6 +858,7 @@ export function useCyInitializer({
         },
         {
           content: 'container',
+          contentStyle: { fontSize: '0.9rem', transform: 'rotate(-35deg)' },
           select: async function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
@@ -853,6 +868,7 @@ export function useCyInitializer({
         },
         {
           content: (ele) => `traveler (${traveler.findTravlers(undefined, ele.data('link')?.id)?.length})`,
+          contentStyle: { fontSize: '0.6rem', transform: 'rotate(-70deg)', paddingLeft: '6px' },
           select: async function(ele){
             const id = ele.data('link')?.id;
             if (id) {
