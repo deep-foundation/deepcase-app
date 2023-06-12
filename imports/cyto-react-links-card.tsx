@@ -262,6 +262,7 @@ export const CytoReactLinksCard = React.memo<any>(({
   const [switchLayout, setSwitchLayout] = useState('grid');
   // const [switchLayout, setSwitchLayout] = useState('packages');
   const [selectedLink, setSelectedLink] = useState(selectedLinkId);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -454,7 +455,18 @@ export const CytoReactLinksCard = React.memo<any>(({
           // color='white'
           aria-label='submit button'
           icon={<BsCheck2 />}
-          onClick={() => onSubmit && onSubmit(selectedLink)}
+          onClick={() => {
+            if (isSubmitting) return;
+            setIsSubmitting(true);
+            if (onSubmit && selectedLink) {
+              try {
+                await onSubmit(selectedLink);                
+              } finally {
+                setIsSubmitting(false);
+              }
+            }
+         }}
+         isDisabled={isSubmitting}
         />
       </SlideFade>
       {!!onClose && <Box pos='absolute' top={0} right='-2.8rem'>
