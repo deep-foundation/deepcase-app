@@ -1,4 +1,4 @@
-import { Box, Center, Flex, IconButton, Input, InputGroup, InputRightElement, ScaleFade, SlideFade, Spacer, Text } from '@chakra-ui/react';
+import { Box, Center, Flex, IconButton, Input, InputGroup, InputRightElement, ScaleFade, SlideFade, Spacer, Text, useOutsideClick } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
@@ -26,6 +26,7 @@ export interface ITypeIcon {
   borderWidth?: any;
   boxSize?: string;
   [key: string]: any;
+  scrollRef?: any;
 }
 
 const variants = {
@@ -37,13 +38,13 @@ const variants = {
     transformPerspective: 100, 
     z: 0, 
     y: 0,
+    background: 'transparent',
   },
   view: {
     opacity: 1,
     scale: 1,
     transition: {
       duration: 0.3,
-      // delay: 0.2,
     }
   },
   hide: {
@@ -61,17 +62,19 @@ export const TypeIcon = React.memo<any>(({
   borderColor = 'borderColor',
   borderWidth = 'thin',
   boxSize = '1.8rem',
+  scrollRef,
   ...props
 }:ITypeIcon) => {
   const number = src.toString();
   const size = typeof(src) === 'number' ? number.length : null;
-  console.log('src', typeof(src), size);
+
   return <Box 
       as={motion.div} 
       arial-label='type button' 
       variants={variants}
       initial='initial'
       whileInView='view'
+      viewport={{ root: scrollRef }}
       whileHover={{
         y: 1,
         z: 10,
@@ -111,6 +114,9 @@ export const GridPanel = React.memo<any>(({
   columnGap?: number;
   rowGap?: number;
 }) => {
+
+  const scrollRef = useRef(null);
+
   return (
     <Box 
       display='grid' 
@@ -120,8 +126,10 @@ export const GridPanel = React.memo<any>(({
       alignItems='center'
       justifyContent={data.length > 10 ? 'center' : 'flex-start'}
       p='2' 
+      ref={scrollRef}
     >
       {data.map(d => (<TypeIcon
+        scrollRef={scrollRef}
         key={d.id}
         borderWidth={selectedLink === d.id ? 2 : 1}
         borderColor={selectedLink === d.id ? borderColorSelected : borderColor}
@@ -143,6 +151,7 @@ const CytoListItem = React.memo<any>(({
   borderColor,
   selectedLink,
   onSelectLink,
+  scrollRef,
 }:{
   id?: number;
   src?: string;
@@ -151,17 +160,29 @@ const CytoListItem = React.memo<any>(({
   borderColor?: string;
   selectedLink: number;
   onSelectLink?: (linkId: number) => any;
+  scrollRef?: any;
 }) => {
 
   return (
     <Box 
-      as='li' 
+      as={motion.li}
       display='flex' 
       w='100%'
       alignItems='center'
       onClick={() => onSelectLink && onSelectLink(id)}
+      arial-label='type button' 
+      variants={variants}
+      initial='initial'
+      whileInView='view'
+      viewport={{ root: scrollRef }}
+      whileHover={{
+        y: 1,
+        z: 8,
+        transformPerspective: 600,
+        background: '#0080ff',
+      }}
       _hover={{
-        bg: 'primary'
+        color: 'whiteText'
       }}
       bg={selectedLink === id ? 'primary' : 'none'}
     >
@@ -193,9 +214,10 @@ const ListPanel = React.memo<any>(({
   onSelectLink?: (linkId: number) => any;
   selectedLink: number;
 }) => {
+  const scrollRef = useRef(null);
 
-  return (<Flex direction='column' gap={3} py={2}>
-      {data.map(d => (<CytoListItem key={d.id} {...d} borderColor={borderColor} onSelectLink={onSelectLink} selectedLink={selectedLink} />))}
+  return (<Flex direction='column' gap={3} py={2} ref={scrollRef}>
+      {data.map(d => (<CytoListItem key={d.id} {...d} borderColor={borderColor} onSelectLink={onSelectLink} selectedLink={selectedLink} scrollRef={scrollRef} />))}
     </Flex>
   )
 })
@@ -283,7 +305,11 @@ export const CytoReactLinksCard = React.memo<any>(({
     setSwitchLayout((v) => v === 'grid' ? 'list' : 'packages')
   }, { enableOnFormTags: ["TEXTAREA", "INPUT"] });
 
-  console.log('elements', elements);
+  // useOutsideClick({
+  //   ref: ref,
+  //   handler: () => setIsModalOpen(false),
+  // })
+
   return (<>
       <Box
         bg='backgroundModal' 

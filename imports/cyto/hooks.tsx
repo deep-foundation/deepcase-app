@@ -61,6 +61,7 @@ export function CytoReactLinksCardInsertNode({
     linkName: t?.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || t.id,
     containerName: t?.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.from?.value?.value || '',
   }));
+  console.log('elements-hooks', elements);
   return <CytoReactLinksCard
     elements={elements.filter(el => (!!el?.linkName?.includes && el?.linkName?.toLocaleLowerCase()?.includes(search) || el?.containerName?.includes && el?.containerName?.toLocaleLowerCase()?.includes(search)))}
     search={search}
@@ -71,8 +72,6 @@ export function CytoReactLinksCardInsertNode({
       const isNode = !type.from_id && !type.to_id;
       setInsertingCyto({});
       if (isNode) {
-        console.log('CytoReactLinksCard', id, 0, 0, insertingLink.position);
-        await returningRef.current.insertLink(id, 0, 0, insertingLink.position);
         // await deep.insert({
         //   type_id: id,
         //   in: { data: [
@@ -137,7 +136,6 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cyRef
     const loadedLink = types?.find(t => t.id === type_id);
     const valued = loadedLink?.valued?.[0]?.to_id;
     const inArray = [];
-    console.log('insertLink1', type_id, from, to, position, autoFocusRef.current);
     if (position && autoFocusRef.current && !from && !to) {
       console.log('insertLink2', type_id, from, to, position, autoFocusRef.current);
       inArray.push({
@@ -487,8 +485,6 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
       })) || [];
 
       const onCloseCard = useCallback(() => toggleLinkReactElement(id), [id]);
-
-
       return <div>
         <CatchErrors errorRenderer={(error, reset) => {
           return <div>{String(error)}</div>;
