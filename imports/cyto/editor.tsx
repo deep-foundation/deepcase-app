@@ -281,7 +281,7 @@ export function CytoEditor() {
     });
   }, [tab?.initialValue, generatedLink]);
   
-  const currentValue = valuesRef?.current?.[tabId] || tab?.initialValue !== undefined ? tab?.initialValue : '';
+  const currentValue = valuesRef?.current?.[tabId] || typeof tab?.initialValue !== 'undefined' ? tab?.initialValue : '';
 
   const refEditor = useRef<any>();
 
