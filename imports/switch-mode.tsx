@@ -27,9 +27,9 @@ export const Switch = () => {
  useEffect(() => {
     if (colorMode === 'dark') {
       lightControls.start({ opacity: 0, y: 0, rotate: -30, scale: 0.1 });
-      darkControls.start({ opacity: 1, y: '-1.15em', x: '-0.22em', scale: 1, rotate: 0 });
+      darkControls.start({ opacity: 1, y: '-1.15em', x: '-0.26em', scale: 1, rotate: 0 });
     } else {
-      lightControls.start({ opacity: 1, y: '-1.15em', x: '-0.22em', rotate: 0, scale: 1 });
+      lightControls.start({ opacity: 1, y: '-1.15em', x: '-0.26em', rotate: 0, scale: 1 });
       darkControls.start({ opacity: 0, y: 0, rotate: -30, scale: 0.1 });
     }
   }, [colorMode, lightControls, darkControls]);
@@ -39,7 +39,7 @@ export const Switch = () => {
   }
 
   return (
-    <Box as="label" pos="fixed" top='1rem' right='0.3rem'>
+    <Box as="label" pos="fixed" top='1rem' right='1rem'>
       <Button
         aria-label="Toggle Dark Mode"
         onClick={handleToggleColorMode}
@@ -48,6 +48,8 @@ export const Switch = () => {
         borderColor='switchModeBorder'
         borderWidth='thin'
         pos='relative'
+        bg='colorModeButton'
+        _hover={{ bg: 'colorModeButton' }}
       >
         <Box pos="relative" zIndex="1">
           <MotionBox
@@ -62,7 +64,7 @@ export const Switch = () => {
             width="0.75em"
             height="0.75em"
           >
-            <MoonIcon color='blue.500' />
+            <MoonIcon color='blue.200' />
           </MotionBox>
           <MotionBox
             viewBox="0 0 12 12"
@@ -76,7 +78,7 @@ export const Switch = () => {
             width="0.75em"
             height="0.75em"
           >
-            <SunIcon color='blue.200' />
+            <SunIcon color='blue.500' />
           </MotionBox>
         </Box>
       </Button>
