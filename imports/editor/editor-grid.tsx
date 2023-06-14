@@ -33,6 +33,7 @@ export const EditorGrid = React.memo<any>(({
       display='flex'
       flexDir='column'
       h='100vh'
+      overflowY='hidden'
       // bg={colorMode == 'light' ? white : gray900} 
       sx={{ opacity: 0.98 }}
     >
@@ -49,6 +50,23 @@ export const EditorGrid = React.memo<any>(({
     </Box>
   )
 })
+
+export const EditorGridPreview = React.memo<any>(({
+  columns = 'repeat(2, 50%)',
+  editorTabsElement,
+  editorTextAreaElement,
+  editorRight,
+}:IGrid) => {
+
+  return (<Box display={editorTabsElement ? 'flex' : 'block'} flexDir={editorTabsElement ? 'column' : 'unset'} bg='backgroundModal' height='100%' width='100%'>
+      {editorTabsElement ? <Box>{editorTabsElement}</Box> : null}
+      <Box display='grid' gridTemplateColumns={columns} bg='backgroundModal' height='100%'>
+        {editorTextAreaElement}
+        <Box>{editorRight}</Box>
+      </Box>
+    </Box>
+  )
+});
 
 export const VerticalSash = ({
   editorTextAreaElement,

@@ -7,7 +7,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 import { useCytoEditor } from './hooks';
 import { CytoReactLinkAvatar } from '../cyto-react-avatar';
 import { EditorComponentView } from '../editor/editor-component-view';
-import { EditorGrid } from '../editor/editor-grid';
+import { EditorGrid, EditorGridPreview } from '../editor/editor-grid';
 import { EditorHandler } from '../editor/editor-handler';
 import { EditorHandlers } from '../editor/editor-handlers';
 import { EditorSwitcher } from '../editor/editor-switcher';
@@ -112,9 +112,9 @@ export function CytoEditorPreview({
   const switchProps = switcher ? { left: 0 } : { right: 0 };
 
   return <>
-    <EditorGrid
-      columns={switcher ? 'repeat(2, 15% 85%)' : 'repeat(2, 85% 15%)'}
-      editorTextAreaElement={<>{[<div key={linkId}>
+    <EditorGridPreview
+      columns={switcher ? '15% 85%' : '85% 15%'}
+      editorTextAreaElement={<>{[<Box key={linkId} bg='red.800'>
         <EditorTextArea
           refEditor={refEditor}
           value={currentValue}
@@ -146,7 +146,7 @@ export function CytoEditorPreview({
             }
           }}
         />
-      </div>]}</>}
+      </Box>]}</>}
       // editorTabsElement={<EditorTabs
       //   tabs={tabs.map((tab) => ({
       //     ...tab,
@@ -180,7 +180,7 @@ export function CytoEditorPreview({
         rightArea === 'handlers' && (
           <CytoEditorHandlers linkId={generated && generatedLink ? generatedLink?.id : linkId}/>
         ) ||
-        rightArea === 'preview' && <Box pos='relative'>
+        rightArea === 'preview' && <Box pos='relative' height='100%'>
           {[<EditorComponentView
             key={currentLink?.id}
             size={viewSize}
@@ -196,23 +196,23 @@ export function CytoEditorPreview({
             </CatchErrors>]}
           </EditorComponentView>]}
         </Box>
-    }
-      editorRightSwitch={<EditorSwitcher
-        fillSize={fillSize}
-        setFillSize={(newFillSize) => {
-          setFillSize(newFillSize);
-          if (!fillSize) setViewSize({ width: 250, height: 250 });
-        }}
-        currentLinkId={currentLinkId}
-        setCurrentLinkId={(newCurrentLinkId) => {
-          setCurrentLinkId(newCurrentLinkId)
-        }}
-        generated={generated} setGenerated={setGenerated}
-        area={rightArea}
-        setArea={(rightArea) => {
-          setRightArea(rightArea);
-        }}
-      />}
+      }
+      // editorRightSwitch={<EditorSwitcher
+      //   fillSize={fillSize}
+      //   setFillSize={(newFillSize) => {
+      //     setFillSize(newFillSize);
+      //     if (!fillSize) setViewSize({ width: 250, height: 250 });
+      //   }}
+      //   currentLinkId={currentLinkId}
+      //   setCurrentLinkId={(newCurrentLinkId) => {
+      //     setCurrentLinkId(newCurrentLinkId)
+      //   }}
+      //   generated={generated} setGenerated={setGenerated}
+      //   area={rightArea}
+      //   setArea={(rightArea) => {
+      //     setRightArea(rightArea);
+      //   }}
+      // />}
     />
     <Box position='absolute' {...switchProps} top={0} height={'100%'} width={'15%'} bg='primary' opacity={0.2} onClick={() => {
       setSwitch(sw => !sw);
