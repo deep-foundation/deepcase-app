@@ -29,28 +29,18 @@ export const EditorGrid = React.memo<any>(({
   const white = useChackraColor('white');
   const { colorMode } = useColorMode();
 
-  return (<Box display='flex' flexDir='column' h='100%' bg={colorMode == 'light' ? white : gray900} style={{ opacity: 0.98 }}>
+  return (<Box 
+      display='flex'
+      flexDir='column'
+      h='100vh'
+      // bg={colorMode == 'light' ? white : gray900} 
+      sx={{ opacity: 0.98 }}
+    >
       <Flex>
         <Center>{closeAllButtonElement}</Center>
         <Box sx={{width: 'calc(100% - 4rem)'}}>{editorTabsElement}</Box>
         <Center>{closeButtonElement}</Center>
       </Flex>
-      {/* <Box 
-        display='grid' 
-        gridTemplateColumns={columns} 
-        h={'100%'}>
-        {editorTextAreaElement}
-        <Box 
-          display='grid' 
-          gridTemplateRows='1fr max-content' 
-          h={'100%'} 
-          position="relative" 
-          overflow='hidden'
-        >
-          {editorRight}
-          {editorRightSwitch}
-        </Box>
-      </Box>  */}
       <VerticalSash 
         editorTextAreaElement={editorTextAreaElement} 
         editorRight={editorRight} 
@@ -136,21 +126,22 @@ export const VerticalSash = ({
     sashX.set(width / 2);
   };
 
-  return (<ReactResizeDetector handleWidth onResize={onResize}>
+  return (<ReactResizeDetector handleWidth onResize={onResize} targetRef={containerRef} handleHeight={false}>
       <div ref={containerRef} style={{ position: 'relative', width: '100%', height: '100%' }}>
+        {/* Left pane */}
         <motion.div
           style={{
             position: 'absolute',
             width: leftWidth,
             height: '100%',
             borderRight: '1px solid #ccc',
-            overflow: 'auto',
+            overflow: 'initial',
           }}
-          // animate={{ width: leftWidth }}
         >
-          {/* Your left pane content goes here */}
+          {/* Left pane content goes here */}
           {editorTextAreaElement}
         </motion.div>
+        {/* Vertical sash */}
         <motion.div
           ref={sashRef}
           style={{
@@ -165,6 +156,7 @@ export const VerticalSash = ({
             isDragging.current = true;
           }}
         />
+        {/* Right pane */}
         <motion.div
           ref={rightPaneRef}
           style={{
@@ -180,12 +172,12 @@ export const VerticalSash = ({
             gridTemplateRows='1fr max-content' 
             h='100%'
             position="relative" 
-            overflow='hidden'
+            overflowY='scroll'
           >
+            {/* Right pane content goes here */}
             {editorRight}
             {editorRightSwitch}
           </Box>
-          {/* Your right pane content goes here */}
         </motion.div>
       </div>
     </ReactResizeDetector>

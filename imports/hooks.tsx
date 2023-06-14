@@ -9,8 +9,6 @@ import { useMediaQuery as useMediaQueryChakra } from '@chakra-ui/react';
 export const defaultLeftWidth = 10;
 export const defaultCardWidth = 300;
 
-const defaultGraphiqlHeight = 300;
-
 // export function useShowTypes() {
 //   return useQueryStore('show-types', false);
 // }
@@ -24,7 +22,7 @@ export function usePromiseLoader() {
   return useQueryStore('promise-loader', false);
 }
 export function useTraveler() {
-  return useQueryStore('traveler', true);
+  return useQueryStore('traveler', false);
 }
 export function useContainer() {
   const [spaceId] = useSpaceId();
@@ -56,6 +54,21 @@ export function useInsertingCytoStore() {
     {},
   );
 }
+
+export interface IUpdatingCytoStore{
+  id?: number;
+  toast?: any;
+  _selfLink?: boolean;
+  from?: number;
+  to?: number;
+}
+
+export function useUpdatingCytoStore() {
+  return useQueryStore<IUpdatingCytoStore>(
+    'dc-dg-upd',
+    {},
+  );
+}
 export function useScreenFind() {
   return useQueryStore<any>('screen-find', '');
 }
@@ -70,11 +83,8 @@ export function useSpaceId() {
 export function useWindowSize() {
   return useLocalStore('window-size', { width: 800, height: 500 });
 };
-export function useGraphiqlHeight() {
-  return useLocalStore('graphiql-height', defaultGraphiqlHeight);
-};
 export function useAutoFocusOnInsert() {
-  return useLocalStore('autofocus-on-insert', true);
+  return useQueryStore('autofocus-on-insert', true);
 };
 export function useShowExtra() {
   return useQueryStore<any>('show-extra', false);
@@ -99,16 +109,17 @@ export function useBackgroundTransparent() {
 };
 export function useFocusMethods() {
   const [spaceId] = useSpaceId();
+  const spaceIdRef = useRefAutofill(spaceId);
   const deep = useDeep();
   return useMemo(() => {
     return {
       unfocus: async (id) => {
         console.log('unfocus', { spaceId, id });
-        const whereF = { type_id: deep.idLocal('@deep-foundation/core', 'Focus'), from_id: spaceId, to_id: id };
+        const whereF = { type_id: deep.idLocal('@deep-foundation/core', 'Focus'), from_id: spaceIdRef.current, to_id: id };
         const where = {
           _or: [
             whereF,
-            { type_id: deep.idLocal('@deep-foundation/core', 'Contain'), from_id: spaceId, to: whereF },
+            { type_id: deep.idLocal('@deep-foundation/core', 'Contain'), from_id: spaceIdRef.current, to: whereF },
           ],
         };
         console.log('unfocused', await deep.delete(where));
@@ -117,7 +128,7 @@ export function useFocusMethods() {
         console.log('focus', { spaceId, id, value });
         const q = await deep.select({
           type_id: deep.idLocal('@deep-foundation/core', 'Focus'),
-          from_id: spaceId,
+          from_id: spaceIdRef.current,
           to_id: id,
         });
         const focus = q?.data?.[0];
@@ -125,12 +136,12 @@ export function useFocusMethods() {
         if (!focusId) {
           const { data: [{ id: newFocusId }] } = await deep.insert({
             type_id: deep.idLocal('@deep-foundation/core', 'Focus'),
-            from_id: spaceId,
+            from_id: spaceIdRef.current,
             to_id: id,
             object: { data: { value } },
             in: { data: {
               type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
-              from_id: spaceId
+              from_id: spaceIdRef.current
             } },
           });
           focusId = newFocusId;
@@ -145,10 +156,10 @@ export function useFocusMethods() {
             }, { table: 'objects' });
           }
         }
-        console.log('focused', { spaceId, id, value, focusId });
+        console.log('focused', { spaceIdRefCurrent: spaceIdRef.current, id, value, focusId });
       }
     };
-  }, [spaceId]);
+  }, []);
 };
 export function useActiveMethods() {
   const [spaceId] = useSpaceId();
@@ -205,17 +216,9 @@ export function useRefAutofill<T>(value: T) {
   return ref;
 }
 
-
 export const useMediaQuery = function useMediaQuery(arg) {
   const [actualValue, isBrowser] = useMediaQueryChakra(arg);
   const [value, setValue] = useState(false);
   useEffect(() => setValue(actualValue), [actualValue, isBrowser]);
   return [value, isBrowser];
 }
-
-export function useLinkId() {
-  return useQueryStore<any>('link-id', false);
-};
-export function useHandlerId() {
-  return useQueryStore<any>('handler-id', false);
-};

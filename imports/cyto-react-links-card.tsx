@@ -1,10 +1,11 @@
-import { Box, Button, Center, Flex, IconButton, Input, InputGroup, InputRightElement, ScaleFade, SlideFade, Spacer, Text, useColorModeValue } from '@chakra-ui/react';
+import { Box, Center, Flex, IconButton, Input, InputGroup, InputRightElement, ScaleFade, SlideFade, Spacer, Text, useOutsideClick } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { BsCheck2, BsDoorClosed, BsGrid3X2Gap, BsListUl, BsSearch } from 'react-icons/bs';
+import { TbPackages } from 'react-icons/tb';
 import { DotsLoader } from './dot-loader';
-import { useChackraColor } from './get-color';
+import { IPackageProps, PackagesBlock } from './cyto-react-links-packages';
 
 interface IGridPanel {
   id?: number;
@@ -20,11 +21,12 @@ interface IListPanel {
 }
 
 export interface ITypeIcon {
-  src: string;
+  src: string | number;
   borderColor?: any;
   borderWidth?: any;
   boxSize?: string;
   [key: string]: any;
+  scrollRef?: any;
 }
 
 const variants = {
@@ -36,13 +38,13 @@ const variants = {
     transformPerspective: 100, 
     z: 0, 
     y: 0,
+    background: 'transparent',
   },
   view: {
     opacity: 1,
     scale: 1,
     transition: {
       duration: 0.3,
-      // delay: 0.2,
     }
   },
   hide: {
@@ -57,17 +59,22 @@ const variants = {
 
 export const TypeIcon = React.memo<any>(({
   src,
-  borderColor = 'black',
-  borderWidth = '1px',
-  boxSize = '1.5rem',
+  borderColor = 'borderColor',
+  borderWidth = 'thin',
+  boxSize = '1.8rem',
+  scrollRef,
   ...props
 }:ITypeIcon) => {
+  const number = src.toString();
+  const size = typeof(src) === 'number' ? number.length : null;
+
   return <Box 
       as={motion.div} 
       arial-label='type button' 
       variants={variants}
       initial='initial'
       whileInView='view'
+      viewport={{ root: scrollRef }}
       whileHover={{
         y: 1,
         z: 10,
@@ -81,28 +88,48 @@ export const TypeIcon = React.memo<any>(({
       display='flex' 
       justifyContent='center' 
       alignItems='center'
+      fontSize={typeof(src) === 'string' ? 'sm' : size > 2 ? 'xxs' : 'xs'}
       {...props}
     >
       {src}
     </Box>
 })
 
-const GridPanel = React.memo<any>(({
+export const GridPanel = React.memo<any>(({
   borderColor,
   borderColorSelected,
   data,
   selectedLink,
   onSelectLink,
+  gridTemplateColumns = 'repeat( auto-fill, minmax(.5rem, 1.9rem) )',
+  columnGap = 2,
+  rowGap = 2,
 }:{
   borderColor?: string;
   borderColorSelected?: string;
   data: IGridPanel[];
   selectedLink: number;
   onSelectLink?: (linkId: number) => any;
+  gridTemplateColumns?: string;
+  columnGap?: number;
+  rowGap?: number;
 }) => {
+
+  const scrollRef = useRef(null);
+
   return (
-    <Box display='grid' gridTemplateColumns='repeat( auto-fill, minmax(.5rem, 1.5rem) )' p='2' columnGap={2} rowGap={2}>
+    <Box 
+      display='grid' 
+      gridTemplateColumns={gridTemplateColumns} 
+      columnGap={columnGap} 
+      rowGap={rowGap}
+      alignItems='center'
+      justifyContent={data.length > 10 ? 'center' : 'flex-start'}
+      p='2' 
+      ref={scrollRef}
+    >
       {data.map(d => (<TypeIcon
+        scrollRef={scrollRef}
         key={d.id}
         borderWidth={selectedLink === d.id ? 2 : 1}
         borderColor={selectedLink === d.id ? borderColorSelected : borderColor}
@@ -124,6 +151,7 @@ const CytoListItem = React.memo<any>(({
   borderColor,
   selectedLink,
   onSelectLink,
+  scrollRef,
 }:{
   id?: number;
   src?: string;
@@ -132,25 +160,45 @@ const CytoListItem = React.memo<any>(({
   borderColor?: string;
   selectedLink: number;
   onSelectLink?: (linkId: number) => any;
+  scrollRef?: any;
 }) => {
 
   return (
     <Box 
-      as='li' 
+      as={motion.li}
       display='flex' 
       w='100%'
       alignItems='center'
       onClick={() => onSelectLink && onSelectLink(id)}
+      arial-label='type button' 
+      variants={variants}
+      initial='initial'
+      whileInView='view'
+      viewport={{ root: scrollRef }}
+      whileHover={{
+        y: 1,
+        z: 8,
+        transformPerspective: 600,
+        background: '#0080ff',
+      }}
       _hover={{
-        bg: 'primary'
+        color: 'whiteText'
       }}
       bg={selectedLink === id ? 'primary' : 'none'}
     >
-      <TypeIcon borderColor={borderColor} src={src} mr={2} ml={2} />
-      <Flex direction='column' align='flex-start'>
-        <Text fontSize='sm'>{linkName}</Text>
-        <Text fontSize='xs'>{containerName}</Text>
-      </Flex>
+      <Box 
+        py='0.2rem'
+        width='100%'
+        display='flex'
+        flexDirection='row'
+        alignItems='center'
+      >
+        <TypeIcon borderColor={borderColor} src={src} mr={2} ml={2} />
+        <Flex direction='column' align='flex-start'>
+          <Text fontSize='xs'>{linkName}</Text>
+          <Text fontSize='xs'>{containerName}</Text>
+        </Flex>
+      </Box>
     </Box>
   )
 })
@@ -166,9 +214,10 @@ const ListPanel = React.memo<any>(({
   onSelectLink?: (linkId: number) => any;
   selectedLink: number;
 }) => {
+  const scrollRef = useRef(null);
 
-  return (<Flex direction='column' gap={3}>
-      {data.map(d => (<CytoListItem key={d.id} {...d} borderColor={borderColor} onSelectLink={onSelectLink} selectedLink={selectedLink} />))}
+  return (<Flex direction='column' gap={3} py={2} ref={scrollRef}>
+      {data.map(d => (<CytoListItem key={d.id} {...d} borderColor={borderColor} onSelectLink={onSelectLink} selectedLink={selectedLink} scrollRef={scrollRef} />))}
     </Flex>
   )
 })
@@ -180,8 +229,11 @@ export const NoResults = React.memo<any>(() => {
   )
 })
 
+
+
 export const CytoReactLinksCard = React.memo<any>(({
   elements = [],
+  packages = [],
   onSubmit,
   onClose,
   loading = false,
@@ -193,10 +245,11 @@ export const CytoReactLinksCard = React.memo<any>(({
 }: {
   elements: {
     id: number;
-    src: string;
+    src?: string;
     linkName: string;
     containerName: string;
   }[];
+  packages?: IPackageProps[];
   onSubmit?: (id: number) => any;
   onClose?: () => any;
   loading?: boolean;
@@ -207,14 +260,9 @@ export const CytoReactLinksCard = React.memo<any>(({
   selectedLinkId?: number;
 }) => {
   const [switchLayout, setSwitchLayout] = useState('grid');
+  // const [switchLayout, setSwitchLayout] = useState('packages');
   const [selectedLink, setSelectedLink] = useState(selectedLinkId);
   const inputRef = useRef(null);
-
-  const gray900 = useChackraColor('gray.900');
-  const white = useChackraColor('white');
-  const colorBorderSelected = useChackraColor('primary');
-  const colorGrayToWhite = useColorModeValue(white, gray900);
-  const colorWhiteToGray = useColorModeValue(gray900, white);
 
   useEffect(() => {
     inputRef.current.focus();
@@ -241,7 +289,7 @@ export const CytoReactLinksCard = React.memo<any>(({
       next = elements[index == elements.length - 1 ? 0 : index + 1];
       setSelectedLink(next.id);
     }
-  }, { enableOnTags: ["TEXTAREA", "INPUT"] });
+  }, { enableOnFormTags: ["TEXTAREA", "INPUT"] });
 
   useHotkeys('enter', e => {
     e.preventDefault();
@@ -249,30 +297,35 @@ export const CytoReactLinksCard = React.memo<any>(({
     if (selectedLink) {
       onSubmit && onSubmit(selectedLink);
     }
-  }, { enableOnTags: ["TEXTAREA", "INPUT"] });
+  }, { enableOnFormTags: ["TEXTAREA", "INPUT"] });
 
   useHotkeys('tab', e => {
     e.preventDefault();
     e.stopPropagation();
-    setSwitchLayout((v) => v === 'grid' ? 'list' : 'grid')
-  }, { enableOnTags: ["TEXTAREA", "INPUT"] });
+    setSwitchLayout((v) => v === 'grid' ? 'list' : 'packages')
+  }, { enableOnFormTags: ["TEXTAREA", "INPUT"] });
+
+  // useOutsideClick({
+  //   ref: ref,
+  //   handler: () => setIsModalOpen(false),
+  // })
 
   return (<>
       <Box
-        bg={colorGrayToWhite} 
-        maxW='md'
+        bg='backgroundModal' 
+        // maxW='md'
         maxH='lg'
-        {...(fillSize ? { h: '100%', w: '100%' } : { h: 72, w: 96 })}
+        {...(fillSize ? { h: '100%', w: '100%' } : { h: 72, w: 'max-content' })}
         overflowY='hidden'
-        borderWidth='1px' 
-        borderColor={colorWhiteToGray} 
-        color={colorWhiteToGray} 
+        borderWidth='thin' 
+        borderColor='borderColor' 
+        color='text' 
         borderRadius='lg' 
         overflow='hidden'
         display='flex'
         flexDir='column'
       >
-        <Flex minWidth='max-content' alignItems='center' gap='2' borderBottomStyle='solid' borderBottomWidth='1px' borderBottomColor='gray.200'>
+        <Flex minWidth='max-content' alignItems='center' gap='2' borderBottomStyle='solid' borderBottomWidth='thin' borderBottomColor='borderColor'>
           <InputGroup size='xs' pl='2'>
             <Input 
               ref={inputRef}
@@ -285,15 +338,29 @@ export const CytoReactLinksCard = React.memo<any>(({
             <InputRightElement children={<BsSearch color='green.500' />} />
           </InputGroup>
           <Spacer />
+          {/* <IconButton 
+            aria-label='list layout' 
+            variant='ghost' 
+            colorScheme='current'
+            isRound 
+            sx={{
+              transform: switchLayout === 'packages' ? 'scale(1.2)' : 'scale(1)',
+              _hover: {
+                transform: switchLayout === 'packages' && 'scale(1.2)',
+              }
+            }}
+            icon={<TbPackages />} 
+            onClick={() => setSwitchLayout('packages')} 
+          /> */}
           <IconButton 
             aria-label='grid layout' 
             variant='ghost' 
             colorScheme='current'
             isRound 
             sx={{
-              transform: switchLayout === 'grid' && 'scale(1.2)',
+              transform: switchLayout === 'grid' ? 'scale(1.2)' : 'scale(1)',
               _hover: {
-                transform: 'scale(1.2)',
+                transform: switchLayout === 'grid' && 'scale(1.2)',
               }
             }}
             icon={<BsGrid3X2Gap />} 
@@ -305,9 +372,9 @@ export const CytoReactLinksCard = React.memo<any>(({
             colorScheme='current'
             isRound 
             sx={{
-              transform: switchLayout === 'list' && 'scale(1.2)',
+              transform: switchLayout === 'list' ? 'scale(1.2)' : 'scale(1)',
               _hover: {
-                transform: 'scale(1.2)',
+                transform: switchLayout === 'list' && 'scale(1.2)',
               }
             }}
             icon={<BsListUl />} 
@@ -315,7 +382,27 @@ export const CytoReactLinksCard = React.memo<any>(({
           />
         </Flex>
         {!loading 
-        ? <Box pos='relative' w='100%' h="100%">
+        ? <Box 
+          pos='relative' 
+          w='100%' h="100%"
+        >
+          {/* <ScaleFade 
+            initialScale={0.9} 
+            in={switchLayout === 'packages'}
+            style={{
+              pointerEvents: switchLayout === 'packages' ? 'initial' : 'none',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              overflowY: 'scroll',
+            }}
+          >
+            <PackagesBlock 
+              packages={elements} 
+            />
+          </ScaleFade> */}
           <ScaleFade 
             initialScale={0.9} 
             in={switchLayout === 'grid'}
@@ -331,10 +418,10 @@ export const CytoReactLinksCard = React.memo<any>(({
           >
             <GridPanel 
               data={elements} 
-              borderColor={colorWhiteToGray} 
+              borderColor='borderColor' 
               onSelectLink={selectLink} 
               selectedLink={selectedLink} 
-              borderColorSelected={colorBorderSelected} 
+              borderColorSelected='primary' 
             />
           </ScaleFade>
           <ScaleFade 
@@ -349,7 +436,9 @@ export const CytoReactLinksCard = React.memo<any>(({
               overflowY: 'scroll',
             }}
           >
-            <ListPanel data={elements} borderColor={colorWhiteToGray} selectedLink={selectedLink} onSelectLink={selectLink}/>
+            <ListPanel data={elements} 
+              borderColor='borderColor' 
+              selectedLink={selectedLink} onSelectLink={selectLink}/>
           </ScaleFade>
         </Box>
         : !!noResults 

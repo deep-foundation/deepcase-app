@@ -9,25 +9,11 @@ import { CustomizableIcon } from "../icons-provider";
 import { ModalWindow } from "../modal-window";
 import { DockerWarning } from './docker-warning';
 import axios from 'axios';
+import { Loading } from '../loading-motion-bubble';
 
 const DOCKER = process.env.DOCKER || '0';
-const NEXT_PUBLIC_DEEPLINKS_URL = process.env.NEXT_PUBLIC_DEEPLINKS_URL || 'http://localhost:3006';
-const NEXT_PUBLIC_DEEPLINKS_SERVER = process.env.NEXT_PUBLIC_DEEPLINKS_SERVER || 'http://localhost:3007';
-
-const _checkDeeplinksStatus = async () => {
-  let status;
-  let err;
-  try {
-    // DL may be not in docker, when DC in docker, so we use host.docker.internal instead of docker-network link deep_links_1
-    status = await axios.get(`${+DOCKER ? 'http://host.docker.internal:3006' : NEXT_PUBLIC_DEEPLINKS_URL}/api/healthz`, { validateStatus: status => true, timeout: 7000 });
-  } catch(e){
-    err = e;
-  }
-  return { result: status?.data?.docker, error: err };
-};
 
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
-
 
 const ConnectorGrid = React.memo<any>(({
   children, 
@@ -78,11 +64,11 @@ const displayAnimation = {
   }
 };
 
-const callEngine = async ({ operation, terminal }: { operation: string; terminal?: any}) => {
+const callEngine = async ({ serverUrl, operation, terminal }: { serverUrl: string; operation: string; terminal?: any}) => {
   terminal?.resize(terminal.cols,terminal.rows);
   const r = await axios({ 
     method: 'post',
-    url: `${NEXT_PUBLIC_DEEPLINKS_SERVER}/api/deeplinks`,
+    url: `${serverUrl}/api/deeplinks`,
     headers: {
       'Content-Type': 'application/json'
     },
@@ -90,8 +76,6 @@ const callEngine = async ({ operation, terminal }: { operation: string; terminal
       operation
     }
   });
-  console.log('result',r);
-  console.log('terminal',terminal);
   if (terminal) {
     terminal?.writeln(JSON.stringify(r.data?.envs));
     terminal?.writeln(r.data?.engineStr);
@@ -107,13 +91,13 @@ const callEngine = async ({ operation, terminal }: { operation: string; terminal
 const TerminalConnect = React.memo<any>(({
   initializingState = undefined, 
   setInitLocal, 
-  key,
+  serverUrl,
 }:{
   initializingState?: InitializingState; 
   closeTerminal: () => any; 
   setInitLocal: (state) => any; 
   terminalClosed: boolean; 
-  key: any;
+  serverUrl: string;
 }) => {
   const terminalBoxRef = useRef<any>();
   const terminalRef = useRef<any>();
@@ -141,9 +125,9 @@ const TerminalConnect = React.memo<any>(({
       // animation.start('display');
       setTimeout(async() => {
         terminalRef?.current?.resize(terminalRef.current.cols,terminalRef.current.rows);
-        await callEngine({ operation: 'init', terminal: terminalRef.current });
-        await callEngine({ operation: 'migrate', terminal: terminalRef.current });
-        await callEngine({ operation: 'check', terminal: terminalRef.current });
+        await callEngine({ serverUrl, operation: 'init', terminal: terminalRef.current });
+        await callEngine({ serverUrl, operation: 'migrate', terminal: terminalRef.current });
+        await callEngine({ serverUrl, operation: 'check', terminal: terminalRef.current });
 
         await delay(2000);
         setInitLocal(InitializingState.launched);
@@ -153,7 +137,7 @@ const TerminalConnect = React.memo<any>(({
         // animation.start('display');
         setTimeout(async() => {
           terminalRef?.current?.resize(terminalRef.current.cols,terminalRef.current.rows);
-          await callEngine({ operation: 'reset', terminal: terminalRef.current });
+          await callEngine({ serverUrl, operation: 'reset', terminal: terminalRef.current });
           // control.start('shrink');
           await delay(2000);
           setInitLocal(InitializingState.notInit);
@@ -164,12 +148,10 @@ const TerminalConnect = React.memo<any>(({
     }
   }, [control, initializingState]);
 
-  console.log({control, initializingState});
-
   return (
     <AnimatePresence>
       <Box 
-        key={key}
+        key={432432}
         as={motion.div}
         overflow='auto'
         sx={{ overscrollBehavior: 'contain'}}
@@ -194,66 +176,6 @@ const TerminalConnect = React.memo<any>(({
         />
       </Box>
     </AnimatePresence>
-  )
-});
-
-const Loading = React.memo<any>(({text}: {text: string;}) => {
-  return (<Flex width='100%' justify='space-between' pt={2} pb={2}>
-      <Text color='gray.400' fontSize='sm' as='kbd' mr='0.125rem'>{text}</Text>
-      <Box 
-        display='flex' 
-        w='100%' 
-        justifyContent='flex-start' 
-        alignItems='flex-end'
-        sx={{
-          pb: '0.3125rem',
-          '& > *:not(:last-of-type)': {
-            mr: 1
-          }
-        }}
-      >
-        <motion.div 
-          style={{
-            width: 3,
-            height: 3,
-            borderRadius: 0.5,
-            backgroundColor: "#A0AEC0",
-          }}
-          animate={{ scale: [0, 1, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        />
-        <motion.div
-          style={{
-            width: 3,
-            height: 3,
-            borderRadius: 0.5,
-            backgroundColor: "#A0AEC0",
-          }}
-          animate={{ scale: [0, 1, 0] }}
-          transition={{ duration: 2, repeat: Infinity, delay: 0.4  }}
-        />
-        <motion.div
-          style={{
-            width: 3,
-            height: 3,
-            borderRadius: 0.5,
-            backgroundColor: "#A0AEC0",
-          }}
-          animate={{ scale: [0, 1, 0] }}
-          transition={{ duration: 2, repeat: Infinity, delay: 0.8  }}
-        />
-        <motion.div
-          style={{
-            width: 3,
-            height: 3,
-            borderRadius: 0.5,
-            backgroundColor: "#A0AEC0",
-          }}
-          animate={{ scale: [0, 1, 0] }}
-          transition={{ duration: 2, repeat: Infinity, delay: 1.6  }}
-        />
-      </Box>
-    </Flex>
   )
 });
 
@@ -463,14 +385,18 @@ export const Connector = React.memo<any>(({
   setPortal,
   gqlPath,
   gqlSsl,
+  serverUrl,
+  deeplinksUrl,
   setGqlPath,
-  setGqlSsl, 
+  setGqlSsl,
   // onClosePortal,
 }:{
   portalOpen?: boolean;
   setPortal?: (state?: boolean) => any;
   gqlPath: string;
   gqlSsl: boolean;
+  serverUrl: string;
+  deeplinksUrl: string;
   setGqlPath: (path: string) => any;
   setGqlSsl: (ssl: boolean) => any; 
   // onClosePortal: (portalOpen: boolean) => any;
@@ -492,6 +418,18 @@ export const Connector = React.memo<any>(({
   const onClosePortal = () => setPortal(false);
   
   const [remoteRouts, setArr] = useState([]);
+
+  const checkDeeplinksStatus = async () => {
+    let status;
+    let err;
+    try {
+      // DL may be not in docker, when DC in docker, so we use host.docker.internal instead of docker-network link deep_links_1
+      status = await axios.get(`${+DOCKER ? 'http://host.docker.internal:3006' : deeplinksUrl}/api/healthz`, { validateStatus: status => true, timeout: 7000 });
+    } catch(e){
+      err = e;
+    }
+    return { result: status?.data?.docker, error: err };
+  };
   
   const add = () => {
     setArr((remoteRouts) => [
@@ -515,7 +453,6 @@ export const Connector = React.memo<any>(({
   }, [control, portalOpen]);
 
   useEffect(() => {
-    console.log('init!', init);
     if (init === InitializingState.initializing) { 
       controlNotInit.start('close');
       controlInit.start('open');
@@ -547,24 +484,27 @@ export const Connector = React.memo<any>(({
 
   useEffect(() => {
     (async () => {
-      const status = await _checkDeeplinksStatus();
-      console.log('status',status.result !== undefined);
-      console.log('initializingState1', init)
+      const status = await checkDeeplinksStatus();
       if (status.result !== undefined) {
         setInitLocal(InitializingState.notInit);
         await delay(1000);
         setInitLocal(InitializingState.launched);
       }
-      console.log('portalOpen', portalOpen)
     })();
   }, [portalOpen]);
 
   useEffect(() => {
     (async () => {
-      const dockerStatus = await callEngine({ operation: 'dock' });
+      const dockerStatus = await callEngine({ serverUrl, operation: 'dock' });
+      // console.log('docker', dockerStatus);
+      // console.log('docker', dockerStatus?.data?.result?.stdout?.[0]);
+      // console.log('docker', dockerStatus?.data?.result?.stdout?.[0] !== '{');
       if (dockerStatus?.data?.result?.stdout?.[0] !== '{') setIsExistDocker(false);
-      const dockerComposeStatus = await callEngine({ operation: 'compose' });
-      if (!/^-?\d+$/.test(dockerComposeStatus?.data?.result?.stdout?.[0])) setIsExistDocker(false);
+      const dockerComposeStatus = await callEngine({ serverUrl, operation: 'compose' });
+      // console.log('docker', dockerComposeStatus);
+      // console.log('docker', dockerComposeStatus?.data?.result?.stdout.toString());
+      // console.log('docker', !/^-?[a-z0-9]+\r?\n?$/.test(dockerComposeStatus?.data?.result?.stdout.toString()));
+      if (!/^-?[a-z0-9]+\r?\n?$/.test(dockerComposeStatus?.data?.result?.stdout.toString())) setIsExistDocker(false);
     })();
   }, []);
 
@@ -615,7 +555,7 @@ export const Connector = React.memo<any>(({
                   onDeleteValue={(e) => {
                     if (gqlPath == rr.value) {
                       setGqlPath('');
-                      setGqlSsl(undefined);
+                      setGqlSsl(false);
                     }
                     remove(rr.id)
                     }
@@ -706,7 +646,12 @@ export const Connector = React.memo<any>(({
                   variants={initArea}
                   onClick={() => setInitLocal(InitializingState.initialized)} 
                 >
-                  <Loading text="Initializing"/>
+                  <Loading text="Initializing" 
+                    sxFlex={{pt: 2, pb: 2}}
+                    sx={{
+                      pb: '0.3125rem',
+                    }}
+                  />
                 </Box>
                 <Box 
                   key={InitializingState.initialized}
@@ -746,11 +691,7 @@ export const Connector = React.memo<any>(({
                     ariaLabelLeft="go to deepcase"
                     ariaLabelRight="delete local deepcase"
                     // ComponentRightIcon={IoStopOutline}
-                    onClickLeft={() => {
-                      // setInitLocal(InitializingState.launched);
-                      setPortal(false);
-                      console.log({portalOpen});
-                    }} 
+                    onClickLeft={() => setPortal(false)} 
                     onClickRight={() => {
                       setInitLocal(InitializingState.removing)
                     }} 
@@ -769,7 +710,15 @@ export const Connector = React.memo<any>(({
                   initial='initializing'
                   variants={initArea}
                 >
-                  <Loading text="Removing"/>
+                  <Loading text="Removing" 
+                    sxFlex={{pt: 2, pb: 2}}
+                    sx={{
+                      pb: '0.3125rem',
+                      '& > *:not(:last-of-type)': {
+                        mr: 1
+                      }
+                    }} 
+                  />
                 </Box>
               </AnimatePresence>
             </Box>
@@ -777,7 +726,8 @@ export const Connector = React.memo<any>(({
           <TerminalConnect 
             initializingState={init} 
             setInitLocal={(state)=>setInitLocal(state)}
-            key={21121} />
+            key={21121}
+            serverUrl={serverUrl} />
         </ConnectorGrid>
       </Box>
     </ModalWindow>

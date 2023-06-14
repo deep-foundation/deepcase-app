@@ -65,7 +65,7 @@ export function CytoEditorPreview({
   const [currentLinkId, setCurrentLinkId] = useState(linkId);
   const { data: [currentLink = link] = [] } = useDeepSubscription({
     id: currentLinkId,
-  });
+  }, { name: 'CytoEditorPreview' });
 
   const {
     tempValueRef,

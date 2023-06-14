@@ -10,9 +10,9 @@ export function useCytoElements(ml, _links, cy, spaceId) {
   const [insertingCyto, setInsertingCyto] = useInsertingCytoStore();
   const deep = useDeep();
 
-  const links = _links.slice(0, 200);
+  const links = _links;
 
-  console.time('useCytoElements');
+  // console.time('useCytoElements');
 
   const _elements: { [key: string]: any } = {};
   const elements = [];
@@ -84,6 +84,9 @@ export function useCytoElements(ml, _links, cy, spaceId) {
     if ((isFocusSpace && showFocus) || !isFocusSpace) {
       _elements[link?.id] = element;
       elements.push(element);
+    }
+    if (elements.length > 200) {
+      break;
     }
     // if (link.type_id === deep.idLocal('@deep-foundation/core', 'Query')) {
     //   const id = `query-${link.id}`;
@@ -185,7 +188,7 @@ export function useCytoElements(ml, _links, cy, spaceId) {
     }
   }
 
-  console.timeEnd('useCytoElements');
+  // console.timeEnd('useCytoElements');
 
   return {
     elements, reactElements,

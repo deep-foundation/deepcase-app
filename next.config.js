@@ -1,11 +1,13 @@
-const nextEnv = require('next-env');
-const dotenvLoad = require('dotenv-load');
- 
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+import nextEnv from 'next-env';
+import dotenvLoad from 'dotenv-load';
+
 dotenvLoad();
  
 const withNextEnv = nextEnv();
- 
-module.exports = withNextEnv({
+
+export default withNextEnv({
   distDir: 'app',
   webpack5: true,
   future: { webpack5: true },
