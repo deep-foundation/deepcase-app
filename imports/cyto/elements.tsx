@@ -27,7 +27,7 @@ export function useCytoElements(ml, _links, cy, spaceId) {
     let _name = '';
     let _type = '';
     let _symbol = '';
-    if (/*labelsConfig?.values && */link?.value?.value !== undefined) {
+    if (/*labelsConfig?.values && */typeof link?.value?.value !== 'undefined') {
       let json;
       try { json = json5.stringify(link?.value.value); } catch(error) {}
       _value = (
@@ -48,7 +48,7 @@ export function useCytoElements(ml, _links, cy, spaceId) {
     }
 
     function isValidValue(value) {
-      return value !== null && value !== undefined && !Number.isNaN(value) && value !== '';
+      return value !== null && typeof value !== 'undefined' && !Number.isNaN(value) && value !== '';
     }
 
     // const parent = link?._applies?.find(q => q.includes('query-'));
