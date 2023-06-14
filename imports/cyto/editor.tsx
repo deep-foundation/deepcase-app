@@ -186,6 +186,7 @@ export function CytoEditor() {
       <ModalOverlay />
       <ModalContent sx={{ height: '100vh', overflow: 'initial' }}>
         <EditorGrid
+          sash
           editorTextAreaElement={<>{[
             <Box 
               key={tabId} 
