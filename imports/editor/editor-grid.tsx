@@ -1,8 +1,6 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Box, Center, Flex, Icon, useColorMode } from '@chakra-ui/react';
-import { useChackraColor } from '../get-color';
+import { Box, Center, Flex } from '@chakra-ui/react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
-import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
+import React, { useEffect, useRef } from 'react';
 import ReactResizeDetector from 'react-resize-detector';
 
 interface IGrid {
@@ -13,6 +11,8 @@ interface IGrid {
   closeAllButtonElement?: any;
   closeButtonElement?: any;
   editorRightSwitch?: any;
+  sash?: boolean;
+  heightEditorGrid?: string;
 }
 
 
@@ -24,28 +24,47 @@ export const EditorGrid = React.memo<any>(({
   closeAllButtonElement,
   closeButtonElement,
   editorRightSwitch,
+  sash = false,
+  heightEditorGrid = '100vh',
 }:IGrid) => {
-  const gray900 = useChackraColor('gray.900');
-  const white = useChackraColor('white');
-  const { colorMode } = useColorMode();
 
   return (<Box 
       display='flex'
       flexDir='column'
-      h='100vh'
-      // bg={colorMode == 'light' ? white : gray900} 
+      h={heightEditorGrid}
+      overflowY='hidden'
       sx={{ opacity: 0.98 }}
     >
-      <Flex>
-        <Center>{closeAllButtonElement}</Center>
-        <Box sx={{width: 'calc(100% - 4rem)'}}>{editorTabsElement}</Box>
-        <Center>{closeButtonElement}</Center>
-      </Flex>
-      <VerticalSash 
-        editorTextAreaElement={editorTextAreaElement} 
-        editorRight={editorRight} 
-        editorRightSwitch={editorRightSwitch}
-      />
+      {editorTabsElement
+        ? <Flex>
+            <Center>{closeAllButtonElement}</Center>
+            <Box sx={{width: 'calc(100% - 4rem)'}}>{editorTabsElement}</Box>
+            <Center>{closeButtonElement}</Center>
+          </Flex>
+        : null
+      }
+      {sash
+        ? (<VerticalSash 
+            editorTextAreaElement={editorTextAreaElement} 
+            editorRight={editorRight} 
+            editorRightSwitch={editorRightSwitch}
+          />)
+        : (<Box display='grid' gridTemplateColumns={columns} bg='backgroundModal' height='100%'>
+            {editorTextAreaElement}
+            {/* <Box>{editorRight}</Box> */}
+            <Box
+              display='grid' 
+              gridTemplateRows='1fr max-content' 
+              h='100%'
+              position="relative" 
+              overflowY='scroll'
+            >
+              {/* Right pane content goes here */}
+              {editorRight}
+              {editorRightSwitch}
+            </Box>
+          </Box>)
+      }
     </Box>
   )
 })

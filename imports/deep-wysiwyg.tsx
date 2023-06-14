@@ -25,9 +25,20 @@ import {
   TbQuote,
   TbBrandVscode,
 } from 'react-icons/tb';
-import { Editor, Element as SlateElement, Transforms, createEditor } from 'slate';
-import { Editable, Slate, useFocused, useSlate, withReact } from 'slate-react';
+import { 
+  Editor, 
+  Element as SlateElement, 
+  Node as SlateNode,
+  Transforms, 
+  createEditor, 
+  Point, 
+  Range, 
+  Descendant
+} from 'slate';
+import { Editable, Slate, useFocused, useSlate, withReact, ReactEditor } from 'slate-react';
+import { withHistory } from 'slate-history';
 import { htmlToSlate, slateToHtml } from 'slate-serializers';
+import { State, MarkdownParser } from 'markup-it';
 import { ClientHandlerSlateProxy } from './client-handler-slate-proxy';
 import dynamic from 'next/dynamic';
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
@@ -38,6 +49,21 @@ const HOTKEYS = {
   'mod+u': 'underline',
   'mod+`': 'code',
 };
+
+const SHORTCUTS = {
+  '*': 'list-item',
+  '-': 'list-item',
+  '+': 'list-item',
+  '>': 'block-quote',
+  '#': 'heading-one',
+  '##': 'heading-two',
+  '###': 'heading-three',
+  '####': 'heading-four',
+  '#####': 'heading-five',
+  '######': 'heading-six',
+  '```': 'backtick-code-block',
+};
+
 interface BaseProps {
   className: string
   [key: string]: unknown
@@ -60,10 +86,116 @@ interface IEditor {
   backgroundColorEditor?: any;
 };
 
+type BulletedListElement = {
+  type: 'bulleted-list'
+  align?: string
+  children: Descendant[]
+}
+
 type OrNull<T> = T | null;
 
 const LIST_TYPES = ['numbered-list', 'bulleted-list'];
 const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify'];
+
+const withShortcuts = editor => {
+  const { deleteBackward, insertText } = editor
+
+  editor.insertText = text => {
+    const { selection } = editor
+
+    if (text.endsWith(' ') && selection && Range.isCollapsed(selection)) {
+      const { anchor } = selection
+      const block = Editor.above(editor, {
+        match: n => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+      })
+      const path = block ? block[1] : []
+      const start = Editor.start(editor, path)
+      const range = { anchor, focus: start }
+      const beforeText = Editor.string(editor, range) + text.slice(0, -1)
+      const type = SHORTCUTS[beforeText]
+
+      if (type) {
+        Transforms.select(editor, range)
+
+        if (!Range.isCollapsed(range)) {
+          Transforms.delete(editor)
+        }
+
+        const newProperties: Partial<SlateElement> = {
+          // @ts-ignore
+          type,
+        }
+        Transforms.setNodes<SlateElement>(editor, newProperties, {
+          match: n => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+        })
+
+        if (type === 'list-item') {
+          const list: BulletedListElement = {
+            type: 'bulleted-list',
+            children: [],
+          }
+          Transforms.wrapNodes(editor, list, {
+            match: n =>
+              !Editor.isEditor(n) &&
+              SlateElement.isElement(n) &&
+              // @ts-ignore
+              n.type === 'list-item',
+          })
+        } else if (type === 'backtick-code-block') {
+
+        return
+      }
+    }
+
+    insertText(text)
+  }
+
+  editor.deleteBackward = (...args) => {
+    const { selection } = editor
+
+    if (selection && Range.isCollapsed(selection)) {
+      const match = Editor.above(editor, {
+        match: n => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+      })
+
+      if (match) {
+        const [block, path] = match
+        const start = Editor.start(editor, path)
+
+        if (
+          !Editor.isEditor(block) &&
+          SlateElement.isElement(block) &&
+          // @ts-ignore
+          block.type !== 'paragraph' &&
+          Point.equals(selection.anchor, start)
+        ) {
+          const newProperties: Partial<SlateElement> = {
+            // @ts-ignore
+            type: 'paragraph',
+          }
+          Transforms.setNodes(editor, newProperties)
+          // @ts-ignore
+          if (block.type === 'list-item') {
+            Transforms.unwrapNodes(editor, {
+              match: n =>
+                !Editor.isEditor(n) &&
+                SlateElement.isElement(n) &&
+                // @ts-ignore
+                n.type === 'bulleted-list',
+              split: true,
+            })
+          }
+
+          return
+        }
+      }
+
+      deleteBackward(...args)
+    }
+  }
+
+  return editor
+}};
 
 const topmenuVariants = {
   initial: {
@@ -275,6 +407,7 @@ export const DeepWysiwyg = React.memo<any>(({
   const renderLeaf = useCallback(props => <Leaf {...props} />, []);
   const renderElement = useCallback(props => <Element {...props} state={color} />, []);
   const [editor] = useState(() => withReact(createEditor()));
+  // const [editor] = useState(() => withShortcuts(withReact(withHistory(createEditor()))));
   const { colorMode } = useColorMode();
   const control = useAnimation();
   const boxControl = useAnimation();
@@ -287,10 +420,55 @@ export const DeepWysiwyg = React.memo<any>(({
       control.start('show');
       boxControl.start('show');
     }
-  }, [topmenu, control, boxControl])
+  }, [topmenu, control, boxControl]);
+
+  // const editor = useMemo(
+  //   () => withShortcuts(withReact(withHistory(createEditor()))),
+  //   []
+  // )
+
+  // const handleDOMBeforeInput = useCallback(
+  //   (e: InputEvent) => {
+  //     queueMicrotask(() => {
+  //       const pendingDiffs = ReactEditor.androidPendingDiffs(editor)
+
+  //       const scheduleFlush = pendingDiffs?.some(({ diff, path }) => {
+  //         if (!diff.text.endsWith(' ')) {
+  //           return false
+  //         }
+
+  //         const { text } = SlateNode.leaf(editor, path)
+  //         const beforeText = text.slice(0, diff.start) + diff.text.slice(0, -1)
+  //         if (!(beforeText in SHORTCUTS)) {
+  //           return
+  //         }
+
+  //         const blockEntry = Editor.above(editor, {
+  //           at: path,
+  //           match: n => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+  //         })
+  //         if (!blockEntry) {
+  //           return false
+  //         }
+
+  //         const [, blockPath] = blockEntry
+  //         return Editor.isStart(editor, Editor.start(editor, path), blockPath)
+  //       })
+
+  //       if (scheduleFlush) {
+  //         ReactEditor.androidScheduleFlush(editor)
+  //       }
+  //     })
+  //   },
+  //   [editor]
+  // )
 
 // const randomBorderColor = Math.floor(Math.random()*16777215).toString(16);
-  console.log('_value', _value);
+
+  const state = State.create(MarkdownParser);
+  const document = state.deserializeToDocument('Hello **World**');
+  console.log('document', document);
+
   return (<Box 
       // as={motion.div} animate={boxControl} variants={boxVariants} initial='initial'
       sx={{

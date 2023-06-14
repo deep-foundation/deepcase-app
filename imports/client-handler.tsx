@@ -24,7 +24,7 @@ import SoftBreak from 'slate-soft-break';
 import { slateToHtml, htmlToSlate } from 'slate-serializers';
 import isHotkey from 'is-hotkey';
 import Resizable from 're-resizable';
-import { useContainer, useSpaceId } from './hooks';
+import { useContainer, useSpaceId, useRefAutofill } from './hooks';
 import { CytoEditorPreview } from './cyto/editor-preview';
 import { CustomizableIcon } from './icons-provider';
 import { EditorTextArea } from './editor/editor-textarea';
@@ -32,6 +32,9 @@ import { BubbleArrowLeft } from './svg/bubble-arrow-left';
 import { CytoReactLinkAvatar } from './cyto-react-avatar';
 import { DeepWysiwyg, BlockButton, MarkButton, useStringSaver } from './deep-wysiwyg';
 import { Resize } from './resize';
+import * as rjsfCore from '@rjsf/core';
+import * as rjsfChakra from '@rjsf/chakra-ui';
+import * as rjsfValidator from '@rjsf/validator-ajv8';
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
 
 
@@ -71,12 +74,16 @@ r.list = {
     useStringSaver,
     BlockButton,
     MarkButton,
+    useRefAutofill,
   },
   'react-icons/bs': bs,
   'react-icons/fi': fi,
   'react-icons/ci': ci,
   'react-icons/tb': tb,
   'react-linkify': Linkify,
+  '@rjsf/core': rjsfCore,
+  '@rjsf/chakra-ui': rjsfChakra,
+  '@rjsf/validator-ajv8': rjsfValidator,
 };
 
 export async function evalClientHandler({

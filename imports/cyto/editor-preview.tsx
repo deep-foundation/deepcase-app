@@ -113,8 +113,9 @@ export function CytoEditorPreview({
 
   return <>
     <EditorGrid
-      columns={switcher ? 'repeat(2, 15% 85%)' : 'repeat(2, 85% 15%)'}
-      editorTextAreaElement={<>{[<div key={linkId}>
+      heightEditorGrid='100%'
+      columns={switcher ? '15% 85%' : '85% 15%'}
+      editorTextAreaElement={<>{[<Box key={linkId} bg='red.800'>
         <EditorTextArea
           refEditor={refEditor}
           value={currentValue}
@@ -146,7 +147,7 @@ export function CytoEditorPreview({
             }
           }}
         />
-      </div>]}</>}
+      </Box>]}</>}
       // editorTabsElement={<EditorTabs
       //   tabs={tabs.map((tab) => ({
       //     ...tab,
@@ -180,7 +181,7 @@ export function CytoEditorPreview({
         rightArea === 'handlers' && (
           <CytoEditorHandlers linkId={generated && generatedLink ? generatedLink?.id : linkId}/>
         ) ||
-        rightArea === 'preview' && <Box pos='relative'>
+        rightArea === 'preview' && <Box pos='relative' height='100%'>
           {[<EditorComponentView
             key={currentLink?.id}
             size={viewSize}
@@ -196,7 +197,7 @@ export function CytoEditorPreview({
             </CatchErrors>]}
           </EditorComponentView>]}
         </Box>
-    }
+      }
       editorRightSwitch={<EditorSwitcher
         fillSize={fillSize}
         setFillSize={(newFillSize) => {

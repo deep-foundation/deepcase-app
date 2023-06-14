@@ -1,7 +1,8 @@
 import { useDeep } from '@deep-foundation/deeplinks/imports/client';
 import json5 from 'json5';
-import { useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import { useInsertingCytoStore, useShowFocus, useShowTypes } from '../hooks';
+import _ from 'lodash';
 
 export function useCytoElements(ml, _links, cy, spaceId) {
   const [showTypes, setShowTypes] = useShowTypes();
@@ -27,7 +28,7 @@ export function useCytoElements(ml, _links, cy, spaceId) {
     let _name = '';
     let _type = '';
     let _symbol = '';
-    if (/*labelsConfig?.values && */link?.value?.value) {
+    if (/*labelsConfig?.values && */typeof link?.value?.value !== 'undefined') {
       let json;
       try { json = json5.stringify(link?.value.value); } catch(error) {}
       _value = (
@@ -47,10 +48,15 @@ export function useCytoElements(ml, _links, cy, spaceId) {
       _symbol = ml.byTo[link?.type_id]?.find(l => l.type_id === deep.idLocal('@deep-foundation/core', 'Symbol'))?.value?.value;
     }
 
-    // const parent = link?._applies?.find(q => q.includes('query-'));
+    function isValidValue(value) {
+      return value !== null && typeof value !== 'undefined' && !Number.isNaN(value) && value !== '';
+    }
 
     const has_focus = !!focus?.value?.value?.x;
     const existed = !!oldElements.current.find((oldLink) => oldLink.id === link.id)
+
+
+    // const parent = link?._applies?.find(q => q.includes('query-'));
 
     const element = {
       id: link.id,
@@ -60,7 +66,7 @@ export function useCytoElements(ml, _links, cy, spaceId) {
           `${link.id}`
           +(_type ? '\n'+`${_type}` : '')
           +(_name ? '\n'+`${_name}` : '')
-          +(_value ? '\n'+`${_value}` : '')
+          +(isValidValue(_value) ? '\n'+`${_value}` : '')
           +`\n\n ${_symbol || '📍'}`
         ),
         // parent,

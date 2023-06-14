@@ -28,6 +28,10 @@ const themeChakra = extendTheme({
         default: 'blue.50',
         _dark: 'blue.900',
       },
+      colorModeButton: {
+        default: 'blue.900',
+        _dark: 'blue.50',
+      },
       buttonBackgroundModal: {
         default: 'gray.10',
         _dark: 'cyDark',
@@ -47,6 +51,10 @@ const themeChakra = extendTheme({
       switchThumb: {
         default: 'whiteText',
         _dark: 'cyDark',
+      },
+      switchModeBorder: {
+        default: 'blue.500',
+        _dark: 'blue.200',
       },
       editorPreviewBackground: {
         default: 'whiteBg',

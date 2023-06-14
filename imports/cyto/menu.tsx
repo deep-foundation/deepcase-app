@@ -114,8 +114,6 @@ export function CytoMenu({
   const [promiseLoader, setPromiseLoader] = usePromiseLoader();
   const [autoFocus, setAutoFocus] = useAutoFocusOnInsert();
 
-  // console.log('cytoEditor', cytoEditor)
-
   const [pasteError, setPasteError] = useState(false);
   const [valid, setValid] = useState<any>(undefined);
   const [container, setContainer] = useContainer();
@@ -216,10 +214,10 @@ const handlerChangeLayout = (event: ChangeEvent<HTMLSelectElement>) => {
                 }} borderColor='gray.400' background='buttonBackgroundModal'/>
               </ButtonGroup>
               <ButtonGroup size='sm' isAttached variant='outline' color='text'>
+                <Button colorScheme={pasteError ? 'red' : valid ? 'blue' : undefined} onClick={async () => {
                 <Button onClick={() => {
                   copy(deep.token);
                 }} borderColor='gray.400' background='buttonBackgroundModal'>copy token</Button>
-                <Button colorScheme={pasteError ? 'red' : valid ? 'blue' : undefined} onClick={async () => {
                 if (valid) await deep.login({ token: valid });
                 else {
                   setPasteError(false);
@@ -228,7 +226,7 @@ const handlerChangeLayout = (event: ChangeEvent<HTMLSelectElement>) => {
                   if (error && !linkId) setPasteError(true);
                   else if (linkId) setValid(token);
                 }
-                }} borderColor='gray.400' background='buttonBackgroundModal'>{valid ? 'login token' : 'paste token'}</Button>
+              }} borderColor='gray.400' background='buttonBackgroundModal'>{valid ? 'login token' : 'paste token'}</Button>
               </ButtonGroup>
               <ButtonGroup size='sm' isAttached variant='outline' color='text'>
                 <Button borderColor='gray.400' background='buttonBackgroundModal' as='a' href={`http${gqlSsl ? 's' : ''}://${gqlPath}`} target="_blank">gql</Button>
@@ -299,13 +297,18 @@ const handlerChangeLayout = (event: ChangeEvent<HTMLSelectElement>) => {
               </FormControl>
               {/* <FormControl display='flex' alignItems='center'>
                 <FormLabel htmlFor='reserved switch' mb='0' fontSize='sm' mr='0.25rem'>
-                  reserved
+                reserved
                 </FormLabel>
                 <Switch id='reserved switch' isChecked={reserved} onChange={() => setReserved(!reserved)}/>
               </FormControl> */}
             </HStack>
             <HStack>
               <MenuSearch cyRef={cyRef} bg='buttonBackgroundModal' />
+              <ButtonGroup size='sm' isAttached variant='outline' color='text'>
+                <Button onClick={async () => {
+                  await deep.delete({ _or: [{ type_id: deep.idLocal('@deep-foundation/core', 'Focus'), from_id: spaceId }, { type_id: deep.idLocal('@deep-foundation/core', 'Contain'), from_id: spaceId, to: { type_id: deep.idLocal('@deep-foundation/core', 'Focus'), from_id: spaceId }}] });
+                }} borderColor='gray.400' background='buttonBackgroundModal'>clear focuses</Button>
+              </ButtonGroup>
             </HStack>
           </VStack>
           {/* <Button bgColor='primary' color='white' size='sm' w='4rem' mt={10} mr={4} justifySelf='flex-end' rightIcon={<IoExitOutline />} onClick={openPortal}>Exit</Button> */}

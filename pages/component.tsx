@@ -23,6 +23,7 @@ import { DeepWysiwyg } from '../imports/deep-wysiwyg';
 import { PackagesBlock } from '../imports/cyto-react-links-packages';
 import { useMinilinksConstruct } from '@deep-foundation/deeplinks/imports/minilinks';
 import themeChakra from '../imports/theme/theme';
+import { EditableWithDecorate, HighlightLastActiveSelection } from '../imports/test-md';
 
 
 const Detector = () => {
@@ -59,7 +60,6 @@ export default function Page() {
    <DeepProvider>
    <ChakraProvider theme={themeChakra}>
       <>
-      <ColorModeSwitcher/>
       <Box p={{sm: 7, md: 20}}>
         <Box w='100%' h='4rem' />
         <Heading>каждый компонент имеет заголовком имя файла, который находится в папке imports🤓</Heading>
@@ -177,6 +177,12 @@ export default function Page() {
         <Code>/cyto-react-links-packages</Code>
         <Box w='100%' h='1rem' />
           <PackagesBlock />
+        <Box w='100%' h='1rem' />
+        
+        <Box w='100%' h='2rem' />
+        <Code>/test-md</Code>
+        <Box w='100%' h='1rem' />
+          <HighlightLastActiveSelection />
         <Box w='100%' h='1rem' />
 
         <Box w='100%' h='15rem' />

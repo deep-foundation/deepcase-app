@@ -129,8 +129,8 @@ export const PackagerInterface = React.memo<any>(({
   // console.log('search-results', installedPackages, notInstalledPackages)
   const [togglePackager, setTogglePackager] = useState(false);
 
-  return (<Box right={0} mr='8' mt='4' pos='fixed'>
-      <Button colorScheme='blue' onClick={() => setTogglePackager(true)} pos='absolute' right={4}>packager</Button>
+  return (<Box right={0} mr='16' mt='4' pos='fixed'>
+      <Button colorScheme='blue' onClick={() => setTogglePackager(true)} pos='initial'>packager</Button>
       <Appearance 
         toggle={togglePackager} 
         variantsAnimation={variants} 

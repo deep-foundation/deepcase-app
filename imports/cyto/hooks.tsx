@@ -17,6 +17,7 @@ import { useCytoFocusMethods } from "./graph";
 import { useRouter } from 'next/router';
 import { useQueryStore } from '@deep-foundation/store/query';
 import { initializeTraveler } from "./traveler";
+import { MdFolderDelete } from 'react-icons/md';
 
 export interface IInsertedLink {
   position: { x: number; y: number; };
@@ -60,6 +61,7 @@ export function CytoReactLinksCardInsertNode({
     linkName: t?.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || t.id,
     containerName: t?.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.from?.value?.value || '',
   }));
+  console.log('elements-hooks', elements);
   return <CytoReactLinksCard
     elements={elements.filter(el => (!!el?.linkName?.includes && el?.linkName?.toLocaleLowerCase()?.includes(search) || el?.containerName?.includes && el?.containerName?.toLocaleLowerCase()?.includes(search)))}
     search={search}
@@ -69,32 +71,8 @@ export function CytoReactLinksCardInsertNode({
       const type = insertable?.find(t => t.id === id);
       const isNode = !type.from_id && !type.to_id;
       setInsertingCyto({});
-      if (isNode) {
-        console.log('CytoReactLinksCard', id, 0, 0, insertingLink.position);
-        await returningRef.current.insertLink(id, 0, 0, insertingLink.position);
-        // await deep.insert({
-        //   type_id: id,
-        //   in: { data: [
-        //     {
-        //       from_id: container,
-        //       type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
-        //     },
-        //     {
-        //       from_id: container,
-        //       type_id: deep.idLocal('@deep-foundation/core', 'Focus'),
-        //       object: { data: { value: insertingLink.position } },
-        //       in: { data: {
-        //         type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
-        //         from_id: container
-        //       } },
-        //     },
-        //   ] },
-        // });
-        setInsertingLink(undefined);
-      } else {
-        returningRef?.current.startInsertingOfType(id, type.from_id, type.to_id);
-        setInsertingLink(undefined);
-      }
+      returningRef?.current.startInsertingOfType(id, type.from_id, type.to_id);
+      setInsertingLink(undefined);
     }}
   />;
 };
@@ -136,7 +114,6 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cyRef
     const loadedLink = types?.find(t => t.id === type_id);
     const valued = loadedLink?.valued?.[0]?.to_id;
     const inArray = [];
-    console.log('insertLink1', type_id, from, to, position, autoFocusRef.current);
     if (position && autoFocusRef.current && !from && !to) {
       console.log('insertLink2', type_id, from, to, position, autoFocusRef.current);
       inArray.push({
@@ -319,7 +296,7 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cyRef
           ins.from = +sourceNode?.id();
           ins.to = +targetNode?.id();
           ins._selfLink = true;
-          setInsertingCyto({ ...ins, from: +sourceNode?.id(), to: +targetNode?.id(), _selfLink: true });
+          setInsertingCyto({ ...ins, from: +sourceNode?.id(), to: +sourceNode?.id(), _selfLink: true });
         } else {
           setInsertingCyto({});
         }
@@ -333,7 +310,7 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cyRef
             upd._selfLink = true;
             setUpdatingCyto({ ...upd, from: 0, to: 0, _selfLink: true });
           } else {
-            returning.drawendUpdating(position, upd.from, upd.to);
+            returning.drawendUpdating(position, upd.from, upd.from);
           }
         }
         toast.close(upd.toast);
@@ -486,8 +463,6 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
       })) || [];
 
       const onCloseCard = useCallback(() => toggleLinkReactElement(id), [id]);
-
-
       return <div>
         <CatchErrors errorRenderer={(error, reset) => {
           return <div>{String(error)}</div>;
@@ -741,12 +716,20 @@ export function useCyInitializer({
 
     const nodeMenu = ncy.cxtmenu({
       selector: '.link-node',
+      menuRadius: function(ele){ return 108; },
       outsideMenuCancel: 10,
       openMenuEvents: 'cxttapstart taphold ctxmenu-nodeMenu-open',
       closeMenuEvents: 'ctxmenu-nodeMenu-close',
+      activeFillColor: 'rgba(0, 128, 255, 0.75)', // the colour used to indicate the selected command
+      activePadding: 2, // additional size in pixels for the active command
+      indicatorSize: 16, // the size in pixels of the pointer to the active command, will default to the node size if the node size is smaller than the indicator size, 
+      separatorWidth: 3, // the empty spacing in pixels between successive commands
+      spotlightPadding: 3, // extra spacing in pixels between the element and the spotlight
+      adaptativeNodeSpotlightRadius: true,
       commands: [
         {
           content: 'editor',
+          contentStyle: { fontSize: '0.9rem', transform: 'rotate(70deg)' },
           select: function(ele){
             const id = ele.data('link')?.id;
             if (id) {
@@ -761,6 +744,7 @@ export function useCyInitializer({
         },
         {
           content: 'unlock',
+          contentStyle: { fontSize: '0.9rem', transform: 'rotate(35deg)' },
           select: function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
@@ -782,6 +766,7 @@ export function useCyInitializer({
         },
         {
           content: 'delete down',
+          contentStyle: { fontSize: '0.7rem', transform: 'rotate(-35deg)' },
           select: async function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
@@ -800,6 +785,7 @@ export function useCyInitializer({
           ncy,
           setCy,
           content: 'insert',
+          contentStyle: { fontSize: '0.9rem', transform: 'rotate(-70deg)' },
           select: async function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
@@ -809,6 +795,7 @@ export function useCyInitializer({
         },
         {
           content: 'update',
+          contentStyle: { fontSize: '0.9rem', transform: 'rotate(70deg)' },
           select: async function(ele) {
             const id = ele.data('link')?.id;
             if (id) {
@@ -818,6 +805,7 @@ export function useCyInitializer({
         },
         {
           content: 'login',
+          contentStyle: { fontSize: '0.9rem', transform: 'rotate(35deg)' },
           select: async function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
@@ -841,6 +829,7 @@ export function useCyInitializer({
         },
         {
           content: 'container',
+          contentStyle: { fontSize: '0.9rem', transform: 'rotate(-35deg)' },
           select: async function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
@@ -850,6 +839,7 @@ export function useCyInitializer({
         },
         {
           content: (ele) => `traveler (${traveler.findTravlers(undefined, ele.data('link')?.id)?.length})`,
+          contentStyle: { fontSize: '0.6rem', transform: 'rotate(-70deg)', paddingLeft: '6px' },
           select: async function(ele){
             const id = ele.data('link')?.id;
             if (id) {
