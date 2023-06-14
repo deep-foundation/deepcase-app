@@ -115,7 +115,7 @@ export function CytoEditorPreview({
     <EditorGrid
       heightEditorGrid='100%'
       columns={switcher ? '15% 85%' : '85% 15%'}
-      editorTextAreaElement={<>{[<Box key={linkId} bg='red.800'>
+      editorTextAreaElement={<>{[<Box key={linkId}>
         <EditorTextArea
           refEditor={refEditor}
           value={currentValue}
