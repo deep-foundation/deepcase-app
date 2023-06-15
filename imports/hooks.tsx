@@ -98,9 +98,6 @@ export function useShowFocus() {
 export function useBreadcrumbs() {
   return useQueryStore<any>('breadcrumbs', false);
 };
-export function useLayoutAnimation() {
-  return useQueryStore<any>('layout-animation', false);
-};
 export function useReserved() {
   return useQueryStore<any>('reserved', false);
 };
@@ -205,7 +202,7 @@ export function useActiveMethods() {
 export function useLayout() {
   const [layoutName, setLayoutName] = useLocalStore('layout', 'cola');
   return {
-    setLayout(name: 'cola' | 'deep-d3-force') {
+    setLayout(name: 'cola') {
       setLayoutName(name);
     },
     layout: layouts[layoutName],
