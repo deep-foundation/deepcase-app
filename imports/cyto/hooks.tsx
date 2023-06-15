@@ -595,30 +595,27 @@ export function useCyInitializer({
 
   const { linkReactElements, toggleLinkReactElement } = useLinkReactElements(elements, reactElements, cyRef.current, ml);
 
-  const relayout = useCallback(() => {
-    if (cyRef.current && cyRef.current.elements) {
-      const elements = cyRef.current.elements();
-      try {
-        elements.layout(layout(elementsRef.current, cyRef.current)).run();
-      } catch(error) {
-        console.log('relayout error', error);
-      }
-    }
-  }, [cyRef.current, layout]);
-  const relayoutDebounced = useDebounceCallback(relayout, 500);
-  const globalAny:any = global;
-  globalAny.relayoutDebounced = relayoutDebounced;
 
-  useEffect(() => {
-    if (!refDragStartedEvent.current) {
-      relayoutDebounced();
-    }
-  }, [extra, layout, showTypes]);
-  useMinilinksHandle(ml, (event, oldLink, newLink) => {
-    relayoutDebounced();
-  });
+  // const relayout = useCallback(() => {
+  //   if (cyRef.current && cyRef.current.elements) {
+  //     const elements = cyRef.current.elements();
+  //     try {
+  //       elements.layout(layout(elementsRef.current, cyRef.current)).run();
+  //     } catch(error) {
+  //       console.log('relayout error', error);
+  //     }
+  //   }
+  // }, [cyRef.current, layout]);
+  // const relayoutDebounced = useDebounceCallback(relayout, 500);
+  // const globalAny:any = global;
+  // globalAny.relayoutDebounced = relayoutDebounced;
 
-  const { focus, unfocus, lockingRef } = useCytoFocusMethods(cyRef.current, relayoutDebounced);
+
+  // const globalAny:any = global;
+  // globalAny.relayoutDebounced = relayoutDebounced;
+
+
+  const { focus, unfocus, lockingRef } = useCytoFocusMethods(cyRef.current);
   const { startInsertingOfType, startUpdatingLink, openInsertCard, insertLink, drawendInserting, insertingCyto, insertingCytoRef } = useLinkInserting(elements, reactElements, focus, cyRef, ehRef);
 
   const onLoaded = (ncy) => {
@@ -657,7 +654,7 @@ export function useCyInitializer({
           ncy.$(`node, edge`).not(`#${id},#${id}-from,#${id}-to,#${id}-type`).removeClass('hover');
           ncy.$(`#${id},#${id}-from,#${id}-to,#${id}-type`).not(`.unhoverable`).addClass('hover');
         }
-        if (node.locked) {
+        if (node.locked()) {
           node.unlock();
           node.mouseHoverDragging = true;
         }
@@ -899,8 +896,7 @@ export function useCyInitializer({
         const node = ncy.$(`node#${newLink.to_id}`);
         if (!node.mouseHoverDragging) {
           node.unlock();
-          node.position(newLink?.value?.value);
-          relayoutDebounced();
+          // node.position(newLink?.value?.value);
           node.lock();
         }
       }
@@ -947,6 +943,5 @@ export function useCyInitializer({
   };
   return {
     onLoaded,
-    relayoutDebounced,
   };
 }

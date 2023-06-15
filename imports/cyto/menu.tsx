@@ -1,13 +1,13 @@
 import { CloseIcon } from "@chakra-ui/icons";
-import { Box, Button, ButtonGroup, FormControl, FormLabel, HStack, IconButton, Input, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Switch, Tag, TagLabel, Text, VStack } from "@chakra-ui/react";
+import { Box, Button, ButtonGroup, FormControl, FormLabel, HStack, IconButton, Input, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Switch, Tag, TagLabel, Text, VStack, Select } from "@chakra-ui/react";
 import { useDeep } from "@deep-foundation/deeplinks/imports/client";
 import copy from "copy-to-clipboard";
 import { motion, useAnimation } from 'framer-motion';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, ChangeEvent } from "react";
 import { HiMenuAlt2 } from 'react-icons/hi';
 import { SlClose } from 'react-icons/sl';
 import { Appearance } from "../component-appearance";
-import { useAutoFocusOnInsert, useBreadcrumbs, useContainer, useLayout, useMediaQuery, usePromiseLoader, useReserved, useShowExtra, useShowFocus, useShowTypes, useSpaceId, useTraveler } from "../hooks";
+import { useAutoFocusOnInsert, useBreadcrumbs, useContainer, useLayout, useMediaQuery, usePromiseLoader, useReserved, useShowExtra, useShowFocus, useShowTypes, useSpaceId, useTraveler, useLayoutAnimation } from "../hooks";
 import { useCytoEditor } from "./hooks";
 
 const variants = {
@@ -25,9 +25,9 @@ const variants = {
     opacity: 0,
     borderRadius: '50rem',
     display: 'none',
-    transition: { 
+    transition: {
       duration: 0.5,
-      display: { delay: 0.6 }, 
+      display: { delay: 0.6 },
       opacity: { duration: 0.4 },
     }
   },
@@ -56,9 +56,9 @@ const buttonVariant = {
     opacity: 0,
     borderRadius: '50rem',
     display: 'none',
-    transition: { 
+    transition: {
       duration: 0.5,
-      display: { delay: 0.6 }, 
+      display: { delay: 0.6 },
       opacity: { duration: 0.4 },
     }
   },
@@ -74,25 +74,25 @@ const DeepSwitch = React.memo(({
   id,
   isChecked,
   onChange,
-}:{
+}: {
   id: string;
   isChecked: boolean;
   onChange: () => any;
 }) => {
 
-  return (<Switch 
-      id={id} 
-      isChecked={isChecked} 
-      onChange={onChange} 
-      sx={{
-        '& > span': {
-          background: isChecked == false ? '#8a8989' : 'switchOn'
-        },
-        '& > span span': {
-          background: 'switchThumb'
-        }
-      }} 
-    />
+  return (<Switch
+    id={id}
+    isChecked={isChecked}
+    onChange={onChange}
+    sx={{
+      '& > span': {
+        background: isChecked == false ? '#8a8989' : 'switchOn'
+      },
+      '& > span span': {
+        background: 'switchThumb'
+      }
+    }}
+  />
   )
 })
 
@@ -122,6 +122,7 @@ export function CytoMenu({
   const [traveler, setTraveler] = useTraveler();
   const [reserved, setReserved] = useReserved();
   const [breadcrumbs, setBreadcrumbs] = useBreadcrumbs();
+  const [layoutAnimation, setLayoutAnimation] = useLayoutAnimation();
   const deep = useDeep();
   const [max300] = useMediaQuery('(max-width: 300px)');
   const [togglePackager, setTogglePackager] = useState(false);
@@ -129,7 +130,7 @@ export function CytoMenu({
   const control = useAnimation();
   useEffect(() => {
     if (togglePackager === true) {
-      control.start("hide"); 
+      control.start("hide");
     } else {
       control.start("show");
     }
@@ -141,27 +142,33 @@ export function CytoMenu({
       setValid(undefined);
     }, 3000);
     return () => clearTimeout(timer);
-  }, [pasteError, valid]); 
+  }, [pasteError, valid]);
 
-  return (<Box 
-    left={0} 
+const handlerChangeLayout = (event: ChangeEvent<HTMLSelectElement>) => {
+  const value = event.target.selectedOptions[0].value;
+  if (value !== 'cola' && value !== 'deep-d3-force') return;
+  setLayout(value)
+}
+
+  return (<Box
+    left={0}
     pos='fixed'>
-    <Button 
+    <Button
       as={motion.button}
-      variants={buttonVariant} 
+      variants={buttonVariant}
       animate={control}
-      colorScheme='blue' 
-      onClick={() => setTogglePackager(true)} 
-      pos='absolute' 
+      colorScheme='blue'
+      onClick={() => setTogglePackager(true)}
+      pos='absolute'
       left={4} top={4}><HiMenuAlt2 /></Button>
-    <Appearance 
-      toggle={togglePackager} 
-      variantsAnimation={variants} 
+    <Appearance
+      toggle={togglePackager}
+      variantsAnimation={variants}
       initial='initial'
       styleProps={{overflow: 'uset'}}
-    > 
+    >
       <>
-        <Box  
+        <Box
           pt='0.2rem'
           w='max-content'
           bg='backgroundModal'
@@ -174,13 +181,13 @@ export function CytoMenu({
         >
           <VStack spacing='1rem' m='1rem' align={'flex-start'}>
             <HStack>
-              <IconButton 
-                aria-label='menu close' 
-                variant='ghost' 
+              <IconButton
+                aria-label='menu close'
+                variant='ghost'
                 colorScheme='current'
-                isRound 
-                icon={<SlClose />} 
-                onClick={() => setTogglePackager(false)} 
+                isRound
+                icon={<SlClose />}
+                onClick={() => setTogglePackager(false)}
               />
               <ButtonGroup size='sm' isAttached variant='outline' color='text'>
                 <Button disabled borderColor='gray.400' background='buttonBackgroundModal'>auth</Button>
@@ -271,6 +278,23 @@ export function CytoMenu({
                 </FormLabel>
                 <DeepSwitch id='breadcrumbs-switch' isChecked={breadcrumbs} onChange={() => setBreadcrumbs(!breadcrumbs)} />
               </FormControl>
+              <FormControl display='flex' alignItems='center'>
+              <FormLabel htmlFor='animation-layout-switch' mb='0' fontSize='sm' mr='0.25rem'>
+                animation
+              </FormLabel>
+              <Switch id='animation-layout-switch' isChecked={layoutAnimation} onChange={() => setLayoutAnimation(!layoutAnimation)}/>
+              </FormControl>
+              <FormControl display='flex' alignItems='center'>
+                <FormLabel mb='0' fontSize='sm' mr='0.25rem'>
+                  layout
+                </FormLabel>
+                <Box width="120px" margin="0 auto">
+                  <Select onChange={handlerChangeLayout} value={layoutName}>
+                    <option value='cola'>cola</option>
+                    <option value='deep-d3-force'>d3-force</option>
+                  </Select>
+                </Box>
+              </FormControl>
               {/* <FormControl display='flex' alignItems='center'>
                 <FormLabel htmlFor='reserved switch' mb='0' fontSize='sm' mr='0.25rem'>
                 reserved
@@ -310,13 +334,17 @@ export const MenuSearch = ({ cyRef, bg }: { cyRef?: any; bg?: any; }) => {
   });
   const byContain = deep.useMinilinksQuery({
     _or: [
-      { in: {
-        type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
-        value: { value: {
-          _ilike: value,
-          _neq: '',
-        } },
-      } },
+      {
+        in: {
+          type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
+          value: {
+            value: {
+              _ilike: value,
+              _neq: '',
+            }
+          },
+        }
+      },
     ],
   });
   const all = [...byId, ...byValue, ...byContain];
