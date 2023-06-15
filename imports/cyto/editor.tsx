@@ -145,7 +145,7 @@ export function CytoEditor() {
     });
   }, [tab?.initialValue, generatedLink]);
   
-  const currentValue = valuesRef?.current?.[tabId] || tab?.initialValue || '';
+  const currentValue = valuesRef?.current?.[tabId] || typeof tab?.initialValue !== 'undefined' ? tab?.initialValue : '';
 
   const refEditor = useRef<any>();
 
@@ -186,6 +186,7 @@ export function CytoEditor() {
       <ModalOverlay />
       <ModalContent sx={{ height: '100vh', overflow: 'initial' }}>
         <EditorGrid
+          sash
           editorTextAreaElement={<>{[
             <Box 
               key={tabId} 

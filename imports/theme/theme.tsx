@@ -28,6 +28,10 @@ const themeChakra = extendTheme({
         default: 'blue.50',
         _dark: 'blue.900',
       },
+      colorModeButton: {
+        default: 'blue.900',
+        _dark: 'blue.50',
+      },
       buttonBackgroundModal: {
         default: 'gray.10',
         _dark: 'cyDark',
