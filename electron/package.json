@@ -43,7 +43,7 @@
     "fkill": "^7.2.1",
     "microtime": "^3.0.0",
     "socket.io": "^4.2.0",
-    "typescript": "^4.3.5"
+    "typescript": "^5.0.4"
   },
   "devDependencies": {
     "@types/node": "^20.2.5",
