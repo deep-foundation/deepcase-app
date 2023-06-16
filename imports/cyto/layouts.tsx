@@ -28,7 +28,7 @@ export const layoutColaPreset = ({isAnimate=false}) => ({
   // each can be a constant numerical value or a function like `function( edge ){ return 2; }`
   edgeLength: function( edge ) {
     const baseLength = 100; // base edge length
-    const extraLength = 4; // additional length of the edge to take into account the density of connections
+    const extraLength = 10; // additional length of the edge to take into account the density of connections
     const sourceNode = edge.source();
     const targetNode = edge.target();
 
