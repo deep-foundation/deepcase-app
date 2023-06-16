@@ -81,16 +81,19 @@ export function initializeTraveler(ncy, deepRef, spaceIdRef) {
     closeMenuEvents: 'ctxmenu-travelerMenu-close',
     commands: [
       ((query) => ({
-        content: (ele) => `in ${findTravlers(query(ele.data('link')?.id), ele.data('link')?.id)?.length ? 'x' : '+'}`,
+        content: (ele) => `types ${findTravlers(query(ele.data('link')?.id), ele.data('link')?.id)?.length ? 'x' : '+'}`,
+        contentStyle: { fontSize: '0.9rem', transform: 'rotate(65deg)' },
         select: async function(ele){ 
           const id = ele.data('link')?.id;
           if (id) {
-            // await switchTraveler(query(id), id);
-            generateMenuByTypes(ele, query(id));
+            await switchTraveler(query(id), id);
           }
         }
       }))((id) => ({
-        to_id: deepRef.current.minilinks.byId[id].id,
+        down: {
+          tree_id: { _eq: deepRef.current.idLocal('@deep-foundation/core', 'typesTree') },
+          link_id: { _eq: deepRef.current.minilinks.byId[id].type_id },
+        },
       })),
       ((query) => ({
         content: (ele) => `out ${findTravlers(query(ele.data('link')?.id), ele.data('link')?.id)?.length ? 'x' : '+'}`,
@@ -105,7 +108,20 @@ export function initializeTraveler(ncy, deepRef, spaceIdRef) {
         from_id: deepRef.current.minilinks.byId[id].id,
       })),
       ((query) => ({
+        content: (ele) => `in ${findTravlers(query(ele.data('link')?.id), ele.data('link')?.id)?.length ? 'x' : '+'}`,
+        select: async function(ele){ 
+          const id = ele.data('link')?.id;
+          if (id) {
+            // await switchTraveler(query(id), id);
+            generateMenuByTypes(ele, query(id));
+          }
+        }
+      }))((id) => ({
+        to_id: deepRef.current.minilinks.byId[id].id,
+      })),
+      ((query) => ({
         content: (ele) => `up ${findTravlers(query(ele.data('link')?.id), ele.data('link')?.id)?.length ? 'x' : '+'}`,
+        contentStyle: { fontSize: '0.9rem', transform: 'rotate(-65deg)' },
         select: async function(ele){ 
           const id = ele.data('link')?.id;
           if (id) {
@@ -120,7 +136,7 @@ export function initializeTraveler(ncy, deepRef, spaceIdRef) {
       })),
       ((query) => ({
         content: (ele) => `down ${findTravlers(query(ele.data('link')?.id), ele.data('link')?.id)?.length ? 'x' : '+'}`,
-        contentStyle: { fontSize: '0.9rem', transform: 'rotate(-70deg)' },
+        contentStyle: { fontSize: '0.9rem', transform: 'rotate(65deg)' },
         select: async function(ele){ 
           const id = ele.data('link')?.id;
           if (id) {
@@ -134,17 +150,15 @@ export function initializeTraveler(ncy, deepRef, spaceIdRef) {
         },
       })),
       ((query) => ({
-        content: (ele) => `typed ${findTravlers(query(ele.data('link')?.id), ele.data('link')?.id)?.length ? 'x' : '+'}`,
-        contentStyle: { fontSize: '0.9rem', transform: 'rotate(70deg)' },
+        content: (ele) => `to ${findTravlers(query(ele.data('link')?.id), ele.data('link')?.id)?.length ? 'x' : '+'}`,
         select: async function(ele){ 
           const id = ele.data('link')?.id;
           if (id) {
-            // await switchTraveler(query(id), id);
-            generateMenuByTypes(ele, query(id));
+            await switchTraveler(query(id), id);
           }
         }
       }))((id) => ({
-        type_id: deepRef.current.minilinks.byId[id].id,
+        id: deepRef.current.minilinks.byId[id].to_id,
       })),
       ((query) => ({
         content: (ele) => `from ${findTravlers(query(ele.data('link')?.id), ele.data('link')?.id)?.length ? 'x' : '+'}`,
@@ -158,30 +172,17 @@ export function initializeTraveler(ncy, deepRef, spaceIdRef) {
         id: deepRef.current.minilinks.byId[id].from_id,
       })),
       ((query) => ({
-        content: (ele) => `to ${findTravlers(query(ele.data('link')?.id), ele.data('link')?.id)?.length ? 'x' : '+'}`,
+        content: (ele) => `typed ${findTravlers(query(ele.data('link')?.id), ele.data('link')?.id)?.length ? 'x' : '+'}`,
+        contentStyle: { fontSize: '0.9rem', transform: 'rotate(-65deg)' },
         select: async function(ele){ 
           const id = ele.data('link')?.id;
           if (id) {
-            await switchTraveler(query(id), id);
+            // await switchTraveler(query(id), id);
+            generateMenuByTypes(ele, query(id));
           }
         }
       }))((id) => ({
-        id: deepRef.current.minilinks.byId[id].to_id,
-      })),
-      ((query) => ({
-        content: (ele) => `types ${findTravlers(query(ele.data('link')?.id), ele.data('link')?.id)?.length ? 'x' : '+'}`,
-        contentStyle: { fontSize: '0.9rem', transform: 'rotate(-70deg)' },
-        select: async function(ele){ 
-          const id = ele.data('link')?.id;
-          if (id) {
-            await switchTraveler(query(id), id);
-          }
-        }
-      }))((id) => ({
-        down: {
-          tree_id: { _eq: deepRef.current.idLocal('@deep-foundation/core', 'typesTree') },
-          link_id: { _eq: deepRef.current.minilinks.byId[id].type_id },
-        },
+        type_id: deepRef.current.minilinks.byId[id].id,
       })),
     ],
   });
