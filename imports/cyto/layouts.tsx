@@ -18,7 +18,7 @@ export const layoutColaPreset = ({isAnimate=false}) => ({
   avoidOverlap: false, // if true, prevents overlap of node bounding boxes
   handleDisconnected: false, // if true, avoids disconnected components from overlapping
   convergenceThreshold: 0.01, // when the alpha value (system energy) falls below this value, the layout stops
-  // nodeSpacing: function( node ){ return 10; }, // extra spacing around nodes
+  nodeSpacing: function( node ){ return 10; }, // extra spacing around nodes
   flow: undefined, // use DAG/tree flow layout if specified, e.g. { axis: 'y', minSeparation: 30 }
   alignment: undefined, // relative alignment constraints on nodes, e.g. {vertical: [[{node: node1, offset: 0}, {node: node2, offset: 5}]], horizontal: [[{node: node3}, {node: node4}], [{node: node5}, {node: node6}]]}
   gapInequalities: undefined, // list of inequality constraints for the gap between the nodes, e.g. [{"axis":"y", "left":node1, "right":node2, "gap":25}]
@@ -26,7 +26,19 @@ export const layoutColaPreset = ({isAnimate=false}) => ({
 
   // different methods of specifying edge length
   // each can be a constant numerical value or a function like `function( edge ){ return 2; }`
-  edgeLength: undefined,
+  edgeLength: function( edge ) {
+    const baseLength = 30; // base edge length
+    const extraLength = 10; // additional length of the edge to take into account the density of connections
+    const sourceNode = edge.source();
+    const targetNode = edge.target();
+
+    // Calculate the number of connected edges for source nodes and target nodes
+    const sourceConnectedEdges = sourceNode.connectedEdges().length;
+    const targetConnectedEdges = targetNode.connectedEdges().length;
+
+    // Increase edge length based on the number of connected edges
+    return baseLength + (sourceConnectedEdges + targetConnectedEdges) * extraLength;
+  },
   edgeSymDiffLength: undefined, // symmetric diff edge length in simulation
   edgeJaccardLength: undefined, // jaccard edge length in simulation
 
