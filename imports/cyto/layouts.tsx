@@ -1,6 +1,6 @@
 export const layoutColaPreset = ({isAnimate=false}) => ({ 
   name: 'cola',
-  animate: isAnimate, // whether to show the layout as it's running
+  animate: false, // whether to show the layout as it's running
   refresh: 10, // number of ticks per frame; higher is faster but more jerky
   maxSimulationTime: 100, // max length in ms to run the layout
   ungrabifyWhileSimulating: false, // so you can't drag nodes during layout
@@ -15,8 +15,8 @@ export const layoutColaPreset = ({isAnimate=false}) => ({
 
   // positioning options
   randomize: false, // use random node positions at beginning of layout
-  avoidOverlap: true, // if true, prevents overlap of node bounding boxes
-  handleDisconnected: true, // if true, avoids disconnected components from overlapping
+  avoidOverlap: false, // if true, prevents overlap of node bounding boxes
+  handleDisconnected: false, // if true, avoids disconnected components from overlapping
   convergenceThreshold: 0.01, // when the alpha value (system energy) falls below this value, the layout stops
   nodeSpacing: function( node ){ return 10; }, // extra spacing around nodes
   flow: undefined, // use DAG/tree flow layout if specified, e.g. { axis: 'y', minSeparation: 30 }
@@ -27,7 +27,7 @@ export const layoutColaPreset = ({isAnimate=false}) => ({
   // different methods of specifying edge length
   // each can be a constant numerical value or a function like `function( edge ){ return 2; }`
   edgeLength: function( edge ) {
-    const baseLength = 30; // base edge length
+    const baseLength = 100; // base edge length
     const extraLength = 10; // additional length of the edge to take into account the density of connections
     const sourceNode = edge.source();
     const targetNode = edge.target();
