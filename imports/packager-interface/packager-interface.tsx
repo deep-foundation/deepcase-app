@@ -93,6 +93,36 @@ const variants = {
   }
 }
 
+const buttonVariant = {
+  show: {
+    scaleX: 1,
+    scaleY: 1,
+    opacity: 1,
+    borderRadius: '0.5rem',
+    display: 'block',
+    transition: { duration: 0.5 }
+  },
+  hide: {
+    scaleX: 0.3,
+    scaleY: 0.1,
+    opacity: 0,
+    borderRadius: '50rem',
+    display: 'none',
+    transition: {
+      duration: 0.5,
+      display: { delay: 0.6 },
+      opacity: { duration: 0.4 },
+    }
+  },
+  initial: {
+    scaleX: 1,
+    scaleY: 1,
+    opacity: 1,
+    display: 'block'
+  }
+}
+
+
 export const PackagerInterface = React.memo<any>(({
   toggle,
   onClose,
@@ -129,8 +159,25 @@ export const PackagerInterface = React.memo<any>(({
   // console.log('search-results', installedPackages, notInstalledPackages)
   const [togglePackager, setTogglePackager] = useState(false);
 
+  const control = useAnimation();
+  useEffect(() => {
+    if (togglePackager === true) {
+      control.start("hide");
+    } else {
+      control.start("show");
+    }
+  }, [control, togglePackager]);
+
+
   return (<Box right={0} mr='16' mt='4' pos='fixed'>
-      <Button colorScheme='blue' onClick={() => setTogglePackager(true)} pos='initial'>packager</Button>
+      <Button 
+        as={motion.button}
+        variants={buttonVariant}
+        animate={control}
+        colorScheme='blue' 
+        onClick={() => setTogglePackager(true)} 
+        pos='absolute' right='0'
+      >packager</Button>
       <Appearance 
         toggle={togglePackager} 
         variantsAnimation={variants} 
