@@ -2,73 +2,135 @@ import { CloseIcon } from "@chakra-ui/icons";
 import { Box, Button, ButtonGroup, FormControl, FormLabel, HStack, IconButton, Input, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Switch, Tag, TagLabel, Text, VStack, Select } from "@chakra-ui/react";
 import { useDeep } from "@deep-foundation/deeplinks/imports/client";
 import copy from "copy-to-clipboard";
-import { motion, useAnimation } from 'framer-motion';
+import { AnimatePresence, motion, useAnimation, useCycle } from 'framer-motion';
 import React, { useEffect, useState, ChangeEvent } from "react";
 import { HiMenuAlt2 } from 'react-icons/hi';
 import { SlClose } from 'react-icons/sl';
 import { Appearance } from "../component-appearance";
 import { useAutoFocusOnInsert, useBreadcrumbs, useContainer, useLayout, useMediaQuery, usePromiseLoader, useReserved, useShowExtra, useShowFocus, useShowTypes, useSpaceId, useTraveler, useLayoutAnimation } from "../hooks";
 import { useCytoEditor } from "./hooks";
+import { variants, buttonVariant, iconVariants, sideVariants, itemVariants } from "./menu-animation-variants";
+import { TbArrowRotaryFirstRight } from "react-icons/tb";
 
-const variants = {
-  show: {
-    scaleX: 1,
-    scaleY: 1,
-    opacity: 1,
-    borderRadius: '0.5rem',
-    display: 'block',
-    transition: { duration: 0.5 }
-  },
-  hide: {
-    scaleX: 0.3,
-    scaleY: 0.1,
-    opacity: 0,
-    borderRadius: '50rem',
-    display: 'none',
-    transition: {
-      duration: 0.5,
-      display: { delay: 0.6 },
-      opacity: { duration: 0.4 },
-    }
-  },
-  initial: {
-    originX: 0,
-    originY: 0,
-    scaleX: 0,
-    scaleY: 0,
-    opacity: 0,
-    display: 'none'
-  }
-}
+const ListLayout = React.memo<any>(({ 
+  currentLayout = 'cola',
+  setCurrentLayout,
+}:{
+  currentLayout?: string;
+  setCurrentLayout?: any;
+}) => {
+  const [open, cycleOpen] = useCycle(false, true);
 
-const buttonVariant = {
-  show: {
-    scaleX: 1,
-    scaleY: 1,
-    opacity: 1,
-    borderRadius: '0.5rem',
-    display: 'block',
-    transition: { duration: 0.5 }
-  },
-  hide: {
-    scaleX: 0.3,
-    scaleY: 0.1,
-    opacity: 0,
-    borderRadius: '50rem',
-    display: 'none',
-    transition: {
-      duration: 0.5,
-      display: { delay: 0.6 },
-      opacity: { duration: 0.4 },
-    }
-  },
-  initial: {
-    scaleX: 1,
-    scaleY: 1,
-    opacity: 1,
-    display: 'block'
-  }
-}
+  return (<>
+      <Box position="relative" sx={{ height: 0, width: "10rem" }}>
+        <AnimatePresence>
+          {open && (
+            <Box
+              as={motion.div}
+              animate={{
+                scale: 1,
+                transition: { duration: 0.3, type: "spring" }
+              }}
+              exit={{
+                scale: 0,
+                y: "2rem",
+                transition: { delay: 0.7, duration: 0.3, type: "spring" }
+              }}
+              sx={{
+                height: "2rem",
+                width: "10rem",
+                top: 0,
+                left: 0,
+                position: "absolute"
+              }}
+            >
+              <Box
+                as={motion.ul}
+                initial="closed"
+                animate="open"
+                exit="closed"
+                variants={sideVariants}
+                sx={{
+                  borderRadius: "0.5rem",
+                  position: "relative",
+                  zIndex: 44,
+                  background: 'bgColor',
+                  listStyle: "none",
+                  padding: '0.5rem',
+                  height: '4.5rem',
+                  overflowY: 'scroll',
+                  overscrollBehavior: 'contain',
+                  filter: 'drop-shadow(0px 0px 1px #5f6977)',
+                  outline: `solid 4px`,
+                  outlineColor: 'colorOutline',
+                  outlineOffset: '-4px',
+                  '&>*:not(:last-child)': {
+                    pt: '0.2rem',
+                    pb: '0.2rem',
+                  }
+                }}
+              >
+                <Box
+                  as={motion.li}
+                  whileHover={{ scale: 1.05 }}
+                  variants={itemVariants}
+                  // sx={{ color: "#131111" }}
+                  onClick={(value) => {
+                    setCurrentLayout(value);
+                    cycleOpen();
+                  }}
+                >
+                  <Text fontSize='sm'>cola</Text>
+                </Box>
+                <Box
+                  as={motion.li}
+                  whileHover={{ scale: 1.05 }}
+                  variants={itemVariants}
+                  // sx={{ color: "#131111" }}
+                  onClick={(value) => {
+                    setCurrentLayout(value);
+                    cycleOpen();
+                  }}
+                >
+                  <Text fontSize='sm'>deep-d3-force</Text>
+                </Box>
+              </Box>
+            </Box>
+          )}
+        </AnimatePresence>
+      </Box>
+      <Box
+        position="relative"
+        sx={{
+          height: "2rem",
+          width: "max-content",
+        }}
+      >
+        <Box position="absolute">
+          <Button 
+            as={motion.button} 
+            bg='bgColor' 
+            onClick={() => cycleOpen()}
+            sx={{
+              height: '2rem',
+              width: '10rem',
+              filter: 'drop-shadow(0px 0px 1px #5f6977)',
+              justifyContent: 'space-between',
+            }}
+            rightIcon={<Box as={motion.div}
+            variants={iconVariants}
+            animate={open ? "open" : "closed"}
+            >
+              <TbArrowRotaryFirstRight />
+            </Box>}
+          >
+            <Text fontSize='sm'>{currentLayout}</Text>
+          </Button>
+        </Box>
+      </Box>
+    </>
+  )
+})
 
 const DeepSwitch = React.memo(({
   id,
@@ -144,11 +206,12 @@ export function CytoMenu({
     return () => clearTimeout(timer);
   }, [pasteError, valid]);
 
-const handlerChangeLayout = (event: ChangeEvent<HTMLSelectElement>) => {
-  const value = event.target.selectedOptions[0].value;
-  if (value !== 'cola' && value !== 'deep-d3-force') return;
-  setLayout(value)
-}
+  const handlerChangeLayout = (event) => {
+    const value = event.target.childNodes[0].data;
+    // const value = event.target.selectedOptions[0].value;
+    if (value !== 'cola' && value !== 'deep-d3-force') return;
+    setLayout(value)
+  }
 
   return (<Box
     left={0}
@@ -285,14 +348,20 @@ const handlerChangeLayout = (event: ChangeEvent<HTMLSelectElement>) => {
               <Switch id='animation-layout-switch' isChecked={layoutAnimation} onChange={() => setLayoutAnimation(!layoutAnimation)}/>
               </FormControl>
               <FormControl display='flex' alignItems='center'>
-                <FormLabel mb='0' fontSize='sm' mr='0.25rem'>
+                <FormLabel mb='0' fontSize='sm' mr='0.55rem'>
                   layout
                 </FormLabel>
-                <Box width="120px" margin="0 auto">
-                  <Select onChange={handlerChangeLayout} value={layoutName}>
+                <Box width="max-content" margin="0 auto">
+                  {/* <Select onChange={handlerChangeLayout} value={layoutName}>
                     <option value='cola'>cola</option>
                     <option value='deep-d3-force'>d3-force</option>
-                  </Select>
+                  </Select> */}
+                  <ListLayout 
+                    layout={layoutName}
+                    currentLayout={layoutName}
+                    setCurrentLayout={handlerChangeLayout}
+                    
+                  />
                 </Box>
               </FormControl>
               {/* <FormControl display='flex' alignItems='center'>
