@@ -356,12 +356,10 @@ export const cxtmenu = function(params){
     let restoreBoxSeln = function(){
       if( boxEnabled ){
         cy.boxSelectionEnabled( true );
-        console.log('boxSelectionEnabled', true)
       }
     };
 
     let activateCytoEvents = function(){
-      console.log('activateCytoEvents', cytoEvents);
       if (cytoEvents) cy.$('node,edge').forEach(node => {
         node.style('events', 'yes');
       });
@@ -370,7 +368,6 @@ export const cxtmenu = function(params){
 
 
     let deactivateCytoEvents = function(){
-      console.log('deactivateCytoEvents', cytoEvents);
       if (!cytoEvents) cy.$('node,edge').forEach(node => {
         node.style('events', 'no');
       });
@@ -378,7 +375,6 @@ export const cxtmenu = function(params){
     };
 
     let restoreGestures = function(){
-      console.log('restoreGestures', deepGestured);
       if (deepGestured) return
       restoreGrab();
       restoreZoom();
@@ -389,7 +385,6 @@ export const cxtmenu = function(params){
     };
 
     let disableGestures = function() {
-      console.log('disableGestures', deepGestured);
       if (!deepGestured) return
       zoomEnabled = cy.userZoomingEnabled();
       cy.userZoomingEnabled( false );
@@ -400,7 +395,6 @@ export const cxtmenu = function(params){
       boxEnabled = cy.boxSelectionEnabled();
       cy.boxSelectionEnabled( false );
 
-      console.log('boxSelectionEnabled', false);
 
       grabbable = target.grabbable &&  target.grabbable();
       if( grabbable ){
