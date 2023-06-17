@@ -202,7 +202,7 @@ export function useCytoElements(ml, _links, cy, spaceId) {
         data: {
           id: `${id}`,
           label: (
-            `${id}`
+            `${id}\n\n `
           ),
         },
         selectable: false,
@@ -222,7 +222,7 @@ export function useCytoElements(ml, _links, cy, spaceId) {
         data: {
           id: `${id}`,
           label: (
-            `${id}`
+            `${id}\n\n `
           ),
         },
         selectable: false,

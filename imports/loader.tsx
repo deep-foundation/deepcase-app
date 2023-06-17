@@ -82,7 +82,18 @@ export const DeepLoader = memo(function DeepLoader({
     up: {
       tree_id: { _eq: deep.idLocal('@deep-foundation/core', 'containTree') },
       parent_id: { _eq: spaceId },
-    },
+    }, 
+    ...({
+      type_id: {
+        _nin: [
+          deep.idLocal('@deep-foundation/core', 'Then'),
+          deep.idLocal('@deep-foundation/core', 'Promise'),
+          deep.idLocal('@deep-foundation/core', 'Resolved'),
+          deep.idLocal('@deep-foundation/core', 'Rejected'),
+          deep.idLocal('@deep-foundation/core', 'PromiseResult'),
+        ],
+      },
+    }),
     _not: {
       _and: [
         // {
@@ -293,14 +304,14 @@ export const DeepLoader = memo(function DeepLoader({
     } } };
   }, [queryAndSpaceLoadedIds, ids]);
 
-  console.log('not-loaded-ends render', {
-    notLoadedEnds,
-    notLoadedEndsQuery,
-    actual: deep.minilinks.links.filter(l => (!!l.from_id && !l.from) || (!!l.to_id && !l.to)),
-    time: new Date().valueOf(),
-    applied: deep.minilinks.links.filter(l => !!l?._applies?.includes('not-loaded-ends')),
-    notApplied: deep.minilinks.links.filter(l => !l?._applies?.includes('not-loaded-ends')),
-  });
+  // console.log('not-loaded-ends render', {
+  //   notLoadedEnds,
+  //   notLoadedEndsQuery,
+  //   actual: deep.minilinks.links.filter(l => (!!l.from_id && !l.from) || (!!l.to_id && !l.to)),
+  //   time: new Date().valueOf(),
+  //   applied: deep.minilinks.links.filter(l => !!l?._applies?.includes('not-loaded-ends')),
+  //   notApplied: deep.minilinks.links.filter(l => !l?._applies?.includes('not-loaded-ends')),
+  // });
 
   return <>
     <><DeepLoaderActive
@@ -324,7 +335,7 @@ export const DeepLoader = memo(function DeepLoader({
       name="DEEPCASE_NOT_LOADED_ENDS"
       query={notLoadedEndsQuery}
       onChange={(r) => {
-        console.log('not-loaded-ends onChange', r, notLoadedEnds, notLoadedEndsQuery, 'ml', deep.minilinks.links.filter(l => (!!l.from_id && !l.from) || (!!l.to_id && !l.to)));
+        // console.log('not-loaded-ends onChange', r, notLoadedEnds, notLoadedEndsQuery, 'ml', deep.minilinks.links.filter(l => (!!l.from_id && !l.from) || (!!l.to_id && !l.to)));
         deep.minilinks?.apply(r, 'not-loaded-ends');
       }}
     /></>
