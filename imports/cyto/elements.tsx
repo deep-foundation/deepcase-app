@@ -10,11 +10,11 @@ export function useCytoElements(ml, _links, cy, spaceId) {
   const [insertingCyto, setInsertingCyto] = useInsertingCytoStore();
   const oldElements = useRef([]);
   const deep = useDeep();
-
+  
   const links = _links;
-
+  
   // console.time('useCytoElements');
-
+  
   const _elements: { [key: string]: any } = {};
   const elements = [];
   const reactElements = [];
@@ -191,6 +191,49 @@ export function useCytoElements(ml, _links, cy, spaceId) {
           }
         }
       }
+    }
+  }
+  for (let i = 0; i < elements.length; i++) {
+    const el = elements[i];
+    if (el?.data?.source && !_elements[el?.data?.source]) {
+      const id = el?.data?.source;
+      const element = {
+        id: id,
+        data: {
+          id: `${id}`,
+          label: (
+            `${id}`
+          ),
+        },
+        selectable: false,
+        classes: [
+          'link-node',
+        ].join(' '),
+        // locked: true,
+        // focused: true,
+      };
+      _elements[id] = element;
+      elements.push(element);
+    }
+    if (el?.data?.target && !_elements[el?.data?.target]) {
+      const id = el?.data?.target;
+      const element = {
+        id: id,
+        data: {
+          id: `${id}`,
+          label: (
+            `${id}`
+          ),
+        },
+        selectable: false,
+        classes: [
+          'link-node',
+        ].join(' '),
+        // locked: true,
+        // focused: true,
+      };
+      _elements[id] = element;
+      elements.push(element);
     }
   }
 

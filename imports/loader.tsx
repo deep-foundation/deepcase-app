@@ -3,7 +3,7 @@ import { useDeep } from "@deep-foundation/deeplinks/imports/client";
 import { generateQuery, generateQueryData } from "@deep-foundation/deeplinks/imports/gql";
 import { Link, useMinilinksFilter } from "@deep-foundation/deeplinks/imports/minilinks";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useBreadcrumbs, usePromiseLoader } from "./hooks";
+import { useBreadcrumbs } from "./hooks";
 import { CatchErrors } from "./react-errors";
 import { useDelayedInterval } from "./use-delayed-interval";
 
@@ -22,26 +22,10 @@ export function DeepLoaderActive({
 }) {
   const useApolloLoader = subscription ? useSubscription : useQuery;
   const deep = useDeep();
-  const [promiseLoader, setPromiseLoader] = usePromiseLoader();
   const subQuery = useMemo(() => {
     const v = (queryLink?.value?.value);
     const variables = deep.serializeQuery(v);
-    const where = {
-      _and: [
-        ...(!promiseLoader ? [{
-          type_id: {
-            _nin: [
-              deep.idLocal('@deep-foundation/core', 'Then'),
-              deep.idLocal('@deep-foundation/core', 'Promise'),
-              deep.idLocal('@deep-foundation/core', 'Resolved'),
-              deep.idLocal('@deep-foundation/core', 'Rejected'),
-              deep.idLocal('@deep-foundation/core', 'PromiseResult'),
-            ],
-          },
-        }] : [{}]),
-        variables?.where,
-      ],
-    };
+    const where = variables?.where;
     return generateQuery({
       operation: subscription ? 'subscription' : 'query',
       queries: [generateQueryData({
@@ -55,7 +39,7 @@ export function DeepLoaderActive({
       })],
       name: name,
     });
-  }, [queryLink, queryLink?.value?.value, promiseLoader]);
+  }, [queryLink, queryLink?.value?.value]);
   const subQueryResults = useApolloLoader(subQuery.query, { variables: subQuery.variables });
   const [sintSubQueryResults, setSintSubQueryResults] = useState<any>(subQueryResults);
   const subQueryPrimary = subscription ? subQueryResults : sintSubQueryResults || subQueryResults;
@@ -91,7 +75,6 @@ export const DeepLoader = memo(function DeepLoader({
 }) {
   const deep = useDeep();
   const userId = deep.linkId;
-  const [promiseLoader, setPromiseLoader] = usePromiseLoader();
   const [breadcrumbs] = useBreadcrumbs();
   // console.log({ breadcrumbs });
 
@@ -100,17 +83,6 @@ export const DeepLoader = memo(function DeepLoader({
       tree_id: { _eq: deep.idLocal('@deep-foundation/core', 'containTree') },
       parent_id: { _eq: spaceId },
     },
-    ...(!promiseLoader ? {
-      type_id: {
-        _nin: [
-          deep.idLocal('@deep-foundation/core', 'Then'),
-          deep.idLocal('@deep-foundation/core', 'Promise'),
-          deep.idLocal('@deep-foundation/core', 'Resolved'),
-          deep.idLocal('@deep-foundation/core', 'Rejected'),
-          deep.idLocal('@deep-foundation/core', 'PromiseResult'),
-        ],
-      },
-    } : {}),
     _not: {
       _and: [
         // {
@@ -161,14 +133,14 @@ export const DeepLoader = memo(function DeepLoader({
     //     },
     //   },
     // },
-  } } }), [promiseLoader]);
+  } } }), []);
 
   const breadcrumbsQuery = useMemo(() => ({ value: { value: {
     down: {
       tree_id: { _eq: deep.idLocal('@deep-foundation/core', 'containTree') },
       link_id: { _eq: spaceId },
     },
-  } } }), [promiseLoader]);
+  } } }), []);
 
   let queries = useMinilinksFilter(
     deep.minilinks,

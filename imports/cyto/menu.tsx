@@ -7,7 +7,7 @@ import React, { useEffect, useState, ChangeEvent } from "react";
 import { HiMenuAlt2 } from 'react-icons/hi';
 import { SlClose } from 'react-icons/sl';
 import { Appearance } from "../component-appearance";
-import { useAutoFocusOnInsert, useBreadcrumbs, useContainer, useLayout, useMediaQuery, usePromiseLoader, useReserved, useShowExtra, useShowFocus, useShowTypes, useSpaceId, useTraveler, useLayoutAnimation } from "../hooks";
+import { useAutoFocusOnInsert, useBreadcrumbs, useContainer, useLayout, useMediaQuery, useReserved, useShowExtra, useShowFocus, useShowTypes, useSpaceId, useTraveler, useLayoutAnimation } from "../hooks";
 import { useCytoEditor } from "./hooks";
 import { variants, buttonVariant, iconVariants, sideVariants, itemVariants } from "./menu-animation-variants";
 import { TbArrowRotaryFirstRight } from "react-icons/tb";
@@ -173,7 +173,6 @@ export function CytoMenu({
   const [showTypes, setShowTypes] = useShowTypes();
   const [cytoEditor, setCytoEditor] = useCytoEditor();
   const { layout, setLayout, layoutName } = useLayout();
-  const [promiseLoader, setPromiseLoader] = usePromiseLoader();
   const [autoFocus, setAutoFocus] = useAutoFocusOnInsert();
 
   const [pasteError, setPasteError] = useState(false);
@@ -322,12 +321,6 @@ export function CytoMenu({
                   types
                 </FormLabel>
                 <DeepSwitch id='show-types-switch' isChecked={showTypes} onChange={() => setShowTypes(!showTypes)} />
-              </FormControl>
-              <FormControl display='flex' alignItems='center'>
-                <FormLabel color='text' htmlFor='show-promise-loader-switch' mb='0' fontSize='sm' mr='0.25rem'>
-                  promises
-                </FormLabel>
-                <DeepSwitch id='show-promise-loader-switch' isChecked={promiseLoader} onChange={() => setPromiseLoader(!promiseLoader)} />
               </FormControl>
               <FormControl display='flex' alignItems='center'>
                 <FormLabel color='text' htmlFor='show-traveler-switch' mb='0' fontSize='sm' mr='0.25rem'>

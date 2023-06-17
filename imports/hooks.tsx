@@ -18,9 +18,6 @@ export const defaultCardWidth = 300;
 export function useClickSelect() {
   return useLocalStore('click-select', true);
 }
-export function usePromiseLoader() {
-  return useQueryStore('promise-loader', false);
-}
 export function useTraveler() {
   return useQueryStore('traveler', false);
 }
