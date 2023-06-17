@@ -334,6 +334,7 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cyRef
     };
     const tap = async function(event){
       ehRef?.current?.disableDrawMode();
+      setInsertingLink(undefined);
       if (insertingCytoRef.current.type_id) {
         const ins = insertingCytoRef.current;
         setInsertingCyto({});

@@ -43,7 +43,6 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
   const [inserting, setInserting] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [container] = useContainer();
-  console.log('HandleName', handle?.inByType?.[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.from.ml.byFrom);
 
   const onInsert = useCallback(async () => {
     setInserting(true);
