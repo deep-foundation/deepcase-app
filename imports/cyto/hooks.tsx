@@ -656,7 +656,6 @@ export function useCyInitializer({
           ncy.$(`#${id},#${id}-from,#${id}-to,#${id}-type`).not(`.unhoverable`).addClass('hover');
         }
         if (node.locked()) {
-          node.unlock();
           node.mouseHoverDragging = true;
         }
       }
@@ -669,7 +668,6 @@ export function useCyInitializer({
           ncy.$(`node, edge`).removeClass('hover');
         }
         if (node.mouseHoverDragging) {
-          node.lock();
           node.mouseHoverDragging = false;
         }
       }
