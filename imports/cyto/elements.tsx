@@ -91,9 +91,9 @@ export function useCytoElements(ml, _links, cy, spaceId) {
       _elements[link?.id] = element;
       elements.push(element);
     }
-    if (elements.length > 200) {
-      break;
-    }
+    // if (elements.length > 200) {
+    //   break;
+    // }
     // if (link.type_id === deep.idLocal('@deep-foundation/core', 'Query')) {
     //   const id = `query-${link.id}`;
     //   {
