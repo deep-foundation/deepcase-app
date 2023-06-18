@@ -276,19 +276,19 @@ export function CytoMenu({
                 }} borderColor='gray.400' background='buttonBackgroundModal'/>
               </ButtonGroup>
               <ButtonGroup size='sm' isAttached variant='outline' color='text'>
-                <Button colorScheme={pasteError ? 'red' : valid ? 'blue' : undefined} onClick={async () => {
                 <Button onClick={() => {
                   copy(deep.token);
                 }} borderColor='gray.400' background='buttonBackgroundModal'>copy token</Button>
-                if (valid) await deep.login({ token: valid });
-                else {
-                  setPasteError(false);
-                  const token: string = await navigator?.clipboard?.readText();
-                  const { linkId, error } = await deep.jwt({ token });
-                  if (error && !linkId) setPasteError(true);
-                  else if (linkId) setValid(token);
-                }
-              }} borderColor='gray.400' background='buttonBackgroundModal'>{valid ? 'login token' : 'paste token'}</Button>
+                <Button colorScheme={pasteError ? 'red' : valid ? 'blue' : undefined} onClick={async () => {
+                  if (valid) await deep.login({ token: valid });
+                  else {
+                    setPasteError(false);
+                    const token: string = await navigator?.clipboard?.readText();
+                    const { linkId, error } = await deep.jwt({ token });
+                    if (error && !linkId) setPasteError(true);
+                    else if (linkId) setValid(token);
+                  }
+                }} borderColor='gray.400' background='buttonBackgroundModal'>{valid ? 'login token' : 'paste token'}</Button>
               </ButtonGroup>
               <ButtonGroup size='sm' isAttached variant='outline' color='text'>
                 <Button borderColor='gray.400' background='buttonBackgroundModal' as='a' href={`http${gqlSsl ? 's' : ''}://${gqlPath}`} target="_blank">gql</Button>
