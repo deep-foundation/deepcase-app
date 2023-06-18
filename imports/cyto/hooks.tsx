@@ -682,6 +682,7 @@ export function useCyInitializer({
     const tapstart = function(evt){
       var node = evt.target;
       refDragStartedEvent.current = evt;
+      // node.mouseHoverDragging = true;
     };
     let dragendData: any = undefined;
     const tapend = function(evt){
@@ -710,6 +711,9 @@ export function useCyInitializer({
         focus(node, dragendData?.position);
         dragendData = undefined;
         ncy.$(`#${id},#${id}-from,#${id}-to,#${id}-type`).addClass('focused');
+        // if (node.mouseHoverDragging) {
+          // node.mouseHoverDragging = false;
+        // }
       }
     };
 
@@ -744,10 +748,10 @@ export function useCyInitializer({
         {
           content: 'unlock',
           contentStyle: { fontSize: '0.9rem', transform: 'rotate(35deg)' },
-          select: function(ele){ 
+          select: async function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
-              unfocus(ele);
+              await unfocus(ele);
               ncy.$(`#${id},#${id}-from,#${id}-to,#${id}-type`).removeClass('focused');
             }
           }

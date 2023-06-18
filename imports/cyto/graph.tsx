@@ -80,7 +80,6 @@ export function useCytoFocusMethods(cy) {
         if (id) {
           el.unlock();
           locking[id] = false;
-          unfocus(id);
           const focused = await unfocus(id);
           return focused;
         }
