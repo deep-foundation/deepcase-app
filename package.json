@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.7.14",
+    "@belivvr/aframe-react": "^0.4.2",
     "@capacitor-community/electron": "^4.1.2",
     "@capacitor/cli": "^5.0.4",
     "@capacitor/core": "^5.0.4",
@@ -36,6 +37,7 @@
     "@types/react": "^18.2.7",
     "@types/react-cytoscapejs": "^1.2.2",
     "@types/react-dom": "^18.2.4",
+    "aframe": "^1.4.2",
     "atob": "^2.1.2",
     "axios": "^1.4.0",
     "axios-hooks": "^4.0.0",

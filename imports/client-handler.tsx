@@ -35,6 +35,8 @@ import { Resize } from './resize';
 import * as rjsfCore from '@rjsf/core';
 import * as rjsfChakra from '@rjsf/chakra-ui';
 import * as rjsfValidator from '@rjsf/validator-ajv8';
+// @ts-ignore
+import * as aframeReact from '@belivvr/aframe-react';
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
 
 
@@ -84,6 +86,7 @@ r.list = {
   '@rjsf/core': rjsfCore,
   '@rjsf/chakra-ui': rjsfChakra,
   '@rjsf/validator-ajv8': rjsfValidator,
+  '@belivvr/aframe-react': aframeReact,
 };
 
 export async function evalClientHandler({
