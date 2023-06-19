@@ -1,5 +1,5 @@
 import { CloseIcon } from "@chakra-ui/icons";
-import { Box, Button, ButtonGroup, FormControl, FormLabel, HStack, IconButton, Input, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Switch, Tag, TagLabel, Text, VStack, Select } from "@chakra-ui/react";
+import { Box, Button, ButtonGroup, FormControl, FormLabel, HStack, IconButton, Input, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Switch, Tag, TagLabel, Text, VStack, Select, StackDivider } from "@chakra-ui/react";
 import { useDeep } from "@deep-foundation/deeplinks/imports/client";
 import copy from "copy-to-clipboard";
 import { AnimatePresence, motion, useAnimation, useCycle } from 'framer-motion';
@@ -11,6 +11,7 @@ import { useAutoFocusOnInsert, useBreadcrumbs, useContainer, useLayout, useMedia
 import { useCytoEditor } from "./hooks";
 import { variants, buttonVariant, iconVariants, sideVariants, itemVariants } from "./menu-animation-variants";
 import { TbArrowRotaryFirstRight } from "react-icons/tb";
+import { ClientHandler } from "../client-handler";
 
 const ListLayout = React.memo<any>(({ 
   currentLayout = 'cola',
@@ -371,6 +372,7 @@ export function CytoMenu({
                   await deep.delete({ _or: [{ type_id: deep.idLocal('@deep-foundation/core', 'Focus'), from_id: spaceId }, { type_id: deep.idLocal('@deep-foundation/core', 'Contain'), from_id: spaceId, to: { type_id: deep.idLocal('@deep-foundation/core', 'Focus'), from_id: spaceId }}] });
                 }} borderColor='gray.400' background='buttonBackgroundModal'>clear focuses</Button>
               </ButtonGroup>
+              <Travelers/>
             </HStack>
           </VStack>
           {/* <Button bgColor='primary' color='white' size='sm' w='4rem' mt={10} mr={4} justifySelf='flex-end' rightIcon={<IoExitOutline />} onClick={openPortal}>Exit</Button> */}
@@ -379,6 +381,57 @@ export function CytoMenu({
     </Appearance>
   </Box>);
 }
+
+const Travelers = () => {
+  const deep = useDeep();
+  const [spaceId] = useSpaceId();
+  let Traveler = 0;
+  try {
+    Traveler = deep.idLocal('@deep-foundation/deepcase', 'Traveler');
+  } catch(e) {}
+  const travelers = deep.useMinilinksSubscription({
+    type_id: Traveler,
+    in: {
+      type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
+      from_id: spaceId,
+    },
+  });
+  return <ButtonGroup size='sm' isAttached variant='outline' color='text'>
+    <Popover>
+      <PopoverTrigger>
+        <Button>Travelers</Button>
+      </PopoverTrigger>
+      <PopoverContent>
+        <PopoverArrow />
+        <PopoverCloseButton />
+        <PopoverBody style={{ overflowY: 'auto', maxHeight: 300 }}>
+          <VStack
+            divider={<StackDivider borderColor='gray.200' />}
+            spacing={4}
+            align='stretch'
+          >
+            {travelers.map(traveler => <Box>
+              <IconButton
+                aria-label={`Delete traveler ##${traveler.id}`} icon={<>❌</>}
+                onClick={() => deep.delete({
+                  _or: [
+                    { id: traveler?.id, },
+                    { id: traveler?.inByType?.[deep.idLocal('@deep-foundation/core', 'Contain')]?.find(l => l.from_id === spaceId)?.id, },
+                    { id: traveler?.to_id, },
+                    { id: traveler?.to?.inByType?.[deep.idLocal('@deep-foundation/core', 'Contain')]?.find(l => l.from_id === spaceId)?.id, },
+                    { id: traveler?.to?.inByType?.[deep.idLocal('@deep-foundation/core', 'Active')]?.find(l => l.from_id === spaceId)?.id, },
+                    { id: traveler?.to?.inByType?.[deep.idLocal('@deep-foundation/core', 'Active')]?.find(l => l.from_id === spaceId)?.inByType?.[deep.idLocal('@deep-foundation/core', 'Contain')]?.find(l => l.from_id === spaceId)?.id, },
+                  ],
+                })}
+              /> {traveler.id}
+              <Box><pre><code>{JSON.stringify(traveler?.to?.value?.value || {}, null, 2)}</code></pre></Box>
+            </Box>)}
+          </VStack>
+        </PopoverBody>
+      </PopoverContent>
+    </Popover>
+  </ButtonGroup>
+};
 
 export const MenuSearch = ({ cyRef, bg }: { cyRef?: any; bg?: any; }) => {
   const deep = useDeep();
