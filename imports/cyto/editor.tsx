@@ -7,7 +7,7 @@ import json5 from 'json5';
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { VscClearAll } from 'react-icons/vsc';
-import { ClientHandlerRenderer, evalClientHandler } from '../client-handler';
+import { ClientHandler, ClientHandlerRenderer, evalClientHandler } from '../client-handler';
 import { EditorComponentView } from '../editor/editor-component-view';
 import { EditorGrid } from '../editor/editor-grid';
 import { ListLanguages } from '../editor/editor-lang-list';
@@ -116,6 +116,26 @@ export function CytoEditor() {
   // console.log('editor', 'GeneratedFrom idLocal', deep.idLocal('@deep-foundation/core', 'GeneratedFrom'));
   // console.log('editor', 'tabId', tabId);
 
+  const handlers = deep.useMinilinksSubscription({
+    type_id: deep.idLocal('@deep-foundation/core', 'Handler'),
+    _or: [
+      {
+        to: {
+          out: {
+            type_id: deep.idLocal('@deep-foundation/core', 'GeneratedFrom'),
+            to_id: 1324
+          }
+        },
+      },
+      {
+        to: {
+          to_id: 1324
+        },
+      },
+    ],
+  });
+  const handler = handlers?.[0];
+
   const generatedLink = useMinilinksFilter(
     deep.minilinks,
     (link) => {
@@ -129,22 +149,6 @@ export function CytoEditor() {
 
   const [currentLanguage, setCurrentLanguage] = useState('plaintext');
 
-  useEffect(() => {
-    const value = generatedLink?.value?.value || tab?.initialValue;
-    if (!value) {
-      return;
-    }
-    if ((currentLanguage !== 'javascript') && (currentLanguage !== 'typescript')) {
-      return;
-    }
-
-    evalClientHandler({ value, deep }).then(({ data, error }) => {
-      if (error)
-        throw error;
-      setComponent(() => data);
-    });
-  }, [tab?.initialValue, generatedLink]);
-  
   const currentValue = valuesRef?.current?.[tabId] || typeof tab?.initialValue !== 'undefined' ? tab?.initialValue : '';
 
   const refEditor = useRef<any>();
@@ -152,10 +156,8 @@ export function CytoEditor() {
   const [rightArea, setRightArea] = useState('preview');
   const [generated, setGenerated] = useState('src');
   const [fillSize, setFillSize] = useState(false);
-  const [viewSize, setViewSize] = useState<any>({width: '50%', height: '100%'});
+  const [viewSize, setViewSize] = useState<any>({ width: '50%', height: '100%' });
   const [editorMounted, setEditorMounted] = useState(false);
-
-  const [Component, setComponent] = useState({});
 
   const errorRenderer = useMemo(() => {
     return (error, reset) => {
@@ -169,10 +171,10 @@ export function CytoEditor() {
   }, []);
 
   useEffect(() => {
-    import('@monaco-editor/react').then(m => {});
+    import('@monaco-editor/react').then(m => { });
   }, []);
-  
-  
+
+
   const languages = refEditor.current?.monaco.languages.getLanguages();
   const validationTS = refEditor.current?.monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
     noSemanticValidation: true,
@@ -188,8 +190,8 @@ export function CytoEditor() {
         <EditorGrid
           sash
           editorTextAreaElement={<>{[
-            <Box 
-              key={tabId} 
+            <Box
+              key={tabId}
               sx={{
                 pos: 'relative',
                 height: '100%'
@@ -218,7 +220,7 @@ export function CytoEditor() {
                   let _value;
                   try {
                     _value = table === 'strings' ? value : table === 'numbers' ? parseFloat(value) : table === 'objects' ? json5.parse(value) : undefined;
-                  } catch(error) {
+                  } catch (error) {
                     console.log('error123', error);
                   }
 
@@ -240,22 +242,22 @@ export function CytoEditor() {
                 }}
                 onMount={() => setEditorMounted(true)}
               />
-              <Box 
-                w='100%' 
-                pos='absolute' 
-                bottom='0' 
-                borderTopColor='borderColor' 
-                borderTopWidth='thin' 
-                p='0.5rem' 
+              <Box
+                w='100%'
+                pos='absolute'
+                bottom='0'
+                borderTopColor='borderColor'
+                borderTopWidth='thin'
+                p='0.5rem'
                 height='auto'
                 bg='lightDark'
               >
                 <Box pos='relative' height='100%'>
-                  <ListLanguages 
-                    languages={languages} 
-                    currentLanguage={currentLanguage} 
+                  <ListLanguages
+                    languages={languages}
+                    currentLanguage={currentLanguage}
                     setLanguage={(i) => {
-                      if ( i == 'typescript') validationTS
+                      if (i == 'typescript') validationTS
                       setCurrentLanguage(i);
                       refEditor.current?.monaco.editor.setModelLanguage(refEditor.current?.monaco.editor.getModels()[0], i);
                     }}
@@ -290,7 +292,7 @@ export function CytoEditor() {
               let _value;
               try {
                 _value = table === 'strings' ? value : table === 'numbers' ? parseFloat(value) : table === 'objects' ? json5.parse(value) : undefined;
-              } catch(error) {}
+              } catch (error) { }
 
               if (!deep.minilinks.byId[tab.id]?.value) {
                 await deep.insert({ link_id: tab.id, value: _value }, {
@@ -310,8 +312,8 @@ export function CytoEditor() {
               console.log('onclick');
             }}
           />}
-          closeAllButtonElement={<IconButton icon={<VscClearAll/>} onClick={onCloseAll} aria-label='Close all tabs'/>}
-          closeButtonElement={<CloseButton onClick={onClose}/>}
+          closeAllButtonElement={<IconButton icon={<VscClearAll />} onClick={onCloseAll} aria-label='Close all tabs' />}
+          closeButtonElement={<CloseButton onClick={onClose} />}
           editorRight={
             // rightArea === 'handlers' && (<EditorHandlers generated={generated} setGenerated={setGenerated}>
             // <EditorHandler
@@ -323,30 +325,28 @@ export function CytoEditor() {
             // ></EditorHandler>
             // </EditorHandlers>) ||
             rightArea === 'handlers' && (
-              <CytoEditorHandlers linkId={generated && generatedLink ? generatedLink?.id : tab?.id}/>
+              <CytoEditorHandlers linkId={generated && generatedLink ? generatedLink?.id : tab?.id} />
             ) ||
-            rightArea === 'preview' && <Box 
-                pos='relative' 
-                sx={{
-                  backgroundColor: 'editorPreviewBackground',
-                  backgroundImage: `linear-gradient(-90deg, ${'editorPreviewBackgroundGrid'} 1px, transparent 1px), linear-gradient(0deg, ${'editorPreviewBackgroundGrid'} 1px, transparent 1px), linear-gradient(transparent 0px, ${'editorPreviewBackground'} 1px, ${'editorPreviewBackground'} 20px, transparent 20px), linear-gradient(-90deg, ${'editorPreviewBackgroundGrid'} 1px, transparent 1px), linear-gradient(-90deg, transparent 0px, ${'editorPreviewBackground'} 1px, ${'editorPreviewBackground'} 20px, transparent 20px), linear-gradient(0deg, ${'editorPreviewBackgroundGrid'} 1px, transparent 1px)`,
-                  backgroundSize:'20px 20px, 20px 20px, 20px 20px, 20px 20px, 20px 20px, 20px 20px',
-                }}
+            rightArea === 'preview' && <Box
+              pos='relative'
+              sx={{
+                backgroundColor: 'editorPreviewBackground',
+                backgroundImage: `linear-gradient(-90deg, ${'editorPreviewBackgroundGrid'} 1px, transparent 1px), linear-gradient(0deg, ${'editorPreviewBackgroundGrid'} 1px, transparent 1px), linear-gradient(transparent 0px, ${'editorPreviewBackground'} 1px, ${'editorPreviewBackground'} 20px, transparent 20px), linear-gradient(-90deg, ${'editorPreviewBackgroundGrid'} 1px, transparent 1px), linear-gradient(-90deg, transparent 0px, ${'editorPreviewBackground'} 1px, ${'editorPreviewBackground'} 20px, transparent 20px), linear-gradient(0deg, ${'editorPreviewBackgroundGrid'} 1px, transparent 1px)`,
+                backgroundSize: '20px 20px, 20px 20px, 20px 20px, 20px 20px, 20px 20px, 20px 20px',
+              }}
             >
               {[<EditorComponentView
-                key={currentLink?.id || 0}
+                key={`${currentLink?.id || 0}-${tabId}-${handler?.id}`}
                 size={viewSize}
                 onChangeSize={(viewSize) => setViewSize(viewSize)}
                 fillSize={fillSize}
                 setFillSize={setFillSize}
               >
-                {typeof(Component) === 'function' && [<CatchErrors key={Component.toString()} errorRenderer={() => <div></div>}>
-                  <ClientHandlerRenderer Component={Component} fillSize={fillSize} link={deep?.minilinks?.byId[currentLink?.id]}/>
-                </CatchErrors>]}
+                {handler && [<ClientHandler key={handler?.id} handlerId={handler?.id} fillSize={fillSize} linkId={currentLink?.id} ml={deep.minilinks} />]}
               </EditorComponentView>]}
             </Box> ||
-            rightArea === 'results' && <EditorResults id={tab.id}/>
-        }
+            rightArea === 'results' && <EditorResults id={tab.id} />
+          }
           editorRightSwitch={<EditorSwitcher
             fillSize={fillSize}
             setFillSize={(newFillSize) => {

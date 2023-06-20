@@ -37,6 +37,7 @@ import * as rjsfChakra from '@rjsf/chakra-ui';
 import * as rjsfValidator from '@rjsf/validator-ajv8';
 // @ts-ignore
 import * as aframeReact from '@belivvr/aframe-react';
+import { CatchErrors } from './react-errors';
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
 
 
@@ -179,9 +180,9 @@ export function ClientHandler({
 
   return (<>
     {(typeof(Component) === 'function')
-    ? <>{[<ClientHandlerRenderer key={Component.toString()} Component={Component} {...props} fillSize={fillSize} link={ml.byId[linkId]} ml={ml} onClose={onClose}/>]}</>
-    : <div>
-        
-      </div>}
-  </>);
+    ? <><CatchErrors errorRenderer={() => <div></div>}>
+      {[<ClientHandlerRenderer key={Component.toString()} Component={Component} {...props} fillSize={fillSize} link={ml.byId[linkId]} ml={ml} onClose={onClose}/>]}
+    </CatchErrors></>
+    : <div></div>}
+    </>);
 }
