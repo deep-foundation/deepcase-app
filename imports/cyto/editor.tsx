@@ -123,13 +123,13 @@ export function CytoEditor() {
         to: {
           out: {
             type_id: deep.idLocal('@deep-foundation/core', 'GeneratedFrom'),
-            to_id: 1324
+            to_id: tabId
           }
         },
       },
       {
         to: {
-          to_id: 1324
+          to_id: tabId
         },
       },
     ],
