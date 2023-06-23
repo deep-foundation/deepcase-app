@@ -7,7 +7,7 @@ import React, { useEffect, useState, ChangeEvent } from "react";
 import { HiMenuAlt2 } from 'react-icons/hi';
 import { SlClose } from 'react-icons/sl';
 import { Appearance } from "../component-appearance";
-import { useAutoFocusOnInsert, useBreadcrumbs, useContainer, useLayout, useMediaQuery, useReserved, useShowExtra, useShowFocus, useShowTypes, useSpaceId, useTraveler, useLayoutAnimation } from "../hooks";
+import { useAutoFocusOnInsert, useBreadcrumbs, useContainer, useLayout, useMediaQuery, useReserved, useShowExtra, useShowFocus, useShowTypes, useSpaceId, useTraveler, useLayoutAnimation, useAsyncState } from "../hooks";
 import { useCytoEditor } from "./hooks";
 import { variants, buttonVariant, iconVariants, sideVariants, itemVariants } from "./menu-animation-variants";
 import { TbArrowRotaryFirstRight } from "react-icons/tb";
@@ -385,10 +385,9 @@ export function CytoMenu({
 const Travelers = () => {
   const deep = useDeep();
   const [spaceId] = useSpaceId();
-  let Traveler = 0;
-  try {
-    Traveler = deep.idLocal('@deep-foundation/deepcase', 'Traveler');
-  } catch(e) {}
+  const Traveler = useAsyncState(0, async () => {
+    return await deep.id('@deep-foundation/deepcase', 'Traveler');
+  });
   const travelers = deep.useMinilinksSubscription({
     type_id: Traveler,
     in: {

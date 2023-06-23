@@ -222,3 +222,11 @@ export const useMediaQuery = function useMediaQuery(arg) {
   useEffect(() => setValue(actualValue), [actualValue, isBrowser]);
   return [value, isBrowser];
 }
+
+export const useAsyncState = function useAsyncState(defaultValue, init, depends = []) {
+  const [value, setValue] = useState(defaultValue);
+  useEffect(() => {
+    init().then(setValue);
+  }, depends);
+  return value;
+}
