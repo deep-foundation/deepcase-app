@@ -229,12 +229,50 @@ const boxVariants = {
 }
   
 const Leaf = ({ attributes, children, leaf }) => {
+  const { colorMode } = useColorMode();
+  const editorRef = useRef(null);
+  const boxRef = useRef(null);
+
+  function handleEditorDidMount(editor, monaco) {
+    editorRef.current = editor;
+    const container = boxRef.current;
+    const updateHeight = () => {
+      container.style.height = `${editor.getContentHeight()}px`;
+      editor.layout();
+    };
+    editor.onDidContentSizeChange(updateHeight);
+  }
+
   if (leaf.bold) {
     children = <strong>{children}</strong>
   }
 
   if (leaf.code) {
-    children = <code>{children}</code>
+    // children = <code>{children}</code>
+    children = (
+      <div>
+        <Box minHeight='5rem' width='100%' resize='vertical' overflow='auto' ref={boxRef}>
+          <MonacoEditor
+            options={{
+              minimap: {
+                enabled: false
+              },
+              lineNumbers: 'off',
+              wordWrap: 'on',
+              scrollBeyondLastLine: false,
+              wrappingStrategy: 'advanced',
+            }}
+            height="100%"
+            width="100%"
+            theme={colorMode === 'light' ? 'light' : "vs-dark"}
+            defaultLanguage="json"
+            defaultValue={leaf.text}
+            // onChange={(value) => leaf.text = value}
+            onMount={handleEditorDidMount}
+          />
+        </Box>
+      </div>
+    )
   }
 
   if (leaf.italic) {
@@ -249,20 +287,7 @@ const Leaf = ({ attributes, children, leaf }) => {
 };
 
 const Element = ({ attributes, children, element, state }) => {
-  const { colorMode } = useColorMode();
-  const [value, setValue] = useState('');
-  const editorRef = useRef(null);
-  const boxRef = useRef(null);
-
-  function handleEditorDidMount(editor, monaco) {
-    editorRef.current = editor;
-    const container = boxRef.current;
-    const updateHeight = () => {
-      container.style.height = `${editor.getContentHeight()}px`;
-      editor.layout();
-    };
-    editor.onDidContentSizeChange(updateHeight);
-  }
+  const { colorMode } = useColorMode(); 
 
   const style = { textAlign: element.align };
   switch (element.type) {
@@ -295,32 +320,6 @@ const Element = ({ attributes, children, element, state }) => {
     case 'client-handler':
       return (
         <ClientHandlerSlateProxy children={children} />
-      )
-    case 'code-editor':
-      return (
-        <div>
-          <Box minHeight='5rem' width='100%' resize='vertical' overflow='auto' ref={boxRef}>
-            <MonacoEditor
-              options={{
-                minimap: {
-                  enabled: false
-                },
-                lineNumbers: 'off',
-                wordWrap: 'on',
-                scrollBeyondLastLine: false,
-                wrappingStrategy: 'advanced',
-              }}
-              height="100%"
-              width="100%"
-              theme={colorMode === 'light' ? 'light' : "vs-dark"}
-              defaultLanguage="json"
-              defaultValue='markdown'
-              onChange={(value) => setValue(value)}
-              onMount={handleEditorDidMount}
-            />
-          </Box>
-          {children}
-        </div>
       )
     case 'heading-one':
       return (
@@ -373,6 +372,28 @@ const FocusCatcher = ({
   return null;
 };
 
+var level = (el) => {
+  if (el && check(el)) mutate(el);
+  else {
+      if (typeof(el) === 'object') {
+          if (Array.isArray(el)) {
+              for (let i = 0; i < el.length; i++) {
+                  level(el[i]);
+              }
+          } else {
+              level(el?.children);
+          }
+      }
+  }
+};
+var mutate = (el) => {
+  el.type = 'client-handler';
+};
+var check = (el) => (
+  !el.type &&
+  el?.children?.[0]?.text?.slice(0, 2) === '##'
+);
+
   // Only objects editor.
 export const DeepWysiwyg = React.memo<any>(({ 
   fillSize,
@@ -397,7 +418,9 @@ export const DeepWysiwyg = React.memo<any>(({
 }:IEditor) => {
   const _value = useMemo(() => {
     if (typeof(value) === 'string' && !!value) {
-      return htmlToSlate(value);
+      const sl = htmlToSlate(value);
+      level(sl);
+      return sl;
     } else return initialValue;
   }, [value, initialValue]);
   

@@ -51,19 +51,13 @@ export const ClientHandlerSlateProxy = ({ children }) => {
     },
   });
 
-  if(linkId) {
-    return (
-      <CatchErrors errorRenderer={(error) => {
-        console.log('EditorComponentView', 'errorRenderer', error);
-        return children;
-      }}>
-        <div>
-          <ClientHandler handlerId={737} linkId={linkId} ml={ml} />
-          {children}
-        </div>
-      </CatchErrors>
-    )
-  } else { 
-    return children
-  }
+  console.log('DEEPW', text, linkId, children);
+  // if(linkId) {
+    return (<>
+      <ClientHandler handlerId={739} linkId={linkId} ml={ml} />
+      {children}
+    </>)
+  // } else { 
+  //   return children
+  // }
 }
