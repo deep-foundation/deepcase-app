@@ -45,6 +45,15 @@ const r = (path) => {
   if (r.list[path]) return r.list[path];
   throw new Error(`Module not found: Can't resolve ${path}`);
 };
+(async () => {
+  const { ForceGraph2D, ForceGraph3D, ForceGraphVR, ForceGraphAR } = await import ('react-force-graph');
+  r.list['react-force-graph'] = {
+    ForceGraph2D,
+    ForceGraph3D,
+    ForceGraphVR,
+    ForceGraphAR
+  }
+})()
 r.list = {
   '@chakra-ui/react': chakra,
   'react': React,
@@ -52,7 +61,7 @@ r.list = {
   'axios-hooks': axiosHooks,
   'classnames': classnames,
   'slate-soft-break': SoftBreak,
-  'slate-serializers': {slateToHtml, htmlToSlate},
+  'slate-serializers': { slateToHtml, htmlToSlate },
   'react-hotkeys-hook': reactHotkeysHook,
   '@react-hook/debounce': debounce,
   'json5': json5,
@@ -88,6 +97,7 @@ r.list = {
   '@rjsf/chakra-ui': rjsfChakra,
   '@rjsf/validator-ajv8': rjsfValidator,
   '@belivvr/aframe-react': aframeReact,
+  
 };
 
 export async function evalClientHandler({
@@ -123,7 +133,7 @@ export function ClientHandlerRenderer({
   onClose,
   ...props
 }: ClientHandlerRendererProps) {
-  return <>{typeof(Component) === 'function' && <Component
+  return <>{typeof (Component) === 'function' && <Component
     onClose={onClose}
     fillSize={fillSize}
     {...props}
@@ -179,10 +189,10 @@ export function ClientHandler({
   }, [file?.value?.value]);
 
   return (<>
-    {(typeof(Component) === 'function')
-    ? <><CatchErrors errorRenderer={() => <div></div>}>
-      {[<ClientHandlerRenderer key={Component.toString()} Component={Component} {...props} fillSize={fillSize} link={ml.byId[linkId]} ml={ml} onClose={onClose}/>]}
-    </CatchErrors></>
-    : <div></div>}
-    </>);
+    {(typeof (Component) === 'function')
+      ? <><CatchErrors errorRenderer={() => <div></div>}>
+        {[<ClientHandlerRenderer key={Component.toString()} Component={Component} {...props} fillSize={fillSize} link={ml.byId[linkId]} ml={ml} onClose={onClose} />]}
+      </CatchErrors></>
+      : <div></div>}
+  </>);
 }
