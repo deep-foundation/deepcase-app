@@ -919,27 +919,29 @@ export function useCyInitializer({
                 type_id: deep.idLocal('@deep-foundation/deepcase', 'Traveler'),
                 from_id: spaceId,
                 in: { data: {
-                  type_id: deep.idLocal('@deep-foundation/core', 'Contains'),
+                  type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
                   from_id: spaceId,
                 } },
                 to: { data: {
                   type_id: deep.idLocal('@deep-foundation/core', 'Query'),
+                  object: { data: { value: { id: link?.id } } },
                   in: { data: [
                     {
-                      type_id: deep.idLocal('@deep-foundation/core', 'Contains'),
+                      type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
                       from_id: spaceId,
                     },
                     {
                       type_id: deep.idLocal('@deep-foundation/core', 'Active'),
                       from_id: spaceId,
                       in: { data: {
-                        type_id: deep.idLocal('@deep-foundation/core', 'Contains'),
+                        type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
                         from_id: spaceId,
                       } },
                     },
                   ] },
                 } },
               });
+              focus(link?.id, ev?.position);
             } });
           }
         },
