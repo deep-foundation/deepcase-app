@@ -37,6 +37,7 @@ import * as rjsfChakra from '@rjsf/chakra-ui';
 import * as rjsfValidator from '@rjsf/validator-ajv8';
 // @ts-ignore
 import * as aframeReact from '@belivvr/aframe-react';
+import * as Tone from 'tone';
 import { CatchErrors } from './react-errors';
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
 
@@ -97,7 +98,7 @@ r.list = {
   '@rjsf/chakra-ui': rjsfChakra,
   '@rjsf/validator-ajv8': rjsfValidator,
   '@belivvr/aframe-react': aframeReact,
-  
+  'tone': Tone,
 };
 
 export async function evalClientHandler({
