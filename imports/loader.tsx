@@ -188,13 +188,6 @@ export const DeepLoader = memo(function DeepLoader({
     ],
   } } }), [userId]);
 
-  const insertableTypes = useMinilinksFilter(
-    deep.minilinks,
-    useCallback((l) => !!l?._applies?.includes('insertable-types'), []),
-    useCallback((l, ml) => (ml.links.filter(l => l._applies.includes('insertable-types')).map(l => l.id)), []),
-    1000,
-  ) || [];
-
   const notLoadedEnds = useMinilinksFilter(
     deep.minilinks,
     useCallback((l) => !l?._applies?.includes('not-loaded-ends'), []),
@@ -262,25 +255,25 @@ export const DeepLoader = memo(function DeepLoader({
   ) || [];
 
   const containsAndSymbolsQuery = useMemo(() => {
-    const ids = [...typeIds, ...insertableTypes, ...queryAndSpaceLoadedIds, ...treeIds];
+    const ids = [...typeIds, ...queryAndSpaceLoadedIds, ...treeIds];
     return { value: { value: {
       to_id: { _in: ids },
       type_id: { _in: [deep.idLocal('@deep-foundation/core', 'Contain'), deep.idLocal('@deep-foundation/core', 'Symbol')] },
     } } };
-  }, [typeIds, insertableTypes, queryAndSpaceLoadedIds, treeIds]);
+  }, [typeIds, queryAndSpaceLoadedIds, treeIds]);
 
   const valuesQuery = useMemo(() => {
-    const ids = [...typeIds, ...insertableTypes, ...queryAndSpaceLoadedIds];
+    const ids = [...typeIds, ...queryAndSpaceLoadedIds];
     return { value: { value: {
       from_id: { _in: ids },
       type_id: { _eq: deep.idLocal('@deep-foundation/core', 'Value') },
     } } };
-  }, [typeIds, insertableTypes, queryAndSpaceLoadedIds]);
+  }, [typeIds, queryAndSpaceLoadedIds]);
 
   const typesQuery = useMemo(() => {
     return { value: { value: {
       down: {
-        tree_id: { _eq: 0 },
+        tree_id: { _eq: deep.idLocal('@deep-foundation/core', 'typesTree') },
         link_id: { _in: ids }
       },
     } } };
@@ -364,21 +357,13 @@ export const DeepLoader = memo(function DeepLoader({
       }}
     />))}
     <><DeepLoaderActive
-      key={`DEEPCASE_INSERTABLE_TYPES`}
-      name={`DEEPCASE_INSERTABLE_TYPES`}
-      query={insertableTypesQuery}
-      onChange={(r) => {
-        deep.minilinks?.apply(r, 'insertable-types');
-      }}
-    /></>
-    {/* <><DeepLoaderActive
       key={`DEEPCASE_TYPES`}
       name={`DEEPCASE_TYPES`}
       query={typesQuery}
       onChange={(r) => {
         deep.minilinks?.apply(r, 'types');
       }}
-    /></> */}
+    /></>
     {!!typeIds && <><DeepLoaderActive
       key={`DEEPCASE_CONTAINS_AND_SYMBOLS`}
       name={`DEEPCASE_CONTAINS_AND_SYMBOLS`}

@@ -5,6 +5,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useMemo } from 'react';
 import { layouts } from './cyto/layouts';
 import { useMediaQuery as useMediaQueryChakra } from '@chakra-ui/react';
+import { Link } from '@deep-foundation/deeplinks/imports/minilinks';
 
 export const defaultLeftWidth = 10;
 export const defaultCardWidth = 300;

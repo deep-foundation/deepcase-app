@@ -177,8 +177,8 @@ export function initializeTraveler(ncy, deepRef, spaceIdRef) {
         select: async function(ele){ 
           const id = ele.data('link')?.id;
           if (id) {
-            // await switchTraveler(query(id), id);
-            generateMenuByTypes(ele, query(id));
+            await switchTraveler(query(id), id);
+            // generateMenuByTypes(ele, query(id));
           }
         }
       }))((id) => ({

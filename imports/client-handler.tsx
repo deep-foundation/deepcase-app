@@ -7,7 +7,7 @@ import { useMinilinksFilter } from "@deep-foundation/deeplinks/imports/minilinks
 import axios from 'axios';
 import * as axiosHooks from 'axios-hooks';
 import * as classnames from 'classnames';
-import React, { useCallback, useEffect, useRef, PropsWithChildren } from 'react';
+import React, { useCallback, useEffect, useRef, PropsWithChildren, useState } from 'react';
 // import * as reacticons from 'react-icons';
 import * as motion from 'framer-motion';
 import Linkify from 'react-linkify';
@@ -145,24 +145,41 @@ export function ClientHandlerRenderer({
 }
 
 export interface ClientHandlerProps extends Partial<ClientHandlerRendererProps> {
-  handlerId: number;
   linkId: number;
-  ml: any;
+  handlerId?: number;
+  context?: number[];
+  ml?: any;
   onClose?: () => any,
 }
 
 export function ClientHandler({
-  handlerId,
   linkId,
+  handlerId,
+  context = [],
   ml,
   onClose,
   fillSize,
   ...props
 }: ClientHandlerProps) {
   const deep = useDeep();
+  const _ml = ml || deep?.minilinks;
+  const [hid, setHid] = useState(handlerId || 0);
+  useEffect(() => { (async () => {
+    if (handlerId) setHid(handlerId);
+    else {
+      const { data: handlers } = await deep.select({
+        type_id: deep.idLocal('@deep-foundation/core', 'Handler'),
+        in: {
+          type_id: await deep.id('@deep-foundation/deepcase', 'Context'),
+          from_id: { _in: context }
+        },
+      });
+      if (handlers?.[0]?.id) setHid(handlers?.[0]?.id);
+    }
+  })(); }, [context, handlerId]);
   const { data: files } = useDeepSubscription({
     in: {
-      id: handlerId
+      id: hid,
     },
   });
   const file = files?.[0];
@@ -191,7 +208,7 @@ export function ClientHandler({
   return (<>
     {(typeof (Component) === 'function')
       ? <><CatchErrors errorRenderer={() => <div></div>}>
-        {[<ClientHandlerRenderer key={Component.toString()} Component={Component} {...props} fillSize={fillSize} link={ml.byId[linkId]} ml={ml} onClose={onClose} />]}
+        {[<ClientHandlerRenderer key={Component.toString()} Component={Component} {...props} fillSize={fillSize} link={_ml.byId[linkId]} ml={_ml} onClose={onClose} />]}
       </CatchErrors></>
       : <div></div>}
   </>);

@@ -36,6 +36,8 @@ export function Provider({
   // >
   // </Analitics>
   useEffect(() => { (async () => {
+    localStorage.logs = 0;
+
     const THREE = await import('three');
     // @ts-ignore
     global.THREE = THREE;

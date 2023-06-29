@@ -1,12 +1,12 @@
-import { Alert, AlertIcon, Box, Flex, HStack, IconButton, Popover, PopoverContent, PopoverTrigger, Spacer, Spinner, useDisclosure, useToast } from "@chakra-ui/react";
-import { useDeep, useDeepQuery, useDeepSubscription } from "@deep-foundation/deeplinks/imports/client";
-import { useMinilinksFilter, useMinilinksHandle, useMinilinksQuery } from "@deep-foundation/deeplinks/imports/minilinks";
+import { Alert, AlertIcon, Box, Flex, HStack, IconButton, Popover, PopoverContent, PopoverTrigger, SlideFade, Spacer, Spinner, useDisclosure, useToast } from "@chakra-ui/react";
+import { useDeep, useDeepId, useDeepQuery, useDeepSubscription } from "@deep-foundation/deeplinks/imports/client";
+import { Link, useMinilinksFilter, useMinilinksHandle, useMinilinksQuery } from "@deep-foundation/deeplinks/imports/minilinks";
 import { useDebounceCallback } from "@react-hook/debounce";
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { TiArrowBackOutline } from "react-icons/ti";
 import { VscChromeClose, VscVersions } from "react-icons/vsc";
-import { BsArrowsFullscreen } from "react-icons/bs";
+import { BsArrowsFullscreen, BsCheck2 } from "react-icons/bs";
 import { ClientHandler } from "../client-handler";
 import { CytoReactLinksCard } from "../cyto-react-links-card";
 import { useContainer, useInsertingCytoStore, useUpdatingCytoStore, useLayout, useRefAutofill, useShowExtra, useShowTypes, useSpaceId, useAutoFocusOnInsert } from "../hooks";
@@ -22,6 +22,7 @@ import { MdFolderDelete } from 'react-icons/md';
 export interface IInsertedLink {
   position: { x: number; y: number; };
   from: number; to: number;
+  alterResolve?: (link: Link<number>) => void;
 };
 
 export interface IUpdatedLink {
@@ -48,33 +49,50 @@ export function CytoReactLinksCardInsertNode({
   const deep = useDeep();
   const [insertingCyto, setInsertingCyto] = useInsertingCytoStore();
   const [container, setContainer] = useContainer();
+  const [spaceId, setSpaceId] = useSpaceId();
+  const { data: Finder } = useDeepId('@deep-foundation/finder', 'Finder');
 
-  const types = useMinilinksFilter(
-    ml,
-    useCallback(() => true, []),
-    useCallback((l, ml) => (ml.links.filter(l => l._applies.includes('insertable-types'))), []),
-  ) || [];
+  const [selectedLink, setSelectedLink] = useState<Link<number>>();
 
-  const elements = (types || [])?.map(t => ({
-    id: t.id,
-    src:  t?.inByType[deep.idLocal('@deep-foundation/core', 'Symbol')]?.[0]?.value?.value || t.id,
-    linkName: t?.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || t.id,
-    containerName: t?.inByType[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.from?.value?.value || '',
-  }));
-  console.log('elements-hooks', elements);
-  return <CytoReactLinksCard
-    elements={elements.filter(el => (!!el?.linkName?.includes && el?.linkName?.toLocaleLowerCase()?.includes(search) || el?.containerName?.includes && el?.containerName?.toLocaleLowerCase()?.includes(search)))}
-    search={search}
-    onSearch={e => setSearch(e.target.value)}
-    onSubmit={async (id) => {
-      const insertable = ml.links.filter(l => l._applies.includes('insertable-types'));
-      const type = insertable?.find(t => t.id === id);
-      const isNode = !type.from_id && !type.to_id;
-      setInsertingCyto({});
-      returningRef?.current.startInsertingOfType(id, type.from_id, type.to_id);
-      setInsertingLink(undefined);
-    }}
-  />;
+  return <>
+    {!!Finder && <ClientHandler
+      linkId={spaceId} context={[ Finder ]} ml={deep.minilinks}
+      search={''}
+      onChange={l => setSelectedLink(l)}
+    />}
+    <SlideFade in={!!selectedLink} offsetX='-0.5rem' style={{position: 'absolute', bottom: 0, right: '-2.8rem'}}>
+      <IconButton
+        isRound
+        variant='solid'
+        bg='primary'
+        // color='white'
+        aria-label='submit button'
+        icon={<BsCheck2 />}
+        onClick={async () => {
+          if (selectedLink) {
+            deep.minilinks.apply((await deep.select({ down: { link_id: { _in: [selectedLink.id, selectedLink.from_id, selectedLink.to_id] } } }))?.data, 'CytoReactLinksCardInsertNode')
+            if (insertingLink?.alterResolve) insertingLink?.alterResolve(deep.minilinks.byId[selectedLink.id]);
+            setInsertingCyto({});
+            if (!insertingLink?.alterResolve) returningRef?.current.startInsertingOfType(selectedLink.id, selectedLink.from_id, selectedLink.to_id);
+            setInsertingLink(undefined);
+          }
+        }}
+      />
+    </SlideFade>
+  </>;
+  // return <CytoReactLinksCard
+  //   elements={elements.filter(el => (!!el?.linkName?.includes && el?.linkName?.toLocaleLowerCase()?.includes(search) || el?.containerName?.includes && el?.containerName?.toLocaleLowerCase()?.includes(search)))}
+  //   search={search}
+  //   onSearch={e => setSearch(e.target.value)}
+  //   onSubmit={async (id) => {
+  //     const insertable = ml.links.filter(l => l._applies.includes('insertable-types'));
+  //     const type = insertable?.find(t => t.id === id);
+  //     const isNode = !type.from_id && !type.to_id;
+  //     setInsertingCyto({});
+  //     returningRef?.current.startInsertingOfType(id, type.from_id, type.to_id);
+  //     setInsertingLink(undefined);
+  //   }}
+  // />;
 };
 
 export function useLinkInserting(elements = [], reactElements = [], focus, cyRef, ehRef) {
@@ -190,6 +208,21 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cyRef
   });
 
   const returning = {
+    openSearchCard: (searchLink: IInsertedLink) => {
+      if (searchLink) {
+        setInsertingLink(searchLink);
+        if (cyRef.current) {
+          const el = cyRef.current.$('#insert-link-card');
+          el.unlock();
+          if (!searchLink.from && !searchLink.to) {
+            el.position(searchLink.position);
+            el.lock();
+          }
+        }
+      } else {
+        setInsertingLink(undefined);
+      }
+    },
     insertLink,
     openInsertCard: (insertedLink: IInsertedLink) => {
       if (insertedLink) {
@@ -233,11 +266,11 @@ export function useLinkInserting(elements = [], reactElements = [], focus, cyRef
     },
     startInsertingOfType: (id: number, From: number, To: number) => {
       const link = ml.byId[id];
-      const isNode = !link.from_id && !link.to_id;
-      const isPossibleNode = isNode || (link.from_id === link.to_id && link.from_id === deep.idLocal('@deep-foundation/core', 'Any'));
+      const isNode = !From && !To;
+      const isPossibleNode = isNode || (From === To && From === deep.idLocal('@deep-foundation/core', 'Any'));
       const TypeName = link?.inByType?.[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || link?.id;
-      const FromName = ml.byId[link.from_id]?.inByType?.[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || link.from_id;
-      const ToName = ml.byId[link.to_id]?.inByType?.[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || link.to_id;
+      const FromName = ml.byId[From]?.inByType?.[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || From;
+      const ToName = ml.byId[To]?.inByType?.[deep.idLocal('@deep-foundation/core', 'Contain')]?.[0]?.value?.value || To;
       const t = toast({
         title: `Inserting link type of: ${TypeName}`,
         description: `This ${isNode ? `is node type, just click somewhere for insert.` : `is link type, connect two links from typeof ${FromName} to typeof ${ToName} for insert.`}`,
@@ -432,6 +465,7 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
       const [handlerId, setHandlerId] = useState();
       const { onOpen, onClose, isOpen } = useDisclosure();
       const [search, setSearch] = useState('');
+      const [spaceId] = useSpaceId();
 
       const types = [];
       for(let cursor = deep.minilinks?.byId?.[id]; cursor && cursor.type != cursor; cursor = cursor.type) {
@@ -876,7 +910,39 @@ export function useCyInitializer({
             ncy.pan({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
             ncy.zoom(1);
           }
-        }
+        },
+        {
+          content: 'query',
+          select: function(el, ev){
+            openInsertCard({ position: ev.position, from: 0, to: 0, alterResolve: (link) => {
+              deep.insert({
+                type_id: deep.idLocal('@deep-foundation/deepcase', 'Traveler'),
+                from_id: spaceId,
+                in: { data: {
+                  type_id: deep.idLocal('@deep-foundation/core', 'Contains'),
+                  from_id: spaceId,
+                } },
+                to: { data: {
+                  type_id: deep.idLocal('@deep-foundation/core', 'Query'),
+                  in: { data: [
+                    {
+                      type_id: deep.idLocal('@deep-foundation/core', 'Contains'),
+                      from_id: spaceId,
+                    },
+                    {
+                      type_id: deep.idLocal('@deep-foundation/core', 'Active'),
+                      from_id: spaceId,
+                      in: { data: {
+                        type_id: deep.idLocal('@deep-foundation/core', 'Contains'),
+                        from_id: spaceId,
+                      } },
+                    },
+                  ] },
+                } },
+              });
+            } });
+          }
+        },
       ]
     });
 
