@@ -61,6 +61,7 @@
     "cytoscape-node-html-label": "^1.2.2",
     "cytoscape-spread": "^3.0.0",
     "d3-selection": "^3.0.0",
+    "debug": "^4.3.4",
     "deep-diff": "^1.0.2",
     "dotenv": "^16.0.3",
     "dotenv-load": "^2.0.1",

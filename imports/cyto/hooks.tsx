@@ -916,27 +916,27 @@ export function useCyInitializer({
         {
           content: 'query',
           select: function(el, ev){
-            openInsertCard({ position: ev.position, from: 0, to: 0, alterResolve: (link) => {
+            openInsertCard({ position: ev.position, from: 0, to: 0, alterResolve: async (link) => {
               deep.insert({
-                type_id: deep.idLocal('@deep-foundation/deepcase', 'Traveler'),
+                type_id: await deep.id('@deep-foundation/deepcase', 'Traveler'),
                 from_id: link?.id,
                 in: { data: {
-                  type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
+                  type_id: await deep.id('@deep-foundation/core', 'Contain'),
                   from_id: spaceId,
                 } },
                 to: { data: {
-                  type_id: deep.idLocal('@deep-foundation/core', 'Query'),
+                  type_id: await deep.id('@deep-foundation/core', 'Query'),
                   object: { data: { value: { id: link?.id } } },
                   in: { data: [
                     {
-                      type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
+                      type_id: await deep.id('@deep-foundation/core', 'Contain'),
                       from_id: spaceId,
                     },
                     {
-                      type_id: deep.idLocal('@deep-foundation/core', 'Active'),
+                      type_id: await deep.id('@deep-foundation/core', 'Active'),
                       from_id: spaceId,
                       in: { data: {
-                        type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
+                        type_id: await deep.id('@deep-foundation/core', 'Contain'),
                         from_id: spaceId,
                       } },
                     },
