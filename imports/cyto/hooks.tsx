@@ -616,6 +616,8 @@ export function useCyInitializer({
   const [container, setContainer] = useContainer();
   const [showTypes, setShowTypes] = useShowTypes();
   const [cytoEditor, setCytoEditor] = useCytoEditor();
+  const [autoFocus, setAutoFocus] = useAutoFocusOnInsert();
+  const autoFocusRef = useRefAutofill(autoFocus);
   const containerRef = useRefAutofill(container);
   const ml = deep.minilinks;
   const spaceIdRef = useRefAutofill(spaceId);
@@ -917,7 +919,7 @@ export function useCyInitializer({
             openInsertCard({ position: ev.position, from: 0, to: 0, alterResolve: (link) => {
               deep.insert({
                 type_id: deep.idLocal('@deep-foundation/deepcase', 'Traveler'),
-                from_id: spaceId,
+                from_id: link?.id,
                 in: { data: {
                   type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
                   from_id: spaceId,
@@ -941,7 +943,7 @@ export function useCyInitializer({
                   ] },
                 } },
               });
-              focus(link?.id, ev?.position);
+              if (autoFocusRef.current) focus(link?.id, ev?.position);
             } });
           }
         },
