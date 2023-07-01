@@ -1,26 +1,45 @@
-import { useDeep } from '@deep-foundation/deeplinks/imports/client';
+import { useDeep, useDeepId } from '@deep-foundation/deeplinks/imports/client';
 import json5 from 'json5';
-import { useMemo, useRef } from 'react';
-import { useInsertingCytoStore, useShowFocus, useShowTypes } from '../hooks';
+import { useEffect, useMemo, useRef } from 'react';
+import { useCytoHandlersSwitch, useInsertingCytoStore, useShowFocus, useShowTypes } from '../hooks';
 import _ from 'lodash';
+import { CytoHandler } from '../cyto-handler';
+import { useCytoHandlersRules } from './hooks';
 
-export function useCytoElements(ml, _links, cy, spaceId) {
+export function useCytoElements(ml, _links, cy, spaceId, cyh) {
   const [showTypes, setShowTypes] = useShowTypes();
   const [showFocus, setShowFocus] = useShowFocus();
+
+  const [cytoHandlers, setCytoHandlers] = useCytoHandlersSwitch();
+  const [chr, setChr] = useCytoHandlersRules();
+
   const [insertingCyto, setInsertingCyto] = useInsertingCytoStore();
   const oldElements = useRef([]);
   const deep = useDeep();
+  const { data: HandleCyto } = useDeepId('@deep-foundation/handle-cyto', 'HandleCyto');
   
   const links = _links;
   
   // console.time('useCytoElements');
   
-  const _elements: { [key: string]: any } = {};
-  const elements = [];
+  const elementsById: { [key: string]: any } = {};
+  const cytoHandled: { [key: string]: any } = {};
+  let elements = [];
   const reactElements = [];
 
   for (let i = 0; i < links.length; i++) {
     const link = links[i];
+
+    const cyHandle = deep.minilinks?.byType[HandleCyto]?.find(l => l.from_id === link.type_id);
+
+    if (cyh.drawedCytoHandlers.current[link.id] && (!cytoHandlers || !chr[cyHandle?.id])) {
+      continue;
+    }
+    if (cytoHandlers && cyHandle && !!chr[cyHandle?.id]) {
+      cytoHandled[link.id] = cyHandle?.to_id;
+      continue;
+    }
+
     const focus = link?.inByType?.[deep.idLocal('@deep-foundation/core', 'Focus')]?.find(f => f.from_id === spaceId);
     const isFocusSpace = (link.type_id === deep.idLocal('@deep-foundation/core', 'Focus') && link._applies.includes('space')) || (link?.to?.type_id === deep.idLocal('@deep-foundation/core', 'Focus') && link._applies.includes('space'));
 
@@ -88,7 +107,7 @@ export function useCytoElements(ml, _links, cy, spaceId) {
     };
 
     if ((isFocusSpace && showFocus) || !isFocusSpace) {
-      _elements[link?.id] = element;
+      elementsById[link?.id] = element;
       elements.push(element);
     }
     // if (elements.length > 200) {
@@ -105,7 +124,7 @@ export function useCytoElements(ml, _links, cy, spaceId) {
     //       pannable: false,
     //       events: false,
     //     };
-    //     _elements[id] = element;
+    //     elementsById[id] = element;
     //     elements.push(element);
     //   }
     //   {
@@ -119,13 +138,19 @@ export function useCytoElements(ml, _links, cy, spaceId) {
     //       },
     //       classes: ['query-compound-connector'],
     //     };
-    //     _elements[_id] = element;
+    //     elementsById[_id] = element;
     //     elements.push(element);
     //   }
     // }
   }
   for (let i = 0; i < links.length; i++) {
     const link = links[i];
+
+    if (cytoHandled[link?.id]) continue;
+    if (cyh.drawedCytoHandlers.current[link.id] && !cytoHandlers) {
+      continue;
+    }
+
     const focus = link?.inByType?.[deep.idLocal('@deep-foundation/core', 'Focus')]?.find(f => f.from_id === spaceId);
     const isFocusSpace = (link.type_id === deep.idLocal('@deep-foundation/core', 'Focus') && link._applies.includes('space')) || (link?.to?.type_id === deep.idLocal('@deep-foundation/core', 'Focus') && link._applies.includes('space'));
 
@@ -150,10 +175,10 @@ export function useCytoElements(ml, _links, cy, spaceId) {
     if (link?.type?.inByType?.[deep.idLocal('@deep-foundation/core', 'Symbol')]?.[0]?.value?.value) {
       _symbol = link?.type?.inByType?.[deep.idLocal('@deep-foundation/core', 'Symbol')]?.[0]?.value?.value;
     }
-    if (!!cy) {
+    if (!!cy && (!cyh.drawedCytoHandlers.current[link.id] || !cytoHandlers)) {
       if ((isFocusSpace && showFocus) || !isFocusSpace) {
         if (link.from_id) {
-          if (ml?.byId?.[link.from_id] && _elements[link.from_id]) {
+          if (ml?.byId?.[link.from_id] && elementsById[link.from_id]) {
             elements.push({
               data: { id: `${link.id}-from`, source: `${link.id}`, target: `${link.from_id}`, link },
               selectable: false,
@@ -165,7 +190,7 @@ export function useCytoElements(ml, _links, cy, spaceId) {
           }
         }
         if (link.to_id) {
-          if (ml?.byId?.[link.to_id] && _elements[link.to_id]) {
+          if (ml?.byId?.[link.to_id] && elementsById[link.to_id]) {
             elements.push({
               data: { id: `${link.id}-to`, source: `${link.id}`, target: `${link.to_id}`, link },
               selectable: false,
@@ -178,7 +203,7 @@ export function useCytoElements(ml, _links, cy, spaceId) {
         }
         if (showTypes) {
           if (link.type_id) {
-            if (ml?.byId?.[link.type_id] && _elements[link.type_id]) {
+            if (ml?.byId?.[link.type_id] && elementsById[link.type_id]) {
               elements.push({
                 data: { id: `${link.id}-type`, source: `${link.id}`, target: `${link.type_id}`, link },
                 selectable: false,
@@ -195,7 +220,7 @@ export function useCytoElements(ml, _links, cy, spaceId) {
   }
   for (let i = 0; i < elements.length; i++) {
     const el = elements[i];
-    if (el?.data?.source && !_elements[el?.data?.source]) {
+    if (el?.data?.source && !elementsById[el?.data?.source] && !cytoHandled[el?.data?.source] && !cyh.drawedCytoHandlers.current[el?.data?.source]) {
       const id = el?.data?.source;
       const element = {
         id: id,
@@ -212,10 +237,10 @@ export function useCytoElements(ml, _links, cy, spaceId) {
         // locked: true,
         // focused: true,
       };
-      _elements[id] = element;
+      elementsById[id] = element;
       elements.push(element);
     }
-    if (el?.data?.target && !_elements[el?.data?.target]) {
+    if (el?.data?.target && !elementsById[el?.data?.target] && !cytoHandled[el?.data?.target] && !cyh.drawedCytoHandlers.current[el?.data?.target]) {
       const id = el?.data?.target;
       const element = {
         id: id,
@@ -232,7 +257,7 @@ export function useCytoElements(ml, _links, cy, spaceId) {
         // locked: true,
         // focused: true,
       };
-      _elements[id] = element;
+      elementsById[id] = element;
       elements.push(element);
     }
   }
@@ -240,7 +265,13 @@ export function useCytoElements(ml, _links, cy, spaceId) {
   oldElements.current = elements;
   // console.timeEnd('useCytoElements');
 
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     if (!_.isEmpty(cyh.drawedCytoHandlers.current)) cyh.setIterator(i => i + 1);
+  //   }, 3000);
+  // });
+
   return {
-    elements, reactElements,
+    elementsById, elements, reactElements, cytoHandled,
   };
 }

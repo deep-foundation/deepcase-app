@@ -31,6 +31,7 @@ import { useCytoStylesheets } from './stylesheets';
 import { CytoGraphProps } from './types';
 
 import { useCyInitializer } from './hooks';
+import { CytoHandlers, useCytoHandlers, useCytoHandlersApply } from '../cyto-handler';
 
 const CytoscapeComponent = dynamic<any>(
   () => import('react-cytoscapejs').then((m) => m.default),
@@ -109,8 +110,17 @@ export default function CytoGraph({
   cyRef.current = cy;
   const ehRef = useRef<any>();
 
-  const { elements, reactElements } = useCytoElements(deep.minilinks, links, cy, spaceId);
+  const cyh = useCytoHandlers();
+  const { cytoHandlersRef, iterator, onChange } = cyh;
+
+  const stylesheets = useCytoStylesheets();
+
+  const { elementsById, elements, reactElements, cytoHandled } = useCytoElements(deep.minilinks, links, cy, spaceId, cyh);
   const elementsRef = useRefAutofill(elements);
+
+  const newStylesheets = [];
+  useCytoHandlersApply(cyh, elements, newStylesheets, iterator);
+  const resultStylesheets = [ ...stylesheets, ...newStylesheets ];
 
   const { onLoaded } = useCyInitializer({
     elementsRef, elements, reactElements, cyRef, setCy, ehRef, cytoViewportRef
@@ -118,9 +128,9 @@ export default function CytoGraph({
 
   const { layout, setLayout } = useLayout();
   const [ layoutAnimation ] = useLayoutAnimation();
-  const stylesheets = useCytoStylesheets();
 
   const returning = (<>
+    <CytoHandlers handled={cytoHandled} elementsById={elementsById} onChange={onChange}/>
     <Refstater useHook={useCytoViewport as any} stateRef={cytoViewportRef}/>
     <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
       <CytoDropZone
@@ -133,7 +143,7 @@ export default function CytoGraph({
           }}
           elements={elements}
           layout={layout({elementsRef: elementsRef.current, cy, isAnimate: layoutAnimation, deep})}
-          stylesheet={stylesheets}
+          stylesheet={resultStylesheets}
           panningEnabled={true}
           pan={cytoViewportRef?.current?.value?.pan}
           zoom={cytoViewportRef?.current?.value?.zoom}

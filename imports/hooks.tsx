@@ -93,6 +93,9 @@ export function useCytoViewport<S extends { pan: { x: number; y: number; }; zoom
 export function useShowFocus() {
   return useQueryStore<any>('show-focus', false);
 };
+export function useCytoHandlersSwitch() {
+  return useQueryStore<any>('cyto-handlers', false);
+};
 export function useBreadcrumbs() {
   return useQueryStore<any>('breadcrumbs', false);
 };

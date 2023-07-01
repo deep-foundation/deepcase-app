@@ -27,6 +27,7 @@ import Resizable from 're-resizable';
 import { useContainer, useSpaceId, useRefAutofill } from './hooks';
 import { CytoEditorPreview } from './cyto/editor-preview';
 import { CustomizableIcon } from './icons-provider';
+import { useChackraColor, useChackraGlobal } from './get-color';
 import { EditorTextArea } from './editor/editor-textarea';
 import { BubbleArrowLeft } from './svg/bubble-arrow-left';
 import { CytoReactLinkAvatar } from './cyto-react-avatar';
@@ -40,11 +41,11 @@ import * as aframeReact from '@belivvr/aframe-react';
 import { CatchErrors } from './react-errors';
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
 
-
-const r = (path) => {
+export const r: any = (path) => {
   if (r.list[path]) return r.list[path];
   throw new Error(`Module not found: Can't resolve ${path}`);
 };
+
 (async () => {
   const { ForceGraph2D, ForceGraph3D, ForceGraphVR, ForceGraphAR } = await import ('react-force-graph');
   r.list['react-force-graph'] = {
@@ -87,6 +88,8 @@ r.list = {
     BlockButton,
     MarkButton,
     useRefAutofill,
+    useChackraColor,
+    useChackraGlobal,
   },
   'react-icons/bs': bs,
   'react-icons/fi': fi,

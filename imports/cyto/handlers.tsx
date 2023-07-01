@@ -176,7 +176,6 @@ export const CytoEditorHandlersSupportHandle = React.memo<any>(function CytoEdit
         }}
       >
         <Input
-          disabled
           autoFocus
           h='100%'
           type={'number'}

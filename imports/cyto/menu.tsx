@@ -1,14 +1,14 @@
 import { CloseIcon } from "@chakra-ui/icons";
 import { Box, Button, ButtonGroup, FormControl, FormLabel, HStack, IconButton, Input, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Switch, Tag, TagLabel, Text, VStack, Select, StackDivider } from "@chakra-ui/react";
-import { useDeep } from "@deep-foundation/deeplinks/imports/client";
+import { useDeep, useDeepId } from "@deep-foundation/deeplinks/imports/client";
 import copy from "copy-to-clipboard";
 import { AnimatePresence, motion, useAnimation, useCycle } from 'framer-motion';
 import React, { useEffect, useState, ChangeEvent } from "react";
 import { HiMenuAlt2 } from 'react-icons/hi';
 import { SlClose } from 'react-icons/sl';
 import { Appearance } from "../component-appearance";
-import { useAutoFocusOnInsert, useBreadcrumbs, useContainer, useLayout, useMediaQuery, useReserved, useShowExtra, useShowFocus, useShowTypes, useSpaceId, useTraveler, useLayoutAnimation, useAsyncState } from "../hooks";
-import { useCytoEditor } from "./hooks";
+import { useAutoFocusOnInsert, useBreadcrumbs, useContainer, useLayout, useMediaQuery, useReserved, useShowExtra, useShowFocus, useShowTypes, useSpaceId, useTraveler, useLayoutAnimation, useAsyncState, useCytoHandlersSwitch } from "../hooks";
+import { useCytoEditor, useCytoHandlersRules } from "./hooks";
 import { variants, buttonVariant, iconVariants, sideVariants, itemVariants } from "./menu-animation-variants";
 import { TbArrowRotaryFirstRight } from "react-icons/tb";
 import { ClientHandler } from "../client-handler";
@@ -138,7 +138,7 @@ const DeepSwitch = React.memo(({
   isChecked,
   onChange,
 }: {
-  id: string;
+  id?: string;
   isChecked: boolean;
   onChange: () => any;
 }) => {
@@ -181,6 +181,7 @@ export function CytoMenu({
   const [container, setContainer] = useContainer();
   const [extra, setExtra] = useShowExtra();
   const [focus, setFocus] = useShowFocus();
+  const [cytoHandlers, setCytoHandlers] = useCytoHandlersSwitch();
   const [traveler, setTraveler] = useTraveler();
   const [reserved, setReserved] = useReserved();
   const [breadcrumbs, setBreadcrumbs] = useBreadcrumbs();
@@ -336,10 +337,16 @@ export function CytoMenu({
                 <DeepSwitch id='breadcrumbs-switch' isChecked={breadcrumbs} onChange={() => setBreadcrumbs(!breadcrumbs)} />
               </FormControl>
               <FormControl display='flex' alignItems='center'>
-              <FormLabel htmlFor='animation-layout-switch' mb='0' fontSize='sm' mr='0.25rem'>
-                animation
-              </FormLabel>
-              <Switch id='animation-layout-switch' isChecked={layoutAnimation} onChange={() => setLayoutAnimation(!layoutAnimation)}/>
+                <FormLabel color='text' htmlFor='cytoHandlers-switch' mb='0' fontSize='sm' mr='0.25rem'>
+                  cytoHandlers
+                </FormLabel>
+                <DeepSwitch id='cytoHandlers-switch' isChecked={cytoHandlers} onChange={() => setCytoHandlers(!cytoHandlers)} />
+              </FormControl>
+              <FormControl display='flex' alignItems='center'>
+                <FormLabel htmlFor='animation-layout-switch' mb='0' fontSize='sm' mr='0.25rem'>
+                  animation
+                </FormLabel>
+                <DeepSwitch id='animation-layout-switch' isChecked={layoutAnimation} onChange={() => setLayoutAnimation(!layoutAnimation)}/>
               </FormControl>
               <FormControl display='flex' alignItems='center'>
                 <FormLabel mb='0' fontSize='sm' mr='0.55rem'>
@@ -373,6 +380,7 @@ export function CytoMenu({
                 }} borderColor='gray.400' background='buttonBackgroundModal'>clear focuses</Button>
               </ButtonGroup>
               <Travelers/>
+              <CytoHandlersMenu/>
             </HStack>
           </VStack>
           {/* <Button bgColor='primary' color='white' size='sm' w='4rem' mt={10} mr={4} justifySelf='flex-end' rightIcon={<IoExitOutline />} onClick={openPortal}>Exit</Button> */}
@@ -385,11 +393,9 @@ export function CytoMenu({
 const Travelers = () => {
   const deep = useDeep();
   const [spaceId] = useSpaceId();
-  const Traveler = useAsyncState(0, async () => {
-    return await deep.id('@deep-foundation/deepcase', 'Traveler');
-  });
+  const { data: Traveler } = useDeepId('@deep-foundation/deepcase', 'Traveler');
   const travelers = deep.useMinilinksSubscription({
-    type_id: Traveler,
+    type_id: Traveler || 0,
     in: {
       type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
       from_id: spaceId,
@@ -426,6 +432,46 @@ const Travelers = () => {
               <Box><pre><code>{JSON.stringify(traveler?.to?.value?.value || {}, null, 2)}</code></pre></Box>
             </Box>)}
           </VStack>
+        </PopoverBody>
+      </PopoverContent>
+    </Popover>
+  </ButtonGroup>
+};
+
+const genName = (id, deep) => `${deep.minilinks.byTo[id]?.find(l => l.type_id === deep.idLocal('@deep-foundation/core', 'Symbol'))?.value?.value || ''} ${deep.nameLocal(id)}`.trim()
+
+const CytoHandlersMenu = () => {
+  const deep = useDeep();
+  const [spaceId] = useSpaceId();
+  const { data: HandleCyto } = useDeepId('@deep-foundation/handle-cyto', 'HandleCyto');
+  const [chr, setChr] = useCytoHandlersRules();
+  const hcs = deep.useMinilinksSubscription({
+    type_id: HandleCyto || 0,
+  });
+  return <ButtonGroup size='sm' isAttached variant='outline' color='text'>
+    <Popover>
+      <PopoverTrigger>
+        <Button>CytoHandlers</Button>
+      </PopoverTrigger>
+      <PopoverContent style={{ width: 400 }}>
+        <PopoverArrow />
+        <PopoverCloseButton />
+        <PopoverBody style={{ overflowY: 'auto', maxHeight: 300 }}>
+          {[<VStack
+            key={JSON.stringify(chr)}
+            divider={<StackDivider borderColor='gray.200' />}
+            spacing={4}
+            align='stretch'
+          >
+            {hcs.map(hc => <Box>
+              <HStack>
+                <Box>Handle {genName(hc.from_id, deep)} as {genName(hc.to?.to_id, deep)}</Box>
+                <DeepSwitch isChecked={!!chr[hc.id]} onChange={() => {
+                  setChr(chr => ({ ...chr, [hc.id]: !chr[hc.id] }));
+                }} />
+              </HStack>
+            </Box>)}
+          </VStack>]}
         </PopoverBody>
       </PopoverContent>
     </Popover>

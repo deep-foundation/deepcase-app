@@ -1,5 +1,5 @@
 import { useQuery, useSubscription } from "@apollo/client";
-import { useDeep } from "@deep-foundation/deeplinks/imports/client";
+import { useDeep, useDeepId } from "@deep-foundation/deeplinks/imports/client";
 import { generateQuery, generateQueryData } from "@deep-foundation/deeplinks/imports/gql";
 import { Link, useMinilinksFilter } from "@deep-foundation/deeplinks/imports/minilinks";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -76,6 +76,7 @@ export const DeepLoader = memo(function DeepLoader({
   const deep = useDeep();
   const userId = deep.linkId;
   const [breadcrumbs] = useBreadcrumbs();
+  const { data: HandleCyto } = useDeepId('@deep-foundation/handle-cyto', 'HandleCyto');
   // console.log({ breadcrumbs });
 
   const spaceQuery = useMemo(() => ({ value: { value: {
@@ -250,7 +251,7 @@ export const DeepLoader = memo(function DeepLoader({
   const queryAndSpaceLoadedIds = useMinilinksFilter(
     deep.minilinks,
     useCallback((l) => !!l?._applies?.find(a => a.includes('query-') || a.includes('space')), []),
-    useCallback((l, ml) => (ml.links.filter(l => l._applies?.find(a => a.includes('query-') || a.includes('space'))).map(l => l.id)), []),
+    useCallback((l, ml) => (ml.links.filter(l => l._applies?.find(a => a.includes('query-') || a.includes('space') || a.includes('client-handlers'))).map(l => l.id)), []),
     1000,
   ) || [];
 
@@ -284,12 +285,36 @@ export const DeepLoader = memo(function DeepLoader({
   // Not an efficient implementation. You have to load wood.
   const clientHandlersQuery = useMemo(() => {
     const _ids = [...ids, ...queryAndSpaceLoadedIds];
+    const handles = { _in: [deep.idLocal('@deep-foundation/core', 'HandleClient'), HandleCyto] };
+    return { value: { value: {
+      _or: [
+        {
+          in: {
+            type_id: deep.idLocal('@deep-foundation/core', 'Handler'),
+            in: {
+              type_id: handles,
+            },
+          },
+        },
+        { 
+          type_id: deep.idLocal('@deep-foundation/core', 'Handler'),
+          in: {
+            type_id: handles,
+          },
+        },
+        { type_id: handles },
+      ]
+    } } };
+  }, [queryAndSpaceLoadedIds, ids]);
+  
+  const handleCytoCode = useMemo(() => {
+    const _ids = [...ids, ...queryAndSpaceLoadedIds];
     return { value: { value: {
       _or: [
         { 
           type_id: deep.idLocal('@deep-foundation/core', 'Handler'),
           in: {
-            type_id: deep.idLocal('@deep-foundation/core', 'HandleClient'),
+            type_id: { _in: deep.idLocal('@deep-foundation/core', 'HandleClient'), HandleCyto },
           },
         },
         { type_id: deep.idLocal('@deep-foundation/core', 'HandleClient') },
@@ -356,14 +381,14 @@ export const DeepLoader = memo(function DeepLoader({
         deep.minilinks?.apply(r, `query-${f.id}`);
       }}
     />))}
-    <><DeepLoaderActive
+    {/* <><DeepLoaderActive
       key={`DEEPCASE_TYPES`}
       name={`DEEPCASE_TYPES`}
       query={typesQuery}
       onChange={(r) => {
         deep.minilinks?.apply(r, 'types');
       }}
-    /></>
+    /></> */}
     {!!typeIds && <><DeepLoaderActive
       key={`DEEPCASE_CONTAINS_AND_SYMBOLS`}
       name={`DEEPCASE_CONTAINS_AND_SYMBOLS`}

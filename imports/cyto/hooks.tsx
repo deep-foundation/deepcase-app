@@ -437,20 +437,20 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
       if (isEnabling) {
         cy?.$(`#${id}`).data('Component', AnyLinkComponent);
         cy?.$(`#${id}`).addClass('unhoverable').removeClass('hover');
-        cy?.$(`#${id}`).style({
-          'shape': 'rectangle',
-          'background-opacity': '0',
-        });
+        // cy?.$(`#${id}`).style({
+        //   'shape': 'rectangle',
+        //   'background-opacity': '0',
+        // });
       } else {
         cy?.$(`#${id}`).data('Component', undefined);
         cy?.$(`#${id}`).removeClass('unhoverable');
-        cy?.$(`#${id}`).style({
-          'shape': null,
-          width: null,
-          height: null,
-          'background-opacity': null,
-          'border-width': 0,
-        });
+        // cy?.$(`#${id}`).style({
+        //   'shape': null,
+        //   width: null,
+        //   height: null,
+        //   'background-opacity': null,
+        //   'border-width': 0,
+        // });
       }
       return {
         ...linkReactElements,
@@ -467,16 +467,11 @@ export function useLinkReactElements(elements = [], reactElements = [], cy, ml) 
       const [search, setSearch] = useState('');
       const [spaceId] = useSpaceId();
 
-      const types = [];
-      for(let cursor = deep.minilinks?.byId?.[id]; cursor && cursor.type != cursor; cursor = cursor.type) {
-        types.push(cursor.id);
-      }
-
-      const handlers = deep.useMinilinksQuery({
+      const { data: handlers } = deep.useDeepQuery({
         type_id: deep.idLocal('@deep-foundation/core', 'Handler'),
         in: {
           type_id: deep.idLocal('@deep-foundation/core', 'HandleClient'),
-          _or: types.map(type => ({ from_id: { _eq: type } })),
+          from_id: deep.minilinks?.byId?.[id]?.type_id,
         },
       });
 
@@ -983,7 +978,7 @@ export function useCyInitializer({
     ncy.on('dragend', 'node', dragend);
     ncy.on('tapend', 'node', tapend);
     ncy.on('tapstart', 'node', tapstart);
-    ncy.on('click', '.link-from, .link-to, .link-type, .link-node', click);
+    ncy.on('click', '.link-node, .link', click);
     ncy.on('mouseout', '.link-from, .link-to, .link-type, .link-node', mouseout);
     ncy.on('mouseover', '.link-from, .link-to, .link-type, .link-node', mouseover);
     ncy.on('layoutstart', layoutstart);
@@ -1018,3 +1013,7 @@ export function useCyInitializer({
     onLoaded,
   };
 }
+
+export function useCytoHandlersRules() {
+  return useQueryStore('ch-rules', {});
+};

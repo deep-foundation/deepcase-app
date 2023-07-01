@@ -122,14 +122,14 @@ export function CytoReactLayout({
         left: 0, top: -5,
       }} id={generateId(element)} key={id}>
         <ReactResizeDetector handleWidth handleHeight onResize={(width, height) => {
-          cy.$(`#${id}`).data('react-element-size', { width, height });
-          cy.$(`#${id}`).style({
-            'shape': 'rectangle',
-            'background': 'transparent',
-            width,
-            height: height + 10,
-            'border-width': 0,
-          });
+          // cy.$(`#${id}`).data('react-element-size', { width, height });
+          // cy.$(`#${id}`).style({
+          //   'shape': 'rectangle',
+          //   'background': 'transparent',
+          //   width,
+          //   height: height + 10,
+          //   'border-width': 0,
+          // });
         }}/>
         {reactElement}
       </div>;

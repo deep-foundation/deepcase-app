@@ -193,6 +193,10 @@ export function initializeTraveler(ncy, deepRef, spaceIdRef) {
       ...subQuery,
       distinct_on: ['type_id'],
     });
+    const { data: names = [] } = await deep.select({
+      type_id: deep.idLocal('@deep-foundation/core', 'Contain'),
+      to_id: { _in: types.map(l => l.type_id) },
+    });
     const menuByTypes = ncy.cxtmenu({
       selector: '.link-node',
       outsideMenuCancel: 10,
@@ -212,7 +216,7 @@ export function initializeTraveler(ncy, deepRef, spaceIdRef) {
           ...subQuery
         })),
         ...types?.map(l => ((query) => ({
-          content: (ele) => `${deep.nameLocal(l.type_id)} ${findTravlers(query(ele.data('link')?.id), ele.data('link')?.id)?.length ? 'x' : '+'}`,
+          content: (ele) => `${names.find(n => n?.to_id === l.type_id)?.value?.value || l.type_id} ${findTravlers(query(ele.data('link')?.id), ele.data('link')?.id)?.length ? 'x' : '+'}`,
           select: async function(ele){ 
             const id = ele.data('link')?.id;
             if (id) {
