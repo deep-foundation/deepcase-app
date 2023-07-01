@@ -1,6 +1,6 @@
 import { CloseIcon } from "@chakra-ui/icons";
 import { Box, Button, ButtonGroup, FormControl, FormLabel, HStack, IconButton, Input, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Switch, Tag, TagLabel, Text, VStack, Select, StackDivider } from "@chakra-ui/react";
-import { useDeep, useDeepId } from "@deep-foundation/deeplinks/imports/client";
+import { useDeep, useDeepId, useDeepSubscription } from "@deep-foundation/deeplinks/imports/client";
 import copy from "copy-to-clipboard";
 import { AnimatePresence, motion, useAnimation, useCycle } from 'framer-motion';
 import React, { useEffect, useState, ChangeEvent } from "react";
@@ -443,7 +443,10 @@ const genName = (id, deep) => `${deep.minilinks.byTo[id]?.find(l => l.type_id ==
 const CytoHandlersMenu = () => {
   const deep = useDeep();
   const [spaceId] = useSpaceId();
-  const { data: HandleCyto } = useDeepId('@deep-foundation/handle-cyto', 'HandleCyto');
+  const { data: [HandleCytoLink] = [] } = useDeepSubscription({
+    id: { _id: ['@deep-foundation/handle-cyto', 'HandleCyto'] }
+  });
+  const HandleCyto = HandleCytoLink?.id;
   const [chr, setChr] = useCytoHandlersRules();
   const hcs = deep.useMinilinksSubscription({
     type_id: HandleCyto || 0,
