@@ -41,9 +41,9 @@ export function Provider({
     const THREE = await import('three');
     // @ts-ignore
     global.THREE = THREE;
-    localStorage.debug = '';
+    localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
     await import('aframe');
-    localStorage.debug = '';
+    localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
   })(); }, []);
 
   return (<>
