@@ -115,7 +115,7 @@
     "xterm": "^5.1.0"
   },
   "engines": {
-    "node": "^16.20.0"
+    "node": "^18.16.1"
   },
   "devDependencies": {
     "browser-resolve": "^2.0.0",
