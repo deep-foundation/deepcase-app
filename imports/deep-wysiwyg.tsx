@@ -41,6 +41,7 @@ import { htmlToSlate, slateToHtml } from 'slate-serializers';
 import { State, MarkdownParser } from 'markup-it';
 import { ClientHandlerSlateProxy } from './client-handler-slate-proxy';
 import dynamic from 'next/dynamic';
+import { OnMount } from '@monaco-editor/react';
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
 
 const HOTKEYS = {
@@ -233,7 +234,7 @@ const Leaf = ({ attributes, children, leaf }) => {
   const editorRef = useRef(null);
   const boxRef = useRef(null);
 
-  function handleEditorDidMount(editor, monaco) {
+  const handleEditorDidMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
     const container = boxRef.current;
     const updateHeight = () => {
