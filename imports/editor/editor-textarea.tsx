@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic';
 import React from 'react';
 import _ from 'lodash';
 import { AutoTypings, LocalStorageCache } from "monaco-editor-auto-typings";
+import { OnMount } from '@monaco-editor/react';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
 
@@ -39,16 +40,16 @@ export const EditorTextArea = React.memo<any>(({
   refValue.current = value;
 
   const { colorMode } = useColorMode();
-  function handleEditorDidMount(editor, monaco) {
+  const handleEditorDidMount: OnMount = (editor, monaco) => {
     refEditor.current = { editor, monaco };
     editor.getModel().updateOptions({ tabSize: 2 });
-    editor.addCommand([monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS], () => {
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
       onSave && onSave(refValue.current);
     });
-    editor.addCommand([monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE], () => {
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE, () => {
         onClose && onClose();
     });
-    editor.addCommand([monaco.KeyMod.CtrlCmd | monaco.KeyCode.Escape], () => {
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Escape, () => {
       onExit && onExit();
     });
     onMount && onMount(editor, monaco);
