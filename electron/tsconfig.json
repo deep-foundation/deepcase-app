@@ -5,7 +5,7 @@
     "outDir": "./build",
     "importHelpers": true,
     "target": "ES2017",
-    "module": "ESNext",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "typeRoots": ["./node_modules/@types"],
