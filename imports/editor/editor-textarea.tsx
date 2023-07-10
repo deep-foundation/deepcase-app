@@ -2,7 +2,7 @@ import { useColorMode } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
 import React from 'react';
 import _ from 'lodash';
-import { AutoTypings, LocalStorageCache } from "monaco-editor-auto-typings";
+import { AutoTypings, LocalStorageCache } from "monaco-editor-auto-typings/custom-editor";
 import { OnMount } from '@monaco-editor/react';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
