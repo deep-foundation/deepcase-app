@@ -2,6 +2,7 @@ import { useColorMode } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
 import React from 'react';
 import _ from 'lodash';
+import { AutoTypings, LocalStorageCache } from "monaco-editor-auto-typings";
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
 
@@ -51,6 +52,25 @@ export const EditorTextArea = React.memo<any>(({
       onExit && onExit();
     });
     onMount && onMount(editor, monaco);
+
+    monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+      target: monaco.languages.typescript.ScriptTarget.ESNext,
+      allowNonTsExtensions: true,
+      moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+      module: monaco.languages.typescript.ModuleKind.ESNext,
+      noEmit: true,
+      typeRoots: ["node_modules/@types"]
+    })
+
+    monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+      noSemanticValidation: false,
+      noSyntaxValidation: false,
+    })
+    
+    const autoTypings = AutoTypings.create(editor, {
+      sourceCache: new LocalStorageCache(), // Cache loaded sources in localStorage. May be omitted
+      monaco: monaco,
+    });
   }
 
   return (<MonacoEditor
@@ -61,6 +81,7 @@ export const EditorTextArea = React.memo<any>(({
       },
       // @ts-ignore
       lineNumbers: lineNumbers,
+      
     }}
     height="100%"
     width="100%"
