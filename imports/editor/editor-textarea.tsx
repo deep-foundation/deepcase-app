@@ -41,13 +41,13 @@ export const EditorTextArea = React.memo<any>(({
   function handleEditorDidMount(editor, monaco) {
     refEditor.current = { editor, monaco };
     editor.getModel().updateOptions({ tabSize: 2 });
-    editor.addCommand([monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS], () => {
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
       onSave && onSave(refValue.current);
     });
-    editor.addCommand([monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE], () => {
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE, () => {
         onClose && onClose();
     });
-    editor.addCommand([monaco.KeyMod.CtrlCmd | monaco.KeyCode.Escape], () => {
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Escape, () => {
       onExit && onExit();
     });
     onMount && onMount(editor, monaco);
