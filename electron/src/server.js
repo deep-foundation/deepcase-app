@@ -1,10 +1,6 @@
-import express from 'express';
-import fkill from 'fkill';
-import { call } from '@deep-foundation/deeplinks/imports/engine';
-
-import { promisify } from 'util';
-import { exec } from 'child_process';
-
+const express = require("express");
+const promisify = require("util").promisify;
+const exec = require("child_process").exec;
 const execP = promisify(exec);
 
 process.env['MIGRATIONS_HASURA_PATH'] = 'localhost:8080';
@@ -25,11 +21,12 @@ const envsObj = {
 };
 
 (async () => {
+  const engine = await import('@deep-foundation/deeplinks/imports/engine.js');
   const app = express();
   app.use(express.json())
   app.use(express.urlencoded({ extended: true }))
   app.post('/api/deeplinks', async (req, res) => {
-    res.json(await call({ ...req.body, envs: { ...envsObj, ...req?.body?.envs } }));
+    res.json(await engine.call({ ...req.body, envs: { ...envsObj, ...req?.body?.envs } }));
   });
   app.post('/test', async (req, res) => {
     res.json(await execP(`${req.body.exec}`));
