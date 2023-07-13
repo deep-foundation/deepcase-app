@@ -81,6 +81,8 @@
     "jsonwebtoken": "^9.0.0",
     "leven-sort": "^4.0.0",
     "markup-it": "^13.0.0",
+    "monaco-editor": "^0.40.0",
+    "monaco-editor-auto-typings": "^0.4.4",
     "next": "13.3",
     "next-env": "^1.1.1",
     "normalize.css": "^8.0.1",
