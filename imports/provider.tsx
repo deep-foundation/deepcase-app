@@ -35,16 +35,25 @@ export function Provider({
   //   googleAnalyticsAccounts={['G-DC5RRWLRNV']}
   // >
   // </Analitics>
-  useEffect(() => { (async () => {
-    localStorage.logs = 0;
-
-    const THREE = await import('three');
-    // @ts-ignore
-    global.THREE = THREE;
-    localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
-    await import('aframe');
-    localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
-  })(); }, []);
+  useEffect(() => {
+    (async () => {
+      localStorage.logs = 0;
+      if (typeof (window) !== undefined) {
+        await import ('aframe');
+        localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
+        await import('aframe-forcegraph-component');
+        localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
+        await import('super-hands');
+        localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
+        require('./aframe/rotator');
+        localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
+        require('./aframe/scaler');
+        localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
+        require('./aframe/dragger');
+        localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
+      }
+    })();
+  }, []);
 
   return (<>
     <ThemeProviderCustom theme={themeCustom}>

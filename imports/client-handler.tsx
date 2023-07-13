@@ -38,6 +38,7 @@ import * as rjsfChakra from '@rjsf/chakra-ui';
 import * as rjsfValidator from '@rjsf/validator-ajv8';
 // @ts-ignore
 import * as aframeReact from '@belivvr/aframe-react';
+import { Entity, Scene } from 'aframe-react';
 import { CatchErrors } from './react-errors';
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
 
@@ -46,15 +47,17 @@ export const r: any = (path) => {
   throw new Error(`Module not found: Can't resolve ${path}`);
 };
 
-(async () => {
-  const { ForceGraph2D, ForceGraph3D, ForceGraphVR, ForceGraphAR } = await import ('react-force-graph');
-  r.list['react-force-graph'] = {
-    ForceGraph2D,
-    ForceGraph3D,
-    ForceGraphVR,
-    ForceGraphAR
-  }
-})()
+// (async () => {
+//   localStorage.logs = 0;
+//   const { ForceGraph2D, ForceGraph3D, ForceGraphVR, ForceGraphAR } = await import ('react-force-graph');
+//   localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
+//   r.list['react-force-graph'] = {
+//     ForceGraph2D,
+//     ForceGraph3D,
+//     ForceGraphVR,
+//     ForceGraphAR
+//   }
+// })()
 r.list = {
   '@chakra-ui/react': chakra,
   'react': React,
@@ -100,6 +103,7 @@ r.list = {
   '@rjsf/chakra-ui': rjsfChakra,
   '@rjsf/validator-ajv8': rjsfValidator,
   '@belivvr/aframe-react': aframeReact,
+  'aframe-react': { Entity, Scene }
 };
 
 export async function evalClientHandler({
