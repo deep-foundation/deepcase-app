@@ -1,7 +1,7 @@
 {
   "compileOnSave": true,
   "include": ["./capacitor.config.ts", "./capacitor.config.js"],
-  "files": ["./src/index.ts", "./src/preload.ts", "./src/setup.ts", "./src/rt/electron-rt.ts", "./src/rt/electron-plugins.js"],
+  "files": ["./src/index.ts", "./src/preload.ts", "./src/setup.ts", "./src/rt/electron-rt.ts", "./src/rt/electron-plugins.js", "./src/engine.ts"],
   "compilerOptions": {
     "outDir": "./build",
     "importHelpers": true,

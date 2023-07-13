@@ -125,9 +125,12 @@ const TerminalConnect = React.memo<any>(({
       // animation.start('display');
       setTimeout(async() => {
         terminalRef?.current?.resize(terminalRef.current.cols,terminalRef.current.rows);
-        await callEngine({ serverUrl, operation: 'init', terminal: terminalRef.current });
-        await callEngine({ serverUrl, operation: 'migrate', terminal: terminalRef.current });
-        await callEngine({ serverUrl, operation: 'check', terminal: terminalRef.current });
+        const initResult = await callEngine({ serverUrl, operation: 'init', terminal: terminalRef.current });
+        console.log(initResult);
+        const migrateResult = await callEngine({ serverUrl, operation: 'migrate', terminal: terminalRef.current });
+        console.log(migrateResult);
+        const checkResult = await callEngine({ serverUrl, operation: 'check', terminal: terminalRef.current });
+        console.log(checkResult);
 
         await delay(2000);
         setInitLocal(InitializingState.launched);
@@ -499,12 +502,14 @@ export const Connector = React.memo<any>(({
       // console.log('docker', dockerStatus);
       // console.log('docker', dockerStatus?.data?.result?.stdout?.[0]);
       // console.log('docker', dockerStatus?.data?.result?.stdout?.[0] !== '{');
+      console.log('dockerStatusObj', dockerStatus);
       if (dockerStatus?.data?.result?.stdout?.[0] !== '{') setIsExistDocker(false);
       const dockerComposeStatus = await callEngine({ serverUrl, operation: 'compose' });
+      console.log('dockerComposeStatusObj', dockerComposeStatus);
       // console.log('docker', dockerComposeStatus);
       // console.log('docker', dockerComposeStatus?.data?.result?.stdout.toString());
       // console.log('docker', !/^-?[a-z0-9]+\r?\n?$/.test(dockerComposeStatus?.data?.result?.stdout.toString()));
-      if (!/^-?[a-z0-9]+\r?\n?$/.test(dockerComposeStatus?.data?.result?.stdout.toString())) setIsExistDocker(false);
+      if (!/^-?[a-z0-9.]+\r?\n?$/.test(dockerComposeStatus?.data?.result?.stdout.toString())) setIsExistDocker(false);
     })();
   }, []);
 
