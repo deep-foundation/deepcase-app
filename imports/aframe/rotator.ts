@@ -1,3 +1,7 @@
+// @ts-nocheck
+import AFRAME from "aframe";
+import * as THREE from "three";
+
 AFRAME.registerComponent("rotator", {
   init: function() {
       const graph = document.querySelector("[forcegraph]");

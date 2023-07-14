@@ -1,3 +1,7 @@
+// @ts-nocheck
+import AFRAME from "aframe";
+import * as THREE from "three";
+
 AFRAME.registerComponent("scaler", {
   init: function() {
       this.graph = document.querySelector("[forcegraph]");
