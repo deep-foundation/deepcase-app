@@ -228,9 +228,6 @@ const _execEngine = async ({ envsStr, engineStr }: { envsStr: string; engineStr:
 }
 
 export async function call (options: ICallOptions) {
-
-  console.log('AAA1');
-  
   //@ts-ignore
   const envs = { ...options.envs, DOCKERHOST: internalIp.internalIpV4 ? await internalIp.internalIpV4() : internalIp?.v4?.sync() };
   if (platform !== "win32"){
@@ -240,20 +237,16 @@ export async function call (options: ICallOptions) {
     envs['PATH'] = process?.env?.['Path'];
   }
   log({options});
-  console.log('AAA2');
   const isDeeplinksDocker = await _checkDeeplinksStatus();
   const isDeepcaseDocker = await _checkDeepcaseStatus();
   log({isDeeplinksDocker});
 
   const envsStr = _generateEnvs({ envs, isDeeplinksDocker: isDeeplinksDocker.result });
   log({envs});
-  console.log('AAA3');
   const engineStr = _generateEngineStr({ operation: options.operation, isDeeplinksDocker: isDeeplinksDocker.result, isDeepcaseDocker: isDeepcaseDocker.result, envs} )
   log({engineStr});
   const engine = await _execEngine({ envsStr, engineStr });
   log({engine});
-  console.log('AAA4');
-  console.log(engine);
 
   return { ...options, platform, _hasura, _deeplinks, isDeeplinksDocker, isDeepcaseDocker, envs, engineStr, fullStr: `${envsStr} ${engineStr}`, ...engine };
 }

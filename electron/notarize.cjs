@@ -1,6 +1,6 @@
 const { notarize } = require('electron-notarize');
 
-const appBundleId = 'deep.case.app';
+const appBundleId = 'deep.app';
 
 exports.default = async function packageTask (context) {
   const { electronPlatformName, appOutDir } = context;
@@ -9,6 +9,12 @@ exports.default = async function packageTask (context) {
   }
   const appName = context.packager.appInfo.productFilename;
   console.log('Notarizing...');
+  console.log({
+    appBundleId,
+    appPath: `${appOutDir}/${appName}.app`,
+    appleId: process.env.APPLEID,
+    appleIdPassword: process.env.APPLEIDPASS,
+  });
   await notarize({
     appBundleId,
     appPath: `${appOutDir}/${appName}.app`,
