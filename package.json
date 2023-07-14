@@ -69,6 +69,7 @@
     "dotenv-load": "^2.0.1",
     "dotenv-webpack": "^8.0.1",
     "electron": "^13.1.9",
+    "electron-root-path": "^1.1.0",
     "emoji-picker-react": "^4.4.9",
     "fix-path": "^4.0.0",
     "fkill": "^8.1.0",
