@@ -2,7 +2,7 @@
   "name": "@deep-foundation/deepcase",
   "version": "0.1.0-beta.3",
   "license": "Unlicense",
-  "type": "module",
+  "type": "module", 
   "scripts": {
     "dev": "next dev",
     "build": "rm -rf app && next build",
