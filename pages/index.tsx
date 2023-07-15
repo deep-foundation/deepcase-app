@@ -14,6 +14,7 @@ import { useRefstarter } from '../imports/refstater';
 import { Connector } from '../imports/connector/connector';
 import { PackagerInterface } from '../imports/packager-interface/packager-interface';
 import getConfig from 'next/config'
+import { CatchErrors } from '../imports/react-errors';
 
 const { publicRuntimeConfig } = getConfig();
 
@@ -109,27 +110,36 @@ export default function Page(props: {
   const [portal, setPortal] = useState(true);
   const [deepUrl, setDeepUrl] = useState('none');
 
+  const key = `${gqlSsl}-${gqlPath}`;
+  
+  console.log("gqlPath", gqlPath);
+  console.log("gqlSsl", gqlSsl);
+
   return (<>
     <Provider gqlPath={gqlPath} gqlSsl={gqlSsl}>
-      <>{[<div key={deepUrl}>
+      {/* <>{[<div key={key}> */}
         <DeepProvider>
-          <AutoGuest>
-            <Connector
-              portalOpen={portal}
-              setPortal={setPortal}
-              // onClosePortal={() => setPortal(portal)}
-              gqlPath={gqlPath}
-              gqlSsl={gqlSsl}
-              serverUrl={serverUrl}
-              deeplinksUrl={deeplinksUrl} // TODO: Do we really need this? Does not gqlPath + gqlSsl is enough? Should we check status for the remote deeplinks or only for local? Ping to @Menzorg
-              setGqlPath={(path) => setGqlPath(path)}
-              setGqlSsl={(ssl) => setGqlSsl(ssl)}
-              setDeepUrl={(url) => setDeepUrl(url)}
-            />
-            <Content gqlPath={gqlPath} gqlSsl={gqlSsl} openPortal={()=>setPortal(true)} />
-          </AutoGuest>
-        </DeepProvider></div>]}
-      </>
+          <Connector
+            portalOpen={portal}
+            setPortal={setPortal}
+            // onClosePortal={() => setPortal(portal)}
+            gqlPath={gqlPath}
+            gqlSsl={gqlSsl}
+            serverUrl={serverUrl}
+            deeplinksUrl={deeplinksUrl} // TODO: Do we really need this? Does not gqlPath + gqlSsl is enough? Should we check status for the remote deeplinks or only for local? Ping to @Menzorg
+            setGqlPath={(path) => setGqlPath(path)}
+            setGqlSsl={(ssl) => setGqlSsl(ssl)}
+            setDeepUrl={(url) => setDeepUrl(url)}
+          />
+          { gqlPath ? [
+            <CatchErrors key={1} errorRenderer={() => <div>Error in AutoGuest or content rendering.</div> }>
+              <AutoGuest>
+                <Content gqlPath={gqlPath} gqlSsl={gqlSsl} openPortal={()=>setPortal(true)} />
+              </AutoGuest>
+            </CatchErrors>
+          ] : [] }
+        </DeepProvider>
+      {/* </div>]}</> */}
     </Provider>
   </>);
 }
@@ -137,7 +147,7 @@ export default function Page(props: {
 export async function getStaticProps() {
   return {
     props: {
-      gqlPath: publicRuntimeConfig?.NEXT_PUBLIC_GQL_PATH || 'localhost:3006/gql',
+      gqlPath: publicRuntimeConfig?.NEXT_PUBLIC_GQL_PATH || '',
       gqlSsl: !!+publicRuntimeConfig?.NEXT_PUBLIC_GQL_SSL || false,
       serverUrl: publicRuntimeConfig?.NEXT_PUBLIC_DEEPLINKS_SERVER || 'http://localhost:3007',
       deeplinksUrl: publicRuntimeConfig?.NEXT_PUBLIC_DEEPLINKS_URL || 'http://localhost:3006',
