@@ -92,14 +92,16 @@ const TerminalConnect = React.memo<any>(({
   initializingState = undefined, 
   setInitLocal, 
   serverUrl,
-  setDeepUrl,
+  setGqlPath,
+  setGqlSsl,
 }:{
   initializingState?: InitializingState; 
   closeTerminal: () => any; 
   setInitLocal: (state) => any; 
   terminalClosed: boolean; 
   serverUrl: string;
-  setDeepUrl: (url) => any; 
+  setGqlPath: (path: string) => any;
+  setGqlSsl: (ssl: boolean) => any; 
 }) => {
   const terminalBoxRef = useRef<any>();
   const terminalRef = useRef<any>();
@@ -136,7 +138,8 @@ const TerminalConnect = React.memo<any>(({
 
         await delay(2000);
         setInitLocal(InitializingState.launched);
-        setDeepUrl('http://localhost:3006/gql');
+        setGqlPath('localhost:3006/gql');
+        setGqlSsl(false);
       }, 2000);
     } else if (initializingState == 'removing') {
         control.start('grow');
@@ -148,7 +151,8 @@ const TerminalConnect = React.memo<any>(({
           await delay(2000);
           setInitLocal(InitializingState.notInit);
           await delay(1000);
-          setDeepUrl('none');
+          setGqlPath('');
+          setGqlSsl(false);
         }, 2000);
     } else if (initializingState == 'launched' || initializingState == 'not init') {
       if (terminalRef.current) terminalRef.current.clear();
@@ -397,7 +401,6 @@ export const Connector = React.memo<any>(({
   deeplinksUrl,
   setGqlPath,
   setGqlSsl,
-  setDeepUrl,
   // onClosePortal,
 }:{
   portalOpen?: boolean;
@@ -408,7 +411,6 @@ export const Connector = React.memo<any>(({
   deeplinksUrl: string;
   setGqlPath: (path: string) => any;
   setGqlSsl: (ssl: boolean) => any; 
-  setDeepUrl: (url: string) => any; 
   // onClosePortal: (portalOpen: boolean) => any;
 }) => {
   const control = useAnimation();
@@ -577,7 +579,6 @@ export const Connector = React.memo<any>(({
                       const url = new URL(rr.value);
                       setGqlPath(`${url.hostname}${url.port ? ':' + url.port : ''}${url.pathname}`);
                       setGqlSsl(url.protocol == 'http:' ? false : true);
-                      setDeepUrl(`${url.protocol}//${url.hostname}${url.port ? ':' + url.port : ''}${url.pathname}`)
                     } catch(e) {
                       console.log('URL error', e);
                     }
@@ -741,7 +742,9 @@ export const Connector = React.memo<any>(({
             setInitLocal={(state)=>setInitLocal(state)}
             key={21121}
             serverUrl={serverUrl}
-            setDeepUrl={(url)=>{setDeepUrl(url)}}/>
+            setGqlPath={(path) => setGqlPath(path)}
+            setGqlSsl={(ssl) => setGqlSsl(ssl)}
+          />
         </ConnectorGrid>
       </Box>
     </ModalWindow>

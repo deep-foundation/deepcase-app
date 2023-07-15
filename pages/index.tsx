@@ -108,9 +108,6 @@ export default function Page(props: {
   const [gqlPath, setGqlPath] = useState(props.gqlPath);
   const [gqlSsl, setGqlSsl] = useState(props.gqlSsl);
   const [portal, setPortal] = useState(true);
-  const [deepUrl, setDeepUrl] = useState('none');
-
-  const key = `${gqlSsl}-${gqlPath}`;
   
   console.log("gqlPath", gqlPath);
   console.log("gqlSsl", gqlSsl);
@@ -129,7 +126,6 @@ export default function Page(props: {
             deeplinksUrl={deeplinksUrl} // TODO: Do we really need this? Does not gqlPath + gqlSsl is enough? Should we check status for the remote deeplinks or only for local? Ping to @Menzorg
             setGqlPath={(path) => setGqlPath(path)}
             setGqlSsl={(ssl) => setGqlSsl(ssl)}
-            setDeepUrl={(url) => setDeepUrl(url)}
           />
           { gqlPath ? [
             <CatchErrors key={1} errorRenderer={() => <div>Error in AutoGuest or content rendering.</div> }>
