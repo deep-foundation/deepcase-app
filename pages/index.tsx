@@ -111,10 +111,12 @@ export default function Page(props: {
   
   console.log("gqlPath", gqlPath);
   console.log("gqlSsl", gqlSsl);
+  
+  const key = `${gqlSsl}-${gqlSsl}`;
 
   return (<>
-    <Provider gqlPath={gqlPath} gqlSsl={gqlSsl}>
-      {/* <>{[<div key={key}> */}
+    {[
+      <Provider key={key} gqlPath={gqlPath} gqlSsl={gqlSsl}>
         <DeepProvider>
           <Connector
             portalOpen={portal}
@@ -135,8 +137,8 @@ export default function Page(props: {
             </CatchErrors>
           ] : [] }
         </DeepProvider>
-      {/* </div>]}</> */}
-    </Provider>
+      </Provider>
+    ]}
   </>);
 }
 
