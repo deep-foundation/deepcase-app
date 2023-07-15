@@ -148,7 +148,7 @@ const TerminalConnect = React.memo<any>(({
           await delay(2000);
           setInitLocal(InitializingState.notInit);
           await delay(1000);
-          setDeepUrl('');
+          setDeepUrl('none');
         }, 2000);
     } else if (initializingState == 'launched' || initializingState == 'not init') {
       if (terminalRef.current) terminalRef.current.clear();

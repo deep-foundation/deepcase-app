@@ -107,7 +107,7 @@ export default function Page(props: {
   const [gqlPath, setGqlPath] = useState(props.gqlPath);
   const [gqlSsl, setGqlSsl] = useState(props.gqlSsl);
   const [portal, setPortal] = useState(true);
-  const [deepUrl, setDeepUrl] = useState('');
+  const [deepUrl, setDeepUrl] = useState('none');
 
   return (<>
     <Provider gqlPath={gqlPath} gqlSsl={gqlSsl}>
