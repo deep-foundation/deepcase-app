@@ -112,7 +112,7 @@ export default function Page(props: {
   console.log("gqlPath", gqlPath);
   console.log("gqlSsl", gqlSsl);
   
-  const key = `${gqlSsl}-${gqlSsl}`;
+  const key = `${gqlSsl}-${gqlPath}`;
 
   return (<>
     {[
