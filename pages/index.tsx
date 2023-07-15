@@ -111,7 +111,7 @@ export default function Page(props: {
 
   return (<>
     <Provider gqlPath={gqlPath} gqlSsl={gqlSsl}>
-      <>{[<div key={deepUrl}/>]}
+      <>{[<div key={deepUrl}>
         <DeepProvider>
           <AutoGuest>
             <Connector
@@ -128,7 +128,7 @@ export default function Page(props: {
             />
             <Content gqlPath={gqlPath} gqlSsl={gqlSsl} openPortal={()=>setPortal(true)} />
           </AutoGuest>
-        </DeepProvider>
+        </DeepProvider></div>]}
       </>
     </Provider>
   </>);
