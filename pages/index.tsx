@@ -107,25 +107,29 @@ export default function Page(props: {
   const [gqlPath, setGqlPath] = useState(props.gqlPath);
   const [gqlSsl, setGqlSsl] = useState(props.gqlSsl);
   const [portal, setPortal] = useState(true);
+  const [deepUrl, setDeepUrl] = useState('');
 
   return (<>
     <Provider gqlPath={gqlPath} gqlSsl={gqlSsl}>
-      <DeepProvider>
-        <AutoGuest>
-          <Connector
-            portalOpen={portal}
-            setPortal={setPortal}
-            // onClosePortal={() => setPortal(portal)}
-            gqlPath={gqlPath}
-            gqlSsl={gqlSsl}
-            serverUrl={serverUrl}
-            deeplinksUrl={deeplinksUrl} // TODO: Do we really need this? Does not gqlPath + gqlSsl is enough? Should we check status for the remote deeplinks or only for local? Ping to @Menzorg
-            setGqlPath={(path) => setGqlPath(path)}
-            setGqlSsl={(ssl) => setGqlSsl(ssl)}
-          />
-          <Content gqlPath={gqlPath} gqlSsl={gqlSsl} openPortal={()=>setPortal(true)} />
-        </AutoGuest>
-      </DeepProvider>
+      <>{[<div key={deepUrl}/>]}
+        <DeepProvider>
+          <AutoGuest>
+            <Connector
+              portalOpen={portal}
+              setPortal={setPortal}
+              // onClosePortal={() => setPortal(portal)}
+              gqlPath={gqlPath}
+              gqlSsl={gqlSsl}
+              serverUrl={serverUrl}
+              deeplinksUrl={deeplinksUrl} // TODO: Do we really need this? Does not gqlPath + gqlSsl is enough? Should we check status for the remote deeplinks or only for local? Ping to @Menzorg
+              setGqlPath={(path) => setGqlPath(path)}
+              setGqlSsl={(ssl) => setGqlSsl(ssl)}
+              setDeepUrl={(url) => setDeepUrl(url)}
+            />
+            <Content gqlPath={gqlPath} gqlSsl={gqlSsl} openPortal={()=>setPortal(true)} />
+          </AutoGuest>
+        </DeepProvider>
+      </>
     </Provider>
   </>);
 }
