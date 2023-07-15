@@ -501,6 +501,10 @@ export const Connector = React.memo<any>(({
         setInitLocal(InitializingState.notInit);
         await delay(1000);
         setInitLocal(InitializingState.launched);
+        if (!gqlPath){
+          setGqlPath('localhost:3006/gql');
+          setGqlSsl(false);
+        }
       }
     })();
   }, [portalOpen]);
