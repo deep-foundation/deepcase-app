@@ -94,6 +94,7 @@ const TerminalConnect = React.memo<any>(({
   serverUrl,
   setGqlPath,
   setGqlSsl,
+  setPortal,
 }:{
   initializingState?: InitializingState; 
   closeTerminal: () => any; 
@@ -101,7 +102,8 @@ const TerminalConnect = React.memo<any>(({
   terminalClosed: boolean; 
   serverUrl: string;
   setGqlPath: (path: string) => any;
-  setGqlSsl: (ssl: boolean) => any; 
+  setGqlSsl: (ssl: boolean) => any;
+  setPortal: (state?: boolean) => any;
 }) => {
   const terminalBoxRef = useRef<any>();
   const terminalRef = useRef<any>();
@@ -140,6 +142,8 @@ const TerminalConnect = React.memo<any>(({
         setInitLocal(InitializingState.launched);
         setGqlPath('localhost:3006/gql');
         setGqlSsl(false);
+        await delay(2000);
+        setPortal(false);
       }, 2000);
     } else if (initializingState == 'removing') {
         control.start('grow');
@@ -748,6 +752,7 @@ export const Connector = React.memo<any>(({
             serverUrl={serverUrl}
             setGqlPath={(path) => setGqlPath(path)}
             setGqlSsl={(ssl) => setGqlSsl(ssl)}
+            setPortal={(state) => setPortal(state)}
           />
         </ConnectorGrid>
       </Box>
