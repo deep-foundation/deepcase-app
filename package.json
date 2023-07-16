@@ -3,7 +3,7 @@
   "version": "0.1.0-beta.3",
   "license": "Unlicense",
   "type": "module",
-  "scripts": { 
+  "scripts": {
     "dev": "next dev",
     "build": "rm -rf app && next build",
     "export": "rm -rf out && next export",
@@ -108,6 +108,7 @@
     "slate-react": "^0.94.2",
     "slate-serializers": "0.0.32",
     "slate-soft-break": "^0.9.0",
+    "sudo-prompt": "^9.2.1",
     "super-hands": "^3.0.4",
     "three-bmfont-text": "^3.0.1",
     "three-spritetext": "^1.8.1",
