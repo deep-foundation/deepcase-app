@@ -15,6 +15,7 @@ import { Connector } from '../imports/connector/connector';
 import { PackagerInterface } from '../imports/packager-interface/packager-interface';
 import getConfig from 'next/config'
 import { CatchErrors } from '../imports/react-errors';
+import { Button } from '@chakra-ui/react';
 
 const { publicRuntimeConfig } = getConfig();
 
@@ -133,6 +134,11 @@ export default function Page(props: {
             <CatchErrors key={1} errorRenderer={() => <div>Error in AutoGuest or content rendering.</div> }>
               <AutoGuest>
                 <Content gqlPath={gqlPath} gqlSsl={gqlSsl} openPortal={()=>setPortal(true)} />
+                <Button
+                  colorScheme='blue' 
+                  onClick={() => setPortal(true)} 
+                  pos='absolute' right='44' top='4'
+                >connector</Button>
               </AutoGuest>
             </CatchErrors>
           ] : [] }
