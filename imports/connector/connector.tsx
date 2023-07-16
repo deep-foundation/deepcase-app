@@ -10,6 +10,7 @@ import { ModalWindow } from "../modal-window";
 import { DockerWarning } from './docker-warning';
 import axios from 'axios';
 import { Loading } from '../loading-motion-bubble';
+import { useLocalStorage } from 'usehooks-ts';
 
 const DOCKER = process.env.DOCKER || '0';
 
@@ -278,6 +279,8 @@ const InputAnimation = React.memo<any>(({
   onDeleteValue,
   onStartRemoteRoute,
   key,
+  gqlPath,
+  gqlSsl,
 }:{
   bgContainer?: string;
   addRemoteRout?: boolean;
@@ -287,6 +290,8 @@ const InputAnimation = React.memo<any>(({
   onDeleteValue: () => any;
   onStartRemoteRoute?: () => any;
   key?: any;
+  gqlPath?: string;
+  gqlSsl?: boolean;
 }) => {
   const control = useAnimation();
   const controlInput = useAnimation();
@@ -300,6 +305,17 @@ const InputAnimation = React.memo<any>(({
       control.start('close');
     }
   }, [addRemoteRout]);
+
+  let isActive = false;
+  if (valueRemoteRoute) {
+    try {
+      const url = new URL(valueRemoteRoute);
+      const currentGqlPath = `${url.hostname}${url.port ? ':' + url.port : ''}${url.pathname}`;
+      const currentGqlSsl = url.protocol == 'http:' ? false : true;
+      isActive = currentGqlPath === gqlPath && currentGqlSsl === currentGqlSsl;
+    } finally {
+    }
+  }
 
   return (<Box 
       as={motion.div}
@@ -334,7 +350,12 @@ const InputAnimation = React.memo<any>(({
             <CustomizableIcon Component={IoPlayOutline} value={{color: 'rgb(0, 128, 255)'}} />
           } 
         />
-        <Input placeholder='rout' value={valueRemoteRoute} onChange={onChangeValueRemoteRoute} />
+        <Input 
+          placeholder='rout'
+          value={valueRemoteRoute}
+          onChange={onChangeValueRemoteRoute} 
+          borderColor={isActive ? 'rgb(0, 128, 255)' : 'rgb(255, 255, 255)'}
+        />
         <InputRightElement 
           onClick={onDeleteValue}
           children={
@@ -433,7 +454,8 @@ export const Connector = React.memo<any>(({
   // const [ portalOpen, setPortal ] = useState(true); 
   const onClosePortal = () => setPortal(false);
   
-  const [remoteRouts, setArr] = useState([]);
+  const [remotesString, setRemotesString] = useLocalStorage('remote-routes', '[]');
+  const remotes = JSON.parse(remotesString);
 
   const checkDeeplinksStatus = async () => {
     let status;
@@ -448,16 +470,16 @@ export const Connector = React.memo<any>(({
   };
   
   const add = () => {
-    setArr((remoteRouts) => [
-      ...remoteRouts,
+    setRemotesString((remotesString) => JSON.stringify([
+      ...JSON.parse(remotesString),
       { id: (Math.random() + 1).toString(36).substring(7), value: "" }
-    ])
+    ]))
   };
   const remove = (id) => {
-    setArr((remoteRouts) => remoteRouts.filter((el) => el.id != id))
+    setRemotesString((remotesString) => JSON.stringify(JSON.parse(remotesString).filter((el) => el.id != id)))
   };
   const save = (id, value) => {
-    setArr((remoteRouts) => remoteRouts.map((el) => (el.id === id ? { ...el, value } : el)))
+    setRemotesString((remotesString) => JSON.stringify(JSON.parse(remotesString).map((el) => (el.id === id ? { ...el, value } : el))))
   };
 
   useEffect(() => {
@@ -568,11 +590,14 @@ export const Connector = React.memo<any>(({
               <Text color='gray.400' fontSize='md'>Remote deep</Text>
             </Box>
             <AnimatePresence>
-              {remoteRouts.map(rr => (
-                <InputAnimation 
-                  addRemoteRout={!!remoteRouts}
+              {remotes.map(rr => (
+                <InputAnimation
+                  key={rr.id}
+                  addRemoteRout={!!remotes}
                   valueRemoteRoute={rr.value}
                   onChangeValueRemoteRoute={(e) => save(rr.id, e.target.value)}
+                  gqlPath={gqlPath}
+                  gqlSsl={gqlSsl}
                   // setValueRemote={}
                   onDeleteValue={(e) => {
                     if (gqlPath == rr.value) {
@@ -587,11 +612,11 @@ export const Connector = React.memo<any>(({
                       const url = new URL(rr.value);
                       setGqlPath(`${url.hostname}${url.port ? ':' + url.port : ''}${url.pathname}`);
                       setGqlSsl(url.protocol == 'http:' ? false : true);
+                      setPortal(false);
                     } catch(e) {
                       console.log('URL error', e);
                     }
                   }}
-                  key={rr.id}
                 />)
               )}
             </AnimatePresence>
