@@ -306,16 +306,22 @@ const InputAnimation = React.memo<any>(({
     }
   }, [addRemoteRout]);
 
-  let isActive = false;
-  if (valueRemoteRoute) {
+  const parseUrl = (text) => {
     try {
-      const url = new URL(valueRemoteRoute);
-      const currentGqlPath = `${url.hostname}${url.port ? ':' + url.port : ''}${url.pathname}`;
-      const currentGqlSsl = url.protocol == 'http:' ? false : true;
-      isActive = currentGqlPath === gqlPath && currentGqlSsl === currentGqlSsl;
-    } finally {
+      const url = new URL(text);
+      const gqlPath = `${url.hostname}${url.port ? ':' + url.port : ''}${url.pathname}`;
+      const gqlSsl = url.protocol == 'http:' ? false : true;
+      return [gqlPath, gqlSsl]
+    } catch {
+      return ['', false];
     }
   }
+
+  let isActive = false;
+  let isBroken = false;
+  const [currentGqlPath, currentGqlSsl] = parseUrl(valueRemoteRoute);
+  isActive = currentGqlPath === gqlPath && currentGqlSsl === gqlSsl;
+  isBroken = !currentGqlPath;
 
   return (<Box 
       as={motion.div}
@@ -344,17 +350,22 @@ const InputAnimation = React.memo<any>(({
         color='gray.500'
         variants={inputAnimation}
       >
-        <InputLeftElement 
-          onClick={onStartRemoteRoute}
+        <InputLeftElement
+          onClick={() => { 
+            const [currentGqlPath, currentGqlSsl] = parseUrl(valueRemoteRoute);
+            if(currentGqlPath) {
+              onStartRemoteRoute();
+            }
+          }}
           children={
-            <CustomizableIcon Component={IoPlayOutline} value={{color: 'rgb(0, 128, 255)'}} />
+            <CustomizableIcon Component={IoPlayOutline} value={{color: isBroken ? 'rgb(255, 0, 0)' : 'rgb(0, 128, 255)'}} />
           } 
         />
         <Input 
           placeholder='rout'
           value={valueRemoteRoute}
           onChange={onChangeValueRemoteRoute} 
-          borderColor={isActive ? 'rgb(0, 128, 255)' : 'rgb(255, 255, 255)'}
+          borderColor={isBroken ? 'rgb(255, 0, 0)' : (isActive ? 'rgb(0, 128, 255)' : 'rgb(255, 255, 255)')}
         />
         <InputRightElement 
           onClick={onDeleteValue}
@@ -463,6 +474,17 @@ export const Connector = React.memo<any>(({
     try {
       // DL may be not in docker, when DC in docker, so we use host.docker.internal instead of docker-network link deep_links_1
       status = await axios.get(`${+DOCKER ? 'http://host.docker.internal:3006' : deeplinksUrl}/api/healthz`, { validateStatus: status => true, timeout: 7000 });
+    } catch(e){
+      err = e;
+    }
+    return { result: status?.data?.docker, error: err };
+  };
+
+  const checkUrlStatus = async (url) => {
+    let status;
+    let err;
+    try {
+      status = await axios.get(url, { validateStatus: status => true, timeout: 7000 });
     } catch(e){
       err = e;
     }
@@ -607,12 +629,17 @@ export const Connector = React.memo<any>(({
                     remove(rr.id)
                     }
                   }
-                  onStartRemoteRoute={() => {
+                  onStartRemoteRoute={async () => {
                     try {
                       const url = new URL(rr.value);
-                      setGqlPath(`${url.hostname}${url.port ? ':' + url.port : ''}${url.pathname}`);
-                      setGqlSsl(url.protocol == 'http:' ? false : true);
-                      setPortal(false);
+                      const status = await checkUrlStatus(url);
+                      if (status.result !== undefined && !status.error) {
+                        setGqlPath(`${url.hostname}${url.port ? ':' + url.port : ''}${url.pathname}`);
+                        setGqlSsl(url.protocol == 'http:' ? false : true);
+                        setPortal(false);
+                      } else {
+                        console.log('URL error', JSON.stringify(status));
+                      }
                     } catch(e) {
                       console.log('URL error', e);
                     }
