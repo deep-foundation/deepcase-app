@@ -488,7 +488,7 @@ export const Connector = React.memo<any>(({
     } catch(e){
       err = e;
     }
-    return { result: status?.data?.docker, error: err };
+    return { result: status?.data, error: err };
   };
   
   const add = () => {
