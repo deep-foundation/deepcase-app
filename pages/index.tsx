@@ -126,7 +126,7 @@ export default function Page(props: {
             gqlPath={gqlPath}
             gqlSsl={gqlSsl}
             serverUrl={serverUrl}
-            deeplinksUrl={deeplinksUrl} // TODO: Do we really need this? Does not gqlPath + gqlSsl is enough? Should we check status for the remote deeplinks or only for local? Ping to @Menzorg
+            deeplinksUrl={deeplinksUrl}
             setGqlPath={(path) => setGqlPath(path)}
             setGqlSsl={(ssl) => setGqlSsl(ssl)}
           />

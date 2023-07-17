@@ -14,7 +14,18 @@ import { useLocalStorage } from 'usehooks-ts';
 
 const DOCKER = process.env.DOCKER || '0';
 
-const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const parseUrl = (text) : [string, boolean] => {
+  try {
+    const url = new URL(text);
+    const gqlPath = `${url.hostname}${url.port ? ':' + url.port : ''}${url.pathname}`;
+    const gqlSsl = url.protocol == 'http:' ? false : true;
+    return [gqlPath, gqlSsl]
+  } catch {
+    return ['', false];
+  }
+};
 
 const ConnectorGrid = React.memo<any>(({
   children, 
@@ -88,7 +99,6 @@ const callEngine = async ({ serverUrl, operation, terminal }: { serverUrl: strin
   return r;
 };
 
-
 const TerminalConnect = React.memo<any>(({
   initializingState = undefined, 
   setInitLocal, 
@@ -96,6 +106,8 @@ const TerminalConnect = React.memo<any>(({
   setGqlPath,
   setGqlSsl,
   setPortal,
+  deeplinksGqlPath,
+  deeplinksGqlSsl,
 }:{
   initializingState?: InitializingState; 
   closeTerminal: () => any; 
@@ -105,6 +117,8 @@ const TerminalConnect = React.memo<any>(({
   setGqlPath: (path: string) => any;
   setGqlSsl: (ssl: boolean) => any;
   setPortal: (state?: boolean) => any;
+  deeplinksGqlPath: string;
+  deeplinksGqlSsl: boolean;
 }) => {
   const terminalBoxRef = useRef<any>();
   const terminalRef = useRef<any>();
@@ -141,8 +155,8 @@ const TerminalConnect = React.memo<any>(({
 
         await delay(2000);
         setInitLocal(InitializingState.launched);
-        setGqlPath('localhost:3006/gql');
-        setGqlSsl(false);
+        setGqlPath(deeplinksGqlPath);
+        setGqlSsl(deeplinksGqlSsl);
         await delay(2000);
         setPortal(false);
       }, 2000);
@@ -306,17 +320,6 @@ const InputAnimation = React.memo<any>(({
     }
   }, [addRemoteRout]);
 
-  const parseUrl = (text) => {
-    try {
-      const url = new URL(text);
-      const gqlPath = `${url.hostname}${url.port ? ':' + url.port : ''}${url.pathname}`;
-      const gqlSsl = url.protocol == 'http:' ? false : true;
-      return [gqlPath, gqlSsl]
-    } catch {
-      return ['', false];
-    }
-  }
-
   let isActive = false;
   let isBroken = false;
   const [currentGqlPath, currentGqlSsl] = parseUrl(valueRemoteRoute);
@@ -462,6 +465,10 @@ export const Connector = React.memo<any>(({
     setValueRemote(value);
   }, 500);
 
+  const [deeplinksPath, deeplinksSsl] = parseUrl(deeplinksUrl);
+  const deeplinksGqlPath = deeplinksPath + '/gql';
+  const deeplinksGqlSsl = deeplinksSsl;
+
   // const [ portalOpen, setPortal ] = useState(true); 
   const onClosePortal = () => setPortal(false);
   
@@ -550,8 +557,8 @@ export const Connector = React.memo<any>(({
         await delay(1000);
         setInitLocal(InitializingState.launched);
         if (!gqlPath){
-          setGqlPath('localhost:3006/gql');
-          setGqlSsl(false);
+          setGqlPath(deeplinksGqlPath);
+          setGqlSsl(deeplinksGqlSsl);
         }
       }
     })();
@@ -765,7 +772,11 @@ export const Connector = React.memo<any>(({
                     ariaLabelLeft="go to deepcase"
                     ariaLabelRight="delete local deepcase"
                     // ComponentRightIcon={IoStopOutline}
-                    onClickLeft={() => setPortal(false)} 
+                    onClickLeft={() => {
+                      setGqlPath(deeplinksGqlPath);
+                      setGqlSsl(deeplinksGqlSsl);
+                      setPortal(false);
+                    }} 
                     onClickRight={() => {
                       setInitLocal(InitializingState.removing)
                     }} 
@@ -805,6 +816,8 @@ export const Connector = React.memo<any>(({
             setGqlPath={(path) => setGqlPath(path)}
             setGqlSsl={(ssl) => setGqlSsl(ssl)}
             setPortal={(state) => setPortal(state)}
+            deeplinksGqlPath={deeplinksGqlPath}
+            deeplinksGqlSsl={deeplinksGqlSsl}
           />
         </ConnectorGrid>
       </Box>
