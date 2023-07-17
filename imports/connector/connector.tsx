@@ -491,7 +491,7 @@ export const Connector = React.memo<any>(({
       err = e;
     }
     console.log('system status', JSON.stringify(status?.data));
-    return { result: status?.data?.healthz?.[0].status, error: err };
+    return { result: status?.data?.data?.healthz?.[0].status, error: err };
   };
 
   const checkUrlStatus = async (url) => {
