@@ -144,7 +144,9 @@ const TerminalConnect = React.memo<any>(({
     if(initializingState == 'initializing') {
       control.start('grow');
       // animation.start('display');
-      setTimeout(async() => {
+      console.log('initializingState0', initializingState)
+      setTimeout(async () => {
+        console.log('initializingState1', initializingState)
         terminalRef?.current?.resize(terminalRef.current.cols,terminalRef.current.rows);
         const initResult = await callEngine({ serverUrl, operation: 'init', terminal: terminalRef.current });
         console.log(initResult);
@@ -152,6 +154,7 @@ const TerminalConnect = React.memo<any>(({
         console.log(migrateResult);
         const checkResult = await callEngine({ serverUrl, operation: 'check', terminal: terminalRef.current });
         console.log(checkResult);
+        console.log('initializingState2', initializingState)
 
         await delay(2000);
         setInitLocal(InitializingState.launched);
@@ -161,18 +164,21 @@ const TerminalConnect = React.memo<any>(({
         setPortal(false);
       }, 2000);
     } else if (initializingState == 'removing') {
-        control.start('grow');
-        // animation.start('display');
-        setTimeout(async() => {
-          terminalRef?.current?.resize(terminalRef.current.cols,terminalRef.current.rows);
-          await callEngine({ serverUrl, operation: 'reset', terminal: terminalRef.current });
-          // control.start('shrink');
-          await delay(2000);
-          setInitLocal(InitializingState.notInit);
-          await delay(1000);
-          setGqlPath('');
-          setGqlSsl(false);
-        }, 2000);
+      console.log('initializingState0-r', initializingState);
+      control.start('grow');
+      // animation.start('display');
+      setTimeout(async() => {
+        console.log('initializingState1-r', initializingState);
+        terminalRef?.current?.resize(terminalRef.current.cols,terminalRef.current.rows);
+        await callEngine({ serverUrl, operation: 'reset', terminal: terminalRef.current });
+        // control.start('shrink');
+        console.log('initializingState2-r', initializingState);
+        await delay(2000);
+        setInitLocal(InitializingState.notInit);
+        await delay(1000);
+        setGqlPath('');
+        setGqlSsl(false);
+      }, 2000);
     } else if (initializingState == 'launched' || initializingState == 'not init') {
       if (terminalRef.current) terminalRef.current.clear();
       control.start('shrink');
@@ -475,16 +481,17 @@ export const Connector = React.memo<any>(({
   const [remotesString, setRemotesString] = useLocalStorage('remote-routes', '[]');
   const remotes = JSON.parse(remotesString);
 
-  const checkDeeplinksStatus = async () => {
+  const checkSystemStatus = async () => {
     let status;
     let err;
     try {
       // DL may be not in docker, when DC in docker, so we use host.docker.internal instead of docker-network link deep_links_1
-      status = await axios.get(`${+DOCKER ? 'http://host.docker.internal:3006' : deeplinksUrl}/api/healthz`, { validateStatus: status => true, timeout: 7000 });
+      status = await axios.post(`${+DOCKER ? 'http://host.docker.internal:3006' : deeplinksUrl}/gql`, { "query": "{ healthz { status } }" }, { validateStatus: status => true, timeout: 7000 });
     } catch(e){
       err = e;
     }
-    return { result: status?.data?.docker, error: err };
+    console.log('system status', JSON.stringify(status?.data));
+    return { result: status?.data?.healthz?.[0].status, error: err };
   };
 
   const checkUrlStatus = async (url) => {
@@ -551,7 +558,7 @@ export const Connector = React.memo<any>(({
 
   useEffect(() => {
     (async () => {
-      const status = await checkDeeplinksStatus();
+      const status = await checkSystemStatus();
       if (status.result !== undefined) {
         setInitLocal(InitializingState.notInit);
         await delay(1000);
@@ -696,9 +703,9 @@ export const Connector = React.memo<any>(({
                   variants={initArea}
                   onClick={() => {
                     setInitLocal(InitializingState.initializing);
-                    setTimeout(() => {
-                      setInitLocal(InitializingState.initialized);
-                    }, 3000)
+                    // setTimeout(() => {
+                    //   setInitLocal(InitializingState.initialized);
+                    // }, 3000)
                   }} 
                 >
                   <Text color='gray.400' fontSize='sm' as='kbd'>no initialized</Text>
@@ -725,7 +732,7 @@ export const Connector = React.memo<any>(({
                   animate={controlInit}
                   initial='initializing'
                   variants={initArea}
-                  onClick={() => setInitLocal(InitializingState.initialized)} 
+                  // onClick={() => setInitLocal(InitializingState.initialized)} 
                 >
                   <Loading text="Initializing" 
                     sxFlex={{pt: 2, pb: 2}}
@@ -750,8 +757,8 @@ export const Connector = React.memo<any>(({
                     ariaLabelLeft="go to launched deepcase"
                     ariaLabelRight="launched local deepcase"
                     ComponentRightIcon={BsFillPauseFill}
-                    onClickLeft={() => setInitLocal(InitializingState.launched)} 
-                    onClickRight={() => setInitLocal(InitializingState.notInit)} 
+                    // onClickLeft={() => setInitLocal(InitializingState.launched)} 
+                    // onClickRight={() => setInitLocal(InitializingState.notInit)} 
                   />
                 </Box>
                 <Box 
@@ -765,7 +772,7 @@ export const Connector = React.memo<any>(({
                   animate={controlLaunch}
                   initial='initializing'
                   variants={initArea}
-                  // onClick={() => setInitLocal(InitializingState.notInit)} 
+                  // onClick={() => setInitLocal(InitializingState.notInit)}
                 >
                   <ButtonTextButton 
                     text='launched'
