@@ -8,8 +8,12 @@ import Debug from 'debug';
 import fixPath from 'fix-path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import { rootPath } from 'root-path-electron';
+// import { remote } from 'electron'
+import sudo from 'sudo-prompt';
+import { json } from 'body-parser';
 
-import { remote } from 'electron'
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 function isElectron() {
   // @ts-ignore
@@ -25,7 +29,9 @@ function isElectron() {
   return false;
 }
 
-const appPath = process.cwd();
+
+// const appPath = isElectron() ? remote.app.getAppPath() : process.cwd();
+const appPath = isElectron() ? rootPath : process.cwd();
 const filePath = path.normalize(`${appPath}/package.json`);
 const packageJson = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
 
@@ -70,8 +76,8 @@ interface IGenerateEnvsOptions {
   envs: any;
 }
 
-const _hasura = path.normalize(`${process.cwd()}/node_modules/@deep-foundation/hasura`); // даже если мы не в дипкейсе, то это скрипт из диплинкса, который зависит от хасуры, а значит в модулях есть хасура.
-const _deeplinks = path.normalize( packageJson.name === '@deep-foundation/deeplinks' ? process.cwd() : `${process.cwd()}/node_modules/@deep-foundation/deeplinks`); // если в package.json название пакета не диплинксовое - то мы не там, а значит идём в модули
+const _hasura = path.normalize(`${packageJson.name === '@deep-foundation/deeplinks' ? process.cwd() : appPath}/node_modules/@deep-foundation/hasura`); // даже если мы не в дипкейсе, то это скрипт из диплинкса, который зависит от хасуры, а значит в модулях есть хасура.
+const _deeplinks = path.normalize( packageJson.name === '@deep-foundation/deeplinks' ? process.cwd() : `${appPath}/node_modules/@deep-foundation/deeplinks`); // если в package.json название пакета не диплинксовое - то мы не там, а значит идём в модули
 
 const handleEnvWindows = (k, envs) => ` set ${k}=${envs[k]}&&`;
 const handleEnvUnix = (k, envs) => ` export ${k}=${envs[k]} &&`;
@@ -80,9 +86,9 @@ const handleEnv = platform === "win32" ? handleEnvWindows : handleEnvUnix;
 const _generateEnvs = ({ envs, isDeeplinksDocker }: IGenerateEnvsOptions): string => {
   let envsStr = '';
   const isGitpod = !!process.env['GITPOD_GIT_USER_EMAIL'] && !!process.env['GITPOD_TASKS'];
-  const hasuraPort = 8080;
-  const deeplinksPort = 3006;
-  const deepcasePort = 3007;
+  const hasuraPort = '8080';
+  const deeplinksPort = '3006';
+  const deepcasePort = '3007';
 
   envs['DEEPLINKS_PORT'] = envs['DEEPLINKS_PORT'] ? envs['DEEPLINKS_PORT'] : deeplinksPort;
   envs['DEEPCASE_PORT'] = envs['DEEPCASE_PORT'] ? envs['DEEPCASE_PORT'] : deepcasePort;
@@ -123,10 +129,10 @@ const _generateEnvs = ({ envs, isDeeplinksDocker }: IGenerateEnvsOptions): strin
   envs['MIGRATIONS_SCHEMA'] = envs['MIGRATIONS_SCHEMA'] ? envs['MIGRATIONS_SCHEMA'] : 'public';
   envs['MIGRATIONS_RL_TABLE'] = envs['MIGRATIONS_RL_TABLE'] ? envs['MIGRATIONS_RL_TABLE'] : 'rl_example__links__reserved';
   envs['MIGRATIONS_DATE_TYPE_SQL'] = envs['MIGRATIONS_DATE_TYPE_SQL'] ? envs['MIGRATIONS_DATE_TYPE_SQL'] : 'timestamp';
-  envs['RESERVED_LIFETIME_MS'] = envs['RESERVED_LIFETIME_MS'] ? envs['RESERVED_LIFETIME_MS'] : 24 * 60 * 60 * 1000;
+  envs['RESERVED_LIFETIME_MS'] = envs['RESERVED_LIFETIME_MS'] ? envs['RESERVED_LIFETIME_MS'] : String(24 * 60 * 60 * 1000);
   // DL may be not in docker, when DC in docker, so we use host.docker.internal instead of docker-network link deep_links_1
   envs['DOCKER_DEEPLINKS_URL'] = envs['DOCKER_DEEPLINKS_URL'] ? envs['DOCKER_DEEPLINKS_URL'] : `http://host.docker.internal:${deeplinksPort}`;
-  envs['MIGRATIONS_DIR'] = envs['MIGRATIONS_DIR'] ? envs['MIGRATIONS_DIR'] : `${platform == "win32" ? '' : '/tmp/'}.migrate`;
+  envs['MIGRATIONS_DIR'] = envs['MIGRATIONS_DIR'] ? envs['MIGRATIONS_DIR'] : `${platform == "win32" ? '' : '/tmp/deep/'}.migrate`;
   if (isGitpod) {
     envs['MIGRATIONS_HASURA_PATH'] = envs['MIGRATIONS_HASURA_PATH'] ? envs['MIGRATIONS_HASURA_PATH'] : +DOCKER ? `deep-hasura:${hasuraPort}` : `$(gp url ${hasuraPort})`;
     envs['DEEPLINKS_HASURA_PATH'] = envs['DEEPLINKS_HASURA_PATH'] ? envs['DEEPLINKS_HASURA_PATH'] : isDeeplinksDocker === 0 ? `$(echo $(gp url ${hasuraPort}) | awk -F[/:] '{print $4}')` : `deep-hasura:${hasuraPort}`;
@@ -184,13 +190,13 @@ const _generateEngineStr = ({ operation, isDeeplinksDocker, isDeepcaseDocker, en
     str = ` cd "${path.normalize(`${_hasura}/local/`)}" && docker-compose -p deep stop postgres hasura && docker volume create deep-db-data && docker pull deepf/deeplinks:main`;
   }
   if (operation === 'migrate') {
-    str = ` cd "${path.normalize(`${_hasura}/local/`)}" && docker run -v ${platform === "win32" ? _deeplinks : '/tmp'}:/migrations -v deep-db-data:/data --rm --name links --entrypoint "sh" deepf/deeplinks:main -c "cd / && tar xf /backup/volume.tar --strip 1 && cp /backup/.migrate /migrations/.migrate"`;
+    str = ` cd "${path.normalize(`${_hasura}/local/`)}" ${platform === "win32" ? '' : ` && mkdir -p ${envs['MIGRATIONS_DIR']}`} && docker run -v ${platform === "win32" ? _deeplinks : envs['MIGRATIONS_DIR']}:/migrations -v deep-db-data:/data --rm --name links --entrypoint "sh" deepf/deeplinks:main -c "cd / && tar xf /backup/volume.tar --strip 1 && cp /backup/.migrate /migrations/.migrate"`;
   }
   if (operation === 'check') {
     str = ` cd "${path.normalize(`${_hasura}/local/`)}"  && npm run docker-local && npx -q wait-on --timeout 10000 ${+DOCKER ? `http-get://deep-hasura` : 'tcp'}:8080 && cd "${_deeplinks}" ${isDeeplinksDocker===undefined ? `&& ${ platform === "win32" ? 'set COMPOSE_CONVERT_WINDOWS_PATHS=1&& ' : ''} npm run start-deeplinks-docker && npx -q wait-on --timeout 10000 ${+DOCKER ? 'http-get://host.docker.internal:3006'  : DEEPLINKS_PUBLIC_URL}/api/healthz` : ''}`;
   }
   if (operation === 'run') {
-    str = ` cd "${path.normalize(`${_hasura}/local/`)}" && docker-compose -p deep stop postgres hasura && docker volume create deep-db-data && docker pull deepf/deeplinks:main && ${+envs['RESTORE_VOLUME_FROM_SNAPSHOT'] ? `docker run -v ${platform === "win32" ? _deeplinks : '/tmp'}:/migrations -v deep-db-data:/data --rm --name links --entrypoint "sh" deepf/deeplinks:main -c "cd / && tar xf /backup/volume.tar --strip 1 && cp /backup/.migrate /migrations/.migrate" && ` : '' } npm run docker-local && npx -q wait-on --timeout 10000 ${+DOCKER ? `http-get://deep-hasura` : 'tcp'}:8080 && cd "${_deeplinks}" ${isDeeplinksDocker===undefined ? `&& ${ platform === "win32" ? 'set COMPOSE_CONVERT_WINDOWS_PATHS=1&& ' : ''} npm run start-deeplinks-docker && npx -q wait-on --timeout 10000 ${+DOCKER ? 'http-get://host.docker.internal:3006'  : DEEPLINKS_PUBLIC_URL}/api/healthz` : ''} && ( cd ${_deeplinks}/local/deepcase ${ isDeepcaseDocker === undefined ? '&& docker-compose pull && docker-compose -p deep up -d' : '' } )`;
+    str = ` cd "${path.normalize(`${_hasura}/local/`)}" && docker-compose -p deep stop postgres hasura && docker volume create deep-db-data ${platform === "win32" ? '' : `&& mkdir -p ${envs['MIGRATIONS_DIR']}`} && docker pull deepf/deeplinks:main && ${+envs['RESTORE_VOLUME_FROM_SNAPSHOT'] ? `docker run -v ${platform === "win32" ? _deeplinks : envs['MIGRATIONS_DIR']}:/migrations -v deep-db-data:/data --rm --name links --entrypoint "sh" deepf/deeplinks:main -c "cd / && tar xf /backup/volume.tar --strip 1 && cp /backup/.migrate /migrations/.migrate" && ` : '' } npm run docker-local && npx -q wait-on --timeout 10000 ${+DOCKER ? `http-get://deep-hasura` : 'tcp'}:8080 && cd "${_deeplinks}" ${isDeeplinksDocker===undefined ? `&& ${ platform === "win32" ? 'set COMPOSE_CONVERT_WINDOWS_PATHS=1&& ' : ''} npm run start-deeplinks-docker && npx -q wait-on --timeout 10000 ${+DOCKER ? 'http-get://host.docker.internal:3006'  : DEEPLINKS_PUBLIC_URL}/api/healthz` : ''} && ( cd ${_deeplinks}/local/deepcase ${ isDeepcaseDocker === undefined ? '&& docker-compose pull && docker-compose -p deep up -d' : '' } )`;
   }
   if (operation === 'sleep') {
     if (platform === "win32") {
@@ -207,7 +213,7 @@ const _generateEngineStr = ({ operation, isDeeplinksDocker, isDeepcaseDocker, en
     }
   }
   if (operation === 'dock') {
-    str = ` docker version -f '{{json .}}'`;
+    str = ` docker version -f ${platform === "win32" ? 'json' : "'{{json .}}'"}`;
   }
   if (operation === 'compose') {
     str = ` docker-compose version --short`;
@@ -215,21 +221,24 @@ const _generateEngineStr = ({ operation, isDeeplinksDocker, isDeepcaseDocker, en
   return str;
 }
 
-const _execEngine = async ({ envsStr, engineStr }: { envsStr: string; engineStr: string; } ): Promise<IExecEngineReturn> => {
+const _execEngine = async ({ envsStr, envs, engineStr }: { envsStr: string; envs:any; engineStr: string; } ): Promise<IExecEngineReturn> => {
   try {
     const command = `${envsStr} ${engineStr}`;
     console.log(command);
     const { stdout, stderr } = await execP(command);
-    return { result: { stdout, stderr } }
+    return { result: { stdout, stderr } };
   } catch(e) {
     error(e);
     return { error: e };
   }
 }
 
+let permissionsAreGiven = false;
+let permissionsAreChecking = false;
+
 export async function call (options: ICallOptions) {
   //@ts-ignore
-  const envs = { ...options.envs, DOCKERHOST: internalIp.internalIpV4 ? await internalIp.internalIpV4() : internalIp?.v4?.sync() };
+  const envs = { ...options.envs, DOCKERHOST: String(internalIp.internalIpV4 ? await internalIp.internalIpV4() : internalIp?.v4?.sync()) };
   if (platform !== "win32"){
     fixPath();
     envs['PATH'] = `'${process?.env?.['PATH']}'`;
@@ -243,10 +252,52 @@ export async function call (options: ICallOptions) {
 
   const envsStr = _generateEnvs({ envs, isDeeplinksDocker: isDeeplinksDocker.result });
   log({envs});
+
+  let permissionsResult;
+  let user;
+
+  if (permissionsAreChecking) {
+    while(permissionsAreChecking) {
+      await delay(1000);
+    }
+  } else {  
+    if (!permissionsAreGiven && isElectron() && process.platform !== 'win32') {
+      permissionsAreChecking = true;
+      const { stdout, stderr } =  await execP('whoami');
+
+      user = stdout;
+      console.log('whoami: ', user);
+
+      const icns = path.normalize(`${appPath}/resources/assets/appIcon.icns`);
+      const options = {
+        name: 'Deep Case',
+        icns,
+        env: envs,
+      };
+      const execPromise = new Promise((resolve, reject) => {
+        sudo.exec(`usermod -aG docker ${user}`, options, (error, stdout, stderr) => {
+          if (error) {
+            console.log('permissions error', error);
+            console.dir(error);
+            resolve({ error });
+          } else {
+            resolve({ result: { stdout, stderr } });
+          }
+        });
+      });
+      permissionsResult = await execPromise;
+
+      console.log('permissionsResult', JSON.stringify(permissionsResult))
+
+      permissionsAreGiven = !permissionsResult.error;
+      permissionsAreChecking = false;
+    }
+  }
+
   const engineStr = _generateEngineStr({ operation: options.operation, isDeeplinksDocker: isDeeplinksDocker.result, isDeepcaseDocker: isDeepcaseDocker.result, envs} )
   log({engineStr});
-  const engine = await _execEngine({ envsStr, engineStr });
+  const engine = await _execEngine({ envsStr, envs, engineStr });
   log({engine});
 
-  return { ...options, platform, _hasura, _deeplinks, isDeeplinksDocker, isDeepcaseDocker, envs, engineStr, fullStr: `${envsStr} ${engineStr}`, ...engine };
+  return { ...options, platform, _hasura, user, permissionsResult, _deeplinks, isDeeplinksDocker, isDeepcaseDocker, envs, engineStr, fullStr: `${envsStr} ${engineStr}`, ...engine };
 }
