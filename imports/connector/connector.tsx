@@ -135,7 +135,7 @@ const TerminalConnect = React.memo<any>(({
       terminalRef.current = terminal;
       if (terminalBoxRef.current){
         terminal?.open(terminalBoxRef.current);
-        terminal?.writeln('Hello \x1B[1;3;31mbugfixers\x1B[0m!');
+        terminal?.writeln('Init started. Please wait, \x1B[1;3;31mit may take few minutes\x1B[0m');
       }
     })();
   }, []);
