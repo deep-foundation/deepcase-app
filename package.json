@@ -3,7 +3,7 @@
   "version": "0.1.0-beta.3",
   "license": "Unlicense",
   "type": "module",
-  "scripts": { 
+  "scripts": {
     "dev": "next dev",
     "build": "rm -rf app && next build",
     "export": "rm -rf out && next export",
@@ -21,7 +21,7 @@
     "@chakra-ui/icons": "^2.0.19",
     "@chakra-ui/react": "^2.6.1",
     "@chakra-ui/theme-tools": "^2.0.16",
-    "@deep-foundation/deeplinks": "^0.0.235",
+    "@deep-foundation/deeplinks": "^0.0.236",
     "@deep-foundation/hasura": "^0.0.46",
     "@deep-foundation/materialized-path": "^0.0.25",
     "@deep-foundation/react-hasura": "^0.0.16",
