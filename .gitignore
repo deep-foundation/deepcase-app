@@ -127,3 +127,5 @@ projects/app/electron/app
 /electron/Deep.Case*
 /electron/node_modules
 /electron/*.provisionprofile
+
+deeplogs.txt
