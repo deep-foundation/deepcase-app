@@ -132,8 +132,8 @@ export default function Page(props: {
           />
           { gqlPath ? [
             <CatchErrors key={1} errorRenderer={(e) => <>
-              <div>Error in AutoGuest or content rendering.</div>
-              <div>{e?.toString() || JSON.stringify(e)}</div>
+              <pre>Error in AutoGuest or content rendering.</pre>
+              <pre>{e?.toString() || JSON.stringify(e, null, 2)}</pre>
             </> }>
               <AutoGuest>
                 <Content gqlPath={gqlPath} gqlSsl={gqlSsl} openPortal={()=>setPortal(true)} />
