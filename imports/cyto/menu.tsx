@@ -14,11 +14,11 @@ import { TbArrowRotaryFirstRight } from "react-icons/tb";
 import { ClientHandler } from "../client-handler";
 
 const ListLayout = React.memo<any>(({ 
-  currentLayout = 'cola',
+  currentLayout = 'deep-d3-force',
   setCurrentLayout,
 }:{
   currentLayout?: string;
-  setCurrentLayout?: any;
+  setCurrentLayout?: (value: string) => void;
 }) => {
   const [open, cycleOpen] = useCycle(false, true);
 
@@ -76,8 +76,8 @@ const ListLayout = React.memo<any>(({
                   whileHover={{ scale: 1.05 }}
                   variants={itemVariants}
                   // sx={{ color: "#131111" }}
-                  onClick={(value) => {
-                    setCurrentLayout(value);
+                  onClick={() => {
+                    setCurrentLayout('cola');
                     cycleOpen();
                   }}
                 >
@@ -88,8 +88,8 @@ const ListLayout = React.memo<any>(({
                   whileHover={{ scale: 1.05 }}
                   variants={itemVariants}
                   // sx={{ color: "#131111" }}
-                  onClick={(value) => {
-                    setCurrentLayout(value);
+                  onClick={() => {
+                    setCurrentLayout('deep-d3-force');
                     cycleOpen();
                   }}
                 >
@@ -207,9 +207,8 @@ export function CytoMenu({
     return () => clearTimeout(timer);
   }, [pasteError, valid]);
 
-  const handlerChangeLayout = (event) => {
-    const value = event.target.childNodes[0].data;
-    // const value = event.target.selectedOptions[0].value;
+  const handlerChangeLayout = (value: string) => {
+    if (!['cola', 'deep-d3-force'].includes(value)) return;
     if (value !== 'cola' && value !== 'deep-d3-force') return;
     setLayout(value)
   }
