@@ -112,7 +112,7 @@
     "super-hands": "^3.0.4",
     "three-bmfont-text": "^3.0.1",
     "three-spritetext": "^1.8.1",
-    "tone": "^14.7.77",
+    "tone": "^14.8.48",
     "typescript": "^5.0.4",
     "usehooks-ts": "^2.9.1",
     "web-worker": "^1.2.0",
