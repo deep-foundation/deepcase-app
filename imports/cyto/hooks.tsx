@@ -872,7 +872,7 @@ export function useCyInitializer({
           }
         },
         {
-          content: (ele) => `traveler (${traveler.findTravlers(undefined, ele.data('link')?.id)?.length})`,
+          content: (ele) => `traveler (${traveler.findTravlers(undefined, ele.data('link')?.id)?.length || 0})`,
           contentStyle: { fontSize: '0.6rem', transform: 'rotate(-70deg)', paddingLeft: '6px' },
           select: async function(ele){
             const id = ele.data('link')?.id;
