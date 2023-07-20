@@ -4,7 +4,7 @@
   "license": "Unlicense",
   "type": "module",
   "scripts": { 
-    "dev": "next dev", 
+    "dev": "next dev",
     "build": "rm -rf app && next build",
     "export": "rm -rf out && next export",
     "start": "(npx -q wait-on --timeout 10000 http-get://127.0.0.1:3007/api/revalidate &); next start",
