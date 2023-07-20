@@ -28,6 +28,8 @@ class MyDocument extends Document {
               `,
             }}
           />
+          {/* <script src="https://gftruj.github.io/hand.tracking.controls.extras/dist/aframe-hand-tracking-controls-extras.js"></script>
+    <script src="https://gftruj.github.io/hand.tracking.controls.extras/components/dist/hand-tracking-controls-extras-components.js"></script> */}
         </Head>
         <body>
           <ColorModeScript initialColorMode={theme.config.initialColorMode} /> 

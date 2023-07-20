@@ -16,6 +16,7 @@ import { PackagerInterface } from '../imports/packager-interface/packager-interf
 import getConfig from 'next/config'
 import { CatchErrors } from '../imports/react-errors';
 import { Button } from '@chakra-ui/react';
+import { AframeGraph } from '../imports/aframe/aframe-graph';
 
 const { publicRuntimeConfig } = getConfig();
 
@@ -29,10 +30,12 @@ const CytoMenu = dynamic<any>(
 );
 
 export function Content({
+  aframe,
   openPortal,
   gqlPath,
   gqlSsl,
 }: {
+  aframe: boolean,
   openPortal?: () => any;
   gqlPath: string;
   gqlSsl: boolean;
@@ -42,7 +45,7 @@ export function Content({
   const [spaceId, setSpaceId] = useSpaceId();
   const [traveler, setTraveler] = useTraveler();
   const deep = useDeep();
-  const globalAny:any = global;
+  const globalAny: any = global;
   globalAny.deep = deep;
   globalAny.ml = deep.minilinks;
   const [extra, setExtra] = useShowExtra();
@@ -50,9 +53,11 @@ export function Content({
   const travelerRef = useRefAutofill(traveler);
 
   const TravelerRef = useRef(0);
-  useEffect(() => { (async () => {
-    TravelerRef.current = await deep.id('@deep-foundation/deepcase', 'Traveler');
-  })(); }, []);
+  useEffect(() => {
+    (async () => {
+      TravelerRef.current = await deep.id('@deep-foundation/deepcase', 'Traveler');
+    })();
+  }, []);
 
   const links: Link<number>[] = useMinilinksFilter(
     deep.minilinks,
@@ -60,12 +65,12 @@ export function Content({
     useCallback((l, ml) => {
       const Traveler = TravelerRef.current;
       const traveler = travelerRef.current;
-      let result =  (
+      let result = (
         extra
-        ? ml.links
-        : ml.links.filter(l => (
-          !!l._applies.find((a: string) => !!~a.indexOf('query-') || a === 'space' || a === 'breadcrumbs' || a === 'not-loaded-ends')
-        ))
+          ? ml.links
+          : ml.links.filter(l => (
+            !!l._applies.find((a: string) => !!~a.indexOf('query-') || a === 'space' || a === 'breadcrumbs' || a === 'not-loaded-ends')
+          ))
       )
       if (Traveler && !traveler) {
         result = result.filter(l => (
@@ -86,17 +91,18 @@ export function Content({
     }, [extra, breadcrumbs, traveler]),
     1000,
   ) || [];
-
+  console.log({ links })
   return (<>
     {[<DeepLoader
       key={spaceId}
       spaceId={spaceId}
-      />]}
-    <CytoGraph gqlPath={gqlPath} gqlSsl={gqlSsl} links={links} cyRef={cyRef} cytoViewportRef={cytoViewportRef}/>
-    <CytoMenu  gqlPath={gqlPath} gqlSsl={gqlSsl} cyRef={cyRef} cytoViewportRef={cytoViewportRef} openPortal={openPortal} />
+    />]}
+    <CytoMenu gqlPath={gqlPath} gqlSsl={gqlSsl} cyRef={cyRef} cytoViewportRef={cytoViewportRef} openPortal={openPortal} />
     <Switch />
     <PackagerInterface />
-  </>); 
+    <CytoGraph gqlPath={gqlPath} gqlSsl={gqlSsl} links={links} cyRef={cyRef} cytoViewportRef={cytoViewportRef} />
+    {aframe ? <AframeGraph deep={deep} links={links} /> : null}
+  </>);
 };
 
 export default function Page(props: {
@@ -105,14 +111,15 @@ export default function Page(props: {
   serverUrl: string;
   deeplinksUrl: string;
 }) {
+  const [aframe, setAframe] = useState(false);
   const { serverUrl, deeplinksUrl } = props;
   const [gqlPath, setGqlPath] = useState(props.gqlPath);
   const [gqlSsl, setGqlSsl] = useState(props.gqlSsl);
   const [portal, setPortal] = useState(true);
-  
+
   console.log("gqlPath", gqlPath);
   console.log("gqlSsl", gqlSsl);
-  
+
   const key = `${gqlSsl}-${gqlPath}`;
 
   return (<>
@@ -136,15 +143,34 @@ export default function Page(props: {
               <pre>{e?.toString() || JSON.stringify(e, null, 2)}</pre>
             </> }>
               <AutoGuest>
-                <Content gqlPath={gqlPath} gqlSsl={gqlSsl} openPortal={()=>setPortal(true)} />
+                <Content aframe={aframe} gqlPath={gqlPath} gqlSsl={gqlSsl} openPortal={() => setPortal(true)} />
+                {aframe ? (
+                  <>
+                  <Button
+                    id="ar"
+                    colorScheme='blue'
+                    pos='absolute' top='4' left='60'
+                  >AR</Button>
+                  <Button
+                    id="vr"
+                    colorScheme='blue'
+                    pos='absolute' left='44' top='4'
+                  >VR</Button>
+                </>
+                ) : null}
                 <Button
-                  colorScheme='blue' 
-                  onClick={() => setPortal(true)} 
+                  colorScheme='blue'
+                  onClick={() => setAframe(!aframe)}
+                  pos='absolute' top='4' left='20'
+                >aframe</Button>
+                <Button
+                  colorScheme='blue'
+                  onClick={() => setPortal(true)}
                   pos='absolute' right='44' top='4'
                 >connector</Button>
               </AutoGuest>
             </CatchErrors>
-          ] : [] }
+          ] : []}
         </DeepProvider>
       </Provider>
     ]}

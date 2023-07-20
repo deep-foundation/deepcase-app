@@ -45,11 +45,13 @@ export function Provider({
         localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
         await import('super-hands');
         localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
-        require('./aframe/rotator');
+        require('./aframe/components/rotator');
         localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
-        require('./aframe/scaler');
+        require('./aframe/components/scaler');
         localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
-        require('./aframe/dragger');
+        require('./aframe/components/dragger');
+        localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
+        await import('aframe-environment-component');
         localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
       }
     })();
