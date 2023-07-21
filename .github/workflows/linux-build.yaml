@@ -24,6 +24,7 @@ env:
   DEEPLINKS_HASURA_SSL: 0
   MIGRATIONS_DEEPLINKS_APP_URL: http://host.docker.internal:3007
   MIGRATIONS_DEEPLINKS_URL: http://host.docker.internal:3006
+  JWT_SECRET: '{"type":"HS256","key":"3EK6FD+o0+c7tzBNVfjpMkNDi2yARAAKzQlk8O2IKoxQu4nF7EdAh8s3TwpHwrdWT6R"}'
   DOCKER: 1
 jobs:
   build:
@@ -36,7 +37,7 @@ jobs:
           ssh://git@github.com/
       - uses: actions/setup-node@v1
         with:
-          node-version: '16.20'
+          node-version: '18.17.0'
       - name: Configure Node caching
         uses: actions/cache@v2
         env:
@@ -79,3 +80,41 @@ jobs:
           path: |
             electron/dist/Deep.Case.tar.gz
             electron/dist/README.txt
+      - name: Archive appimage for tests
+        uses: actions/upload-artifact@v3
+        with:
+          name: appimage
+          path: |
+            electron/dist/Deep.Case.AppImage
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download appimage
+        uses: actions/download-artifact@v3
+        with:
+          name: appimage
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '18.17.0'
+      - name: Configure Node caching
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules-linux
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - name: Install latest npm
+        run: npm i -g npm@latest
+      - name: Install latest npIm
+        run: npm i -g npm@latest
+      - name: run docker
+        run: sleep infinity
+      - name: run appimage
+        run: |
+          screen electron/dist/Deep.Case.AppImage
+          sleep 10  # Wait for the Streamlit app to start

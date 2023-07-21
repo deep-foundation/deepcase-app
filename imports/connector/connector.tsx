@@ -12,8 +12,6 @@ import axios from 'axios';
 import { Loading } from '../loading-motion-bubble';
 import { useLocalStorage } from 'usehooks-ts';
 
-const DOCKER = process.env.DOCKER || '0';
-
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 const parseUrl = (text) : [string, boolean] => {
@@ -564,7 +562,7 @@ export const Connector = React.memo<any>(({
 
   useEffect(() => {
     (async () => {
-      const status = await checkSystemStatus(+DOCKER ? 'http://host.docker.internal:3006' : deeplinksUrl);
+      const status = await checkSystemStatus(deeplinksUrl);
       if (status.result !== undefined) {
         setInitLocal(InitializingState.notInit);
         await delay(1000);
