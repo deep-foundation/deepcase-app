@@ -222,6 +222,8 @@ const ButtonTextButton = React.memo(({
   ComponentRightIcon =  MdDelete,
   ariaLabelRight = 'Remove local route',
   text = 'Initialized',
+  rightButtonId = '',
+  leftButtonId = '',
   onClickLeft,
   onClickRight,
 }:{
@@ -230,12 +232,15 @@ const ButtonTextButton = React.memo(({
   ComponentRightIcon?: any;
   ariaLabelRight?: string;
   text?: any;
+  rightButtonId?: string;
+  leftButtonId?: string;
   onClickLeft?: () => any;
   onClickRight?: () => any;
 }) => {
   return (<Flex width='100%' justify='space-between'  alignItems='center'>
       <IconButton
         variant='unstyled' 
+        id={leftButtonId}
         size='md'
         aria-label={ariaLabelLeft}
         icon={<ComponentLeftIcon color='rgb(0, 128, 255)' />} 
@@ -244,6 +249,7 @@ const ButtonTextButton = React.memo(({
       <Text color='gray.400' fontSize='sm' as='kbd' mr='0.125rem'>{text}</Text>
       <IconButton
         variant='unstyled' 
+        id={rightButtonId}
         size='md'
         aria-label={ariaLabelRight}
         onClick={onClickRight}
@@ -713,6 +719,7 @@ export const Connector = React.memo<any>(({
                     variant='unstyled' 
                     size='md'
                     aria-label='Add local route' 
+                    id='startInitLocal'
                     icon={
                       <IoAddOutline color='rgb(0, 128, 255)' />
                     } 
@@ -783,7 +790,9 @@ export const Connector = React.memo<any>(({
                       setGqlPath(deeplinksGqlPath);
                       setGqlSsl(deeplinksGqlSsl);
                       setPortal(false);
-                    }} 
+                    }}
+                    leftButtonId="goToDeep"
+                    rightButtonId="deleteLocalDeep"
                     onClickRight={() => {
                       setInitLocal(InitializingState.removing)
                     }} 
