@@ -3,10 +3,35 @@ import { useState, useRef, useEffect } from "react";
 import { Entity, Scene } from "aframe-react";
 import { generateLabel } from "./generate-label";
 import { getColorFromId } from "./get-color-from-id";
-import { getGraphData } from "./get-graph-data"
+import { getGraphData } from "./get-graph-data";
+import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js'
 
 export const AframeGraph = ({ deep, links }) => {
   const [graphData, setGraphData] = useState({ nodes: [], edges: [] });
+
+  const handleNodeHover = (node) => {
+    if (node) {
+      console.log(node);
+      // const sphereGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+      // const sphereMaterial = new THREE.MeshStandardMaterial({
+      //   color: getColorFromId(node.type_id),
+      //   emissive: getColorFromId(node.type_id),
+      //   emissiveIntensity: 2
+      // });
+      // let sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+      // // const acene = document.querySelector("[camera]").object3D;
+      // const scene = document.getElementById("scene");
+      // const hoverednode = document.getElementById(`${node.index}`);
+      // console.log(hoverednode);
+
+      // // @ts-ignore
+      // scene.object3D.add(sphere)
+      // sphere.position.set(node.vx, node.vy, node.vz)
+      // console.log({scene})
+
+    }
+  }
+
   console.log(graphData)
   useEffect(() => {
     new Promise(async () => {
@@ -17,28 +42,32 @@ export const AframeGraph = ({ deep, links }) => {
 
   return (
     <>
-      <Scene vr-mode-ui="enterVRButton: #vr; enterARButton: #ar" renderer="logarithmicDepthBuffer: true">
+      <Scene id="scene" vr-mode-ui="enterVRButton: #vr; enterARButton: #ar" renderer="logarithmicDepthBuffer: true">
         <Entity
           camera={{ active: true, fov: 94 }}
           look-controls={{ enabled: true }}
-          wasd-controls={{ enabled: true }}
+          wasd-controls={{ enabled: true, fly: true }}
           orbit-controls={{ enabled: true }}
           position={{ x: -1, y: 4, z: 10 }}
         ></Entity>
-        {/* <Entity
-          cursor="rayOrigin: mouse; mouseCursorStylesEnabled: true;"
-          raycaster="objects: [forcegraph];"
-        /> */}
-        <Entity
-          id="left"
-          raycaster="objects: [forcegraph];"
-          hand-tracking-controls="hand: left"
-        />
-        <Entity
-          id="right"
-          raycaster="objects: [forcegraph];"
-          hand-tracking-controls="hand: right;"
-        />
+        <Entity id="player" collider-check >
+          <Entity
+            cursor=" mouseCursorStylesEnabled: true;"
+            // raycaster="show-line:true; objects: [forcegraph];"
+          /></Entity>
+          <Entity
+            id="left"
+            collider-check
+            super-hands
+            raycaster="show-line:true; objects: [forcegraph];"
+            laser-controls={{hand:"left"}}
+          />
+          <Entity
+            id="right"
+            super-hands
+            raycaster="show-line:true; objects: [forcegraph];"
+            laser-controls="hand: right;"
+          />
         {/* <Entity
           scale={{ x: 0.02, y: 0.02, z: 0.02 }}
           position={{ x: 7, y: 2.5, z: 6 }}
@@ -72,14 +101,14 @@ export const AframeGraph = ({ deep, links }) => {
         /> */}
         <Entity
           scale={{ x: 0.05, y: 0.05, z: 0.05 }}
-          position={{ x: 0, y: 3, z: 0 }}
+          position={{ x: 0, y: 10, z: 0 }}
           forcegraph={{
             nodes: JSON.stringify(graphData.nodes),
             links: JSON.stringify(graphData.edges),
-            linkWidth: 1,
-            linkDirectionalArrowLength: 8,
+            linkWidth: 0.4,
+            linkDirectionalArrowLength: 4,
             linkDirectionalArrowRelPos: 1,
-            nodeResolution:16,
+            nodeResolution: 16,
             nodeColor: (node) => getColorFromId(node.type_id),
             nodeOpacity: 0.6,
             nodeThreeObjectExtend: true,
@@ -92,28 +121,28 @@ export const AframeGraph = ({ deep, links }) => {
 
               if (node.type) {
                 let nodetype = generateLabel(node.type, getColorFromId(node.type_id));
-              nodetype.position.set(0, 6, 0);
-              group.add(nodetype);
+                nodetype.position.set(0, 6, 0);
+                group.add(nodetype);
               }
-              
+
               if (node.name) {
                 let nodename = generateLabel(node.name, getColorFromId(node.type_id));
-              nodename.position.set(0, -6, 0);
-              group.add(nodename);
+                nodename.position.set(0, -6, 0);
+                group.add(nodename);
               }
-              
-              
+
+
               const radius = 3; // Half the radius to make sphere smaller
               const sphereGeometry = new THREE.SphereGeometry(radius, 16, 16);
               const sphereMaterial = new THREE.MeshStandardMaterial({
                 color: getColorFromId(node.type_id),
                 emissive: getColorFromId(node.type_id),
-                emissiveIntensity: 2
+                emissiveIntensity: 10
               });
               let sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
               group.add(sphere);
 
-              // var camera = document.querySelector("[camera]").object3D;
+              // const camera = document.querySelector("[camera]").object3D;
               // // create an AudioListener and add it to the camera
               // const listener = new THREE.AudioListener();
               // camera.add(listener);
@@ -131,7 +160,18 @@ export const AframeGraph = ({ deep, links }) => {
               // });
               // group.add(sound);
               return group;
-            }
+            },
+            onNodeHover: handleNodeHover,
+            // onNodeHover: () => {
+            //   const sphereGeometry = new THREE.SphereGeometry(6, 16, 16);
+            //   const sphereMaterial = new THREE.MeshStandardMaterial({
+            //     color: getColorFromId(node.type_id),
+            //     emissive: getColorFromId(node.type_id),
+            //     emissiveIntensity: 2
+            //   });
+            //   let sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+            //   sphere.position.set(node.x, node.y, node.z)
+            // }
           }}
         />
         {/* <Entity
@@ -148,13 +188,13 @@ export const AframeGraph = ({ deep, links }) => {
             grid: "none"
           }}
         /> */}
-        <Entity
+        {/* <Entity
           primitive="a-light"
           type="ambient"
           intensity="0.4"
           color="#00b3ff"
-        />
-        <Entity
+        /> */}
+        {/* <Entity
           primitive="a-light"
           type="point"
           color="#4affe7"
@@ -177,7 +217,7 @@ export const AframeGraph = ({ deep, links }) => {
           intensity="20"
           distance={8}
           position={{ x: 7, y: 5, z: 6 }}
-        />
+        /> */}
       </Scene>
     </>
   );

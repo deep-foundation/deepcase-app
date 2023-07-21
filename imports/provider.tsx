@@ -43,7 +43,7 @@ export function Provider({
         localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
         await import('aframe-forcegraph-component');
         localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
-        await import('super-hands');
+        require('super-hands');
         localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
         require('./aframe/components/rotator');
         localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
