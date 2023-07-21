@@ -15,6 +15,7 @@
   "main": "build/src/index.js",
   "scripts": {
     "build": "cp ./node_modules/@deep-foundation/deeplinks/imports/engine.ts ./src/engine.ts && tsc",
+    "test": "jest",
     "electron:start-live": "node ./live-runner.js",
     "electron:start": "npm run build && electron --inspect=5858 ./",
     "electron:debug": "APP_DEV=true electron .",

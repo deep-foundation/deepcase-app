@@ -443,6 +443,19 @@ enum InitializingState {
   removing = 'removing',
 }
 
+export const checkSystemStatus = async (deeplinksUrl): Promise<{ result?: any; error?: any }> => {
+  let status;
+  let err;
+  try {
+    // DL may be not in docker, when DC in docker, so we use host.docker.internal instead of docker-network link deep_links_1
+    status = await axios.post(`${deeplinksUrl}/gql`, { "query": "{ healthz { status } }" }, { validateStatus: status => true, timeout: 7000 });
+  } catch(e){
+    err = e;
+  }
+  console.log('system status', JSON.stringify(status?.data));
+  return { result: status?.data?.data?.healthz?.[0].status, error: err };
+};
+
 export const Connector = React.memo<any>(({
   portalOpen = true,
   setPortal,
@@ -486,19 +499,6 @@ export const Connector = React.memo<any>(({
   
   const [remotesString, setRemotesString] = useLocalStorage('remote-routes', '[]');
   const remotes = JSON.parse(remotesString);
-
-  const checkSystemStatus = async () => {
-    let status;
-    let err;
-    try {
-      // DL may be not in docker, when DC in docker, so we use host.docker.internal instead of docker-network link deep_links_1
-      status = await axios.post(`${+DOCKER ? 'http://host.docker.internal:3006' : deeplinksUrl}/gql`, { "query": "{ healthz { status } }" }, { validateStatus: status => true, timeout: 7000 });
-    } catch(e){
-      err = e;
-    }
-    console.log('system status', JSON.stringify(status?.data));
-    return { result: status?.data?.data?.healthz?.[0].status, error: err };
-  };
 
   const checkUrlStatus = async (url) => {
     let status;
@@ -564,7 +564,7 @@ export const Connector = React.memo<any>(({
 
   useEffect(() => {
     (async () => {
-      const status = await checkSystemStatus();
+      const status = await checkSystemStatus(+DOCKER ? 'http://host.docker.internal:3006' : deeplinksUrl);
       if (status.result !== undefined) {
         setInitLocal(InitializingState.notInit);
         await delay(1000);
