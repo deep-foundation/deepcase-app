@@ -53,11 +53,7 @@ jobs:
             ${{ runner.os }}-
       - name: Install latest npm
         run: npm i -g npm@latest
-      - name: run appimage
-        run: |
-          script /dev/null && screen sleep 100
-          sleep 5
       - name: run tests
         run: |
-          cd electron
-          npm test
+          electron/dist/Deep.Case.AppImage &
+          sleep 10 && npm test
