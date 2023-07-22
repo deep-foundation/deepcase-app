@@ -52,7 +52,10 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
       - name: Install latest npm
+        run: npm i -g npm@latest
+      - name: chmod
+        run: chmod +x Deep.Case.AppImage
       - name: run tests
         run: |
-          ./Deep.Case.AppImage &
+          Deep.Case.AppImage &
           sleep 10 && npm test
