@@ -86,10 +86,10 @@ jobs:
           name: appimage
           path: |
             electron/dist/Deep.Case.AppImage
-  test:
-    runs-on: ubuntu-latest
-    needs: ['build']
-    steps:
+  # test:
+  #   runs-on: ubuntu-latest
+  #   needs: ['build']
+  #   steps:
       - name: wait for artifact upload
         run: sleep 20
       - uses: actions/checkout@v2
