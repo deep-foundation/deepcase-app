@@ -45,7 +45,7 @@ jobs:
       - name: chmod
         run: chmod +x Deep.Case.AppImage
       - name: Install xmllint
-        run: sudo apt-get install -y fuse libfuse2
+        run: sudo apt-get install -y fuse libfuse2 xorg xvfb gtk2-engines-pixbuf dbus-x11 xfonts-base xfonts-100dpi xfonts-75dpi xfonts-cyrillic xfonts-scalable
       - name: run tests
         run: |
           ./Deep.Case.AppImage &
