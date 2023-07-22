@@ -1,0 +1,62 @@
+name: Linux Build
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+defaults:
+  run:
+    working-directory: ./
+env:
+  USE_HARD_LINKS: false
+  MIGRATIONS_DIR: /tmp/.migrate
+  ASSET_PREFIX: '.'
+  npm_config_yes: true
+  NEXT_PUBLIC_ENGINES: 1
+  MIGRATIONS_ID_TYPE_SQL: bigint
+  MIGRATIONS_ID_TYPE_GQL: bigint
+  MIGRATIONS_HASURA_PATH: localhost:8080
+  MIGRATIONS_HASURA_SSL: 0
+  MIGRATIONS_HASURA_SECRET: myadminsecretkey
+  NEXT_PUBLIC_DEEPLINKS_SERVER: http://localhost:3007
+  NEXT_PUBLIC_GQL_PATH: localhost:3006/gql
+  NEXT_PUBLIC_GQL_SSL: 0
+  DEEPLINKS_HASURA_PATH: localhost:8080
+  DEEPLINKS_HASURA_SSL: 0
+  MIGRATIONS_DEEPLINKS_APP_URL: http://host.docker.internal:3007
+  MIGRATIONS_DEEPLINKS_URL: http://host.docker.internal:3006
+  JWT_SECRET: '{"type":"HS256","key":"3EK6FD+o0+c7tzBNVfjpMkNDi2yARAAKzQlk8O2IKoxQu4nF7EdAh8s3TwpHwrdWT6R"}'
+  DOCKER: 1
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    needs: ['build']
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: 533
+          workflow_conclusion: success
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '18.17.0'
+      - name: Configure Node caching
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules-linux
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - name: Install latest npm
+        run: npm i -g npm@latest
+      - name: run appimage
+        run: |
+          screen sleep 100
+      - name: run tests
+        run: |
+          cd electron
+          npm test
