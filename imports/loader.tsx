@@ -381,14 +381,14 @@ export const DeepLoader = memo(function DeepLoader({
         deep.minilinks?.apply(r, `query-${f.id}`);
       }}
     />))}
-    {/* <><DeepLoaderActive
+    <><DeepLoaderActive
       key={`DEEPCASE_TYPES`}
       name={`DEEPCASE_TYPES`}
       query={typesQuery}
       onChange={(r) => {
         deep.minilinks?.apply(r, 'types');
       }}
-    /></> */}
+    /></>
     {!!typeIds && <><DeepLoaderActive
       key={`DEEPCASE_CONTAINS_AND_SYMBOLS`}
       name={`DEEPCASE_CONTAINS_AND_SYMBOLS`}

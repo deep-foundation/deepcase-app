@@ -4,7 +4,7 @@ import { useDeep, useDeepId, useDeepSubscription } from "@deep-foundation/deepli
 import copy from "copy-to-clipboard";
 import { AnimatePresence, motion, useAnimation, useCycle } from 'framer-motion';
 import React, { useEffect, useState, ChangeEvent } from "react";
-import { HiMenuAlt2 } from 'react-icons/hi';
+import { HiMenuAlt2, HiCode, HiCubeTransparent } from 'react-icons/hi';
 import { SlClose } from 'react-icons/sl';
 import { Appearance } from "../component-appearance";
 import { useAutoFocusOnInsert, useBreadcrumbs, useContainer, useLayout, useMediaQuery, useReserved, useShowExtra, useShowFocus, useShowTypes, useSpaceId, useTraveler, useLayoutAnimation, useAsyncState, useCytoHandlersSwitch } from "../hooks";
@@ -190,6 +190,10 @@ export function CytoMenu({
   const [max300] = useMediaQuery('(max-width: 300px)');
   const [togglePackager, setTogglePackager] = useState(false);
 
+  const clearFocuses = async () => {
+    await deep.delete({ _or: [{ type_id: deep.idLocal('@deep-foundation/core', 'Focus'), from_id: spaceId }, { type_id: deep.idLocal('@deep-foundation/core', 'Contain'), from_id: spaceId, to: { type_id: deep.idLocal('@deep-foundation/core', 'Focus'), from_id: spaceId }}] });
+  };
+
   const control = useAnimation();
   useEffect(() => {
     if (togglePackager === true) {
@@ -224,6 +228,22 @@ export function CytoMenu({
       onClick={() => setTogglePackager(true)}
       pos='absolute'
       left={4} top={4}><HiMenuAlt2 /></Button>
+    <Button
+      as={motion.button}
+      variants={buttonVariant}
+      animate={control}
+      colorScheme='blue'
+      onClick={() => setCytoEditor(true)}
+      pos='absolute'
+      left={20} top={4}><HiCode /></Button>
+    <Button
+      as={motion.button}
+      variants={buttonVariant}
+      animate={control}
+      colorScheme='blue'
+      onClick={clearFocuses}
+      pos='absolute'
+      left={36} top={4}><HiCubeTransparent /></Button>
     <Appearance
       toggle={togglePackager}
       variantsAnimation={variants}
@@ -374,9 +394,7 @@ export function CytoMenu({
             <HStack>
               <MenuSearch cyRef={cyRef} bg='buttonBackgroundModal' />
               <ButtonGroup size='sm' isAttached variant='outline' color='text'>
-                <Button onClick={async () => {
-                  await deep.delete({ _or: [{ type_id: deep.idLocal('@deep-foundation/core', 'Focus'), from_id: spaceId }, { type_id: deep.idLocal('@deep-foundation/core', 'Contain'), from_id: spaceId, to: { type_id: deep.idLocal('@deep-foundation/core', 'Focus'), from_id: spaceId }}] });
-                }} borderColor='gray.400' background='buttonBackgroundModal'>clear focuses</Button>
+                <Button onClick={clearFocuses} borderColor='gray.400' background='buttonBackgroundModal'>clear focuses</Button>
               </ButtonGroup>
               <Travelers/>
               <CytoHandlersMenu/>
