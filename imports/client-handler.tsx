@@ -40,6 +40,7 @@ import * as rjsfValidator from '@rjsf/validator-ajv8';
 import * as aframeReact from '@belivvr/aframe-react';
 import { Entity, Scene } from 'aframe-react';
 import { CatchErrors } from './react-errors';
+import _ from 'lodash';
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), { ssr: false });
 
 export const r: any = (path) => {
@@ -59,6 +60,7 @@ export const r: any = (path) => {
 //   }
 // })()
 r.list = {
+  'lodash': _,
   '@chakra-ui/react': chakra,
   'react': React,
   'axios': axios,
