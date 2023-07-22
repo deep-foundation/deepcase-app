@@ -89,6 +89,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      - name: wait for artifact upload
+        run: sleep 20
       - uses: actions/checkout@v2
       - name: Download appimage
         uses: actions/download-artifact@v3
@@ -112,9 +114,11 @@ jobs:
         run: npm i -g npm@latest
       - name: Install latest npIm
         run: npm i -g npm@latest
-      - name: run docker
-        run: sleep infinity
       - name: run appimage
         run: |
           screen electron/dist/Deep.Case.AppImage
-          sleep 10  # Wait for the Streamlit app to start
+          sleep 20
+      - name: run appimage
+        run: |
+          cd electron
+          npm test
