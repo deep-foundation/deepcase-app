@@ -43,13 +43,15 @@ export function Provider({
         localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
         await import('aframe-forcegraph-component');
         localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
-        require('super-hands');
+        await import('super-hands');
         localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
         require('./aframe/components/rotator');
         localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
         require('./aframe/components/scaler');
         localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
         require('./aframe/components/dragger');
+        localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
+        require('./aframe/components/collider');
         localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
         await import('aframe-environment-component');
         localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');

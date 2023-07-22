@@ -4,14 +4,16 @@ import { Entity, Scene } from "aframe-react";
 import { generateLabel } from "./generate-label";
 import { getColorFromId } from "./get-color-from-id";
 import { getGraphData } from "./get-graph-data";
-import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js'
+import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 
 export const AframeGraph = ({ deep, links }) => {
   const [graphData, setGraphData] = useState({ nodes: [], edges: [] });
 
   const handleNodeHover = (node) => {
     if (node) {
-      console.log(node);
+      // console.log(node);
+      // var sceneEl = document.querySelector('a-scene');
+      // console.log(sceneEl.querySelector(`#${node.id}`));
       // const sphereGeometry = new THREE.SphereGeometry(0.1, 16, 16);
       // const sphereMaterial = new THREE.MeshStandardMaterial({
       //   color: getColorFromId(node.type_id),
@@ -50,21 +52,20 @@ export const AframeGraph = ({ deep, links }) => {
           orbit-controls={{ enabled: true }}
           position={{ x: -1, y: 4, z: 10 }}
         ></Entity>
-        <Entity id="player" collider-check >
           <Entity
-            cursor=" mouseCursorStylesEnabled: true;"
-            // raycaster="show-line:true; objects: [forcegraph];"
-          /></Entity>
+            collider
+            cursor={{ rayOrigin:"mouse", mouseCursorStylesEnabled: true}}
+            raycaster="objects: [forcegraph];"
+          />
           <Entity
             id="left"
-            collider-check
-            super-hands
+            collider
             raycaster="show-line:true; objects: [forcegraph];"
             laser-controls={{hand:"left"}}
           />
           <Entity
             id="right"
-            super-hands
+            collider
             raycaster="show-line:true; objects: [forcegraph];"
             laser-controls="hand: right;"
           />
@@ -101,7 +102,7 @@ export const AframeGraph = ({ deep, links }) => {
         /> */}
         <Entity
           scale={{ x: 0.05, y: 0.05, z: 0.05 }}
-          position={{ x: 0, y: 10, z: 0 }}
+          position={{ x: 0, y: 4, z: 0 }}
           forcegraph={{
             nodes: JSON.stringify(graphData.nodes),
             links: JSON.stringify(graphData.edges),
