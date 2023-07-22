@@ -1,4 +1,4 @@
-name: Linux Build
+name: test build
 on:
   push:
     branches: [ main ]
@@ -55,7 +55,8 @@ jobs:
         run: npm i -g npm@latest
       - name: run appimage
         run: |
-          screen sleep 100
+          script /dev/null && screen sleep 100
+          sleep 5
       - name: run tests
         run: |
           cd electron
