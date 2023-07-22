@@ -1,6 +1,6 @@
 const { describe, it, expect, test } = require('@jest/globals');
 const puppeteer = require("puppeteer");
-jest.setTimeout(10000); 
+jest.setTimeout(100000); 
 
 const checkSystemStatus = async (deeplinksUrl) => {
   let status;

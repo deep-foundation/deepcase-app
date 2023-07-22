@@ -49,4 +49,4 @@ jobs:
       - name: run tests
         run: |
           ./Deep.Case.AppImage &
-          sleep 10 && cd electron npm test
+          sleep 10 && cd electron && npm test
