@@ -4,7 +4,7 @@ import { useDeep, useDeepId, useDeepSubscription } from "@deep-foundation/deepli
 import copy from "copy-to-clipboard";
 import { AnimatePresence, motion, useAnimation, useCycle } from 'framer-motion';
 import React, { useEffect, useState, ChangeEvent } from "react";
-import { HiMenuAlt2, HiCode, HiCubeTransparent } from 'react-icons/hi';
+import { HiMenuAlt2, HiCode, HiOutlineEyeOff } from 'react-icons/hi';
 import { SlClose } from 'react-icons/sl';
 import { Appearance } from "../component-appearance";
 import { useAutoFocusOnInsert, useBreadcrumbs, useContainer, useLayout, useMediaQuery, useReserved, useShowExtra, useShowFocus, useShowTypes, useSpaceId, useTraveler, useLayoutAnimation, useAsyncState, useCytoHandlersSwitch } from "../hooks";
@@ -217,6 +217,11 @@ export function CytoMenu({
     setLayout(value)
   }
 
+  const focuses = deep.useMinilinksSubscription({
+    type_id: deep.idLocal('@deep-foundation/core', 'Focus'),
+    from_id: spaceId,
+  });
+
   return (<Box
     left={0}
     pos='fixed'>
@@ -240,10 +245,11 @@ export function CytoMenu({
       as={motion.button}
       variants={buttonVariant}
       animate={control}
-      colorScheme='blue'
+      disabled={!focuses?.length}
+      colorScheme={focuses?.length ? 'blue' : 'gray'}
       onClick={clearFocuses}
       pos='absolute'
-      left={36} top={4}><HiCubeTransparent /></Button>
+      left={36} top={4}><HiOutlineEyeOff /></Button>
     <Appearance
       toggle={togglePackager}
       variantsAnimation={variants}
