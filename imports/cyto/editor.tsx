@@ -147,7 +147,10 @@ export function CytoEditor() {
     },
   )
 
-  const [currentLanguage, setCurrentLanguage] = useState('plaintext');
+  const [currentLanguage, setCurrentLanguage] = useLocalStore('df-dc-editor-currentLanguage', 'plaintext');
+  useEffect(() => {
+    refEditor.current?.monaco.editor.setModelLanguage(refEditor.current?.monaco.editor.getModels()[0], currentLanguage);
+  }, [currentLanguage]);
 
   const currentValue = valuesRef?.current?.[tabId] || typeof tab?.initialValue !== 'undefined' ? tab?.initialValue : '';
 
@@ -259,7 +262,6 @@ export function CytoEditor() {
                     setLanguage={(i) => {
                       if (i == 'typescript') validationTS
                       setCurrentLanguage(i);
-                      refEditor.current?.monaco.editor.setModelLanguage(refEditor.current?.monaco.editor.getModels()[0], i);
                     }}
                   />
                 </Box>
