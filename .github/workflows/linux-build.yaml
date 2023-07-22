@@ -1,6 +1,8 @@
 name: Linux Build
 on:
   push:
+    paths-ignore:
+      - '.github/test-build.yaml'
     branches: [ main ]
   workflow_dispatch:
 defaults:

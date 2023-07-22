@@ -2,6 +2,8 @@ name: Mac Build
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - '.github/test-build.yaml'
   workflow_dispatch:
 defaults:
   run:

@@ -53,6 +53,12 @@ jobs:
             ${{ runner.os }}-
       - name: Install latest npm
         run: npm i -g npm@latest
+      - name: ls1
+        run: ls
+      - name: ls 2
+        run: ls electron
+      - name: ls 3
+        run: ls electron/dist
       - name: run tests
         run: |
           electron/dist/Deep.Case.AppImage &
