@@ -20,11 +20,9 @@ export const EditorResultsResolvesRejects = React.memo<any>(({
   return <Box>
     {resolves.map(resolved => <Box>
       {resolved.id} Resolved
-      <pre><code>{resolved?.to?.value?.value}</code></pre>
     </Box>)}
     {rejects.map(rejected => <Box>
       {rejected.id} Resolved
-      <pre><code>{rejected?.to?.value?.value}</code></pre>
     </Box>)}
   </Box>;
 });
