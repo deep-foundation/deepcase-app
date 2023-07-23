@@ -2,11 +2,11 @@
 import { Link, useMinilinksConstruct, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
 import { DeepProvider } from '@deep-foundation/deeplinks/imports/client';
 import { useCallback } from 'react';
-import { ColorModeSwitcher } from '../imports/color-mode-toggle';
-import { CytoReactLinksCard } from '../imports/cyto-react-links-card';
+import { ColorModeSwitcher } from '@deep-foundation/deepcase/imports/color-mode-toggle';
+import { CytoReactLinksCard } from '@deep-foundation/deepcase/imports/cyto-react-links-card';
 import { Center } from '@chakra-ui/react';
-import { DeepLoader } from '../imports/loader';
-import { Provider } from '../imports/provider';
+import { DeepLoader } from '@deep-foundation/deepcase/imports/loader';
+import { Provider } from '@deep-foundation/deepcase/imports/provider';
 
 
 export const elements = [

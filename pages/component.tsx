@@ -2,28 +2,28 @@
 import { Box, Button, Code, Heading, HStack, ChakraProvider } from '@chakra-ui/react';
 import { DeepProvider } from '@deep-foundation/deeplinks/imports/client';
 import { useState } from 'react';
-import { ColorModeSwitcher } from '../imports/color-mode-toggle';
-import { Appearance } from '../imports/component-appearance';
-import { GridComponent } from '../imports/component/grid-component';
-import { QueryClientHandler } from '../imports/cyto/query-client-handler';
-import { DotsLoader } from '../imports/dot-loader';
-import { PackagePublisher } from '../imports/package-publisher';
-import { PackagerInterface } from '../imports/packager-interface/packager-interface';
-import { Example } from '../imports/popover-text/popover-text';
-import { Provider } from '../imports/provider';
-import { TextInput, TooltipEmoji } from '../imports/text-cursor-tooltip/text-cursor-tooltip';
-import { Token } from '../imports/token';
+import { ColorModeSwitcher } from '@deep-foundation/deepcase/imports/color-mode-toggle';
+import { Appearance } from '@deep-foundation/deepcase/imports/component-appearance';
+import { GridComponent } from '@deep-foundation/deepcase/imports/component/grid-component';
+import { QueryClientHandler } from '@deep-foundation/deepcase/imports/cyto/query-client-handler';
+import { DotsLoader } from '@deep-foundation/deepcase/imports/dot-loader';
+import { PackagePublisher } from '@deep-foundation/deepcase/imports/package-publisher';
+import { PackagerInterface } from '@deep-foundation/deepcase/imports/packager-interface/packager-interface';
+import { Example } from '@deep-foundation/deepcase/imports/popover-text/popover-text';
+import { Provider } from '@deep-foundation/deepcase/imports/provider';
+import { TextInput, TooltipEmoji } from '@deep-foundation/deepcase/imports/text-cursor-tooltip/text-cursor-tooltip';
+import { Token } from '@deep-foundation/deepcase/imports/token';
 import { elements } from './card';
 
 import { isAndroid, isIOS, isWindows, isMacOs } from 'react-device-detect';
-import { VerticalSash } from '../imports/editor/editor-grid';
-import { MessagingInterface } from '../imports/messanger';
-import { Switch } from '../imports/switch-mode';
-import { DeepWysiwyg } from '../imports/deep-wysiwyg';
-import { PackagesBlock } from '../imports/cyto-react-links-packages';
+import { VerticalSash } from '@deep-foundation/deepcase/imports/editor/editor-grid';
+import { MessagingInterface } from '@deep-foundation/deepcase/imports/messanger';
+import { Switch } from '@deep-foundation/deepcase/imports/switch-mode';
+import { DeepWysiwyg } from '@deep-foundation/deepcase/imports/deep-wysiwyg';
+import { PackagesBlock } from '@deep-foundation/deepcase/imports/cyto-react-links-packages';
 import { useMinilinksConstruct } from '@deep-foundation/deeplinks/imports/minilinks';
-import themeChakra from '../imports/theme/theme';
-import { EditableWithDecorate, HighlightLastActiveSelection } from '../imports/test-md';
+import themeChakra from '@deep-foundation/deepcase/imports/theme/theme';
+import { EditableWithDecorate, HighlightLastActiveSelection } from '@deep-foundation/deepcase/imports/test-md';
 
 
 const Detector = () => {
