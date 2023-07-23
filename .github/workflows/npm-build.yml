@@ -1,8 +1,6 @@
 name: Npm Build
 
 on:
-  paths-ignore:
-    - '.github/test-build.yaml'
   pull_request:
     types: [opened, reopened, edited, synchronize]
   workflow_dispatch:
