@@ -92,37 +92,37 @@ jobs:
   #   runs-on: ubuntu-latest
   #   needs: ['build']
   #   steps:
-      - name: wait for artifact upload
-        run: sleep 20
-      - uses: actions/checkout@v2
-      - name: Download appimage
-        uses: actions/download-artifact@v3
-        with:
-          name: appimage
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '18.17.0'
-      - name: Configure Node caching
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-node-modules-linux
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-      - name: Install latest npm
-        run: npm i -g npm@latest
-      - name: Install latest npIm
-        run: npm i -g npm@latest
-      - name: run appimage
-        run: |
-          script /dev/null
-          screen electron/dist/Deep.Case.AppImage
-          sleep 20
-      - name: run tests
+    # - name: wait for artifact upload
+    #   run: sleep 20
+    # - uses: actions/checkout@v2
+    # - name: Download appimage
+    #   uses: actions/download-artifact@v3
+    #   with:
+    #     name: appimage
+    # - uses: actions/setup-node@v1
+    #   with:
+    #     node-version: '18.17.0'
+    # - name: Configure Node caching
+    #   uses: actions/cache@v2
+    #   env:
+    #     cache-name: cache-node-modules-linux
+    #   with:
+    #     path: ~/.npm
+    #     key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+    #     restore-keys: |
+    #       ${{ runner.os }}-build-${{ env.cache-name }}-
+    #       ${{ runner.os }}-build-
+    #       ${{ runner.os }}-
+    # - name: Install latest npm
+    #   run: npm i -g npm@latest
+    # - name: Install latest npIm
+    #   run: npm i -g npm@latest
+    # - name: run appimage
+    #   run: |
+    #     script /dev/null
+    #     screen electron/dist/Deep.Case.AppImage
+    #     sleep 20
+    # - name: run tests
         run: |
           cd electron
           npm test

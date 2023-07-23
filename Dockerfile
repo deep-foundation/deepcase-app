@@ -11,7 +11,6 @@ RUN apk add docker-compose=1.27.4-r0
 
 COPY package.json .
 COPY node_modules ./node_modules
-COPY imports ./imports
 COPY app ./app
 COPY public ./public
 COPY pages ./pages
