@@ -86,7 +86,7 @@ export default function Page() {
         <ColorModeSwitcher/>
         <Box h='5rem' />
         <Box pos='relative' width='100%' height='80vh'>
-          <EditorGrid 
+          {/* <EditorGrid 
             editorTextAreaElement={<EditorTextArea />} 
             editorTabsElement={<EditorTabs
               tabs={tabs}
@@ -112,7 +112,7 @@ export default function Page() {
             editorRightSwitch={<EditorSwitcher setArea={(rightArea) => {
               setRightArea(rightArea);
             }} />}
-          />
+          /> */}
         </Box>
       </>
     </ChakraProvider>

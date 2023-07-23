@@ -7,10 +7,10 @@ import { CytoReactMessage } from '@deep-foundation/deepcase/imports/cyto-react-m
 import { CytoGraphProps } from '@deep-foundation/deepcase/imports/cyto/types';
 import { Provider } from '@deep-foundation/deepcase/imports/provider';
 
-const CytoGraph = dynamic<CytoGraphProps>(
-  () => import('@deep-foundation/deepcase/imports/cyto/graph').then((m) => m.default),
-  { ssr: false }
-);
+// const CytoGraph = dynamic<CytoGraphProps>(
+//   () => import('@deep-foundation/deepcase/imports/cyto/graph').then((m) => m.default),
+//   { ssr: false }
+// );
 
 export default function Page() {
   const minilinks = useMinilinksConstruct();
@@ -19,7 +19,7 @@ export default function Page() {
   return (<>
     <Provider><>
       <ColorModeSwitcher/>
-      <CytoReactMessage />
+      {/* <CytoReactMessage /> */}
       <MessageTextArea />
     </></Provider>
   </>);
