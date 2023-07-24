@@ -32,6 +32,10 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
+      - name: brew i
+        run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      - name: tree i
+        run: brew install tree
       - name: tree
         run: tree -L 10
       - name: Reconfigure git to use HTTP authentication
