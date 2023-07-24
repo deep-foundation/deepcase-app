@@ -29,7 +29,7 @@ AFRAME.registerComponent("dragger", {
       const deltaX = lPinch.x - pos.x
       const deltaY = lPinch.y - pos.y
       const deltaZ = lPinch.z - pos.z
-      graph.object3D.position.set(graphX - deltaX*2, graphY - deltaY*2, graphZ - deltaZ*2);
+      graph.object3D.position.set(graphX - deltaX*3, graphY - deltaY*3, graphZ - deltaZ*3);
       lPinch.copy(evt.detail.position)
     })
 

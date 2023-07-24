@@ -11,7 +11,7 @@ export const AframeGraph = ({ deep, links }) => {
 
   const handleNodeHover = (node) => {
     if (node) {
-      // console.log(node);
+      // console.log({ node });
       // var sceneEl = document.querySelector('a-scene');
       // console.log(sceneEl.querySelector(`#${node.id}`));
       // const sphereGeometry = new THREE.SphereGeometry(0.1, 16, 16);
@@ -52,23 +52,23 @@ export const AframeGraph = ({ deep, links }) => {
           orbit-controls={{ enabled: true }}
           position={{ x: -1, y: 4, z: 10 }}
         ></Entity>
-          <Entity
+        {/* <Entity
             collider
             cursor={{ rayOrigin:"mouse", mouseCursorStylesEnabled: true}}
             raycaster="objects: [forcegraph];"
-          />
-          <Entity
-            id="left"
-            collider
-            raycaster="show-line:true; objects: [forcegraph];"
-            laser-controls={{hand:"left"}}
-          />
-          <Entity
-            id="right"
-            collider
-            raycaster="show-line:true; objects: [forcegraph];"
-            laser-controls="hand: right;"
-          />
+          /> */}
+        <Entity
+          id="left"
+          // collider
+          raycaster="show-line:true; objects: [forcegraph]"
+          laser-controls={{ hand: "left" }}
+        />
+        <Entity
+          id="right"
+          menu
+          raycaster="show-line:true; objects: #sphere, [forcegraph]"
+          laser-controls={{ hand: "right" }}
+        />
         {/* <Entity
           scale={{ x: 0.02, y: 0.02, z: 0.02 }}
           position={{ x: 7, y: 2.5, z: 6 }}
@@ -101,18 +101,19 @@ export const AframeGraph = ({ deep, links }) => {
           }}
         /> */}
         <Entity
-          scale={{ x: 0.05, y: 0.05, z: 0.05 }}
-          position={{ x: 0, y: 4, z: 0 }}
+          id="fg"
+          scale={{ x: 0.02, y: 0.02, z: 0.02 }}
+          position={{ x: 1, y: 2, z: 0 }}
           forcegraph={{
             nodes: JSON.stringify(graphData.nodes),
             links: JSON.stringify(graphData.edges),
+            dagMode:"radialout",
             linkWidth: 0.4,
             linkDirectionalArrowLength: 4,
             linkDirectionalArrowRelPos: 1,
             nodeResolution: 16,
             nodeColor: (node) => getColorFromId(node.type_id),
             nodeOpacity: 0.6,
-            nodeThreeObjectExtend: true,
             nodeThreeObject: (node) => {
               const group = new THREE.Group();
 
@@ -138,7 +139,7 @@ export const AframeGraph = ({ deep, links }) => {
               const sphereMaterial = new THREE.MeshStandardMaterial({
                 color: getColorFromId(node.type_id),
                 emissive: getColorFromId(node.type_id),
-                emissiveIntensity: 10
+                emissiveIntensity: 2
               });
               let sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
               group.add(sphere);
@@ -175,7 +176,17 @@ export const AframeGraph = ({ deep, links }) => {
             // }
           }}
         />
-        {/* <Entity
+        <Entity
+          id="sphere"
+          geometry={{ primitive: "sphere", radius: 0.5 }}
+          position={{ x: 5, y: 2, z: 0 }}
+          material={{
+            shader: "standard",
+            color: "#a200ff",
+            emissive: "#a200ff",
+            emissiveIntensity: 1
+          }}/>
+          {/* <Entity
           environment={{
             preset: "moon",
             seed: 10,
@@ -189,13 +200,13 @@ export const AframeGraph = ({ deep, links }) => {
             grid: "none"
           }}
         /> */}
-        {/* <Entity
+          {/* <Entity
           primitive="a-light"
           type="ambient"
           intensity="0.4"
           color="#00b3ff"
         /> */}
-        {/* <Entity
+          {/* <Entity
           primitive="a-light"
           type="point"
           color="#4affe7"
