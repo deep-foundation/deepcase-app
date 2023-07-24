@@ -70,6 +70,8 @@ jobs:
       #   run: cd node_modules/@deep-foundation && rm -rf store && git clone https://github.com/deep-foundation/store.git && cd store && npm ci && npm run package:build && rm -rf node_modules && rm -rf package-lock.json && cd ../../.. && rm -rf electron/node_modules/@deep-foundation/store && cp -r node_modules/@deep-foundation/store electron/node_modules/@deep-foundation/store
       - name: build next
         run: npm run build && npm run export && npx rimraf electron/app && npx cap copy electron
+      - name: tree
+        run: tree -L 10
       - name: Build distribution
         env:
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
