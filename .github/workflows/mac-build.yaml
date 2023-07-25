@@ -90,7 +90,7 @@ jobs:
           CSC_LINK: ${{ secrets.CSC_LINK }}
           APPLEID: ${{ secrets.APPLEID }}
           APPLEIDPASS: ${{ secrets.APPLEIDPASS }}
-        run: cd electron && npm run electron:pack
+        run: cd electron && npm run electron:build-mac
       - name: attach dmg
         run: hdiutil attach electron/out/make/Deep.Case-1.0.0-x64.dmg
       - name: copy app
