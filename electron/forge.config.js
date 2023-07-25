@@ -3,8 +3,8 @@ module.exports = {
     asar: false,
     icon: "assets/appIcon.icns",
     osxSign: {
-      identity: 'Konstantin Dyachenko (F7AAPNP85N)'
-      provisioningProfile: 'developer-id-deepapp.provisionprofile',
+      identity: 'Konstantin Dyachenko (F7AAPNP85N)',
+      "provisioningProfile": 'developer-id-deepapp.provisionprofile',
       platform: 'mas',
       type: 'development',
       entitlements: 'entitlements.mas.plist',
