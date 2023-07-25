@@ -65,6 +65,7 @@
     "@types/jest": "^29.5.3",
     "@types/node": "^20.2.5",
     "electron": "^15.5.7",
+    "electron-builder": "^24.6.3",
     "electron-notarize": "^1.2.2",
     "jest": "^29.6.1",
     "jest-environment-jsdom": "^29.6.1",
