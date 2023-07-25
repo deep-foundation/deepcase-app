@@ -21,7 +21,7 @@
     "@chakra-ui/icons": "^2.0.19",
     "@chakra-ui/react": "^2.6.1",
     "@chakra-ui/theme-tools": "^2.0.16",
-    "@deep-foundation/deepcase": "^0.0.30",
+    "@deep-foundation/deepcase": "^0.0.31",
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
     "@monaco-editor/react": "^4.5.1",
