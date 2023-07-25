@@ -96,7 +96,7 @@ jobs:
       - name: copy app
         run: cp -r /Volumes/Deep.Case/Deep.Case.app Deep.Case.app
       - name: notarize
-        run: node new-notarize.cjs
+        run: node electron/new-notarize.cjs
       - name: And a README (to work around GitHub double-zips)
         run: |
           echo "More information: https://deep.foundation" > electron/out/make/README.txt
