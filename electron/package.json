@@ -16,7 +16,7 @@
   "scripts": {
     "build": "cp ./node_modules/@deep-foundation/deeplinks/imports/engine.ts ./src/engine.ts && tsc",
     "test": "jest",
-    "electron:build-mac": "electron-forge make",
+    "electron:build-mac": "npm run build && electron-forge make",
     "electron:start-live": "node ./live-runner.js",
     "electron:start": "npm run build && electron --inspect=5858 ./",
     "electron:debug": "APP_DEV=true electron .",
