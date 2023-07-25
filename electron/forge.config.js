@@ -11,7 +11,7 @@ module.exports = {
     },
     osxNotarize:{
       tool: 'notarytool',
-      appleId: process.env.APPLE_ID,
+      appleId: process.env.APPLEID,
       appleIdPassword: process.env.APPLEIDPASS,
       teamId: process.env.APPLE_TEAM_ID
     }
