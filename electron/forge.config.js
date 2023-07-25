@@ -14,7 +14,7 @@ module.exports = {
       tool: 'notarytool',
       appleId: process.env.APPLEID,
       appleIdPassword: process.env.APPLEIDPASS,
-      teamId: process.env.APPLE_TEAM_ID
+      teamId: 'F7AAPNP85N'
     }
   },
   rebuildConfig: {},
@@ -26,5 +26,5 @@ module.exports = {
       }
     }
   ],
-  plugins: [],
+  plugins: []
 };
