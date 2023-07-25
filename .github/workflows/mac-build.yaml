@@ -94,7 +94,7 @@ jobs:
       - name: attach dmg
         run: hdiutil attach electron/out/make/Deep.Case-1.0.0-x64.dmg
       - name: copy app
-        run: cp /Volumes/Deep.Case/Deep.Case.app Deep.Case.app
+        run: cp -r /Volumes/Deep.Case/Deep.Case.app Deep.Case.app
       - name: notarize
         run: node new-notarize.cjs
       - name: And a README (to work around GitHub double-zips)
