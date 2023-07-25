@@ -32,12 +32,6 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
-      - name: brew i
-        run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-      - name: tree i
-        run: brew install tree
-      - name: tree
-        run: tree -L 10
       - name: Reconfigure git to use HTTP authentication
         run: >
           git config --global url."https://github.com/".insteadOf
@@ -70,26 +64,20 @@ jobs:
       #   run: cd node_modules/@deep-foundation && rm -rf store && git clone https://github.com/deep-foundation/store.git && cd store && npm ci && npm run package:build && rm -rf node_modules && rm -rf package-lock.json && cd ../../.. && rm -rf electron/node_modules/@deep-foundation/store && cp -r node_modules/@deep-foundation/store electron/node_modules/@deep-foundation/store
       - name: build next
         run: npm run build && npm run export && npx rimraf electron/app && npx cap copy electron
-      - name: tree
-        run: tree -L 10
       - name: Build distribution
         env:
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
           APPLEID: ${{ secrets.APPLEID }}
           APPLEIDPASS: ${{ secrets.APPLEIDPASS }}
-        run: cd electron && npm run electron:pack
-      - name: Create zip file
-        run: |
-          cd electron/dist/mac
-          ditto -c -k --keepParent Deep.Case.app Deep.Case.app.zip
+        run: cd electron && npm run electron:build-mac
       - name: And a README (to work around GitHub double-zips)
         run: |
-          echo "More information: https://deep.foundation" > electron/dist/mac/README.txt
+          echo "More information: https://deep.foundation" > electron/out/make/README.txt
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: Deep.Case-macOS
           path: |
-            electron/dist/mac/Deep.Case.app.zip
-            electron/dist/mac/README.txt
+            electron/electron/out/make/Deep.Case-1.0.0-x64.dmg
+            electron/electron/out/make/README.txt
