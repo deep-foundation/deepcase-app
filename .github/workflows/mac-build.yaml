@@ -99,8 +99,8 @@ jobs:
         with:
           name: Deep.Case-macOS
           path: |
-            electron/electron/out/make/Deep.Case-1.0.0-x64.dmg
-            electron/electron/out/make/README.txt
+            electron/out/make/Deep.Case-1.0.0-x64.dmg
+            electron/out/make/README.txt
       - name: Clean up keychain and provisioning profile
         if: ${{ always() }}
         run: |
