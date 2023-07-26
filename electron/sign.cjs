@@ -1,8 +1,13 @@
 const { signAsync } = require('@electron/osx-sign')
 signAsync({
   app: 'out/Deep.Case-darwin-x64/Deep.Case.app',
-  provisioningProfile: `${process.env.RUNNER_TEMP}/developer-id-deepapp.provisionprofile`,
+  provisioningProfile: process.env.PP_PATH,
   entitlements: 'entitlements.mas.plist',
+  optionsForFile: (filePath) => {
+    return {
+      entitlements: 'entitlements.mas.inherit.plist',
+    }
+  },
   hardenedRuntime: true
 })
   .then(function () {
