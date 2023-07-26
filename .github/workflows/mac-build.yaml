@@ -85,11 +85,11 @@ jobs:
           CSC_LINK: ${{ secrets.CSC_LINK }}
           APPLEID: ${{ secrets.APPLEID }}
           APPLEIDPASS: ${{ secrets.APPLEIDPASS }}
-        run: cd electron && PP_PATH=$RUNNER_TEMP/developer-id-deepapp.provisionprofile npm run electron:pack
+        run: cd electron && PP_PATH=$RUNNER_TEMP/developer-id-deepapp.provisionprofile npm run electron:pack-mac
       - name: ls out
         run: ls electron/out
       - name: ls eep.Case-darwin-x64
-        run: ls electron/out/eep.Case-darwin-x64
+        run: ls electron/out/Deep.Case-darwin-x64
       - name: sign
         run: npm run electron:sign
       - name: Build distribution
