@@ -2,11 +2,14 @@ module.exports = {
   packagerConfig: {
     asar: false,
     icon: "assets/appIcon.icns",
+    platform: "mas",
     osxSign: {
+      platform: "mas",
+      "gatekeeper-assess": false,
       entitlements: 'entitlements.mas.plist',
       "entitlements-inherit": "entitlements.mas.inherit.plist",
       "identity": 'Konstantin Dyachenko (F7AAPNP85N)',
-      provisioningProfile: `${process.env.RUNNER_TEMP}/developer-id-deepapp.provisionprofile`,
+      provisioningProfile: process.env.PP_PATH,
       hardenedRuntime: true
     },
     osxNotarize:{
@@ -19,10 +22,7 @@ module.exports = {
   rebuildConfig: {},
   makers: [
     {
-      name: '@electron-forge/maker-dmg',
-      config: {
-        format: 'ULFO'
-      }
+      name: '@electron-forge/maker-zip'
     }
   ],
   plugins: []

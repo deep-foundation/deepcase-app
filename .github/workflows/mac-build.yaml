@@ -85,7 +85,7 @@ jobs:
           CSC_LINK: ${{ secrets.CSC_LINK }}
           APPLEID: ${{ secrets.APPLEID }}
           APPLEIDPASS: ${{ secrets.APPLEIDPASS }}
-        run: cd electron && npm run electron:build-mac
+        run: cd electron && PP_PATH=$RUNNER_TEMP/developer-id-deepapp.provisionprofile npm run electron:build-mac
       - name: And a README (to work around GitHub double-zips)
         run: |
           echo "More information: https://deep.foundation" > electron/README.txt
@@ -94,7 +94,7 @@ jobs:
         with:
           name: Deep.Case-macOS
           path: |
-            electron/out/make/Deep.Case-1.0.0-x64.dmg
+            electron/out/make/Deep.Case-1.0.0-x64.zip
             electron/README.txt
       - name: Clean up keychain and provisioning profile
         if: ${{ always() }}
