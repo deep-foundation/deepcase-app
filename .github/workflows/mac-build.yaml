@@ -68,7 +68,7 @@ jobs:
       #   run: cd node_modules/@deep-foundation && rm -rf store && git clone https://github.com/deep-foundation/store.git && cd store && npm ci && npm run package:build && rm -rf node_modules && rm -rf package-lock.json && cd ../../.. && rm -rf electron/node_modules/@deep-foundation/store && cp -r node_modules/@deep-foundation/store electron/node_modules/@deep-foundation/store
       - name: build next
         run: npm run build && npm run export && npx rimraf electron/app && npx cap copy electron
-      - name: keychein fix
+      - name: keychain and provision
         run: |
           CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
           PP_PATH=$RUNNER_TEMP/developer-id-deepapp.provisionprofile
@@ -94,22 +94,24 @@ jobs:
       - name: attach dmg
         run: hdiutil attach electron/out/make/Deep.Case-1.0.0-x64.dmg
       - name: copy app
-        run: cp -r /Volumes/Deep.Case/Deep.Case.app Deep.Case.app
+        run: cp -r /Volumes/Deep.Case/Deep.Case.app electron/Deep.Case.app
+      - name: sign
+        run: cd electron && npm run electron:sign
       - name: notarize
         env:
           APPLEID: ${{ secrets.APPLEID }}
           APPLEIDPASS: ${{ secrets.APPLEIDPASS }}
-        run: node electron/new-notarize.cjs
+        run: cd electron && npm run electron:notarize
       - name: And a README (to work around GitHub double-zips)
         run: |
-          echo "More information: https://deep.foundation" > electron/out/make/README.txt
+          echo "More information: https://deep.foundation" > electron/README.txt
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: Deep.Case-macOS
           path: |
-            electron/out/make/Deep.Case-1.0.0-x64.dmg
-            electron/out/make/README.txt
+            electron/Deep.Case.app
+            electron/README.txt
       - name: Clean up keychain and provisioning profile
         if: ${{ always() }}
         run: |
