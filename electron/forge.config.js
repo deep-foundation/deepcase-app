@@ -3,7 +3,7 @@ module.exports = {
     asar: false,
     icon: "assets/appIcon.icns",
     osxSign: {
-      "entitlements": "entitlements.plist",
+      entitlements: 'entitlements.mas.plist',
       "entitlements-inherit": "entitlements.mas.inherit.plist",
       "identity": 'Konstantin Dyachenko (F7AAPNP85N)',
       provisioningProfile: `${process.env.RUNNER_TEMP}/developer-id-deepapp.provisionprofile`,
