@@ -89,14 +89,12 @@ jobs:
       - name: And a README (to work around GitHub double-zips)
         run: |
           echo "More information: https://deep.foundation" > electron/README.txt
-      - name: ls
-        run: ls electron/out/make
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: Deep.Case-macOS
           path: |
-            electron/out/make/Deep.Case-1.0.0.zip
+            electron/out/make/zip
             electron/README.txt
       - name: Clean up keychain and provisioning profile
         if: ${{ always() }}
