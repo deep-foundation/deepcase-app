@@ -88,8 +88,8 @@ jobs:
         run: cd electron && PP_PATH=$RUNNER_TEMP/developer-id-deepapp.provisionprofile npm run electron:pack
       - name: ls out
         run: ls electron/out
-      - name: ls package
-        run: ls electron/out/package
+      - name: ls eep.Case-darwin-x64
+        run: ls electron/out/eep.Case-darwin-x64
       - name: sign
         run: npm run electron:sign
       - name: Build distribution
