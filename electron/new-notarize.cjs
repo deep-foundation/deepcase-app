@@ -4,7 +4,7 @@ const appBundleId = 'deep.app';
 
 console.log({
   appBundleId,
-  appPath: `Deep.Case.app`,
+  appPath: `out/Deep.Case-darwin-x64/Deep.Case.app`,
   appleId: process.env.APPLEID,
   appleIdPassword: process.env.APPLEIDPASS,
 });
