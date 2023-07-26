@@ -8,9 +8,16 @@ console.log({
   appleId: process.env.APPLEID,
   appleIdPassword: process.env.APPLEIDPASS,
 });
-notarize({
-  appBundleId,
-  appPath: `Deep.Case.app`,
-  appleId: process.env.APPLEID,
-  appleIdPassword: process.env.APPLEIDPASS,
-});
+const notarizeFunc = async () => {
+  console.log('notarize started');
+  const result = await notarize({
+    appBundleId,
+    appPath: `Deep.Case.app`,
+    appleId: process.env.APPLEID,
+    appleIdPassword: process.env.APPLEIDPASS,
+  });
+  console.log(result);
+  console.log('notarize complete');
+}
+
+notarizeFunc();
