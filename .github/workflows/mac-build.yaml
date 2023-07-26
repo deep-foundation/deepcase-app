@@ -100,7 +100,6 @@ jobs:
           echo "More information: https://deep.foundation" > electron/README.txt
       - name: Create tar.gz file
         run: |
-          cd electron
           tar -czvf Deep.Case.tar.gz electron/out/Deep.Case-darwin-x64/Deep.Case.app
       - name: Upload artifact
         uses: actions/upload-artifact@v2
