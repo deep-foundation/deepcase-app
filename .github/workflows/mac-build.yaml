@@ -86,6 +86,15 @@ jobs:
           APPLEID: ${{ secrets.APPLEID }}
           APPLEIDPASS: ${{ secrets.APPLEIDPASS }}
         run: cd electron && PP_PATH=$RUNNER_TEMP/developer-id-deepapp.provisionprofile npm run electron:pack-mac
+      - name: sign
+        run: cd electron && npm run electron:sign
+      - name: notarize
+        env:
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          APPLEID: ${{ secrets.APPLEID }}
+          APPLEIDPASS: ${{ secrets.APPLEIDPASS }}
+        run: cd electron && npm run electron:notarize
       - name: And a README (to work around GitHub double-zips)
         run: |
           echo "More information: https://deep.foundation" > electron/README.txt
