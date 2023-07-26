@@ -62,10 +62,6 @@ jobs:
         run: cd electron && npm ci && ls node_modules | grep @
       - name: pull dl
         run: cd node_modules/@deep-foundation && rm -rf deeplinks && git clone https://github.com/deep-foundation/deeplinks.git && cd deeplinks && npm ci && npm run package:build && rm -rf node_modules && rm -rf package-lock.json && cd ../../.. && rm -rf electron/node_modules/@deep-foundation/deeplinks && cp -r node_modules/@deep-foundation/deeplinks electron/node_modules/@deep-foundation/deeplinks
-      # - name: pull hasura
-      #   run: cd node_modules/@deep-foundation && rm -rf hasura && git clone https://github.com/deep-foundation/hasura.git && cd hasura && npm ci && npm run package:build && rm -rf node_modules && rm -rf package-lock.json && cd ../../.. && rm -rf electron/node_modules/@deep-foundation/hasura && cp -r node_modules/@deep-foundation/hasura electron/node_modules/@deep-foundation/hasura
-      # - name: pull store
-      #   run: cd node_modules/@deep-foundation && rm -rf store && git clone https://github.com/deep-foundation/store.git && cd store && npm ci && npm run package:build && rm -rf node_modules && rm -rf package-lock.json && cd ../../.. && rm -rf electron/node_modules/@deep-foundation/store && cp -r node_modules/@deep-foundation/store electron/node_modules/@deep-foundation/store
       - name: build next
         run: npm run build && npm run export && npx rimraf electron/app && npx cap copy electron
       - name: keychain and provision
@@ -83,7 +79,6 @@ jobs:
 
           security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
-
       - name: Build distribution
         env:
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
@@ -91,13 +86,6 @@ jobs:
           APPLEID: ${{ secrets.APPLEID }}
           APPLEIDPASS: ${{ secrets.APPLEIDPASS }}
         run: cd electron && npm run electron:build-mac
-      - name: attach dmg
-        run: hdiutil attach electron/out/make/Deep.Case-1.0.0-x64.dmg
-      - name: copy app
-        run: cp -r /Volumes/Deep.Case/Deep.Case.app electron/Deep.Case.app
-      - name: sign
-        run: cd electron && npm run electron:sign
-      - name: notarize
         env:
           APPLEID: ${{ secrets.APPLEID }}
           APPLEIDPASS: ${{ secrets.APPLEIDPASS }}
@@ -105,16 +93,12 @@ jobs:
       - name: And a README (to work around GitHub double-zips)
         run: |
           echo "More information: https://deep.foundation" > electron/README.txt
-      - name: Create tar.gz file
-        run: |
-          cd electron
-          tar -czvf Deep.Case.tar.gz Deep.Case.app
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: Deep.Case-macOS
           path: |
-            electron/Deep.Case.tar.gz
+            electron/out/make/Deep.Case-1.0.0-x64.dmg
             electron/README.txt
       - name: Clean up keychain and provisioning profile
         if: ${{ always() }}
