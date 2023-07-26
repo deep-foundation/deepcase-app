@@ -23,7 +23,7 @@
     "electron:pack-mac": "npm run build && electron-forge package",
     "electron:pack-demo": "npm run build  && node patch-electron-builder.cjs && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --publish never -c ./electron-builder.config.demo.json",
     "electron:sign": "node sign.cjs",
-    "electron:notarize": "node notarize.cjs",
+    "electron:notarize": "node new-notarize.cjs",
     "electron:make": "npm run build && electron-builder build -c ./electron-builder.config.json -p always",
     "start": "electron-forge start",
     "package": "electron-forge package",
