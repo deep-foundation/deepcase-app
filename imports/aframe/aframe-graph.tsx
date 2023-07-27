@@ -1,13 +1,12 @@
 import * as THREE from "three";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Entity, Scene } from "aframe-react";
 import { generateLabel } from "./generate-label";
 import { getColorFromId } from "./get-color-from-id";
 import { getGraphData } from "./get-graph-data";
-import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
+import { useNodeDragger } from "./hooks/use-node-dragger";
 
 export const AframeGraph = ({ deep, links }) => {
-  const [graphData, setGraphData] = useState({ nodes: [], edges: [] });
 
   const handleNodeHover = (node) => {
     if (node) {
@@ -33,14 +32,11 @@ export const AframeGraph = ({ deep, links }) => {
 
     }
   }
+  const { initialize } = useNodeDragger();
 
-  console.log(graphData)
-  useEffect(() => {
-    new Promise(async () => {
-      setGraphData(await getGraphData(deep, links))
-    });
-
-  }, [links, deep])
+  const graphData = useMemo(() => {
+    return getGraphData(deep, links);
+  }, [links])
 
   return (
     <>
@@ -68,6 +64,11 @@ export const AframeGraph = ({ deep, links }) => {
           menu
           raycaster="show-line:true; objects: #sphere, [forcegraph]"
           laser-controls={{ hand: "right" }}
+          events={{
+            loaded: () => {
+              initialize();
+            }
+          }}
         />
         {/* <Entity
           scale={{ x: 0.02, y: 0.02, z: 0.02 }}
@@ -105,9 +106,9 @@ export const AframeGraph = ({ deep, links }) => {
           scale={{ x: 0.02, y: 0.02, z: 0.02 }}
           position={{ x: 1, y: 2, z: 0 }}
           forcegraph={{
-            nodes: JSON.stringify(graphData.nodes),
-            links: JSON.stringify(graphData.edges),
-            dagMode:"radialout",
+            nodes:graphData.nodes,
+            links: graphData.edges,
+            dagMode: "td",
             linkWidth: 0.4,
             linkDirectionalArrowLength: 4,
             linkDirectionalArrowRelPos: 1,
@@ -185,8 +186,8 @@ export const AframeGraph = ({ deep, links }) => {
             color: "#a200ff",
             emissive: "#a200ff",
             emissiveIntensity: 1
-          }}/>
-          {/* <Entity
+          }} />
+        {/* <Entity
           environment={{
             preset: "moon",
             seed: 10,
@@ -200,13 +201,13 @@ export const AframeGraph = ({ deep, links }) => {
             grid: "none"
           }}
         /> */}
-          {/* <Entity
+        {/* <Entity
           primitive="a-light"
           type="ambient"
           intensity="0.4"
           color="#00b3ff"
         /> */}
-          {/* <Entity
+        {/* <Entity
           primitive="a-light"
           type="point"
           color="#4affe7"

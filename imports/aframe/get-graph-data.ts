@@ -1,12 +1,17 @@
 import json5 from 'json5';
+import { useSpaceId } from '../hooks';
 
-export const getGraphData = async (deep, links) => {
+export const getGraphData = (deep, links) => {
+  const [spaceId, setSpaceId] = useSpaceId();
 
   let graphData = { nodes: [], edges: [] };
   console.log({ links });
   for (let i = 0; i < links.length; i++) {
     const link = links[i];
     const ml = deep.minilinks;
+
+    const focus = link?.inByType?.[deep.idLocal('@deep-foundation/core', 'Focus')]?.find(f => f.from_id === spaceId);
+    const isFocusSpace = (link.type_id === deep.idLocal('@deep-foundation/core', 'Focus') && link._applies.includes('space')) || (link?.to?.type_id === deep.idLocal('@deep-foundation/core', 'Focus') && link._applies.includes('space'));
 
     let _value = '';
     let _name = '';
@@ -33,6 +38,8 @@ export const getGraphData = async (deep, links) => {
       _symbol = ml.byTo[link?.type_id]?.find(l => l.type_id === deep.idLocal('@deep-foundation/core', 'Symbol'))?.value?.value;
     }
 
+    const has_focus = !!focus?.value?.value?.x;
+
     const graphNode = {
       "id": link.id,
       "from_id": link.from_id,
@@ -41,6 +48,8 @@ export const getGraphData = async (deep, links) => {
       "name": (_name ? `${_name}` : undefined),
       "type": (_type ? `${_type}` : undefined),
       "idstring": `${link.id}`,
+      position: has_focus ? focus?.value?.value : {},
+      focused: !!focus,
     };
 
     graphData.nodes.push(graphNode);
@@ -50,8 +59,8 @@ export const getGraphData = async (deep, links) => {
   const linkTypeIds = links.map((link) => (link.type_id));
   const spaceTypes = links.filter((link) => (link.type_id === 1)).map((link) => link.id);
   const typedLinks = links.filter((link) => (spaceTypes.includes(link.type_id)));
-  console.log({spaceTypes})
-  console.log({typedLinks})
+  console.log({ spaceTypes })
+  console.log({ typedLinks })
 
   const typedEdges = typedLinks.map((l) => ({ "source": l.id, "target": l.type_id, "type": "type" }));
 
@@ -62,7 +71,7 @@ export const getGraphData = async (deep, links) => {
         [{ "source": l.from_id, "target": l.id, "type": "from" }, { "source": l.id, "target": l.to_id, "type": "to" }]
       ).flat();
 
-  
+
   edges.push(...typedEdges);
 
   graphData.edges = edges;
