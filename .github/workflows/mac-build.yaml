@@ -70,7 +70,7 @@ jobs:
           CSC_LINK: ${{ secrets.CSC_LINK }}
           APPLEID: ${{ secrets.APPLEID }}
           APPLEIDPASS: ${{ secrets.APPLEIDPASS }}
-        run: cd electron && npm run electron:pack
+        run: cd electron && npm ci && npm run electron:pack
       - name: Create zip file
         run: |
           cd electron/dist/mac
