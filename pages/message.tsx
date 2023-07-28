@@ -1,16 +1,16 @@
 
 import { useMinilinksConstruct } from '@deep-foundation/deeplinks/imports/minilinks';
 import dynamic from "next/dynamic";
-import { ColorModeSwitcher } from '../imports/color-mode-toggle';
-import { MessageTextArea } from '../imports/cyto-message-textarea';
-import { CytoReactMessage } from '../imports/cyto-react-message';
-import { CytoGraphProps } from '../imports/cyto/types';
-import { Provider } from '../imports/provider';
+import { ColorModeSwitcher } from '@deep-foundation/deepcase/imports/color-mode-toggle';
+import { MessageTextArea } from '@deep-foundation/deepcase/imports/cyto-message-textarea';
+import { CytoReactMessage } from '@deep-foundation/deepcase/imports/cyto-react-message';
+import { CytoGraphProps } from '@deep-foundation/deepcase/imports/cyto/types';
+import { Provider } from '@deep-foundation/deepcase/imports/provider';
 
-const CytoGraph = dynamic<CytoGraphProps>(
-  () => import('../imports/cyto/graph').then((m) => m.default),
-  { ssr: false }
-);
+// const CytoGraph = dynamic<CytoGraphProps>(
+//   () => import('@deep-foundation/deepcase/imports/cyto/graph').then((m) => m.default),
+//   { ssr: false }
+// );
 
 export default function Page() {
   const minilinks = useMinilinksConstruct();
@@ -19,7 +19,7 @@ export default function Page() {
   return (<>
     <Provider><>
       <ColorModeSwitcher/>
-      <CytoReactMessage />
+      {/* <CytoReactMessage /> */}
       <MessageTextArea />
     </></Provider>
   </>);
