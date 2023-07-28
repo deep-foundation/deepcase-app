@@ -14,7 +14,7 @@
   "license": "MIT",
   "main": "build/src/index.js",
   "scripts": {
-    "build": "cp ./node_modules/@deep-foundation/deeplinks/imports/engine.ts ./src/engine.ts && tsc",
+    "build": "tsc",
     "test": "jest",
     "electron:start-live": "node ./live-runner.js",
     "electron:start": "npm run build && electron --inspect=5858 ./",
