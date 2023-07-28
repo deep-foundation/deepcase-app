@@ -57,7 +57,7 @@ jobs:
       - name: Install electron dependencies
         run: cd electron && npm ci && ls node_modules | grep @
       - name: engine file
-        run: git clone https://github.com/deep-foundation/deeplinks.git && cp deeplinks/imports/engine.ts electron/src/engine.ts
+        run: git clone https://github.com/deep-foundation/deeplinks.git && cp deeplinks/imports/engine.ts electron/src/engine.ts ?? rm -rf deeplinks
       # - name: pull hasura
       #   run: cd node_modules/@deep-foundation && rm -rf hasura && git clone https://github.com/deep-foundation/hasura.git && cd hasura && npm ci && npm run package:build && rm -rf node_modules && rm -rf package-lock.json && cd ../../.. && rm -rf electron/node_modules/@deep-foundation/hasura && cp -r node_modules/@deep-foundation/hasura electron/node_modules/@deep-foundation/hasura
       # - name: pull store
