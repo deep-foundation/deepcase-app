@@ -21,7 +21,6 @@
     "@chakra-ui/icons": "^2.0.19",
     "@chakra-ui/react": "^2.6.1",
     "@chakra-ui/theme-tools": "^2.0.16",
-    "@deep-foundation/deepcase": "^0.0.33",
     "@deep-foundation/deeplinks": "^0.0.236",
     "@deep-foundation/hasura": "^0.0.46",
     "@deep-foundation/materialized-path": "^0.0.25",
