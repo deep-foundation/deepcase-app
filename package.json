@@ -1,6 +1,6 @@
 {
   "name": "@deep-foundation/deepcase-app",
-  "version": "0.1.0-beta.7",
+  "version": "0.1.0-beta.6",
   "license": "Unlicense",
   "type": "module",
   "scripts": {
@@ -22,6 +22,10 @@
     "@chakra-ui/react": "^2.6.1",
     "@chakra-ui/theme-tools": "^2.0.16",
     "@deep-foundation/deepcase": "^0.0.34",
+    "@deep-foundation/deeplinks": "^0.0.236",
+    "@deep-foundation/hasura": "^0.0.46",
+    "@deep-foundation/materialized-path": "^0.0.25",
+    "@deep-foundation/react-hasura": "^0.0.16",
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
     "@monaco-editor/react": "^4.5.1",

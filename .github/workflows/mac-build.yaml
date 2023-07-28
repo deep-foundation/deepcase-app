@@ -27,10 +27,6 @@ env:
   MIGRATIONS_DEEPLINKS_APP_URL: http://host.docker.internal:3007
   MIGRATIONS_DEEPLINKS_URL: http://host.docker.internal:3006
   DOCKER: 1
-  BUILD_CERTIFICATE_BASE64: ${{ secrets.CERT_BASE64 }}
-  P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
-  KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-  BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.PROVISION_BASE64 }}
 jobs:
   build:
     runs-on: macos-latest
@@ -68,43 +64,20 @@ jobs:
       #   run: cd node_modules/@deep-foundation && rm -rf store && git clone https://github.com/deep-foundation/store.git && cd store && npm ci && npm run package:build && rm -rf node_modules && rm -rf package-lock.json && cd ../../.. && rm -rf electron/node_modules/@deep-foundation/store && cp -r node_modules/@deep-foundation/store electron/node_modules/@deep-foundation/store
       - name: build next
         run: npm run build && npm run export && npx rimraf electron/app && npx cap copy electron
-      - name: keychain and provision
-        run: |
-          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
-          PP_PATH=$RUNNER_TEMP/developer-id-deepapp.provisionprofile
-          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-
-          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
-          echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
-
-          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-
-          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-          security list-keychain -d user -s $KEYCHAIN_PATH
       - name: Build distribution
         env:
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
           APPLEID: ${{ secrets.APPLEID }}
           APPLEIDPASS: ${{ secrets.APPLEIDPASS }}
-        run: cd electron && PP_PATH=$RUNNER_TEMP/developer-id-deepapp.provisionprofile npm run electron:pack-mac
-      - name: sign
-        run: cd electron && npm run electron:sign
-      - name: notarize
-        env:
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-          CSC_LINK: ${{ secrets.CSC_LINK }}
-          APPLEID: ${{ secrets.APPLEID }}
-          APPLEIDPASS: ${{ secrets.APPLEIDPASS }}
-        run: cd electron && npm run electron:notarize
+        run: cd electron && npm run electron:pack
+      - name: Create zip file
+        run: |
+          cd electron/dist/mac
+          ditto -c -k --keepParent Deep.Case.app Deep.Case.app.zip
       - name: And a README (to work around GitHub double-zips)
         run: |
-          echo "More information: https://deep.foundation" > electron/README.txt
-      - name: Create tar.gz file
-        run: |
-          tar -czvf Deep.Case.tar.gz electron/out/Deep.Case-darwin-x64/Deep.Case.app
+          echo "More information: https://deep.foundation" > electron/dist/mac/README.txt
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:

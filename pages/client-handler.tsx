@@ -3,12 +3,12 @@ import { DeepProvider, useDeep, useDeepSubscription } from '@deep-foundation/dee
 import { useQueryStore } from '@deep-foundation/store/query';
 import getConfig from 'next/config';
 import { useState } from 'react';
-import { AutoGuest } from '@deep-foundation/deepcase/imports/auto-guest';
-import { ClientHandler } from '@deep-foundation/deepcase/imports/client-handler';
-import { DotsLoader } from '@deep-foundation/deepcase/imports/dot-loader';
-import { useSpaceId } from '@deep-foundation/deepcase/imports/hooks';
-import { DeepLoader } from '@deep-foundation/deepcase/imports/loader';
-import { Provider } from '@deep-foundation/deepcase/imports/provider';
+import { AutoGuest } from '../imports/auto-guest';
+import { ClientHandler } from '../imports/client-handler';
+import { DotsLoader } from '../imports/dot-loader';
+import { useSpaceId } from '../imports/hooks';
+import { DeepLoader } from '../imports/loader';
+import { Provider } from '../imports/provider';
 
 const { publicRuntimeConfig } = getConfig();
 
