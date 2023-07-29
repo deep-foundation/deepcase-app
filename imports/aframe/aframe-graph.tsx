@@ -207,7 +207,7 @@ export const AframeGraph = ({ deep, links }) => {
             emissive: "#a200ff",
             emissiveIntensity: 1
           }} />
-        {/* <Entity
+        <Entity
           environment={{
             preset: "moon",
             seed: 10,
@@ -220,7 +220,7 @@ export const AframeGraph = ({ deep, links }) => {
             groundColor: "#8a7f8a",
             grid: "none"
           }}
-        /> */}
+        />
         {/* <Entity
           primitive="a-light"
           type="ambient"
