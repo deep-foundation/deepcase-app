@@ -5,10 +5,9 @@ import * as THREE from "three";
 AFRAME.registerComponent("rotator", {
   init: function () {
     const graph = document.querySelector("[forcegraph]");
-    // const rightController = document.getElementById("right");
-    // const leftController = document.getElementById("left");
     const rightController = document.getElementById("right");
     const leftController = document.getElementById("left");
+    this.rotationDisabled = false; // Set true when both grips are pressed 
 
     // hands
 
@@ -19,10 +18,13 @@ AFRAME.registerComponent("rotator", {
     rightController.addEventListener("pinchstarted", evt => {
       this.rPinchActive = true;
       this.rPinchPos.copy(evt.detail.position);
+      if (this.lPinchActive) {
+        this.rotationDisabled = true; // Disable rotation when both pinches are started
+      }
     })
 
     rightController.addEventListener("pinchmoved", evt => {
-      if (this.lPinchActive) return;
+      if (this.lPinchActive || this.rotationDisabled) return; // Disable rotation when the rotation is disabled
       if (this.rPinchActive) {
         const currentPos = evt.detail.position;
 
@@ -44,13 +46,22 @@ AFRAME.registerComponent("rotator", {
 
     rightController.addEventListener("pinchended", evt => {
       this.rPinchActive = false;
+      if (!this.lPinchActive) {
+        this.rotationDisabled = false; // Enable rotation when both pinches are ended
+      }
     })
     leftController.addEventListener("pinchstarted", evt => {
       this.lPinchActive = true;
+      if (this.rPinchActive) {
+        this.rotationDisabled = true; // Disable rotation when both pinches are pressed
+      }
     })
 
     leftController.addEventListener("pinchended", evt => {
       this.lPinchActive = false;
+      if (!this.rPinchActive) {
+        this.rotationDisabled = false; // Enable rotation when both pinches are released
+      }
     })
 
     // controllers
@@ -62,10 +73,13 @@ AFRAME.registerComponent("rotator", {
     rightController.addEventListener("gripdown", evt => {
       this.rGripActive = true;
       this.rGripPos.copy(rightController.object3D.position);
+      if (this.lGripActive) {
+        this.rotationDisabled = true; // Disable rotation when both grips are pressed
+      }
     })
 
     rightController.addEventListener("el-moved", evt => {
-      if (this.lGripActive) return;
+      if (this.lGripActive || this.rotationDisabled) return; // Disable rotation when the rotation is disabled
       if (this.rGripActive) {
         const currentPos = evt.detail.position;
 
@@ -87,13 +101,23 @@ AFRAME.registerComponent("rotator", {
 
     rightController.addEventListener("gripup", evt => {
       this.rGripActive = false;
+      if (!this.lGripActive) {
+        this.rotationDisabled = false; // Enable rotation when both grips have been released
+      }
     })
     leftController.addEventListener("gripdown", evt => {
       this.lGripActive = true;
+      if (this.rGripActive) {
+        this.rotationDisabled = true; // Disable rotation when both grips are pressed
+      }
     })
 
     leftController.addEventListener("gripup", evt => {
       this.lGripActive = false;
+      if (!this.rGripActive) {
+        this.rotationDisabled = false; // Enable rotation when both grips have been released
+      }
     })
+    // The same logic should be applied for pinchstarted, pinchmoved and pinchended events.
   }
 })

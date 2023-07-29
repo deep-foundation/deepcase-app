@@ -42,7 +42,7 @@ export const AframeGraph = ({ deep, links }) => {
 
   return (
     <>
-      <Scene scaler dragger rotator id="scene" vr-mode-ui="enterVRButton: #vr; enterARButton: #ar" renderer="logarithmicDepthBuffer: true">
+      <Scene scaler rotator dragger id="scene" vr-mode-ui="enterVRButton: #vr; enterARButton: #ar" renderer="logarithmicDepthBuffer: true">
         <Entity
           camera={{ active: true, fov: 94 }}
           look-controls={{ enabled: true }}
