@@ -5,53 +5,85 @@ import * as THREE from "three";
 AFRAME.registerComponent("dragger", {
   init: function () {
     const graph = document.querySelector("[forcegraph]");
-    const rightHand = document.getElementById("right");
-    const leftHand = document.getElementById("left");
-    const lPinch = new THREE.Vector3();
-    const delta = new THREE.Vector3();
+    // const rightController = document.getElementById("rightController");
+    // const leftController = document.getElementById("leftController");
+    const rightController = document.getElementById("right");
+    const leftController = document.getElementById("left");
 
-    var rPinchActive = false;
-    var lPinchActive = false;
+    // hands
 
-    leftHand.addEventListener("pinchstarted", evt => {
+    this.rPinchActive = false;
+    this.lPinchActive = false;
+    this.lPinchPos = new THREE.Vector3();
+
+    leftController.addEventListener("pinchstarted", evt => {
       this.lPinchActive = true;
-      lPinch.copy(evt.detail.position)
+      this.lPinchPos.copy(evt.detail.position)
+    })
+    leftController.addEventListener("pinchmoved", evt => {
+      if (this.rPinchActive) return;
+      if (this.lPinchActive) {
+        const currentPos = evt.detail.position;
+
+        const graphX = graph.object3D.position.x;
+        const graphY = graph.object3D.position.y;
+        const graphZ = graph.object3D.position.z;
+
+        const deltaX = this.lPinchPos.x - currentPos.x
+        const deltaY = this.lPinchPos.y - currentPos.y
+        const deltaZ = this.lPinchPos.z - currentPos.z
+
+        graph.object3D.position.set(graphX - deltaX * 2, graphY - deltaY * 2, graphZ - deltaZ * 2);
+
+        this.lPinchPos.copy(currentPos)
+      }
+    })
+    leftController.addEventListener("pinchended", evt => {
+      this.lPinchActive = false;
+    })
+    rightController.addEventListener("pinchstarted", evt => {
+      this.rPinchActive = true;
+    })
+    rightController.addEventListener("pinchended", evt => {
+      this.rPinchActive = false;
     })
 
-    leftHand.addEventListener("pinchmoved", evt => {
-      if (rPinchActive) return;
+    // controllers
 
-      const pos = evt.detail.position;
-      const graphX = graph.object3D.position.x;
-      const graphY = graph.object3D.position.y;
-      const graphZ = graph.object3D.position.z;
-      
-      const deltaX = lPinch.x - pos.x
-      const deltaY = lPinch.y - pos.y
-      const deltaZ = lPinch.z - pos.z
-      graph.object3D.position.set(graphX - deltaX*3, graphY - deltaY*3, graphZ - deltaZ*3);
-      lPinch.copy(evt.detail.position)
-    })
+    this.rGripActive = false;
+    this.lGripActive = false;
+    this.lGripPos = new THREE.Vector3();
 
-    leftHand.addEventListener("pinchended", evt => {
-      lPinchActive = false;
-    })
-    rightHand.addEventListener("pinchstarted", evt => {
-      rPinchActive = true;
-    })
-    rightHand.addEventListener("pinchended", evt => {
-      rPinchActive = false;
-    })
-  },
-  // tick: function() {
-  //     if (!this.lPinchActive || this.rPinchActive) return;
-  //     const graphX = this.graph.object3D.position.x;
-  //     const graphY = this.graph.object3D.position.y;
-  //     const graphZ = this.graph.object3D.position.z;
-      
-  //     const deltaX = this.lPinch.x - this.pos.x
-  //     const deltaY = this.lPinch.y - this.pos.y
-  //     const deltaZ = this.lPinch.z - this.pos.z
-  //     this.graph.object3D.position.set(graphX + deltaX, graphY + deltaY, graphZ + deltaZ);
-  // }
+    leftController.addEventListener("gripdown", evt => {
+      this.lGripActive = true;
+      this.lGripPos.copy(leftController.object3D.position);
+    });
+    leftController.addEventListener("el-moved", evt => {
+      if (this.rGripActive) return;
+      if (this.lGripActive) {
+        const currentPos = evt.detail.position;
+
+        const graphX = graph.object3D.position.x;
+        const graphY = graph.object3D.position.y;
+        const graphZ = graph.object3D.position.z;
+
+        const deltaX = this.lGripPos.x - currentPos.x
+        const deltaY = this.lGripPos.y - currentPos.y
+        const deltaZ = this.lGripPos.z - currentPos.z
+
+        graph.object3D.position.set(graphX - deltaX * 2, graphY - deltaY * 2, graphZ - deltaZ * 2);
+
+        this.lGripPos.copy(currentPos);
+      }
+    });
+    leftController.addEventListener("gripup", evt => {
+      this.lGripActive = false;
+    });
+    rightController.addEventListener("gripdown", evt => {
+      this.rGripActive = true;
+    });
+    rightController.addEventListener("gripup", evt => {
+      this.rGripActive = false;
+    });
+  }
 })

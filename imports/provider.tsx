@@ -53,6 +53,8 @@ export function Provider({
         localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
         require('./aframe/components/menu');
         localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
+        require('./aframe/components/el-movement');
+        localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
         require('./aframe/components/collider');
         localStorage.debug = localStorage.debug.replace('*:error,*:info,*:warn', '');
         await import('aframe-environment-component');

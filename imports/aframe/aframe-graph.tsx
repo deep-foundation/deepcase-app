@@ -5,8 +5,10 @@ import { generateLabel } from "./generate-label";
 import { getColorFromId } from "./get-color-from-id";
 import { getGraphData } from "./get-graph-data";
 import { useNodeDragger } from "./hooks/use-node-dragger";
+import { useSpaceId } from "../hooks";
 
 export const AframeGraph = ({ deep, links }) => {
+  const [spaceId, setSpaceId] = useSpaceId();
 
   const handleNodeHover = (node) => {
     if (node) {
@@ -35,12 +37,12 @@ export const AframeGraph = ({ deep, links }) => {
   const { initialize } = useNodeDragger();
 
   const graphData = useMemo(() => {
-    return getGraphData(deep, links);
+    return getGraphData(deep, links, spaceId);
   }, [links])
 
   return (
     <>
-      <Scene id="scene" vr-mode-ui="enterVRButton: #vr; enterARButton: #ar" renderer="logarithmicDepthBuffer: true">
+      <Scene scaler dragger rotator id="scene" vr-mode-ui="enterVRButton: #vr; enterARButton: #ar" renderer="logarithmicDepthBuffer: true">
         <Entity
           camera={{ active: true, fov: 94 }}
           look-controls={{ enabled: true }}
@@ -53,23 +55,39 @@ export const AframeGraph = ({ deep, links }) => {
             cursor={{ rayOrigin:"mouse", mouseCursorStylesEnabled: true}}
             raycaster="objects: [forcegraph];"
           /> */}
+        {/* <Entity
+          id="lefthand"
+          raycaster="show-line:true; objects: [forcegraph]"
+          hand-controls={{ hand: "left" }}
+        />
+        <Entity
+          id="righthand"
+          el-movement
+          raycaster="show-line:true; objects: #sphere, [forcegraph]"
+          hand-controls={{ hand: "right" }}
+        /> */}
         <Entity
           id="left"
-          // collider
-          raycaster="show-line:true; objects: [forcegraph]"
+          el-movement
+          raycaster="show-line:true; lineColor: steelblue; lineOpacity: 0.85; objects: #sphere, [forcegraph]"
           laser-controls={{ hand: "left" }}
+          hand-tracking-controls={{ hand: "left" }}
         />
         <Entity
           id="right"
-          menu
-          raycaster="show-line:true; objects: #sphere, [forcegraph]"
+          el-movement
+          raycaster="show-line:true; lineColor: steelblue; lineOpacity: 0.85; objects: #sphere, [forcegraph]"
           laser-controls={{ hand: "right" }}
-          events={{
-            loaded: () => {
-              initialize();
-            }
-          }}
-        />
+          hand-tracking-controls={{ hand: "right" }}
+          hand-tracking-extras
+        // events={{
+        //   loaded: () => {
+        //     initialize();
+        //   }
+        // }}
+        >
+          <Entity finger-cursor raycaster="objects: [forcegraph]; lineColor: steelblue; lineOpacity: 0.85;" />
+        </Entity>
         {/* <Entity
           scale={{ x: 0.02, y: 0.02, z: 0.02 }}
           position={{ x: 7, y: 2.5, z: 6 }}
@@ -104,17 +122,19 @@ export const AframeGraph = ({ deep, links }) => {
         <Entity
           id="fg"
           scale={{ x: 0.02, y: 0.02, z: 0.02 }}
-          position={{ x: 1, y: 2, z: 0 }}
+          position={{ x: 0, y: 0.5, z: 0 }}
           forcegraph={{
-            nodes:graphData.nodes,
+            nodes: graphData.nodes,
             links: graphData.edges,
-            dagMode: "td",
+            // dagMode: "radialout",
+            // dagNodeFilter: (node) => node.type_id === 55 ? false : true,
             linkWidth: 0.4,
             linkDirectionalArrowLength: 4,
             linkDirectionalArrowRelPos: 1,
             nodeResolution: 16,
             nodeColor: (node) => getColorFromId(node.type_id),
-            nodeOpacity: 0.6,
+            nodeOpacity: 1,
+            nodeThreeObjectExtend: true,
             nodeThreeObject: (node) => {
               const group = new THREE.Group();
 
@@ -150,7 +170,7 @@ export const AframeGraph = ({ deep, links }) => {
               // const listener = new THREE.AudioListener();
               // camera.add(listener);
 
-              // // create the PositionalAudio object (passing in the listener)
+              // create the PositionalAudio object (passing in the listener)
               // const sound = new THREE.PositionalAudio(listener);
 
               // // load a sound and set it as the PositionalAudio object's buffer

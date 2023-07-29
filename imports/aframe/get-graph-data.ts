@@ -1,8 +1,7 @@
 import json5 from 'json5';
 import { useSpaceId } from '../hooks';
 
-export const getGraphData = (deep, links) => {
-  const [spaceId, setSpaceId] = useSpaceId();
+export const getGraphData = (deep, links, spaceId) => {
 
   let graphData = { nodes: [], edges: [] };
   console.log({ links });
@@ -48,8 +47,11 @@ export const getGraphData = (deep, links) => {
       "name": (_name ? `${_name}` : undefined),
       "type": (_type ? `${_type}` : undefined),
       "idstring": `${link.id}`,
-      position: has_focus ? focus?.value?.value : {},
-      focused: !!focus,
+      ...(has_focus ? {
+        x: focus.value.value.x,
+        y: focus.value.value.y,
+        z: focus.value.value.z,
+      } : {}),
     };
 
     graphData.nodes.push(graphNode);
