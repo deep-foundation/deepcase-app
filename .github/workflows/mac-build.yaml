@@ -1,7 +1,7 @@
 name: Mac Build
 on:
   push:
-    branches: [ before-deepcase-app ]
+    branches: [ before-deep-app2 ]
     paths-ignore:
       - '.github/test-build.yaml'
   workflow_dispatch:

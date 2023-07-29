@@ -1,6 +1,6 @@
 import Document, { Html, Head, Main, NextScript } from 'next/document';
 import { ColorModeScript } from '@chakra-ui/react';
-import theme from '../imports/theme/theme';
+import theme from '@deep-foundation/deepcase/imports/theme/theme';
 
 class MyDocument extends Document {
   static async getInitialProps(ctx) {
