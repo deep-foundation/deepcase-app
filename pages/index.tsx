@@ -16,6 +16,7 @@ import { PackagerInterface } from '@deep-foundation/deepcase/imports/packager-in
 import getConfig from 'next/config'
 import { CatchErrors } from '@deep-foundation/deepcase/imports/react-errors';
 import { Button } from '@chakra-ui/react';
+import pckg from '../package.json';
 
 const { publicRuntimeConfig } = getConfig();
 
@@ -32,10 +33,12 @@ export function Content({
   openPortal,
   gqlPath,
   gqlSsl,
+  appVersion,
 }: {
   openPortal?: () => any;
   gqlPath: string;
   gqlSsl: boolean;
+  appVersion: string;
 }) {
   const cytoViewportRef = useRefstarter<{ pan: { x: number; y: number; }; zoom: number }>();
   const cyRef = useRef();
@@ -92,22 +95,28 @@ export function Content({
       key={spaceId}
       spaceId={spaceId}
       />]}
-    <CytoGraph gqlPath={gqlPath} gqlSsl={gqlSsl} links={links} cyRef={cyRef} cytoViewportRef={cytoViewportRef}/>
+    <CytoGraph gqlPath={gqlPath} gqlSsl={gqlSsl} appVersion={appVersion} links={links} cyRef={cyRef} cytoViewportRef={cytoViewportRef}/>
     <CytoMenu  gqlPath={gqlPath} gqlSsl={gqlSsl} cyRef={cyRef} cytoViewportRef={cytoViewportRef} openPortal={openPortal} />
     <Switch />
     <PackagerInterface />
   </>); 
 };
 
-export default function Page(props: {
-  gqlPath: string;
-  gqlSsl: boolean;
+export default function Page({ 
+  serverUrl, 
+  deeplinksUrl,
+  defaultGqlPath,
+  defaultGqlSsl,
+  appVersion,
+} : {
+  defaultGqlPath: string;
+  defaultGqlSsl: boolean;
   serverUrl: string;
   deeplinksUrl: string;
+  appVersion: string;
 }) {
-  const { serverUrl, deeplinksUrl } = props;
-  const [gqlPath, setGqlPath] = useState(props.gqlPath);
-  const [gqlSsl, setGqlSsl] = useState(props.gqlSsl);
+  const [gqlPath, setGqlPath] = useState(defaultGqlPath);
+  const [gqlSsl, setGqlSsl] = useState(defaultGqlSsl);
   const [portal, setPortal] = useState(true);
   
   console.log("gqlPath", gqlPath);
@@ -136,7 +145,7 @@ export default function Page(props: {
               <pre>{e?.toString() || JSON.stringify(e, null, 2)}</pre>
             </> }>
               <AutoGuest>
-                <Content gqlPath={gqlPath} gqlSsl={gqlSsl} openPortal={()=>setPortal(true)} />
+                <Content gqlPath={gqlPath} gqlSsl={gqlSsl} appVersion={appVersion} openPortal={()=>setPortal(true)} />
                 <Button
                   colorScheme='blue' 
                   onClick={() => setPortal(true)} 
@@ -154,10 +163,11 @@ export default function Page(props: {
 export async function getStaticProps() {
   return {
     props: {
-      gqlPath: publicRuntimeConfig?.NEXT_PUBLIC_GQL_PATH || '',
-      gqlSsl: !!+publicRuntimeConfig?.NEXT_PUBLIC_GQL_SSL || false,
+      defaultGqlPath: publicRuntimeConfig?.NEXT_PUBLIC_GQL_PATH || '',
+      defaultGqlSsl: !!+publicRuntimeConfig?.NEXT_PUBLIC_GQL_SSL || false,
       serverUrl: publicRuntimeConfig?.NEXT_PUBLIC_DEEPLINKS_SERVER || 'http://localhost:3007',
       deeplinksUrl: publicRuntimeConfig?.NEXT_PUBLIC_DEEPLINKS_URL || 'http://localhost:3006',
+      appVersion: pckg?.version || '',
     },
   };
 }
