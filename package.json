@@ -16,7 +16,7 @@
     "@capacitor/cli": "^5.0.4",
     "@capacitor/core": "^5.0.4",
     "@chakra-ui/react": "^2.6.1",
-    "@deep-foundation/deepcase": "^0.0.37",
+    "@deep-foundation/deepcase": "^0.0.38",
     "@deep-foundation/deeplinks": "^0.0.260",
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
