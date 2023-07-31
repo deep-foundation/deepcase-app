@@ -7,6 +7,7 @@ import { AutoGuest } from '@deep-foundation/deepcase/imports/auto-guest';
 import { ColorModeSwitcher } from '@deep-foundation/deepcase/imports/color-mode-toggle';
 import { Switch } from '@deep-foundation/deepcase/imports/switch-mode';
 import CytoGraph from '@deep-foundation/deepcase/imports/cyto/graph';
+import { AframeGraph } from '@deep-foundation/deepcase/imports/aframe/aframe-graph';
 import { useBreadcrumbs, useRefAutofill, useShowExtra, useSpaceId, useTraveler } from '@deep-foundation/deepcase/imports/hooks';
 import { DeepLoader } from '@deep-foundation/deepcase/imports/loader';
 import { Provider } from '@deep-foundation/deepcase/imports/provider';
@@ -30,11 +31,13 @@ const CytoMenu = dynamic<any>(
 );
 
 export function Content({
+  aframe,
   openPortal,
   gqlPath,
   gqlSsl,
   appVersion,
 }: {
+  aframe: boolean,
   openPortal?: () => any;
   gqlPath: string;
   gqlSsl: boolean;
@@ -45,7 +48,7 @@ export function Content({
   const [spaceId, setSpaceId] = useSpaceId();
   const [traveler, setTraveler] = useTraveler();
   const deep = useDeep();
-  const globalAny:any = global;
+  const globalAny: any = global;
   globalAny.deep = deep;
   globalAny.ml = deep.minilinks;
   const [extra, setExtra] = useShowExtra();
@@ -53,9 +56,11 @@ export function Content({
   const travelerRef = useRefAutofill(traveler);
 
   const TravelerRef = useRef(0);
-  useEffect(() => { (async () => {
-    TravelerRef.current = await deep.id('@deep-foundation/deepcase', 'Traveler');
-  })(); }, []);
+  useEffect(() => {
+    (async () => {
+      TravelerRef.current = await deep.id('@deep-foundation/deepcase', 'Traveler');
+    })();
+  }, []);
 
   const links: Link<number>[] = useMinilinksFilter(
     deep.minilinks,
@@ -63,12 +68,12 @@ export function Content({
     useCallback((l, ml) => {
       const Traveler = TravelerRef.current;
       const traveler = travelerRef.current;
-      let result =  (
+      let result = (
         extra
-        ? ml.links
-        : ml.links.filter(l => (
-          !!l._applies.find((a: string) => !!~a.indexOf('query-') || a === 'space' || a === 'breadcrumbs' || a === 'not-loaded-ends')
-        ))
+          ? ml.links
+          : ml.links.filter(l => (
+            !!l._applies.find((a: string) => !!~a.indexOf('query-') || a === 'space' || a === 'breadcrumbs' || a === 'not-loaded-ends')
+          ))
       )
       if (Traveler && !traveler) {
         result = result.filter(l => (
@@ -94,34 +99,36 @@ export function Content({
     {[<DeepLoader
       key={spaceId}
       spaceId={spaceId}
-      />]}
-    <CytoGraph gqlPath={gqlPath} gqlSsl={gqlSsl} appVersion={appVersion} links={links} cyRef={cyRef} cytoViewportRef={cytoViewportRef}/>
-    <CytoMenu  gqlPath={gqlPath} gqlSsl={gqlSsl} cyRef={cyRef} cytoViewportRef={cytoViewportRef} openPortal={openPortal} />
+    />]}
+    <CytoGraph gqlPath={gqlPath} gqlSsl={gqlSsl} appVersion={appVersion} links={links} cyRef={cyRef} cytoViewportRef={cytoViewportRef} />
+    <CytoMenu gqlPath={gqlPath} gqlSsl={gqlSsl} cyRef={cyRef} cytoViewportRef={cytoViewportRef} openPortal={openPortal} />
     <Switch />
     <PackagerInterface />
-  </>); 
+    {aframe ? <AframeGraph deep={deep} links={links} /> : null}
+  </>);
 };
 
-export default function Page({ 
-  serverUrl, 
+export default function Page({
+  serverUrl,
   deeplinksUrl,
   defaultGqlPath,
   defaultGqlSsl,
   appVersion,
-} : {
+}: {
   defaultGqlPath: string;
   defaultGqlSsl: boolean;
   serverUrl: string;
   deeplinksUrl: string;
   appVersion: string;
 }) {
+  const [aframe, setAframe] = useState(false);
   const [gqlPath, setGqlPath] = useState(defaultGqlPath);
   const [gqlSsl, setGqlSsl] = useState(defaultGqlSsl);
   const [portal, setPortal] = useState(true);
-  
+
   console.log("gqlPath", gqlPath);
   console.log("gqlSsl", gqlSsl);
-  
+
   const key = `${gqlSsl}-${gqlPath}`;
 
   return (<>
@@ -139,21 +146,41 @@ export default function Page({
             setGqlPath={(path) => setGqlPath(path)}
             setGqlSsl={(ssl) => setGqlSsl(ssl)}
           />
-          { gqlPath ? [
+          {gqlPath ? [
             <CatchErrors key={1} errorRenderer={(e) => <>
               <pre>Error in AutoGuest or content rendering.</pre>
               <pre>{e?.toString() || JSON.stringify(e, null, 2)}</pre>
-            </> }>
+            </>}>
               <AutoGuest>
-                <Content gqlPath={gqlPath} gqlSsl={gqlSsl} appVersion={appVersion} openPortal={()=>setPortal(true)} />
+                <Content aframe={aframe} gqlPath={gqlPath} gqlSsl={gqlSsl} appVersion={appVersion} openPortal={() => setPortal(true)} />
                 <Button
-                  colorScheme='blue' 
-                  onClick={() => setPortal(true)} 
+                  colorScheme='blue'
+                  onClick={() => setPortal(true)}
                   pos='absolute' right='44' top='4'
                 >connector</Button>
+                {aframe ? (
+                  <>
+                    <Button
+                      id="ar"
+                      colorScheme='blue'
+                      pos='absolute' top='16' right='56'
+                    >AR</Button>
+                    <Button
+                      id="vr"
+                      colorScheme='blue'
+                      pos='absolute' right='40' top='16'
+                    >VR</Button>
+                  </>
+                ) : null}
+                <Button
+                  id="aframe"
+                  colorScheme='blue'
+                  onClick={() => setAframe(!aframe)}
+                  pos='absolute' top='16' right='16'
+                >aframe</Button>
               </AutoGuest>
             </CatchErrors>
-          ] : [] }
+          ] : []}
         </DeepProvider>
       </Provider>
     ]}
