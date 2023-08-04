@@ -31,13 +31,11 @@ const CytoMenu = dynamic<any>(
 );
 
 export function Content({
-  aframe,
   openPortal,
   gqlPath,
   gqlSsl,
   appVersion,
 }: {
-  aframe: boolean,
   openPortal?: () => any;
   gqlPath: string;
   gqlSsl: boolean;
@@ -104,7 +102,6 @@ export function Content({
     <CytoMenu gqlPath={gqlPath} gqlSsl={gqlSsl} cyRef={cyRef} cytoViewportRef={cytoViewportRef} openPortal={openPortal} />
     <Switch />
     <PackagerInterface />
-    {aframe ? <AframeGraph deep={deep} links={links} /> : null}
   </>);
 };
 
@@ -121,7 +118,6 @@ export default function Page({
   deeplinksUrl: string;
   appVersion: string;
 }) {
-  const [aframe, setAframe] = useState(false);
   const [gqlPath, setGqlPath] = useState(defaultGqlPath);
   const [gqlSsl, setGqlSsl] = useState(defaultGqlSsl);
   const [portal, setPortal] = useState(true);
@@ -152,32 +148,12 @@ export default function Page({
               <pre>{e?.toString() || JSON.stringify(e, null, 2)}</pre>
             </>}>
               <AutoGuest>
-                <Content aframe={aframe} gqlPath={gqlPath} gqlSsl={gqlSsl} appVersion={appVersion} openPortal={() => setPortal(true)} />
+                <Content gqlPath={gqlPath} gqlSsl={gqlSsl} appVersion={appVersion} openPortal={() => setPortal(true)} />
                 <Button
                   colorScheme='blue'
                   onClick={() => setPortal(true)}
                   pos='absolute' right='44' top='4'
                 >connector</Button>
-                {aframe ? (
-                  <>
-                    <Button
-                      id="ar"
-                      colorScheme='blue'
-                      pos='absolute' top='16' right='56'
-                    >AR</Button>
-                    <Button
-                      id="vr"
-                      colorScheme='blue'
-                      pos='absolute' right='40' top='16'
-                    >VR</Button>
-                  </>
-                ) : null}
-                <Button
-                  id="aframe"
-                  colorScheme='blue'
-                  onClick={() => setAframe(!aframe)}
-                  pos='absolute' top='16' right='16'
-                >aframe</Button>
               </AutoGuest>
             </CatchErrors>
           ] : []}
