@@ -13,7 +13,8 @@
       "dom",
       "es6",
       "es7",
-      "ES2020"
+      "ES2020",
+      "es2022.error"
     ],
     "resolveJsonModule": true,
     "esModuleInterop": true,
