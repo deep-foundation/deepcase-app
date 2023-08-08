@@ -17,12 +17,12 @@ export default withNextEnv({
   async rewrites() {
     return [
       {
-        source: '/api/gql',
-        destination: `${NEXT_PUBLIC_DEEPLINKS_URL}/gql`
+        source: '/api/:gql*',
+        destination: `${NEXT_PUBLIC_DEEPLINKS_URL}/:gql*`
       },
       {
-        source: '/api/file',
-        destination: `${NEXT_PUBLIC_DEEPLINKS_URL}/file`
+        source: '/api/:file*',
+        destination: `${NEXT_PUBLIC_DEEPLINKS_URL}/:file*`
       },
     ]
   },
