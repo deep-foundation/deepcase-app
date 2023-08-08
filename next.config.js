@@ -7,11 +7,25 @@ dotenvLoad();
  
 const withNextEnv = nextEnv();
 
+const NEXT_PUBLIC_DEEPLINKS_URL = process.env.NEXT_PUBLIC_DEEPLINKS_URL || 'http://localhost:3006';
+
 export default withNextEnv({
   distDir: 'app',
   webpack5: true,
   future: { webpack5: true },
   strictMode: false,
+  async rewrites() {
+    return [
+      {
+        source: '/api/gql',
+        destination: `${NEXT_PUBLIC_DEEPLINKS_URL}/gql`
+      },
+      {
+        source: '/api/file',
+        destination: `${NEXT_PUBLIC_DEEPLINKS_URL}/file`
+      },
+    ]
+  },
   webpack: (config) => {
     config.resolve.fallback = {
       "buffer": require.resolve('buffer/'),
@@ -26,7 +40,6 @@ export default withNextEnv({
       "stream": false,
       "crypto": false,
     };
-
     return config;
   },
 });
