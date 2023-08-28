@@ -111,12 +111,14 @@ export default function Page({
   defaultGqlPath,
   defaultGqlSsl,
   appVersion,
+  disableConnector
 }: {
   defaultGqlPath: string;
   defaultGqlSsl: boolean;
   serverUrl: string;
   deeplinksUrl: string;
   appVersion: string;
+  disableConnector: boolean;
 }) {
   const [gqlPath, setGqlPath] = useState(defaultGqlPath);
   const [gqlSsl, setGqlSsl] = useState(defaultGqlSsl);
@@ -131,6 +133,7 @@ export default function Page({
     {[
       <Provider key={key} gqlPath={gqlPath} gqlSsl={gqlSsl}>
         <DeepProvider>
+        { !disableConnector ? 
           <Connector
             portalOpen={portal}
             setPortal={setPortal}
@@ -141,7 +144,7 @@ export default function Page({
             deeplinksUrl={deeplinksUrl}
             setGqlPath={(path) => setGqlPath(path)}
             setGqlSsl={(ssl) => setGqlSsl(ssl)}
-          />
+          /> : null }
           {gqlPath ? [
             <CatchErrors key={1} errorRenderer={(e) => <>
               <pre>Error in AutoGuest or content rendering.</pre>
@@ -149,11 +152,12 @@ export default function Page({
             </>}>
               <AutoGuest>
                 <Content gqlPath={gqlPath} gqlSsl={gqlSsl} appVersion={appVersion} openPortal={() => setPortal(true)} />
-                <Button
+                
+                { !disableConnector ? <Button
                   colorScheme='blue'
                   onClick={() => setPortal(true)}
                   pos='absolute' right='44' top='4'
-                >connector</Button>
+                  >connector</Button> : null }
               </AutoGuest>
             </CatchErrors>
           ] : []}
@@ -170,6 +174,7 @@ export async function getStaticProps() {
       defaultGqlSsl: !!+publicRuntimeConfig?.NEXT_PUBLIC_GQL_SSL || false,
       serverUrl: publicRuntimeConfig?.NEXT_PUBLIC_DEEPLINKS_SERVER || 'http://localhost:3007',
       deeplinksUrl: publicRuntimeConfig?.NEXT_PUBLIC_DEEPLINKS_URL || 'http://localhost:3006',
+      disableConnector: publicRuntimeConfig?.NEXT_PUBLIC_DISABLE_CONNECTOR || false,
       appVersion: pckg?.version || '',
     },
   };
