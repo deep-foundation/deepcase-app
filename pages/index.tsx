@@ -174,7 +174,7 @@ export async function getStaticProps() {
       defaultGqlSsl: !!+publicRuntimeConfig?.NEXT_PUBLIC_GQL_SSL || false,
       serverUrl: publicRuntimeConfig?.NEXT_PUBLIC_DEEPLINKS_SERVER || 'http://localhost:3007',
       deeplinksUrl: publicRuntimeConfig?.NEXT_PUBLIC_DEEPLINKS_URL || 'http://localhost:3006',
-      disableConnector: publicRuntimeConfig?.NEXT_PUBLIC_DISABLE_CONNECTOR || false,
+      disableConnector: !!+publicRuntimeConfig?.NEXT_PUBLIC_DISABLE_CONNECTOR || false,
       appVersion: pckg?.version || '',
     },
   };
