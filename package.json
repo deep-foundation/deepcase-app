@@ -36,7 +36,7 @@
     "xterm": "^5.1.0"
   },
   "engines": {
-    "node": "^18.16.1"
+    "node": "^18"
   },
   "devDependencies": {
     "browser-resolve": "^2.0.0",
