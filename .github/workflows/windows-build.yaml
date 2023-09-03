@@ -38,7 +38,7 @@ jobs:
           ssh://git@github.com/
       - uses: actions/setup-node@v1
         with:
-          node-version: 18
+          node-version: 17.9.1
       - name: Configure Node caching
         uses: actions/cache@v2
         env:
@@ -50,6 +50,8 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
             ${{ runner.os }}-
+      - name: install node tools
+        run: npm install --global --production windows-build-tools@4.0.0
       - name: install node-gyp
         run: npm install --global node-gyp@latest
       - name: Set node config to use python2.7
