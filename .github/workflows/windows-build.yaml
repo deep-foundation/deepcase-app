@@ -50,8 +50,6 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
             ${{ runner.os }}-
-      - name: install node tools
-        run: npm install --global --production windows-build-tools@5.2.2
       - name: install node-gyp
         run: npm install --global node-gyp@latest
       - name: Set node config to use python2.7
