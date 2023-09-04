@@ -38,7 +38,7 @@ jobs:
           ssh://git@github.com/
       - uses: actions/setup-node@v1
         with:
-          node-version: 17.9.1
+          node-version: 18
       - name: Configure Node caching
         uses: actions/cache@v2
         env:
