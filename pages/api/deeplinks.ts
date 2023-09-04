@@ -8,11 +8,10 @@ const error = debug.extend('error');
 const namespaces = Debug.disable();
 Debug.enable(`${namespaces ? `${namespaces},` : ``}${error.namespace}`);
 
-const NEXT_PUBLIC_ENGINES_ROUTE = process.env.NEXT_PUBLIC_ENGINES_ROUTE || '1';
-
 export default async (req, res) => {
-  const PATH = [];
+  const NEXT_PUBLIC_ENGINES_ROUTE = process.env.NEXT_PUBLIC_ENGINES_ROUTE || '1';
   if (!+NEXT_PUBLIC_ENGINES_ROUTE) return res.send('engines deactivated');
+  const PATH = [];
   if (req?.body?.envs?.PATH) PATH.push(req?.body?.envs?.PATH);
   if (process?.env?.PATH) PATH.push(process?.env?.PATH);
   log('engine route', { body: req?.body, PATH });
