@@ -2,13 +2,14 @@ import { Box, Center } from '@chakra-ui/react';
 import { DeepProvider, useDeep, useDeepSubscription } from '@deep-foundation/deeplinks/imports/client';
 import { useQueryStore } from '@deep-foundation/store/query';
 import getConfig from 'next/config';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AutoGuest } from '@deep-foundation/deepcase/imports/auto-guest';
 import { ClientHandler } from '@deep-foundation/deepcase/imports/client-handler';
 import { DotsLoader } from '@deep-foundation/deepcase/imports/dot-loader';
 import { useSpaceId } from '@deep-foundation/deepcase/imports/hooks';
 import { DeepLoader } from '@deep-foundation/deepcase/imports/loader';
 import { Provider } from '@deep-foundation/deepcase/imports/provider';
+import { parseUrl } from '@deep-foundation/deepcase/imports/connector/connector';
 
 const { publicRuntimeConfig } = getConfig();
 
@@ -64,6 +65,22 @@ export default function Page(props: {
   const [gqlPath, setGqlPath] = useState(props.gqlPath);
   const [gqlSsl, setGqlSsl] = useState(props.gqlSsl);
   const [portal, setPortal] = useState(true);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const browserURI = window?.location?.origin;
+      if (browserURI) {
+        const [browserPath, browserSsl] = parseUrl(browserURI);
+        setGqlPath(browserPath + "/api/gql");
+        setGqlSsl(browserSsl);
+      }
+    }
+  }, []);
+
+  console.log("client-handler-page-urls", {
+    gqlPath,
+    gqlSsl
+  });
 
   return (<>
     <Provider gqlPath={gqlPath} gqlSsl={gqlSsl}>

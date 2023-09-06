@@ -12,7 +12,7 @@ import { useBreadcrumbs, useRefAutofill, useShowExtra, useSpaceId, useTraveler }
 import { DeepLoader } from '@deep-foundation/deepcase/imports/loader';
 import { Provider } from '@deep-foundation/deepcase/imports/provider';
 import { useRefstarter } from '@deep-foundation/deepcase/imports/refstater';
-import { Connector } from '@deep-foundation/deepcase/imports/connector/connector';
+import { Connector, parseUrl } from '@deep-foundation/deepcase/imports/connector/connector';
 import { PackagerInterface } from '@deep-foundation/deepcase/imports/packager-interface/packager-interface';
 import getConfig from 'next/config'
 import { CatchErrors } from '@deep-foundation/deepcase/imports/react-errors';
@@ -120,14 +120,31 @@ export default function Page({
   appVersion: string;
   disableConnector: boolean;
 }) {
+  // todo: put gqlPath and gqlSsl to localstorage so client handler page can use settings from connector
   const [gqlPath, setGqlPath] = useState(defaultGqlPath);
   const [gqlSsl, setGqlSsl] = useState(defaultGqlSsl);
   const [portal, setPortal] = useState(true);
 
-  console.log("gqlPath", gqlPath);
-  console.log("gqlSsl", gqlSsl);
-
   const key = `${gqlSsl}-${gqlPath}`;
+
+  useEffect(() => {
+    if (!disableConnector) {
+      return;
+    }
+    if (typeof window !== 'undefined') {
+      const browserURI = window?.location?.origin;
+      if (browserURI) {
+        const [browserPath, browserSsl] = parseUrl(browserURI);
+        setGqlPath(browserPath + "/api/gql");
+        setGqlSsl(browserSsl);
+      }
+    }
+  }, []);
+
+  console.log("index-page-urls", {
+    gqlPath,
+    gqlSsl
+  });
 
   return (<>
     {[
