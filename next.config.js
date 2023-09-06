@@ -7,7 +7,9 @@ dotenvLoad();
  
 const withNextEnv = nextEnv();
 
-const NEXT_PUBLIC_DEEPLINKS_URL = process.env.NEXT_PUBLIC_DEEPLINKS_URL || 'http://localhost:3006';
+// const NEXT_PUBLIC_DEEPLINKS_URL = process.env.NEXT_PUBLIC_DEEPLINKS_URL || 'http://localhost:3006';
+const DOCKER = !!+process.env.DOCKER;
+const DEEPLINKS_URL = DOCKER ? 'http://host.docker.internal:3006' : 'http://localhost:3006';
 
 export default withNextEnv({
   distDir: 'app',
@@ -18,11 +20,13 @@ export default withNextEnv({
     return [
       {
         source: '/api/:gql*',
-        destination: `${NEXT_PUBLIC_DEEPLINKS_URL}/:gql*`
+        destination: `${DEEPLINKS_URL}/:gql*`
+        // destination: `${NEXT_PUBLIC_DEEPLINKS_URL}/:gql*`
       },
       {
         source: '/api/:file*',
-        destination: `${NEXT_PUBLIC_DEEPLINKS_URL}/:file*`
+        destination: `${DEEPLINKS_URL}/:file*`
+        // destination: `${NEXT_PUBLIC_DEEPLINKS_URL}/:file*`
       },
     ]
   },
