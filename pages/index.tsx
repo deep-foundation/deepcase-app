@@ -187,7 +187,7 @@ export default function Page({
 export async function getStaticProps() {
   return {
     props: {
-      defaultGqlPath: publicRuntimeConfig?.NEXT_PUBLIC_GQL_PATH || '',
+      defaultGqlPath: publicRuntimeConfig?.NEXT_PUBLIC_GQL_PATH || 'https://proxy-server-url/api/gql',
       defaultGqlSsl: !!+publicRuntimeConfig?.NEXT_PUBLIC_GQL_SSL || false,
       serverUrl: publicRuntimeConfig?.NEXT_PUBLIC_DEEPLINKS_SERVER || 'http://localhost:3007',
       deeplinksUrl: publicRuntimeConfig?.NEXT_PUBLIC_DEEPLINKS_URL || 'http://localhost:3006',
