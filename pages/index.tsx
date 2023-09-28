@@ -43,7 +43,7 @@ export function Content({
 }) {
   console.log("You can use the 'deep' variable to access the Deep object. For more information and examples, visit the documentation at [link to deep documentation].");
   console.log("You can use the 'ml' variable to access the Minilinks object. For more information and examples, visit the documentation at [link to ml documentation].");
-  console.log("You can configure localStorage.debug by setting it to 'true' or 'false'. For more information and examples, visit the documentation at [link to localStorage.debug documentation].");
+  console.log("You can configure the debug level of the npm debug package by setting localStorage.debug to a specific namespace. For more information and examples, visit the documentation at [link to localStorage.debug documentation].");
   const cytoViewportRef = useRefstarter<{ pan: { x: number; y: number; }; zoom: number }>();
   const cyRef = useRef();
   const [spaceId, setSpaceId] = useSpaceId();
