@@ -41,8 +41,9 @@ export function Content({
   gqlSsl: boolean;
   appVersion: string;
 }) {
-  console.log("You can use the 'deep' and 'ml' variables for xyz. For more information, visit the documentation at [link to documentation].");
-  console.log("You can configure localStorage.debug by doing xyz. For more information, visit the documentation at [link to documentation].");
+  console.log("You can use the 'deep' variable to access the Deep object. For more information and examples, visit the documentation at [link to deep documentation].");
+  console.log("You can use the 'ml' variable to access the Minilinks object. For more information and examples, visit the documentation at [link to ml documentation].");
+  console.log("You can configure localStorage.debug by setting it to 'true' or 'false'. For more information and examples, visit the documentation at [link to localStorage.debug documentation].");
   const cytoViewportRef = useRefstarter<{ pan: { x: number; y: number; }; zoom: number }>();
   const cyRef = useRef();
   const [spaceId, setSpaceId] = useSpaceId();
@@ -54,8 +55,7 @@ export function Content({
   const [extra, setExtra] = useShowExtra();
   const [breadcrumbs, setBreadcrumbs] = useBreadcrumbs();
   const travelerRef = useRefAutofill(traveler);
-}
-
+  
   const TravelerRef = useRef(0);
   useEffect(() => {
     (async () => {
