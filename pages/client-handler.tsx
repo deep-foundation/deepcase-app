@@ -71,7 +71,7 @@ export default function Page(props: {
       const browserURI = window?.location?.origin;
       if (browserURI) {
         const [browserPath, browserSsl] = parseUrl(browserURI);
-        setGqlPath(browserPath + "/api/gql");
+        setGqlPath(browserPath + "/proxy-server-url");
         setGqlSsl(browserSsl);
       }
     }
@@ -96,7 +96,7 @@ export default function Page(props: {
 export async function getStaticProps() {
   return {
     props: {
-      gqlPath: publicRuntimeConfig?.NEXT_PUBLIC_GQL_PATH || 'localhost:3006/gql',
+      gqlPath: publicRuntimeConfig?.NEXT_PUBLIC_GQL_PATH || 'localhost:3006/proxy-server-url',
       gqlSsl: !!+publicRuntimeConfig?.NEXT_PUBLIC_GQL_SSL || false,
     },
   };
