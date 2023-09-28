@@ -16,6 +16,16 @@ export default withNextEnv({
   webpack5: true,
   future: { webpack5: true },
   strictMode: false,
+  async headers() {
+      return [
+          {
+              source: "/api/:path*",
+              headers: [
+                  { key: "Access-Control-Allow-Origin", value: "*" },
+              ]
+          }
+      ]
+  },
   async rewrites() {
     return [
       {
