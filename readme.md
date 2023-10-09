@@ -43,15 +43,15 @@ npm run export;
 npx cap copy electron; npx cap open electron;
 ```
 
-## restart deepcase-app
+## restart
 
-On server:
+### server
 
 ```
 docker restart deep-case
 ```
 
-In GitPod:
+### GitPod
 
 Deep.Case app is started together with Deep.Links and other services in GitPod. So to restart it from GitPod you should do the following:
 
