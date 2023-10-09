@@ -43,6 +43,18 @@ npm run export;
 npx cap copy electron; npx cap open electron;
 ```
 
+## restart deepcase-app
+
+On server:
+
+```
+docker restart deep-case
+```
+
+In GitPod:
+
+
+
 ## setting icons for electron
 
 put files in public dir and if need change package.json / electron-build ... electron-packager --icon parametr. Use this [manual](https://electron.github.io/electron-packager/main/interfaces/electronpackager.options.html#icon)
