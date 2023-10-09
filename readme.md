@@ -53,8 +53,13 @@ docker restart deep-case
 
 In GitPod:
 
+Deep.Case app is started together with Deep.Links and other services in GitPod. So to restart it from GitPod you should do the following:
 
+1. Find terminal there `npm run gitpod-start` command was executed.
 
+2. Press `CTRL+C` in terminal to stop a Deep instance (Deep.Links and Deep.Case).
+
+3. Press `↑` button on your keyboard to get last executed command.
 ## setting icons for electron
 
 put files in public dir and if need change package.json / electron-build ... electron-packager --icon parametr. Use this [manual](https://electron.github.io/electron-packager/main/interfaces/electronpackager.options.html#icon)
