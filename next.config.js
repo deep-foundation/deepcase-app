@@ -41,6 +41,15 @@ export default withNextEnv({
     ]
   },
   webpack: (config) => {
+    // Exclude .tsx files
+    config.module.rules.push({
+      test: /\.tsx$/,
+      use: [],
+    });
+
+    // Only import .js files 
+    // config.resolve.extensions = ['.js', '.jsx'];
+
     config.resolve.fallback = {
       "buffer": require.resolve('buffer/'),
       "os": false,
