@@ -49,8 +49,6 @@ export default withNextEnv({
     });
     config.resolve.extensions = config.resolve.extensions.filter(item => !excludePattern.test(item));
 
-    console.log("config.resolve.extensions", config.resolve.extensions);
-
     config.resolve.fallback = {
       "buffer": require.resolve('buffer/'),
       "os": false,
