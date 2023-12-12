@@ -16,8 +16,10 @@ import { Connector, parseUrl } from '@deep-foundation/deepcase/imports/connector
 import { PackagerInterface } from '@deep-foundation/deepcase/imports/packager-interface/packager-interface';
 import getConfig from 'next/config'
 import { CatchErrors } from '@deep-foundation/deepcase/imports/react-errors';
-import { Button } from '@chakra-ui/react';
+import { Button, Text } from '@chakra-ui/react';
 import pckg from '../package.json';
+import dpckg from '@deep-foundation/deepcase/package.json';
+import { CytoEditor } from '@deep-foundation/deepcase/imports/cyto/editor';
 
 const { publicRuntimeConfig } = getConfig();
 
@@ -98,7 +100,12 @@ export function Content({
       key={spaceId}
       spaceId={spaceId}
     />]}
-    <CytoGraph gqlPath={gqlPath} gqlSsl={gqlSsl} appVersion={appVersion} links={links} cyRef={cyRef} cytoViewportRef={cytoViewportRef} />
+    <CytoGraph gqlPath={gqlPath} gqlSsl={gqlSsl} links={links} cyRef={cyRef} cytoViewportRef={cytoViewportRef}>
+      <CytoEditor/>
+      <Text position="fixed" left={0} bottom={0} p={4}>
+        {appVersion} ({dpckg.version})
+      </Text>
+    </CytoGraph>
     <CytoMenu gqlPath={gqlPath} gqlSsl={gqlSsl} cyRef={cyRef} cytoViewportRef={cytoViewportRef} openPortal={openPortal} />
     <Switch />
     <PackagerInterface />
