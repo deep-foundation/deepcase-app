@@ -8,7 +8,7 @@ import { ColorModeSwitcher } from '@deep-foundation/deepcase/imports/color-mode-
 import { Switch } from '@deep-foundation/deepcase/imports/switch-mode';
 import CytoGraph from '@deep-foundation/deepcase/imports/cyto/graph';
 import { AframeGraph } from '@deep-foundation/deepcase/imports/aframe/aframe-graph';
-import { useBreadcrumbs, useRefAutofill, useShowExtra, useSpaceId, useTraveler } from '@deep-foundation/deepcase/imports/hooks';
+import { useBreadcrumbs, useCytoViewport, useRefAutofill, useShowExtra, useSpaceId, useTraveler } from '@deep-foundation/deepcase/imports/hooks';
 import { DeepLoader } from '@deep-foundation/deepcase/imports/loader';
 import { Provider } from '@deep-foundation/deepcase/imports/provider';
 import { useRefstarter } from '@deep-foundation/deepcase/imports/refstater';
@@ -100,7 +100,7 @@ export function Content({
       key={spaceId}
       spaceId={spaceId}
     />]}
-    <CytoGraph gqlPath={gqlPath} gqlSsl={gqlSsl} links={links} cyRef={cyRef} cytoViewportRef={cytoViewportRef}>
+    <CytoGraph gqlPath={gqlPath} gqlSsl={gqlSsl} links={links} cyRef={cyRef} cytoViewportRef={cytoViewportRef} useCytoViewport={useCytoViewport}>
       <CytoEditor/>
       <Text position="fixed" left={0} bottom={0} p={4}>
         {appVersion} ({dpckg.version})
