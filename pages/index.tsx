@@ -2,7 +2,7 @@
 import { DeepProvider, useDeep } from '@deep-foundation/deeplinks/imports/client';
 import { Link, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { AutoGuest } from '@deep-foundation/deepcase/imports/auto-guest';
 import { ColorModeSwitcher } from '@deep-foundation/deepcase/imports/color-mode-toggle';
 import { Switch } from '@deep-foundation/deepcase/imports/switch-mode';
@@ -91,15 +91,16 @@ export function Content({
         ));
       }
       return result;
-    }, [extra, breadcrumbs, traveler]),
+    }, [deep, extra, breadcrumbs, traveler]),
     1000,
   ) || [];
 
-  return (<>
-    {[<DeepLoader
-      key={spaceId}
+  return ([<React.Fragment
+    key={`${spaceId}-${deep.linkId}`}
+  >
+    <DeepLoader
       spaceId={spaceId}
-    />]}
+    />
     <CytoGraph gqlPath={gqlPath} gqlSsl={gqlSsl} links={links} cyRef={cyRef} cytoViewportRef={cytoViewportRef} useCytoViewport={useCytoViewport}>
       <CytoEditor/>
       <Text position="fixed" left={0} bottom={0} p={4}>
@@ -109,7 +110,7 @@ export function Content({
     <CytoMenu gqlPath={gqlPath} gqlSsl={gqlSsl} cyRef={cyRef} cytoViewportRef={cytoViewportRef} openPortal={openPortal} />
     <Switch />
     <PackagerInterface />
-  </>);
+  </React.Fragment>]);
 };
 
 export default function Page({
