@@ -8,6 +8,8 @@
     "build": "rm -rf app && next build",
     "export": "rm -rf out && next export",
     "start": "(npx -q wait-on --timeout 10000 http-get://127.0.0.1:3007/api/revalidate &); next start",
+    "build-android": "rm -rf app && rm -rf out && npm run build && npm run export && npx cap sync android",
+    "build-ios": "rm -rf app && rm -rf out && npm run build && npm run export && npx cap sync ios",
     "electron-dev": "(npx cap copy electron && npx cap open electron)",
     "electron-build": "(cd electron && npx cap copy electron && npx electron-packager . --overwrite --icon ./assets/icon)",
     "package:publish": "npm run build && npm publish --access public"
