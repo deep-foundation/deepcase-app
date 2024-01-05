@@ -214,7 +214,7 @@ jobs:
       - name: Install dependencies
         run: npm clean-install
       - name: Install electron dependencies
-        run: cd electron && npm clean-install && ls node_modules | grep @
+        run: ${{inputs.install-electron-dependencies-command}}
       - name: build next
         run: npm run build && npm run export && npx rimraf electron/app && npx cap copy electron
       - name: Build distribution
@@ -290,8 +290,8 @@ jobs:
         run: echo "python=python2.7" >> ~/.npmrc
       - name: Install dependencies
         run: npm clean-install
-      - name: Install electron dependencies
-        run: cd electron && npm clean-install
+        - name: Install electron dependencies
+        run: ${{inputs.install-electron-dependencies-command}}
       - name: build next
         run: npm run build && npm run export && npx rimraf electron/app && npx cap copy electron
       - name: Build distribution
