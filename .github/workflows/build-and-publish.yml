@@ -31,7 +31,7 @@ jobs:
           node-version: 18
       - name: Sync
         run: |
-          npx --yes bun run ./automation/sync-electron-app-version.ts
+          npx --yes tsx ./automation/sync-electron-app-version.ts
       - name: Commit and push
         run: |
           if [[ $(git status -s) ]]; then
