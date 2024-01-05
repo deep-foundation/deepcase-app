@@ -6,4 +6,4 @@ jobs:
     uses: ./.github/workflows/build-and-publish-reusable-workflow.yml
     with:
       app-name: deep-case
-      install-electron-dependencies-command: cd electron && npm ci && git clone https://github.com/deep-foundation/deeplinks.git && cp deeplinks/imports/engine.ts electron/src/engine.ts && npx rimraf -I deeplinks
+      install-electron-dependencies-command: $(cd electron && npm ci) && $(git clone https://github.com/deep-foundation/deeplinks.git && cp deeplinks/imports/engine.ts electron/src/engine.ts && npx rimraf -I deeplinks)
