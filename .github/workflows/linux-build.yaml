@@ -70,8 +70,8 @@ jobs:
       - name: Create tar.gz file
         run: |
           cd electron/dist
-          mv Deep.Case-1.0.0.AppImage com.deepfoundation.deepcaseImage
-          tar -czvf Deep.Case.tar.gz com.deepfoundation.deepcaseImage
+          mv Deep.Case-1.0.0.AppImage Deep.Case.AppImage
+          tar -czvf Deep.Case.tar.gz Deep.Case.AppImage
       - name: And a README (to work around GitHub double-zips)
         run: |
           echo "More information: https://deep.foundation" > electron/dist/README.txt
