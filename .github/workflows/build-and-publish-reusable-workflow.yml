@@ -227,6 +227,7 @@ jobs:
         run: cd electron && npm run electron:make
       - name: Create zip file
         run: |
+          ls
           cd electron/dist/mac
           ditto -c -k --keepParent ${{inputs.app-name}}.app ${{inputs.app-name}}.app.zip
       - name: And a README (to work around GitHub double-zips)
