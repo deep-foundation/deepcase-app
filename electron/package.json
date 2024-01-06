@@ -1,6 +1,6 @@
 {
-  "name": "Deep.Case",
-  "version": "1.0.0",
+  "name": "deep-case",
+  "version": "0.1.0-beta.12",
   "description": "Data-oriented operating space of associative data representation. Wellcome to the deep universe",
   "homepage": "https://deep.foundation/",
   "author": {
@@ -22,10 +22,11 @@
     "electron:pack": "npm run build && node patch-electron-builder.cjs && electron-builder --publish never -c ./electron-builder.config.json",
     "electron:pack-demo": "npm run build  && node patch-electron-builder.cjs && CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --publish never -c ./electron-builder.config.demo.json",
     "electron:sign": "npm run electron:sign-prod && npm run electron:sign-dev",
-    "electron:sign-prod": "electron-osx-sign dist/mas/Deep.Case.app --entitlements=./entitlements.mas.plist --entitlements-inherit=./entitlements.mas.inherit.plist --identity='Developer ID Application: ABRAKAR, OOO (8ZG6TUT4AY)' --platform=mas --type=distribution --provisioning-profile=developer-id-deepcase.provisionprofile",
-    "electron:sign-dev": "electron-osx-sign dist/mas-dev/Deep.Case.app --identity='Developer ID Application: ABRAKAR, OOO (8ZG6TUT4AY)' --platform=mas --type=development --entitlements=./entitlements.mas.plist --entitlements-inherit=./entitlements.mas.inherit.plist --provisioning-profile=./deepcasedevelopment.provisionprofile",
+    "electron:sign-prod": "electron-osx-sign dist/mas/com.deepfoundation.deepcase --entitlements=./entitlements.mas.plist --entitlements-inherit=./entitlements.mas.inherit.plist --identity='Developer ID Application: ABRAKAR, OOO (8ZG6TUT4AY)' --platform=mas --type=distribution --provisioning-profile=developer-id-deepcase.provisionprofile",
+    "electron:sign-dev": "electron-osx-sign dist/mas-dev/com.deepfoundation.deepcase --identity='Developer ID Application: ABRAKAR, OOO (8ZG6TUT4AY)' --platform=mas --type=development --entitlements=./entitlements.mas.plist --entitlements-inherit=./entitlements.mas.inherit.plist --provisioning-profile=./deepcasedevelopment.provisionprofile",
     "electron:notarize": "node notarize.cjs",
-    "electron:make": "npm run build && electron-builder build -c ./electron-builder.config.json -p always"
+    "electron:make": "npm run build && electron-builder build --config ./electron-builder.config.json",
+    "electron:make-and-publish": "npm run build && electron-builder build --config ./electron-builder.config.json --publish always"
   },
   "dependencies": {
     "@capacitor-community/electron": "^4.0.1",

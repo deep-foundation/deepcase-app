@@ -95,7 +95,7 @@ export function Content({
     1000,
   ) || [];
 
-  return ([<React.Fragment
+  return (<React.Fragment
     key={`${spaceId}-${deep.linkId}`}
   >
     <DeepLoader
@@ -110,7 +110,7 @@ export function Content({
     <CytoMenu gqlPath={gqlPath} gqlSsl={gqlSsl} cyRef={cyRef} cytoViewportRef={cytoViewportRef} openPortal={openPortal} />
     <Switch />
     <PackagerInterface />
-  </React.Fragment>]);
+  </React.Fragment>);
 };
 
 export default function Page({

@@ -1,5 +1,5 @@
 {
-  "appId": "deep.case.app",
+  "appId": "com.deepfoundation.deepcase",
   "afterSign": "notarize.cjs",
   "afterPack": "./recover-after-electron-build.cjs",
   "directories": {
