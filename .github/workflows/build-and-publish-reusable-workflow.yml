@@ -301,6 +301,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create zip file
         run: |
+          ls
           cd electron/dist
           tar.exe -a -c -f ${{inputs.app-name}}.zip "${{inputs.app-name}} Setup ${{needs.get-app-version.outputs.app-version}}.exe"
       - name: And a README (to work around GitHub double-zips)
