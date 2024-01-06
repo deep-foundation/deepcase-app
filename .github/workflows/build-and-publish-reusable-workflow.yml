@@ -49,13 +49,6 @@ on:
         type: string
         required: false
         default: http://host.docker.internal:3006
-      
-      
-
-  workflow_dispatch:
-defaults:
-  run:
-    working-directory: ./
 jobs:
   get-app-version:
     name: Get App Version
