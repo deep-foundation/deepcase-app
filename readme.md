@@ -53,12 +53,12 @@ docker restart deep-case
 
 ### GitPod
 
-Deep.Case app is started together with Deep.Links and other services in GitPod. So to restart it from GitPod you should do the following:
+deep-case app is started together with Deep.Links and other services in GitPod. So to restart it from GitPod you should do the following:
 
 1. Find terminal there `npm run gitpod-start` command was executed.
 ![IMG_1490](https://github.com/deep-foundation/deepcase-app/assets/1431904/81ecd4d4-f4d2-4812-8948-0a155347218d)
 
-2. Press `CTRL+C` in terminal to stop a Deep instance (Deep.Links and Deep.Case).
+2. Press `CTRL+C` in terminal to stop a Deep instance (Deep.Links and deep-case).
 ![IMG_1491](https://github.com/deep-foundation/deepcase-app/assets/1431904/39966c49-b8fd-4030-bcac-d8a0e4ff4e17)
 
 3. Press `↑` button on your keyboard to get last executed command.

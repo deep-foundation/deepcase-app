@@ -75,14 +75,14 @@ jobs:
       - name: Create zip file
         run: |
           cd electron/dist
-          tar.exe -a -c -f Deep.Case.zip "Deep.Case-setup.exe"
+          tar.exe -a -c -f deep-case.zip "deep-case-setup.exe"
       - name: And a README (to work around GitHub double-zips)
         run: |
           echo "More information: https://deep.foundation" > electron/dist/README.txt
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: Deep.Case-Windows
+          name: deep-case-Windows
           path: |
-            electron/dist/Deep.Case.zip
+            electron/dist/deep-case.zip
             electron/dist/README.txt

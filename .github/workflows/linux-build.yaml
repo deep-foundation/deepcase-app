@@ -70,15 +70,15 @@ jobs:
       - name: Create tar.gz file
         run: |
           cd electron/dist
-          mv Deep.Case-1.0.0.AppImage Deep.Case.AppImage
-          tar -czvf Deep.Case.tar.gz Deep.Case.AppImage
+          mv deep-case-1.0.0.AppImage deep-case.AppImage
+          tar -czvf deep-case.tar.gz deep-case.AppImage
       - name: And a README (to work around GitHub double-zips)
         run: |
           echo "More information: https://deep.foundation" > electron/dist/README.txt
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: Deep.Case-Linux
+          name: deep-case-Linux
           path: |
-            electron/dist/Deep.Case.tar.gz
+            electron/dist/deep-case.tar.gz
             electron/dist/README.txt

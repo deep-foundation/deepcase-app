@@ -123,5 +123,5 @@ projects/app/electron/app
 /app
 /out
 /electron/build
-/electron/Deep.Case*
+/electron/deep-case*
 /electron/node_modules
