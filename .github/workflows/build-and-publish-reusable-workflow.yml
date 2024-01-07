@@ -221,10 +221,10 @@ jobs:
         run: npm run build && npm run export && npx rimraf electron/app && npx cap copy electron
       - name: Build distribution
         env:
-          CSC_KEY_PASSWORD: ${{ inputs.csc-key-password }}
-          CSC_LINK: ${{ inputs.csc-link }}
-          APPLEID: ${{ inputs.appleid }} 
-          APPLEIDPASS: ${{ inputs.appleidpass }}
+          CSC_KEY_PASSWORD: ${{ secrets.csc-key-password }}
+          CSC_LINK: ${{ secrets.csc-link }}
+          APPLEID: ${{ secrets.appleid }} 
+          APPLEIDPASS: ${{ secrets.appleidpass }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: cd electron && npm run electron:make
       - name: Create zip file
