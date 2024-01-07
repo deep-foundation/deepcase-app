@@ -49,19 +49,15 @@ on:
         type: string
         required: false
         default: http://host.docker.internal:3006
+    secrets:
       csc-key-password:
-        type: string
         required: true
       csc-link:
-        type: string
         required: true
       appleid:
-        type: string
         required: true
       appleidpass:
-        type: string
         required: true
-      
 jobs:
   get-app-version:
     name: Get App Version
