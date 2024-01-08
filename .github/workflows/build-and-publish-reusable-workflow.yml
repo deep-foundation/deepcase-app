@@ -162,7 +162,7 @@ jobs:
         run: |
           echo "More information: https://deep.foundation" > electron/dist/README.txt
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Linux
           path: |
@@ -236,7 +236,7 @@ jobs:
         run: |
           echo "More information: https://deep.foundation" > electron/dist/mac/README.txt
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Mac
           path: |
@@ -310,7 +310,7 @@ jobs:
         run: |
           echo "More information: https://deep.foundation" > electron/dist/README.txt
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Windows
           path: |
