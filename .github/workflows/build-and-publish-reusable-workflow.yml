@@ -123,15 +123,6 @@ jobs:
         with:
           node-version: 18
 
-      - name: Cache dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
       - name: Install dependencies
         run: npm clean-install
 
@@ -141,29 +132,12 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Set Artifact Path
-        id: set-path
-        run: |
-          if [[ "${{ matrix.os }}" == "android" ]]; then
-            echo "artifact-path=android/app/build/outputs/apk/release/app-release-unsigned.apk" >> "$GITHUB_OUTPUT"
-          elif [[ "${{ matrix.os }}" == "linux" ]]; then
-            echo "artifact-path=electron/dist/${{ inputs.app-name }}.tar.gz" >> "$GITHUB_OUTPUT"
-          elif [[ "${{ matrix.os }}" == "mac" ]]; then
-            echo "artifact-path=electron/dist/${{ inputs.app-name }}.app.zip" >> "$GITHUB_OUTPUT"
-          elif [[ "${{ matrix.os }}" == "windows" ]]; then
-            echo "artifact-path=electron/dist/${{ inputs.app-name }}.zip" >> "$GITHUB_OUTPUT"
-          else
-            echo "Invalid OS"
-            exit 1
-          fi
-        shell: bash
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.os }}
-          path: ${{ steps.set-path.outputs.artifact-path }} 
-          if-no-files-found: error
+          path: electron/dist
+
   release:
     needs:
       - build
@@ -172,27 +146,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-
-      - name: Download Mac Artifacts
+      - name: Download artifacts
         uses: actions/download-artifact@v2
         with:
-          name: mac
-          path: electron/dist/${{ inputs.app-name }}.app.zip
-      - name: Download Windows Artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: windows
-          path: electron/dist/${{ inputs.app-name }}.zip
-      - name: Download Linux Artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: linux
-          path: electron/dist/${{ inputs.app-name }}.tar.gz
-      - name: Download Android Artifacts  
-        uses: actions/download-artifact@v2
-        with:
-          name: android
-          path: android/app/build/outputs/apk/release/app-release-unsigned.apk
+          name: ${{ needs.build.outputs.os }}
+          path: electron/dist
 
       - name: Create Release
         id: create_release
