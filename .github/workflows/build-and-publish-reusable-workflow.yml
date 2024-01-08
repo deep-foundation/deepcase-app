@@ -145,13 +145,13 @@ jobs:
         id: set_path
         run: |
           if [[ "${{ matrix.os }}" == "android" ]]; then
-            echo "android/app/build/outputs/apk/release/app-release-unsigned.apk" >> "$GITHUB_OUTPUT"
+            echo "artifact-path=android/app/build/outputs/apk/release/app-release-unsigned.apk" >> "$GITHUB_OUTPUT"
           elif [[ "${{ matrix.os }}" == "linux" ]]; then
-            echo "electron/dist/${{ inputs.app-name }}.tar.gz" >> "$GITHUB_OUTPUT"
+            echo "artifact-path=electron/dist/${{ inputs.app-name }}.tar.gz" >> "$GITHUB_OUTPUT"
           elif [[ "${{ matrix.os }}" == "mac" ]]; then
-            echo "electron/dist/${{ inputs.app-name }}.app.zip" >> "$GITHUB_OUTPUT"
+            echo "artifact-path=electron/dist/${{ inputs.app-name }}.app.zip" >> "$GITHUB_OUTPUT"
           elif [[ "${{ matrix.os }}" == "windows" ]]; then
-            echo "electron/dist/${{ inputs.app-name }}.zip" >> "$GITHUB_OUTPUT"
+            echo "artifact-path=electron/dist/${{ inputs.app-name }}.zip" >> "$GITHUB_OUTPUT"
           else
             echo "Invalid OS"
             exit 1
