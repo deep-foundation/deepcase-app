@@ -136,7 +136,14 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.os }}
-          path: electron/dist
+          path: |
+           ${{
+            matrix.os == 'android' && 'android/app/build/outputs/apk/release/app-release-unsigned.apk' ||
+            matrix.os == 'linux' && 'electron/dist/${{ inputs.app-name }}.tar.gz' ||
+            matrix.os == 'mac' && 'electron/dist/${{ inputs.app-name }}.app.zip' ||
+            matrix.os == 'windows' && 'electron/dist/${{ inputs.app-name }}.zip'
+           }}
+
 
   release:
     needs:
