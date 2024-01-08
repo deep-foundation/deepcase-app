@@ -132,17 +132,30 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Archive artifacts
+      - name: Upload Linux Artifact
         uses: actions/upload-artifact@v2
+        if: matrix.os == 'linux'
         with:
           name: ${{ matrix.os }}
-          path: |
-           ${{
-            matrix.os == 'android' && 'android/app/build/outputs/apk/release/app-release-unsigned.apk' ||
-            matrix.os == 'linux' && 'electron/dist/${{ inputs.app-name }}.tar.gz' ||
-            matrix.os == 'mac' && 'electron/dist/${{ inputs.app-name }}.app.zip' ||
-            matrix.os == 'windows' && 'electron/dist/${{ inputs.app-name }}.zip'
-           }}
+          path: electron/dist/${{ inputs.app-name }}.tar.gz 
+      - name: Upload Mac Artifact
+        uses: actions/upload-artifact@v2
+        if: matrix.os == 'mac'
+        with:
+          name: ${{ matrix.os }}
+          path: electron/dist/${{ inputs.app-name }}.app.zip
+      - name: Upload Windows Artifact 
+        uses: actions/upload-artifact@v2
+        if: matrix.os == 'windows'
+        with:
+          name: ${{ matrix.os }}
+          path: electron/dist/${{ inputs.app-name }}.zip
+      - name: Upload Android Artifact
+        uses: actions/upload-artifact@v2
+        if: matrix.os == 'android'
+        with:
+          name: ${{ matrix.os }}
+          path: android/app/build/outputs/apk/release/app-release-unsigned.apk
 
 
   release:
@@ -153,18 +166,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download artifacts
+
+      - name: Download Mac Artifacts
         uses: actions/download-artifact@v2
         with:
-          name: ${{ needs.build.outputs.os }}
-          path: |
-           ${{
-            needs.build.outputs.os == 'android' && 'android/app/build/outputs/apk/release/app-release-unsigned.apk' ||
-            needs.build.outputs.os == 'linux' && 'electron/dist/${{ inputs.app-name }}.tar.gz' ||
-            needs.build.outputs.os == 'mac' && 'electron/dist/${{ inputs.app-name }}.app.zip' ||
-            needs.build.outputs.os == 'windows' && 'electron/dist/${{ inputs.app-name }}.zip'
-           }}
-
+          name: mac
+          path: electron/dist/${{ inputs.app-name }}.app.zip
+      - name: Download Windows Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: windows
+          path: electron/dist/${{ inputs.app-name }}.zip
+      - name: Download Linux Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: linux
+          path: electron/dist/${{ inputs.app-name }}.tar.gz
+      - name: Download Android Artifacts  
+        uses: actions/download-artifact@v2
+        with:
+          name: android
+          path: android/app/build/outputs/apk/release/app-release-unsigned.apk
+          
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
