@@ -157,7 +157,13 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: ${{ needs.build.outputs.os }}
-          path: electron/dist
+          path: |
+           ${{
+            needs.build.outputs.os == 'android' && 'android/app/build/outputs/apk/release/app-release-unsigned.apk' ||
+            needs.build.outputs.os == 'linux' && 'electron/dist/${{ inputs.app-name }}.tar.gz' ||
+            needs.build.outputs.os == 'mac' && 'electron/dist/${{ inputs.app-name }}.app.zip' ||
+            needs.build.outputs.os == 'windows' && 'electron/dist/${{ inputs.app-name }}.zip'
+           }}
 
       - name: Create Release
         id: create_release
