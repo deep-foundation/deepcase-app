@@ -415,7 +415,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: Android
-          path: electron/dist
+          path: android/app/build/outputs/apk/release
       - name: upload linux artifact
         uses: actions/upload-release-asset@v1
         env:
