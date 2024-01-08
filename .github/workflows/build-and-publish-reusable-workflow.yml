@@ -346,7 +346,7 @@ jobs:
     - name: Upload APK
       uses: actions/upload-artifact@v3
       with:
-        name: ${{inputs.app-name}}-android.apk
+        name: Android
         path: android/app/build/outputs/apk/release/app-release-unsigned.apk
   # ios:
   #   name: iOS
@@ -411,6 +411,10 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: Mac
+          path: electron/dist
+      - uses: actions/download-artifact@v3
+        with:
+          name: Android
           path: electron/dist
       - name: upload linux artifact
         uses: actions/upload-release-asset@v1
