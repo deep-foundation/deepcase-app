@@ -142,7 +142,7 @@ jobs:
         run: npm run build
 
       - name: Set Artifact Path
-        id: set_path
+        id: set-path
         run: |
           if [[ "${{ matrix.os }}" == "android" ]]; then
             echo "artifact-path=android/app/build/outputs/apk/release/app-release-unsigned.apk" >> "$GITHUB_OUTPUT"
@@ -162,7 +162,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}
-          path: ${{ steps.set_path.outputs.stdout }} 
+          path: ${{ steps.set-path.outputs.artifact-path }} 
           if-no-files-found: error
   release:
     needs:
