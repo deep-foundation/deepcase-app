@@ -123,6 +123,15 @@ jobs:
         with:
           node-version: 18
 
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Install dependencies
         run: npm clean-install
 
@@ -187,7 +196,7 @@ jobs:
         with:
           name: android
           path: android/app/build/outputs/apk/release/app-release-unsigned.apk
-          
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
