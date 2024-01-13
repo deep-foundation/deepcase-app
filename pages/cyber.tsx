@@ -24,6 +24,9 @@ import SigningClientProvider from '@deep-foundation/deeplinks/imports/cyber/sign
 import SdkQueryClientProvider from '@deep-foundation/deeplinks/imports/cyber/queryClient'
 import NetworksProvider from '@deep-foundation/deeplinks/imports/cyber/network'
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@deep-foundation/deeplinks/imports/cyber/queryClient';
+import { useSigningClient } from '@deep-foundation/deeplinks/imports/cyber/signerClient';
+
 
 const { publicRuntimeConfig } = getConfig();
 
@@ -117,6 +120,77 @@ export function Content({
   </React.Fragment>);
 };
 
+function Component() {
+  const queryClient = useQueryClient();
+
+
+  // const address = useAppSelector(selectCurrentAddress);
+
+  const { signer, signingClient } = useSigningClient();
+
+  async function cyberlink() {
+    const gas_limit = (await import('@deep-foundation/deeplinks/imports/cyber/config')).DEFAULT_GAS_LIMITS
+
+    const fee = {
+      amount: [],
+      gas: gas_limit.toString(),
+    };
+
+    if (
+      !queryClient ||
+      // !address ||
+      !signer ||
+      !signingClient
+    ) {
+      return;
+    }
+
+    const [{ address: signerAddress }] = await signer.getAccounts();
+
+    // if (signerAddress !== address) {
+    //   // setError('Signer address is not equal to current account');
+    //   return;
+    // }
+
+    try {
+      // setLoading(true);
+      let fromCid = "QmRxJHAVvhxGNVwK4SatRz3UrG3cQdEQdF8MgayXAEQCiY"
+
+      let toCid = "QmRX8qYgeZoYM3M5zzQaWEpVFdpin6FvVXvp6RPQK3oufV"
+
+      const result = await signingClient.cyberlink(
+        signerAddress,
+        // address,
+        fromCid,
+        toCid,
+        fee
+      );
+
+      // if (result.code !== 0) {
+      //   throw new Error(result.rawLog);
+      // }
+
+    } catch (error) {
+      // better use code of error
+      if (error.message === 'Request rejected') {
+        return;
+      }
+
+      console.error(error);
+      // setError(error.message);
+    } finally {
+      // setLoading(false);
+    }
+  }
+
+  return (<Button
+  // disabled={!queryClient}
+  onClick={cyberlink}
+>CYBER ~ DEEP cyberlink
+  {/* {isIpfsInitialized ? 'cyberlink' : 'node is loading...'} */}
+</Button>)
+}
+
 export default function Page({
   serverUrl,
   deeplinksUrl,
@@ -195,6 +269,7 @@ export default function Page({
                     </>}>
                       <AutoGuest>
                         <Box>Cyber</Box>
+                        <Component></Component>
                       </AutoGuest>
                     </CatchErrors>
                   ] : []}
