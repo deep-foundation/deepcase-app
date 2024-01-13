@@ -1,5 +1,5 @@
 
-import { Link, useMinilinksConstruct, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
+import { Id, Link, useMinilinksConstruct, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
 import { DeepProvider } from '@deep-foundation/deeplinks/imports/client';
 import { useCallback } from 'react';
 import { ColorModeSwitcher } from '@deep-foundation/deepcase/imports/color-mode-toggle';
@@ -95,7 +95,7 @@ export default function Page() {
   const spaceId = 234;
   const minilinks = useMinilinksConstruct();
   const { ref: mlRef, ml } = minilinks;
-  const links: Link<number>[] = useMinilinksFilter(
+  const links: Link<Id>[] = useMinilinksFilter(
     ml,
     useCallback((l) => true, []),
     useCallback((l, ml) => [...ml.links], []),

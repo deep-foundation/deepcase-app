@@ -62,7 +62,7 @@ export function Content({
     })();
   }, []);
 
-  const links: Link<number>[] = useMinilinksFilter(
+  const links: Link[] = useMinilinksFilter(
     deep.minilinks,
     useCallback((l) => true, []),
     useCallback((l, ml) => {
