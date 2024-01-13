@@ -170,6 +170,9 @@ function Component() {
       //   throw new Error(result.rawLog);
       // }
 
+      // const answer = queryClient.search("QmRxJHAVvhxGNVwK4SatRz3UrG3cQdEQdF8MgayXAEQCiY")
+      // console.log("answer", answer)
+
     } catch (error) {
       // better use code of error
       if (error.message === 'Request rejected') {
