@@ -524,6 +524,87 @@ export const GetContractBalance = () => {
   )
 }
 
+export const MintContractNft = () => {
+  const [nftAddress, setNftAddress] = useState<string>('');
+  const [ownerAddress, setOwnerAddress] = useState<any>('');
+  const [tokenId, setTokenId] = useState<any>('');
+  const [mintContractNftResult, setMintContractNftResult] = useState<any>('');
+
+  const { signer, signingClient } = useSigningClient();
+
+  async function mintContractNft({nftAddress, ownerAddress, tokenId}: {nftAddress: string, ownerAddress: string, tokenId: string}) {
+    const gas_limit = (await import('@deep-foundation/deeplinks/imports/cyber/config')).DEFAULT_GAS_LIMITS
+
+    const fee = {
+      amount: [],
+      gas: gas_limit.toString(),
+    };
+
+    if (
+      // !queryClient ||
+      // !address ||
+      !signer ||
+      !signingClient
+    ) {
+      return;
+    }
+
+    const [{ address: signerAddress }] = await signer.getAccounts();
+
+    // if (signerAddress !== address) {
+    //   // setError('Signer address is not equal to current account');
+    //   return;
+    // }
+
+    try {
+      // setLoading(true);
+      // let fromCid = "QmRxJHAVvhxGNVwK4SatRz3UrG3cQdEQdF8MgayXAEQCiY"
+
+      // let toCid = "QmRX8qYgeZoYM3M5zzQaWEpVFdpin6FvVXvp6RPQK3oufV"
+
+      // const amounts = [amount]
+
+      const msg = {
+        mint: {
+          token_id: tokenId,
+          owner: ownerAddress
+        }
+      }
+      const result = await signingClient.execute(
+        signerAddress,
+        nftAddress,
+        msg,
+        fee
+      );
+      setMintContractNftResult(result);
+
+      // if (result.code !== 0) {
+      //   throw new Error(result.rawLog);
+      // }
+
+
+    } catch (error) {
+      // better use code of error
+      if (error.message === 'Request rejected') {
+        return;
+      }
+
+      console.error(error);
+      // setError(error.message);
+    } finally {
+      // setLoading(false);
+    }
+  }
+
+  return (<Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
+    <Text mb={3}>Mint NFT</Text>
+    <Input placeholder="NFT address" value={nftAddress} onChange={(e) => {setNftAddress(e.target.value)}} mb={3}/>
+    <Input placeholder="Owner address" value={ownerAddress} onChange={(e) => {setOwnerAddress(e.target.value)}} mb={3}/>
+    <Input placeholder="Token id" value={tokenId} onChange={(e) => {setTokenId(e.target.value)}} mb={3}/>
+    <Button onClick={() => mintContractNft({nftAddress, ownerAddress, tokenId})}>Mint NFT</Button>
+  </Box>)
+}
+
 export default function Page({
   serverUrl,
   deeplinksUrl,
@@ -618,6 +699,8 @@ export default function Page({
                         <SendContractToken />
                         <br />
                         <GetContractBalance />
+                        <br />
+                        <MintContractNft />
                         <br />
                       </AutoGuest>
                     </CatchErrors>
