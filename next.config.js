@@ -2,6 +2,7 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 import nextEnv from 'next-env';
 import dotenvLoad from 'dotenv-load';
+const WorkerUrlPlugin = require('worker-url/plugin');
 
 dotenvLoad();
  
@@ -14,6 +15,7 @@ const DEEPLINKS_URL = DOCKER ? 'http://host.docker.internal:3006' : 'http://loca
 export default withNextEnv({
   distDir: 'app',
   webpack5: true,
+  allowImportingTsExtensions: true,
   future: { webpack5: true },
   strictMode: false,
   async headers() {
@@ -42,12 +44,15 @@ export default withNextEnv({
   },
   webpack: (config) => {
     // Exclude .tsx and .ts files
-    const excludePattern = /\.tsx?$/;
-    config.module.rules.push({
-      test: excludePattern,
-      use: [],
-    });
-    config.resolve.extensions = config.resolve.extensions.filter(item => !excludePattern.test(item));
+    // const excludePattern = /\.tsx?$/;
+    // config.module.rules.push({
+    //   test: excludePattern,
+    //   use: [],
+    // });
+    // config.resolve.extensions = config.resolve.extensions.filter(item => !excludePattern.test(item));
+
+    console.log(config.resolve.extensions);
+    console.log(config.output.publicPath);
 
     config.module.rules.push({
       test: /\.cozo$/,
@@ -67,6 +72,13 @@ export default withNextEnv({
       "stream": false,
       "crypto": false,
     };
+
+    // console.log(config.plugins);
+
+    config.plugins.push(
+      new WorkerUrlPlugin(),
+    );
+
     return config;
   },
 });

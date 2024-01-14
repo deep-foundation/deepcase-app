@@ -1,6 +1,6 @@
 
 import { DeepProvider, useDeep } from '@deep-foundation/deeplinks/imports/client';
-import { Link, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
+import { Id, Link, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
 import dynamic from "next/dynamic";
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { AutoGuest } from '@deep-foundation/deepcase/imports/auto-guest';
@@ -62,7 +62,7 @@ export function Content({
     })();
   }, []);
 
-  const links: Link[] = useMinilinksFilter(
+  const links: Link<Id>[] = useMinilinksFilter(
     deep.minilinks,
     useCallback((l) => true, []),
     useCallback((l, ml) => {
