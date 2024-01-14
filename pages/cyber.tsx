@@ -727,11 +727,11 @@ export const GetContractBalanceNft = () => {
     setOwner(signerAddress);
   }
 
-  // useEffect(() => {
-  //   if (signer) {
-  //     getMyAddress();
-  //   }
-  // }, [signer])
+  useEffect(() => {
+    if (signer) {
+      getMyAddress();
+    }
+  }, [signer])
 
   return (
     <Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
