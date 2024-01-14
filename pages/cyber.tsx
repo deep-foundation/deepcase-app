@@ -246,6 +246,21 @@ export const GetTransaction = () => {
   </Box>)
 }
 
+export const GetBalance = () => {
+  const queryClient = useQueryClient();
+  const [address, setAddress] = useState<string>("");
+  const [balanceResult, setBalanceResult] = useState<any>("");
+  const getBalance = async (addressQuery) => {
+    const response = await queryClient.getAllBalances(addressQuery)
+    setBalanceResult(response);
+  }
+  return (<Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
+    <Text mb={3}>Get Balance</Text>
+    <Input placeholder="Search" value={address} onChange={(e) => {setAddress(e.target.value)}} mb={3}/>
+    <Button onClick={() => {getBalance(address)}} mb={3}>Get Balance</Button>
+    <Box>{JSON.stringify(balanceResult)}</Box>
+  </Box>)
+}
 
 export default function Page({
   serverUrl,
@@ -333,6 +348,8 @@ export default function Page({
                         <GetBlock />
                         <br />
                         <GetTransaction />
+                        <br />
+                        <GetBalance />
                       </AutoGuest>
                     </CatchErrors>
                   ] : []}
