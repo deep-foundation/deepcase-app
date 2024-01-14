@@ -467,6 +467,62 @@ export const SendContractToken = () => {
   )
 }
 
+export const GetContractBalance = () => {
+  const [address, setAddress] = useState<string>('');
+  const [contractAddress, setContractAddress] = useState<string>('');
+  const [balanceContractResult, setBalanceContractResult] = useState<any>('');
+
+  const queryClient = useQueryClient();
+
+
+  // const address = useAppSelector(selectCurrentAddress);
+
+  const { signer, signingClient } = useSigningClient();
+
+  async function getContractBalance({address, contractAddress}: {address: string, contractAddress: string}) {
+
+    try {
+      const result = await queryClient.queryContractSmart(contractAddress, {
+        balance: {
+          address
+        }
+      })
+      setBalanceContractResult(result);
+
+    } catch (error) {
+      // better use code of error
+      if (error.message === 'Request rejected') {
+        return;
+      }
+
+      console.error(error);
+      // setError(error.message);
+    } finally {
+      // setLoading(false);
+    }
+  }
+
+  const getMyAddress = async () => {
+    const [{ address: signerAddress }] = await signer.getAccounts();
+    setAddress(signerAddress);
+  }
+
+  useEffect(() => {
+    if (signer) {
+      getMyAddress();
+    }
+  }, [signer])
+
+  return (
+    <Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
+      <Text mb={3}>Get contract balance</Text>
+      <Input value={address} mb={3} placeholder='Address' />
+      <Input value={contractAddress} onChange={(e) => {setContractAddress((e.target.value).toLowerCase())}} mb={3} placeholder='Token address'/>
+      <Button onClick={() => {getContractBalance({address, contractAddress})}}>Get contract balance</Button>
+      <Box>{JSON.stringify(balanceContractResult)}</Box>
+    </Box>
+  )
+}
 
 export default function Page({
   serverUrl,
@@ -560,6 +616,9 @@ export default function Page({
                         <SendToken />
                         <br />
                         <SendContractToken />
+                        <br />
+                        <GetContractBalance />
+                        <br />
                       </AutoGuest>
                     </CatchErrors>
                   ] : []}
