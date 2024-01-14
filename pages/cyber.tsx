@@ -190,6 +190,7 @@ export const InsertCyberLink = () => {
 
   return (
     <Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
+      <Text mb={3}>Insert Cyberlink</Text>
       <Input value={from} onChange={(e) => {setFrom(e.target.value)}} mb={3} placeholder='From'/>
       <Input value={to} onChange={(e) => {setTo(e.target.value)}} mb={3} placeholder='To'/>
       <Button onClick={() => {cyberlink(from, to)}}>CYBER ~ DEEP cyberlink</Button>
@@ -202,13 +203,30 @@ export const CyberSearch = () => {
   const [search, setSearch] = useState<string>('');
   const [searchResult, setSearchResult] = useState<any>("");
   const toSearch = async (searchQuery) => {
-    const answer = await queryClient.search(searchQuery)
-    setSearchResult(answer);
+    const response = await queryClient.search(searchQuery)
+    setSearchResult(response);
   }
   return (<Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
+    <Text mb={3}>Search</Text>
     <Input placeholder="Search" value={search} onChange={(e) => {setSearch(e.target.value)}} mb={3}/>
     <Button onClick={() => {toSearch(search)}} mb={3}>Search</Button>
     <Box>{JSON.stringify(searchResult)}</Box>
+  </Box>)
+}
+
+export const GetBlock = () => {
+  const queryClient = useQueryClient();
+  const [blockNumber, setBlockNumber] = useState<any>("");
+  const [blockInfoResult, setBlockInfoResult] = useState<any>("");
+  const findBlock = async (blockNumberQuery) => {
+    const response = await queryClient.getBlock(blockNumberQuery)
+    setBlockInfoResult(response);
+  }
+  return (<Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
+    <Text mb={3}>Get Block</Text>
+    <Input placeholder="Search" value={blockNumber} onChange={(e) => {setBlockNumber(e.target.value)}} mb={3}/>
+    <Button onClick={() => {findBlock(+blockNumber)}} mb={3}>Search</Button>
+    <Box>{JSON.stringify(blockInfoResult)}</Box>
   </Box>)
 }
 
@@ -294,6 +312,9 @@ export default function Page({
                         <InsertCyberLink />
                         <br />
                         <CyberSearch />
+                        <br />
+                        <GetBlock />
+                        <br />
                       </AutoGuest>
                     </CatchErrors>
                   ] : []}
