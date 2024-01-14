@@ -271,6 +271,7 @@ export const SendToken = () => {
   const [toAddress, setToAddress] = useState<string>('');
   const [amount, setAmount] = useState<string>('');
   const [denom, setDenom] = useState<string>('');
+  const [sendTokensResult, setSendTokensResult] = useState<any>('');
 
   // const queryClient = useQueryClient();
 
@@ -320,6 +321,7 @@ export const SendToken = () => {
         [coin],
         fee
       );
+      setSendTokensResult(result);
 
       // if (result.code !== 0) {
       //   throw new Error(result.rawLog);
@@ -358,9 +360,113 @@ export const SendToken = () => {
       <Input value={amount} onChange={(e) => {setAmount(e.target.value)}} mb={3} placeholder='Amount'/>
       <Input value={denom} onChange={(e) => {setDenom((e.target.value).toLowerCase())}} mb={3} placeholder='Token'/>
       <Button onClick={() => {sendTokens({toAddress, amount, denom})}}>Send tokens</Button>
+      <Box>{JSON.stringify(sendTokensResult)}</Box>
     </Box>
   )
 }
+
+export const SendContractToken = () => {
+  const [fromAddress, setFromAddress] = useState<string>('');
+  const [toAddress, setToAddress] = useState<string>('');
+  const [amount, setAmount] = useState<string>('');
+  const [contractAddress, setContractAddress] = useState<string>('');
+  const [sendContractTokensResult, setSendContractTokensResult] = useState<any>('');
+
+  // const queryClient = useQueryClient();
+
+
+  // const address = useAppSelector(selectCurrentAddress);
+
+  const { signer, signingClient } = useSigningClient();
+
+  async function sendContractTokens({toAddress, amount, contractAddress}: {toAddress: string, amount: string, contractAddress: string}) {
+    const gas_limit = (await import('@deep-foundation/deeplinks/imports/cyber/config')).DEFAULT_GAS_LIMITS
+
+    const fee = {
+      amount: [],
+      gas: gas_limit.toString(),
+    };
+
+    if (
+      // !queryClient ||
+      // !address ||
+      !signer ||
+      !signingClient
+    ) {
+      return;
+    }
+
+    const [{ address: signerAddress }] = await signer.getAccounts();
+
+    // if (signerAddress !== address) {
+    //   // setError('Signer address is not equal to current account');
+    //   return;
+    // }
+
+    try {
+      // setLoading(true);
+      // let fromCid = "QmRxJHAVvhxGNVwK4SatRz3UrG3cQdEQdF8MgayXAEQCiY"
+
+      // let toCid = "QmRX8qYgeZoYM3M5zzQaWEpVFdpin6FvVXvp6RPQK3oufV"
+
+      // const amounts = [amount]
+
+      const msg = {
+        transfer: {
+          recipient: toAddress,
+          amount
+        }
+      }
+      const result = await signingClient.execute(
+        signerAddress,
+        contractAddress,
+        msg,
+        fee
+      );
+      setSendContractTokensResult(result);
+
+      // if (result.code !== 0) {
+      //   throw new Error(result.rawLog);
+      // }
+
+
+    } catch (error) {
+      // better use code of error
+      if (error.message === 'Request rejected') {
+        return;
+      }
+
+      console.error(error);
+      // setError(error.message);
+    } finally {
+      // setLoading(false);
+    }
+  }
+
+  const getMyAddress = async () => {
+    const [{ address: signerAddress }] = await signer.getAccounts();
+    setFromAddress(signerAddress);
+  }
+
+  useEffect(() => {
+    if (signer) {
+      getMyAddress();
+    }
+  }, [signer])
+
+  return (
+    <Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
+      <Text mb={3}>Send contranct tokens</Text>
+      <Input value={fromAddress} mb={3} placeholder='From' disabled={true} />
+      <Input value={toAddress} onChange={(e) => {setToAddress(e.target.value)}} mb={3} placeholder='To'/>
+      <Input value={amount} onChange={(e) => {setAmount(e.target.value)}} mb={3} placeholder='Amount'/>
+      <Input value={contractAddress} onChange={(e) => {setContractAddress((e.target.value).toLowerCase())}} mb={3} placeholder='Token address'/>
+      <Button onClick={() => {sendContractTokens({toAddress, amount, contractAddress})}}>Send contract tokens</Button>
+      <Box>{JSON.stringify(sendContractTokensResult)}</Box>
+    </Box>
+  )
+}
+
 
 export default function Page({
   serverUrl,
@@ -453,6 +559,7 @@ export default function Page({
                         <br />
                         <SendToken />
                         <br />
+                        <SendContractToken />
                       </AutoGuest>
                     </CatchErrors>
                   ] : []}
