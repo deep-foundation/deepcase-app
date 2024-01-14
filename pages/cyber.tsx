@@ -26,6 +26,7 @@ import NetworksProvider from '@deep-foundation/deeplinks/imports/cyber/network'
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { useQueryClient } from '@deep-foundation/deeplinks/imports/cyber/queryClient';
 import { useSigningClient } from '@deep-foundation/deeplinks/imports/cyber/signerClient';
+import { useBackend } from '@deep-foundation/deeplinks/imports/cyber/backend';
 
 export interface Coin {
   denom: string;
@@ -742,6 +743,14 @@ export const GetContractBalanceNft = () => {
       <Box>{JSON.stringify(balanceContractNftResult)}</Box>
     </Box>
   )
+}
+
+export const ipfsNode = async () => {
+  const { isIpfsInitialized, ipfsNode } = useBackend();
+  return (<Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
+    <Text>IPFS Node</Text>
+    <Box>{JSON.stringify({ isIpfsInitialized, ipfsNode })}</Box>
+  </Box>)
 }
 
 export default function Page({
