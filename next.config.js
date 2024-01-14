@@ -49,6 +49,11 @@ export default withNextEnv({
     });
     config.resolve.extensions = config.resolve.extensions.filter(item => !excludePattern.test(item));
 
+    config.module.rules.push({
+      test: /\.cozo$/,
+      use: 'raw-loader',
+    });
+
     config.resolve.fallback = {
       "buffer": require.resolve('buffer/'),
       "os": false,
