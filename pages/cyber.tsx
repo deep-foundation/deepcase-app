@@ -225,10 +225,27 @@ export const GetBlock = () => {
   return (<Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
     <Text mb={3}>Get Block</Text>
     <Input placeholder="Search" value={blockNumber} onChange={(e) => {setBlockNumber(e.target.value)}} mb={3}/>
-    <Button onClick={() => {findBlock(+blockNumber)}} mb={3}>Search</Button>
+    <Button onClick={() => {findBlock(+blockNumber)}} mb={3}>Search block</Button>
     <Box>{JSON.stringify(blockInfoResult)}</Box>
   </Box>)
 }
+
+export const GetTransaction = () => {
+  const queryClient = useQueryClient();
+  const [transactionHash, setTransactionHash] = useState<string>("");
+  const [transactionInfoResult, setTransactionInfoResult] = useState<any>("");
+  const findTransaction = async (transactionHashQuery) => {
+    const response = await queryClient.getTx(transactionHashQuery)
+    setTransactionInfoResult(response);
+  }
+  return (<Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
+    <Text mb={3}>Get Transaction</Text>
+    <Input placeholder="Search" value={transactionHash} onChange={(e) => {setTransactionHash(e.target.value)}} mb={3}/>
+    <Button onClick={() => {findTransaction(transactionHash)}} mb={3}>Search tx</Button>
+    <Box>{JSON.stringify(transactionInfoResult)}</Box>
+  </Box>)
+}
+
 
 export default function Page({
   serverUrl,
@@ -315,6 +332,7 @@ export default function Page({
                         <br />
                         <GetBlock />
                         <br />
+                        <GetTransaction />
                       </AutoGuest>
                     </CatchErrors>
                   ] : []}
