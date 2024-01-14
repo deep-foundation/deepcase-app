@@ -27,6 +27,10 @@ import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { useQueryClient } from '@deep-foundation/deeplinks/imports/cyber/queryClient';
 import { useSigningClient } from '@deep-foundation/deeplinks/imports/cyber/signerClient';
 
+export interface Coin {
+  denom: string;
+  amount: string;
+}
 
 const { publicRuntimeConfig } = getConfig();
 
@@ -262,6 +266,102 @@ export const GetBalance = () => {
   </Box>)
 }
 
+export const SendToken = () => {
+  const [fromAddress, setFromAddress] = useState<string>('');
+  const [toAddress, setToAddress] = useState<string>('');
+  const [amount, setAmount] = useState<string>('');
+  const [denom, setDenom] = useState<string>('');
+
+  // const queryClient = useQueryClient();
+
+
+  // const address = useAppSelector(selectCurrentAddress);
+
+  const { signer, signingClient } = useSigningClient();
+
+  async function sendTokens({toAddress, amount, denom}: {toAddress: string, amount: string, denom: string}) {
+    const gas_limit = (await import('@deep-foundation/deeplinks/imports/cyber/config')).DEFAULT_GAS_LIMITS
+
+    const fee = {
+      amount: [],
+      gas: gas_limit.toString(),
+    };
+
+    if (
+      // !queryClient ||
+      // !address ||
+      !signer ||
+      !signingClient
+    ) {
+      return;
+    }
+
+    const [{ address: signerAddress }] = await signer.getAccounts();
+
+    // if (signerAddress !== address) {
+    //   // setError('Signer address is not equal to current account');
+    //   return;
+    // }
+
+    try {
+      // setLoading(true);
+      // let fromCid = "QmRxJHAVvhxGNVwK4SatRz3UrG3cQdEQdF8MgayXAEQCiY"
+
+      // let toCid = "QmRX8qYgeZoYM3M5zzQaWEpVFdpin6FvVXvp6RPQK3oufV"
+
+      const coin: Coin = {
+        denom,
+        amount
+      }
+      const amounts = [amount]
+      const result = await signingClient.sendTokens(
+        signerAddress,
+        toAddress,
+        [coin],
+        fee
+      );
+
+      // if (result.code !== 0) {
+      //   throw new Error(result.rawLog);
+      // }
+
+
+    } catch (error) {
+      // better use code of error
+      if (error.message === 'Request rejected') {
+        return;
+      }
+
+      console.error(error);
+      // setError(error.message);
+    } finally {
+      // setLoading(false);
+    }
+  }
+
+  const getMyAddress = async () => {
+    const [{ address: signerAddress }] = await signer.getAccounts();
+    setFromAddress(signerAddress);
+  }
+
+  useEffect(() => {
+    if (signer) {
+      getMyAddress();
+    }
+  }, [signer])
+
+  return (
+    <Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
+      <Text mb={3}>Send tokens</Text>
+      <Input value={fromAddress} mb={3} placeholder='From' disabled={true} />
+      <Input value={toAddress} onChange={(e) => {setToAddress(e.target.value)}} mb={3} placeholder='To'/>
+      <Input value={amount} onChange={(e) => {setAmount(e.target.value)}} mb={3} placeholder='Amount'/>
+      <Input value={denom} onChange={(e) => {setDenom((e.target.value).toLowerCase())}} mb={3} placeholder='Token'/>
+      <Button onClick={() => {sendTokens({toAddress, amount, denom})}}>Send tokens</Button>
+    </Box>
+  )
+}
+
 export default function Page({
   serverUrl,
   deeplinksUrl,
@@ -350,6 +450,9 @@ export default function Page({
                         <GetTransaction />
                         <br />
                         <GetBalance />
+                        <br />
+                        <SendToken />
+                        <br />
                       </AutoGuest>
                     </CatchErrors>
                   ] : []}
