@@ -69,6 +69,7 @@ export function Content({
     })();
   }, []);
 
+  // @ts-ignore
   const links: Link[] = useMinilinksFilter(
     deep.minilinks,
     useCallback((l) => true, []),
@@ -124,7 +125,7 @@ export const InsertCyberLink = () => {
   const [from, setFrom] = useState<string>('');
   const [to, setTo] = useState<string>('');
 
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
 
 
   // const address = useAppSelector(selectCurrentAddress);
@@ -140,7 +141,7 @@ export const InsertCyberLink = () => {
     };
 
     if (
-      !queryClient ||
+      // !queryClient ||
       // !address ||
       !signer ||
       !signingClient
@@ -173,8 +174,6 @@ export const InsertCyberLink = () => {
       //   throw new Error(result.rawLog);
       // }
 
-      // const answer = queryClient.search("QmRxJHAVvhxGNVwK4SatRz3UrG3cQdEQdF8MgayXAEQCiY")
-      // console.log("answer", answer)
 
     } catch (error) {
       // better use code of error
@@ -190,12 +189,27 @@ export const InsertCyberLink = () => {
   }
 
   return (
-    <Box w={320}>
+    <Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
       <Input value={from} onChange={(e) => {setFrom(e.target.value)}} mb={3} placeholder='From'/>
       <Input value={to} onChange={(e) => {setTo(e.target.value)}} mb={3} placeholder='To'/>
       <Button onClick={() => {cyberlink(from, to)}}>CYBER ~ DEEP cyberlink</Button>
     </Box>
   )
+}
+
+export const CyberSearch = () => {
+  const queryClient = useQueryClient();
+  const [search, setSearch] = useState<string>('');
+  const [searchResult, setSearchResult] = useState<any>("");
+  const toSearch = async (searchQuery) => {
+    const answer = await queryClient.search(searchQuery)
+    setSearchResult(answer);
+  }
+  return (<Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
+    <Input placeholder="Search" value={search} onChange={(e) => {setSearch(e.target.value)}} mb={3}/>
+    <Button onClick={() => {toSearch(search)}} mb={3}>Search</Button>
+    <Box>{JSON.stringify(searchResult)}</Box>
+  </Box>)
 }
 
 export default function Page({
@@ -276,7 +290,10 @@ export default function Page({
                     </>}>
                       <AutoGuest>
                         <Box>Cyber</Box>
+                        <br />
                         <InsertCyberLink />
+                        <br />
+                        <CyberSearch />
                       </AutoGuest>
                     </CatchErrors>
                   ] : []}
