@@ -16,7 +16,7 @@ import { Connector, parseUrl } from '@deep-foundation/deepcase/imports/connector
 import { PackagerInterface } from '@deep-foundation/deepcase/imports/packager-interface/packager-interface';
 import getConfig from 'next/config'
 import { CatchErrors } from '@deep-foundation/deepcase/imports/react-errors';
-import { Box, Button, Text } from '@chakra-ui/react';
+import { Box, Button, Text, Input } from '@chakra-ui/react';
 import pckg from '../package.json';
 import dpckg from '@deep-foundation/deepcase/package.json';
 import { CytoEditor } from '@deep-foundation/deepcase/imports/cyto/editor';
@@ -120,7 +120,10 @@ export function Content({
   </React.Fragment>);
 };
 
-function Component() {
+export const InsertCyberLink = () => {
+  const [from, setFrom] = useState<string>('');
+  const [to, setTo] = useState<string>('');
+
   const queryClient = useQueryClient();
 
 
@@ -128,7 +131,7 @@ function Component() {
 
   const { signer, signingClient } = useSigningClient();
 
-  async function cyberlink() {
+  async function cyberlink(fromCid, toCid) {
     const gas_limit = (await import('@deep-foundation/deeplinks/imports/cyber/config')).DEFAULT_GAS_LIMITS
 
     const fee = {
@@ -154,9 +157,9 @@ function Component() {
 
     try {
       // setLoading(true);
-      let fromCid = "QmRxJHAVvhxGNVwK4SatRz3UrG3cQdEQdF8MgayXAEQCiY"
+      // let fromCid = "QmRxJHAVvhxGNVwK4SatRz3UrG3cQdEQdF8MgayXAEQCiY"
 
-      let toCid = "QmRX8qYgeZoYM3M5zzQaWEpVFdpin6FvVXvp6RPQK3oufV"
+      // let toCid = "QmRX8qYgeZoYM3M5zzQaWEpVFdpin6FvVXvp6RPQK3oufV"
 
       const result = await signingClient.cyberlink(
         signerAddress,
@@ -186,12 +189,13 @@ function Component() {
     }
   }
 
-  return (<Button
-  // disabled={!queryClient}
-  onClick={cyberlink}
->CYBER ~ DEEP cyberlink
-  {/* {isIpfsInitialized ? 'cyberlink' : 'node is loading...'} */}
-</Button>)
+  return (
+    <Box w={320}>
+      <Input value={from} onChange={(e) => {setFrom(e.target.value)}} mb={3} placeholder='From'/>
+      <Input value={to} onChange={(e) => {setTo(e.target.value)}} mb={3} placeholder='To'/>
+      <Button onClick={() => {cyberlink(from, to)}}>CYBER ~ DEEP cyberlink</Button>
+    </Box>
+  )
 }
 
 export default function Page({
@@ -272,7 +276,7 @@ export default function Page({
                     </>}>
                       <AutoGuest>
                         <Box>Cyber</Box>
-                        <Component></Component>
+                        <InsertCyberLink />
                       </AutoGuest>
                     </CatchErrors>
                   ] : []}
