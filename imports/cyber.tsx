@@ -26,6 +26,7 @@ import NetworksProvider from '@deep-foundation/deeplinks/imports/cyber/network'
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { useQueryClient } from '@deep-foundation/deeplinks/imports/cyber/queryClient';
 import { useSigningClient } from '@deep-foundation/deeplinks/imports/cyber/signerClient';
+import BackendProvider from '@deep-foundation/deeplinks/imports/cyber/backend';
 import { useBackend } from '@deep-foundation/deeplinks/imports/cyber/backend';
 
 export interface Coin {
@@ -810,29 +811,31 @@ export default function Page({
         <QueryClientProvider client={queryClient}>
           <SdkQueryClientProvider>
             <SigningClientProvider>
-              <Box>Cyber</Box>
-              <br />
-              <InsertCyberLink />
-              <br />
-              <CyberSearch />
-              <br />
-              <GetBlock />
-              <br />
-              <GetTransaction />
-              <br />
-              <GetBalance />
-              <br />
-              <SendToken />
-              <br />
-              <SendContractToken />
-              <br />
-              <GetContractBalance />
-              <br />
-              <MintContractNft />
-              <br />
-              <TransferContractNft />
-              <br />
-              <GetContractBalanceNft />
+              <BackendProvider>
+                <Box>Cyber</Box>
+                <br />
+                <InsertCyberLink />
+                <br />
+                <CyberSearch />
+                <br />
+                <GetBlock />
+                <br />
+                <GetTransaction />
+                <br />
+                <GetBalance />
+                <br />
+                <SendToken />
+                <br />
+                <SendContractToken />
+                <br />
+                <GetContractBalance />
+                <br />
+                <MintContractNft />
+                <br />
+                <TransferContractNft />
+                <br />
+                <GetContractBalanceNft />
+              </BackendProvider>
             </SigningClientProvider>
           </SdkQueryClientProvider>
         </QueryClientProvider>
