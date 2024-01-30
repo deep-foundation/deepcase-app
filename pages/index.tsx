@@ -7,7 +7,7 @@ import { AutoGuest } from '@deep-foundation/deepcase/imports/auto-guest';
 import { ColorModeSwitcher } from '@deep-foundation/deepcase/imports/color-mode-toggle';
 import { Switch } from '@deep-foundation/deepcase/imports/switch-mode';
 import CytoGraph from '@deep-foundation/deepcase/imports/cyto/graph';
-import { AframeGraph } from '@deep-foundation/deepcase/imports/aframe/aframe-graph';
+// import { AframeGraph } from '@deep-foundation/deepcase/imports/aframe/aframe-graph';
 import { useBreadcrumbs, useCytoViewport, useRefAutofill, useShowExtra, useSpaceId, useTraveler } from '@deep-foundation/deepcase/imports/hooks';
 import { DeepLoader } from '@deep-foundation/deepcase/imports/loader';
 import { Provider } from '@deep-foundation/deepcase/imports/provider';
