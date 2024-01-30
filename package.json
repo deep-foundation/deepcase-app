@@ -29,7 +29,7 @@
     "electron": "^13.1.9",
     "fix-path": "^4.0.0",
     "framer-motion": "^10.12.16",
-    "next": "13.3",
+    "next": "14.1",
     "next-env": "^1.1.1",
     "normalize.css": "^8.0.1",
     "react": "^18.2.0",
