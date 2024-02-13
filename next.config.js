@@ -1,3 +1,4 @@
+import webpack from "webpack";
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 import nextEnv from 'next-env';
@@ -14,8 +15,8 @@ const DEEPLINKS_URL = DOCKER ? 'http://host.docker.internal:3006' : 'http://loca
 
 export default withNextEnv({
   distDir: 'app',
-  webpack5: true,
   allowImportingTsExtensions: true,
+  webpack5: true,
   future: { webpack5: true },
   strictMode: false,
   async headers() {
@@ -42,11 +43,12 @@ export default withNextEnv({
       },
     ]
   },
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
     // Exclude .tsx and .ts files
-    // const excludePattern = /\.tsx?$/;
+    // const excludePattern = /\.(ts|tsx)?$/;
     // config.module.rules.push({
     //   test: excludePattern,
+    //   exclude: /node_modules/,
     //   use: [],
     // });
     // config.resolve.extensions = config.resolve.extensions.filter(item => !excludePattern.test(item));
@@ -58,26 +60,58 @@ export default withNextEnv({
       test: /\.cozo$/,
       use: 'raw-loader',
     });
-
-    config.resolve.fallback = {
-      "buffer": require.resolve('buffer/'),
-      "os": false,
-      "fs": false,
-      "tls": false,
-      "net": false,
-      "path": false,
-      "zlib": false,
-      "http": false,
-      "https": false,
-      "stream": false,
-      "crypto": false,
-    };
+    // if (!isServer) {
+      config.resolve.fallback = {
+        "buffer": require.resolve('buffer/'),
+        "os": false,
+        "fs": false,
+        "tls": false,
+        "net": false,
+        "path": false,
+        "zlib": false,
+        "http": false,
+        "https": false,
+        "stream": false,
+        "crypto": false,
+      };
+    // }
+    // config.resolve.fallback = {
+    //   "buffer": require.resolve('buffer/'),
+    //   "fs": require.resolve("browserify-fs"), 
+    //   "util": require.resolve("util"), 
+    //   "http": require.resolve("stream-http"),
+    //   "https": require.resolve("https-browserify"),
+    //   "tls": require.resolve("tls-browserify"),
+    //   "net": require.resolve("net-browserify"),
+    //   "crypto": require.resolve("crypto-browserify"), 
+    //   "path": require.resolve("path-browserify"),
+    //   "os": require.resolve("os-browserify"), 
+    //   "stream": require.resolve("stream-browserify"),
+    //   "zlib": require.resolve("browserify-zlib")
+    // };
 
     // console.log(config.plugins);
 
-    config.plugins.push(
-      new WorkerUrlPlugin(),
-    );
+    // config.plugins.push(
+    //   new webpack.ProvidePlugin({
+    //     process: "process/browser",
+    //     Buffer: ["buffer", "Buffer"],
+    //   }),
+    //   new webpack.NormalModuleReplacementPlugin(/node:/, (resource) => {
+    //     const mod = resource.request.replace(/^node:/, "");
+    //     switch (mod) {
+    //       case "buffer":
+    //         resource.request = "buffer";
+    //         break;
+    //       case "stream":
+    //         resource.request = "readable-stream";
+    //         break;
+    //       default:
+    //         throw new Error(`Not found ${mod}`);
+    //     }
+    //   }),
+    //   // new WorkerUrlPlugin(),
+    // );
 
     return config;
   },

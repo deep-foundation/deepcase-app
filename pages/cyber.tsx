@@ -1,5 +1,8 @@
 import dynamic from "next/dynamic";
 
+// import '../background_worker';
+// import '../db_worker';
+
 // import Page from '../imports/_abc';
 const Page = dynamic(() => import('../imports/cyber'), {
   ssr: false,
@@ -8,5 +11,8 @@ const Page = dynamic(() => import('../imports/cyber'), {
 
 export default function({ ...props }) {
   // @ts-ignore
-  return <Page {...props}/>;
+  const page = <Page {...props}/>;
+  return <>
+    {page}
+  </>;
 }

@@ -28,104 +28,44 @@ import { useQueryClient } from '@deep-foundation/deeplinks/imports/cyber/queryCl
 import { useSigningClient } from '@deep-foundation/deeplinks/imports/cyber/signerClient';
 import BackendProvider from '@deep-foundation/deeplinks/imports/cyber/backend';
 import { useBackend } from '@deep-foundation/deeplinks/imports/cyber/backend';
+import { Provider as ReduxProvider } from 'react-redux';
+import store from '@deep-foundation/deeplinks/imports/cyber/redux/store';
+import { generateCyberDeepClient } from '@deep-foundation/deeplinks/imports/cyber';
+import * as cyberConfig from '@deep-foundation/deeplinks/imports/cyber/config';
 
+console.log(123);
+
+// export default function Page() {
+//   return <div>123</div>;
+// }
+
+// import { WorkerUrl } from 'worker-url';
+
+// import net from 'net';
+// console.log('net', net);
+// import '../background_worker';
+// import '../db_worker';
+
+// const backgroundWorkerInstance = new Worker(new URL('../background_worker.tsx', import.meta.url));
+// const cozoDbWorkerInstance = new Worker(new URL('../db_worker.tsx', import.meta.url));
+
+export function CyberDeepClientGlobal() {
+  useEffect(() => { (async () => {
+    const cyber = cyberConfig.CYBER;
+    console.log(cyber);
+    global.cdc = await generateCyberDeepClient({
+      config: cyberConfig.CYBER,
+    });
+  })();
+  }, []);
+  return null;
+}
 export interface Coin {
   denom: string;
   amount: string;
 }
 
 const { publicRuntimeConfig } = getConfig();
-
-// const CytoGraph = dynamic<CytoGraphProps>(
-//   () => import('@deep-foundation/deepcase/imports/cyto/graph').then((m) => m.default),
-//   { ssr: false }
-// );
-const CytoMenu = dynamic<any>(
-  () => import('@deep-foundation/deepcase/imports/cyto/menu').then((m) => m.CytoMenu),
-  { ssr: false }
-);
-
-export function Content({
-  openPortal,
-  gqlPath,
-  gqlSsl,
-  appVersion,
-}: {
-  openPortal?: () => any;
-  gqlPath: string;
-  gqlSsl: boolean;
-  appVersion: string;
-}) {
-  const cytoViewportRef = useRefstarter<{ pan: { x: number; y: number; }; zoom: number }>();
-  const cyRef = useRef();
-  const [spaceId, setSpaceId] = useSpaceId();
-  const [traveler, setTraveler] = useTraveler();
-  const deep = useDeep();
-  const globalAny: any = global;
-  globalAny.deep = deep;
-  globalAny.ml = deep.minilinks;
-  const [extra, setExtra] = useShowExtra();
-  const [breadcrumbs, setBreadcrumbs] = useBreadcrumbs();
-  const travelerRef = useRefAutofill(traveler);
-
-  const TravelerRef = useRef(0);
-  useEffect(() => {
-    (async () => {
-      TravelerRef.current = await deep.id('@deep-foundation/deepcase', 'Traveler');
-    })();
-  }, []);
-
-  // @ts-ignore
-  const links: Link[] = useMinilinksFilter(
-    deep.minilinks,
-    useCallback((l) => true, []),
-    useCallback((l, ml) => {
-      const Traveler = TravelerRef.current;
-      const traveler = travelerRef.current;
-      let result = (
-        extra
-          ? ml.links
-          : ml.links.filter(l => (
-            !!l._applies.find((a: string) => !!~a.indexOf('query-') || a === 'space' || a === 'breadcrumbs' || a === 'not-loaded-ends')
-          ))
-      )
-      if (Traveler && !traveler) {
-        result = result.filter(l => (
-          !(l.type_id === Traveler) // Traveler
-          &&
-          !(l.type_id === deep.idLocal('@deep-foundation/core', 'Contain') && l?.to?.type_id === Traveler) // Traveler Contain
-          &&
-          !(l.inByType?.[Traveler]?.length) // Traveler Query
-          &&
-          !(l.type_id === deep.idLocal('@deep-foundation/core', 'Contain') && l?.to?.inByType?.[Traveler]?.length) // Traveler Query Contain
-          &&
-          !(l.type_id === deep.idLocal('@deep-foundation/core', 'Active') && l?.to?.inByType?.[Traveler]?.length) // Traveler Query Active
-          &&
-          !(l.type_id === deep.idLocal('@deep-foundation/core', 'Contain') && l?.to?.type_id === deep.idLocal('@deep-foundation/core', 'Active') && l?.to?.to?.inByType?.[Traveler]?.length) // Traveler Query Active Contain
-        ));
-      }
-      return result;
-    }, [deep, extra, breadcrumbs, traveler]),
-    1000,
-  ) || [];
-
-  return (<React.Fragment
-    key={`${spaceId}-${deep.linkId}`}
-  >
-    <DeepLoader
-      spaceId={spaceId}
-    />
-    <CytoGraph gqlPath={gqlPath} gqlSsl={gqlSsl} links={links} cyRef={cyRef} cytoViewportRef={cytoViewportRef} useCytoViewport={useCytoViewport}>
-      <CytoEditor />
-      <Text position="fixed" left={0} bottom={0} p={4}>
-        {appVersion} ({dpckg.version})
-      </Text>
-    </CytoGraph>
-    <CytoMenu gqlPath={gqlPath} gqlSsl={gqlSsl} cyRef={cyRef} cytoViewportRef={cytoViewportRef} openPortal={openPortal} />
-    <Switch />
-    <PackagerInterface />
-  </React.Fragment>);
-};
 
 export const InsertCyberLink = () => {
   const [from, setFrom] = useState<string>('');
@@ -807,39 +747,45 @@ export default function Page({
 
   return (<>
     {[
-      <NetworksProvider>
-        <QueryClientProvider client={queryClient}>
-          <SdkQueryClientProvider>
-            <SigningClientProvider>
-              <BackendProvider>
-                <Box>Cyber</Box>
-                <br />
-                <InsertCyberLink />
-                <br />
-                <CyberSearch />
-                <br />
-                <GetBlock />
-                <br />
-                <GetTransaction />
-                <br />
-                <GetBalance />
-                <br />
-                <SendToken />
-                <br />
-                <SendContractToken />
-                <br />
-                <GetContractBalance />
-                <br />
-                <MintContractNft />
-                <br />
-                <TransferContractNft />
-                <br />
-                <GetContractBalanceNft />
-              </BackendProvider>
-            </SigningClientProvider>
-          </SdkQueryClientProvider>
-        </QueryClientProvider>
-      </NetworksProvider>
+      <ReduxProvider store={store}>
+        <NetworksProvider>
+          <QueryClientProvider client={queryClient}>
+            <SdkQueryClientProvider>
+              <SigningClientProvider>
+                {/* <BackendProvider
+                  backgroundWorkerInstance={backgroundWorkerInstance}
+                  cozoDbWorkerInstance={cozoDbWorkerInstance}
+                > */}
+                  <CyberDeepClientGlobal/>
+                  <Box>Cyber</Box>
+                  <br />
+                  <InsertCyberLink />
+                  <br />
+                  <CyberSearch />
+                  <br />
+                  <GetBlock />
+                  <br />
+                  <GetTransaction />
+                  <br />
+                  <GetBalance />
+                  <br />
+                  <SendToken />
+                  <br />
+                  <SendContractToken />
+                  <br />
+                  <GetContractBalance />
+                  <br />
+                  <MintContractNft />
+                  <br />
+                  <TransferContractNft />
+                  <br />
+                  <GetContractBalanceNft />
+                {/* </BackendProvider> */}
+              </SigningClientProvider>
+            </SdkQueryClientProvider>
+          </QueryClientProvider>
+        </NetworksProvider>
+      </ReduxProvider>
     ]}
   </>);
 }
