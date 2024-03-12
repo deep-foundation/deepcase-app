@@ -72,7 +72,7 @@ export function Content({
         extra
           ? ml.links
           : ml.links.filter(l => (
-            !!l._applies.find((a: string) => !!~a.indexOf('query-') || a === 'space' || a === 'breadcrumbs' || a === 'not-loaded-ends')
+            !!l._applies.find((a: string) => !!~a.indexOf('query-') || a === 'space' || a === 'breadcrumbs' || a === 'not-loaded-ends') || l.id < 0
           ))
       )
       if (Traveler && !traveler) {
