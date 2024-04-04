@@ -4,9 +4,10 @@ const require = createRequire(import.meta.url);
 import nextEnv from 'next-env';
 import dotenvLoad from 'dotenv-load';
 const WorkerUrlPlugin = require('worker-url/plugin');
+const bb = require('browser-builtins');
 
 dotenvLoad();
- 
+
 const withNextEnv = nextEnv();
 
 // const NEXT_PUBLIC_DEEPLINKS_URL = process.env.NEXT_PUBLIC_DEEPLINKS_URL || 'http://localhost:3006';
@@ -60,9 +61,18 @@ export default withNextEnv({
       test: /\.cozo$/,
       use: 'raw-loader',
     });
+    // config.resolve.alias = {
+    //   ...(config.resolve.alias || {}),
+    //   "node:buffer": require.resolve('buffer/'),
+    // };
     // if (!isServer) {
       config.resolve.fallback = {
-        "buffer": require.resolve('buffer/'),
+        // "buffer": require.resolve('buffer/'),
+        "child_process": false,
+        "dgram": false,
+        "net": false,
+        "dns": false,
+        "module": false,
         "os": false,
         "fs": false,
         "tls": false,
@@ -92,26 +102,27 @@ export default withNextEnv({
 
     // console.log(config.plugins);
 
-    // config.plugins.push(
-    //   new webpack.ProvidePlugin({
-    //     process: "process/browser",
-    //     Buffer: ["buffer", "Buffer"],
-    //   }),
-    //   new webpack.NormalModuleReplacementPlugin(/node:/, (resource) => {
-    //     const mod = resource.request.replace(/^node:/, "");
-    //     switch (mod) {
-    //       case "buffer":
-    //         resource.request = "buffer";
-    //         break;
-    //       case "stream":
-    //         resource.request = "readable-stream";
-    //         break;
-    //       default:
-    //         throw new Error(`Not found ${mod}`);
-    //     }
-    //   }),
-    //   // new WorkerUrlPlugin(),
-    // );
+    config.plugins.push(
+      new webpack.ProvidePlugin({
+        process: "process/browser",
+        Buffer: ["buffer", "Buffer"],
+      }),
+      new webpack.NormalModuleReplacementPlugin(/node:/, (resource) => {
+        const mod = resource.request.replace(/^node:/, "");
+        switch (mod) {
+          case "buffer":
+            resource.request = "buffer";
+            break;
+          case "stream":
+            resource.request = "readable-stream";
+            break;
+          default:
+            if (bb[mod]) resource.request = bb[mod];
+            else throw new Error(`Not found ${mod}`);
+        }
+      }),
+      // new WorkerUrlPlugin(),
+    );
 
     return config;
   },

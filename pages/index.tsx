@@ -170,7 +170,7 @@ export default function Page({
             { !disableConnector ? 
               <Connector
                 portalOpen={portal}
-                setPortal={setPortal}
+                setPortal={setPortal as any}
                 // onClosePortal={() => setPortal(portal)}
                 gqlPath={gqlPath}
                 gqlSsl={gqlSsl}

@@ -1,37 +1,18 @@
 
-import { DeepProvider, useDeep } from '@deep-foundation/deeplinks/imports/client';
-import { Link, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
-import dynamic from "next/dynamic";
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { AutoGuest } from '@deep-foundation/deepcase/imports/auto-guest';
-import { ColorModeSwitcher } from '@deep-foundation/deepcase/imports/color-mode-toggle';
-import { Switch } from '@deep-foundation/deepcase/imports/switch-mode';
-import CytoGraph from '@deep-foundation/deepcase/imports/cyto/graph';
-import { AframeGraph } from '@deep-foundation/deepcase/imports/aframe/aframe-graph';
-import { useBreadcrumbs, useCytoViewport, useRefAutofill, useShowExtra, useSpaceId, useTraveler } from '@deep-foundation/deepcase/imports/hooks';
-import { DeepLoader } from '@deep-foundation/deepcase/imports/loader';
-import { Provider } from '@deep-foundation/deepcase/imports/provider';
-import { useRefstarter } from '@deep-foundation/deepcase/imports/refstater';
-import { Connector, parseUrl } from '@deep-foundation/deepcase/imports/connector/connector';
-import { PackagerInterface } from '@deep-foundation/deepcase/imports/packager-interface/packager-interface';
-import getConfig from 'next/config'
-import { CatchErrors } from '@deep-foundation/deepcase/imports/react-errors';
-import { Box, Button, Text, Input } from '@chakra-ui/react';
-import pckg from '../package.json';
-import dpckg from '@deep-foundation/deepcase/package.json';
-import { CytoEditor } from '@deep-foundation/deepcase/imports/cyto/editor';
-import SigningClientProvider from '@deep-foundation/deeplinks/imports/cyber/signerClient'
-import SdkQueryClientProvider from '@deep-foundation/deeplinks/imports/cyber/queryClient'
-import NetworksProvider from '@deep-foundation/deeplinks/imports/cyber/network'
-import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
-import { useQueryClient } from '@deep-foundation/deeplinks/imports/cyber/queryClient';
-import { useSigningClient } from '@deep-foundation/deeplinks/imports/cyber/signerClient';
-import BackendProvider from '@deep-foundation/deeplinks/imports/cyber/backend';
-import { useBackend } from '@deep-foundation/deeplinks/imports/cyber/backend';
-import { Provider as ReduxProvider } from 'react-redux';
-import store from '@deep-foundation/deeplinks/imports/cyber/redux/store';
+import { Box, Button, Input, Text } from '@chakra-ui/react';
+import { parseUrl } from '@deep-foundation/deepcase/imports/connector/connector';
 import { generateCyberDeepClient } from '@deep-foundation/deeplinks/imports/cyber';
+import { useBackend } from '@deep-foundation/deeplinks/imports/cyber/backend';
 import * as cyberConfig from '@deep-foundation/deeplinks/imports/cyber/config';
+import NetworksProvider from '@deep-foundation/deeplinks/imports/cyber/network';
+import SdkQueryClientProvider, { useQueryClient } from '@deep-foundation/deeplinks/imports/cyber/queryClient';
+import store from '@deep-foundation/deeplinks/imports/cyber/redux/store';
+import SigningClientProvider, { useSigningClient } from '@deep-foundation/deeplinks/imports/cyber/signerClient';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import getConfig from 'next/config';
+import { useEffect, useState } from 'react';
+import { Provider as ReduxProvider } from 'react-redux';
+import pckg from '../package.json';
 
 console.log(123);
 
@@ -95,7 +76,7 @@ export const InsertCyberLink = () => {
       return;
     }
 
-    const [{ address: signerAddress }] = await signer.getAccounts();
+    const [{ address: signerAddress }] = await signer?.getAccounts();
 
     // if (signerAddress !== address) {
     //   // setError('Signer address is not equal to current account');
@@ -149,7 +130,7 @@ export const CyberSearch = () => {
   const [search, setSearch] = useState<string>('');
   const [searchResult, setSearchResult] = useState<any>("");
   const toSearch = async (searchQuery) => {
-    const response = await queryClient.search(searchQuery)
+    const response = await queryClient?.search(searchQuery)
     setSearchResult(response);
   }
   return (<Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
@@ -165,7 +146,7 @@ export const GetBlock = () => {
   const [blockNumber, setBlockNumber] = useState<any>("");
   const [blockInfoResult, setBlockInfoResult] = useState<any>("");
   const findBlock = async (blockNumberQuery) => {
-    const response = await queryClient.getBlock(blockNumberQuery)
+    const response = await queryClient?.getBlock(blockNumberQuery)
     setBlockInfoResult(response);
   }
   return (<Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
@@ -181,7 +162,7 @@ export const GetTransaction = () => {
   const [transactionHash, setTransactionHash] = useState<string>("");
   const [transactionInfoResult, setTransactionInfoResult] = useState<any>("");
   const findTransaction = async (transactionHashQuery) => {
-    const response = await queryClient.getTx(transactionHashQuery)
+    const response = await queryClient?.getTx(transactionHashQuery)
     setTransactionInfoResult(response);
   }
   return (<Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
@@ -197,7 +178,7 @@ export const GetBalance = () => {
   const [address, setAddress] = useState<string>("");
   const [balanceResult, setBalanceResult] = useState<any>("");
   const getBalance = async (addressQuery) => {
-    const response = await queryClient.getAllBalances(addressQuery)
+    const response = await queryClient?.getAllBalances(addressQuery)
     setBalanceResult(response);
   }
   return (<Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
@@ -239,7 +220,7 @@ export const SendToken = () => {
       return;
     }
 
-    const [{ address: signerAddress }] = await signer.getAccounts();
+    const [{ address: signerAddress }] = await signer?.getAccounts();
 
     // if (signerAddress !== address) {
     //   // setError('Signer address is not equal to current account');
@@ -284,8 +265,10 @@ export const SendToken = () => {
   }
 
   const getMyAddress = async () => {
-    const [{ address: signerAddress }] = await signer.getAccounts();
-    setFromAddress(signerAddress);
+    if (signer) {
+      const [{ address: signerAddress }] = await signer?.getAccounts();
+      setFromAddress(signerAddress);
+    }
   }
 
   useEffect(() => {
@@ -338,7 +321,7 @@ export const SendContractToken = () => {
       return;
     }
 
-    const [{ address: signerAddress }] = await signer.getAccounts();
+    const [{ address: signerAddress }] = await signer?.getAccounts();
 
     // if (signerAddress !== address) {
     //   // setError('Signer address is not equal to current account');
@@ -386,8 +369,10 @@ export const SendContractToken = () => {
   }
 
   const getMyAddress = async () => {
-    const [{ address: signerAddress }] = await signer.getAccounts();
-    setFromAddress(signerAddress);
+    if (signer) {
+      const [{ address: signerAddress }] = await signer?.getAccounts();
+      setFromAddress(signerAddress);
+    }
   }
 
   useEffect(() => {
@@ -424,7 +409,7 @@ export const GetContractBalance = () => {
   async function getContractBalance({address, contractAddress}: {address: string, contractAddress: string}) {
 
     try {
-      const result = await queryClient.queryContractSmart(contractAddress, {
+      const result = await queryClient?.queryContractSmart(contractAddress, {
         balance: {
           address
         }
@@ -445,8 +430,10 @@ export const GetContractBalance = () => {
   }
 
   const getMyAddress = async () => {
-    const [{ address: signerAddress }] = await signer.getAccounts();
-    setAddress(signerAddress);
+    if (signer) {
+      const [{ address: signerAddress }] = await signer?.getAccounts();
+      setAddress(signerAddress);
+    }
   }
 
   useEffect(() => {
@@ -491,7 +478,7 @@ export const MintContractNft = () => {
       return;
     }
 
-    const [{ address: signerAddress }] = await signer.getAccounts();
+    const [{ address: signerAddress }] = await signer?.getAccounts();
 
     // if (signerAddress !== address) {
     //   // setError('Signer address is not equal to current account');
@@ -572,7 +559,7 @@ export const TransferContractNft = () => {
       return;
     }
 
-    const [{ address: signerAddress }] = await signer.getAccounts();
+    const [{ address: signerAddress }] = await signer?.getAccounts();
 
     // if (signerAddress !== address) {
     //   // setError('Signer address is not equal to current account');
@@ -644,7 +631,7 @@ export const GetContractBalanceNft = () => {
   async function getContractBalanceNft({owner, contractAddress}: {owner: string, contractAddress: string}) {
 
     try {
-      const result = await queryClient.queryContractSmart(contractAddress, {
+      const result = await queryClient?.queryContractSmart(contractAddress, {
         tokens: {
           owner
         }
@@ -665,8 +652,10 @@ export const GetContractBalanceNft = () => {
   }
 
   const getMyAddress = async () => {
-    const [{ address: signerAddress }] = await signer.getAccounts();
-    setOwner(signerAddress);
+    if (signer) {
+      const [{ address: signerAddress }] = await signer?.getAccounts();
+      setOwner(signerAddress);
+    }
   }
 
   useEffect(() => {

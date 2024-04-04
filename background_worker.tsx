@@ -1,7 +1,5 @@
 import { ProxyMarked, Remote, proxy } from 'comlink';
 
-console.log('background_worker tsx', __dirname, __filename);
-
 import { initIpfsNode } from '@deep-foundation/deeplinks/imports/cyber/ipfs/node/factory';
 
 import {
@@ -12,7 +10,7 @@ import {
   IpfsOptsType,
 } from '@deep-foundation/deeplinks/imports/cyber/ipfs/ipfs';
 
-import QueueManager from '@deep-foundation/deeplinks/imports/cyber/QueueManager/QueueManager';
+import '@deep-foundation/deeplinks/imports/cyber/QueueManager/QueueManager';
 
 // import { CozoDbWorkerApi } from '@deep-foundation/deeplinks/imports/cyber/backend/workers/db/worker';
 
@@ -102,49 +100,49 @@ const createBackgroundWorkerApi = () => {
     }
   };
 
-  // const defferedDbApi = {
-  //   importCyberlinks: (links: LinkDto[]) => {
-  //     defferedDbSaver.enqueueLinks(links);
-  //   },
-  // };
+  const defferedDbApi = {
+    importCyberlinks: (links: LinkDto[]) => {
+      defferedDbSaver.enqueueLinks(links);
+    },
+  };
 
-  // const ipfsApi = {
-  //   start: startIpfs,
-  //   stop: stopIpfs,
-  //   getIpfsNode: async () => ipfsNode && proxy(ipfsNode),
-  //   config: async () => ipfsNode?.config,
-  //   info: async () => ipfsNode?.info(),
-  //   fetchWithDetails: async (cid: string, parseAs?: IpfsContentType) =>
-  //     ipfsNode?.fetchWithDetails(cid, parseAs),
-  //   enqueue: async (
-  //     cid: string,
-  //     callback: QueueItemCallback,
-  //     options: QueueItemOptions
-  //   ) => ipfsQueue!.enqueue(cid, callback, options),
-  //   enqueueAndWait: async (cid: string, options?: QueueItemOptions) =>
-  //     ipfsQueue!.enqueueAndWait(cid, options),
-  //   dequeue: async (cid: string) => ipfsQueue.cancel(cid),
-  //   dequeueByParent: async (parent: string) => ipfsQueue.cancelByParent(parent),
-  //   clearQueue: async () => ipfsQueue.clear(),
-  //   addContent: async (content: string | File) => ipfsNode?.addContent(content),
-  // };
+  const ipfsApi = {
+    start: startIpfs,
+    stop: stopIpfs,
+    getIpfsNode: async () => ipfsNode && proxy(ipfsNode),
+    config: async () => ipfsNode?.config,
+    info: async () => ipfsNode?.info(),
+    fetchWithDetails: async (cid: string, parseAs?: IpfsContentType) =>
+      ipfsNode?.fetchWithDetails(cid, parseAs),
+    enqueue: async (
+      cid: string,
+      callback: QueueItemCallback,
+      options: QueueItemOptions
+    ) => ipfsQueue!.enqueue(cid, callback, options),
+    enqueueAndWait: async (cid: string, options?: QueueItemOptions) =>
+      ipfsQueue!.enqueueAndWait(cid, options),
+    dequeue: async (cid: string) => ipfsQueue.cancel(cid),
+    dequeueByParent: async (parent: string) => ipfsQueue.cancelByParent(parent),
+    clearQueue: async () => ipfsQueue.clear(),
+    addContent: async (content: string | File) => ipfsNode?.addContent(content),
+  };
 
-  // return {
-  //   init,
-  //   isInitialized: () => !!ipfsInstance$.value,
-  //   // syncDrive,
-  //   ipfsApi: proxy(ipfsApi),
-  //   defferedDbApi: proxy(defferedDbApi),
-  //   ipfsQueue: proxy(ipfsQueue),
-  //   setParams: (params: Partial<SyncServiceParams>) =>
-  //     params$.next({ ...params$.value, ...params }),
-  // };
+  return {
+    init,
+    isInitialized: () => !!ipfsInstance$.value,
+    // syncDrive,
+    ipfsApi: proxy(ipfsApi),
+    defferedDbApi: proxy(defferedDbApi),
+    ipfsQueue: proxy(ipfsQueue),
+    setParams: (params: Partial<SyncServiceParams>) =>
+      params$.next({ ...params$.value, ...params }),
+  };
 };
 
-// const backgroundWorker = createBackgroundWorkerApi();
+const backgroundWorker = createBackgroundWorkerApi();
 
-// export type BackgroundWorker = typeof backgroundWorker;
+export type BackgroundWorker = typeof backgroundWorker;
 
-// // Expose the API to the main thread as shared/regular worker
-// // @ts-ignore
-// exposeWorkerApi(self, backgroundWorker);
+// Expose the API to the main thread as shared/regular worker
+// @ts-ignore
+exposeWorkerApi(self, backgroundWorker);
