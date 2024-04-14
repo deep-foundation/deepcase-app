@@ -165,7 +165,7 @@ export default function Page({
       <Provider key={key} gqlPath={gqlPath} gqlSsl={gqlSsl}>
         <DeepNamespaceProvider>
           <MinilinksProvider>
-            <CyberDeepProvider namespace="cyber"/>
+            {/* <CyberDeepProvider namespace="cyber"/> */}
             <DeepProvider namespace="remote">
             { !disableConnector ? 
               <Connector
