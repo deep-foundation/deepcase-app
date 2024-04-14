@@ -15,7 +15,9 @@ export default async (req, res) => {
   const NEXT_PUBLIC_ENGINES_ROUTE = publicRuntimeConfig?.NEXT_PUBLIC_ENGINES_ROUTE || '1';
   if (!+NEXT_PUBLIC_ENGINES_ROUTE) return res.send('engines deactivated');
   const PATH = [];
+  // @ts-ignore
   if (req?.body?.envs?.PATH) PATH.push(req?.body?.envs?.PATH);
+  // @ts-ignore
   if (process?.env?.PATH) PATH.push(process?.env?.PATH);
   log('engine route', { body: req?.body, PATH });
   res.send(await call({ ...req?.body, envs: { ...req?.body?.envs, PATH: PATH.join(':')}}));

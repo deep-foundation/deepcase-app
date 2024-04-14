@@ -1,6 +1,6 @@
 
-import { DeepProvider, useDeep } from '@deep-foundation/deeplinks/imports/client';
-import { Link, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
+import { DeepNamespaceProvider, DeepProvider, useDeep } from '@deep-foundation/deeplinks/imports/client';
+import { Id, Link, MinilinksProvider, useMinilinksFilter } from '@deep-foundation/deeplinks/imports/minilinks';
 import dynamic from "next/dynamic";
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { AutoGuest } from '@deep-foundation/deepcase/imports/auto-guest';
@@ -20,6 +20,11 @@ import { Button, Text } from '@chakra-ui/react';
 import pckg from '../package.json';
 import dpckg from '@deep-foundation/deepcase/package.json';
 import { CytoEditor } from '@deep-foundation/deepcase/imports/cyto/editor';
+
+const CyberDeepProvider = dynamic(() => import('@deep-foundation/deeplinks/imports/cyber').then(m => m.CyberDeepProvider), {
+  ssr: false,
+  loading: () => <></>,
+});
 
 const { publicRuntimeConfig } = getConfig();
 
@@ -62,7 +67,7 @@ export function Content({
     })();
   }, []);
 
-  const links: Link<number>[] = useMinilinksFilter(
+  const links: Link<Id>[] = useMinilinksFilter(
     deep.minilinks,
     useCallback((l) => true, []),
     useCallback((l, ml) => {
@@ -73,6 +78,7 @@ export function Content({
           ? ml.links
           : ml.links.filter(l => (
             !!l._applies.find((a: string) => !!~a.indexOf('query-') || a === 'space' || a === 'breadcrumbs' || a === 'not-loaded-ends') || l.id < 0
+            || l.type_id === 'cyberlink' || l.type_id === 'particle'
           ))
       )
       if (Traveler && !traveler) {
@@ -157,36 +163,41 @@ export default function Page({
   return (<>
     {[
       <Provider key={key} gqlPath={gqlPath} gqlSsl={gqlSsl}>
-        <DeepProvider>
-        { !disableConnector ? 
-          <Connector
-            portalOpen={portal}
-            setPortal={setPortal}
-            // onClosePortal={() => setPortal(portal)}
-            gqlPath={gqlPath}
-            gqlSsl={gqlSsl}
-            serverUrl={serverUrl}
-            deeplinksUrl={deeplinksUrl}
-            setGqlPath={(path) => setGqlPath(path)}
-            setGqlSsl={(ssl) => setGqlSsl(ssl)}
-          /> : null }
-          {gqlPath ? [
-            <CatchErrors key={1} errorRenderer={(e) => <>
-              <pre>Error in AutoGuest or content rendering.</pre>
-              <pre>{e?.toString() || JSON.stringify(e, null, 2)}</pre>
-            </>}>
-              <AutoGuest>
-                <Content gqlPath={gqlPath} gqlSsl={gqlSsl} appVersion={appVersion} openPortal={() => setPortal(true)} />
-                
-                { !disableConnector ? <Button
-                  colorScheme='blue'
-                  onClick={() => setPortal(true)}
-                  pos='absolute' right='44' top='4'
-                  >connector</Button> : null }
-              </AutoGuest>
-            </CatchErrors>
-          ] : []}
-        </DeepProvider>
+        <DeepNamespaceProvider>
+          <MinilinksProvider>
+            {/* <CyberDeepProvider namespace="cyber"/> */}
+            <DeepProvider namespace="remote">
+            { !disableConnector ? 
+              <Connector
+                portalOpen={portal}
+                setPortal={setPortal as any}
+                // onClosePortal={() => setPortal(portal)}
+                gqlPath={gqlPath}
+                gqlSsl={gqlSsl}
+                serverUrl={serverUrl}
+                deeplinksUrl={deeplinksUrl}
+                setGqlPath={(path) => setGqlPath(path)}
+                setGqlSsl={(ssl) => setGqlSsl(ssl)}
+              /> : null }
+              {gqlPath ? [
+                <CatchErrors key={1} errorRenderer={(e) => <>
+                  <pre>Error in AutoGuest or content rendering.</pre>
+                  <pre>{e?.toString() || JSON.stringify(e, null, 2)}</pre>
+                </>}>
+                  <AutoGuest>
+                    <Content gqlPath={gqlPath} gqlSsl={gqlSsl} appVersion={appVersion} openPortal={() => setPortal(true)} />
+                    
+                    { !disableConnector ? <Button
+                      colorScheme='blue'
+                      onClick={() => setPortal(true)}
+                      pos='absolute' right='44' top='4'
+                      >connector</Button> : null }
+                  </AutoGuest>
+                </CatchErrors>
+              ] : []}
+            </DeepProvider>
+          </MinilinksProvider>
+        </DeepNamespaceProvider>
       </Provider>
     ]}
   </>);

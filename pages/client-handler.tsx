@@ -38,10 +38,10 @@ export function Content({
       spaceId={spaceId}
       />]}
       <Box w='100vw' h='100vh'>
-        { props.linkId > 0 && data.length > 0 ?
+        { props.linkId > 0 && data && data.length > 0 ?
           [<ClientHandler key={props.linkId} fillSize={true} ml={deep.minilinks} {...props}/>] :
 
-          props.linkId > 0  && !loading && data.length <= 0 ? 
+          props.linkId > 0  && !loading && data && data.length <= 0 ? 
           [<Center height='100%'>
             <Box 
               display='flex'
