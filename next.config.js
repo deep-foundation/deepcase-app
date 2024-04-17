@@ -46,13 +46,13 @@ export default withNextEnv({
   },
   webpack: (config, { isServer }) => {
     // Exclude .tsx and .ts files
-    // const excludePattern = /\.(ts|tsx)?$/;
-    // config.module.rules.push({
-    //   test: excludePattern,
-    //   exclude: /node_modules/,
-    //   use: [],
-    // });
-    // config.resolve.extensions = config.resolve.extensions.filter(item => !excludePattern.test(item));
+    const excludePattern = /\.(ts|tsx)?$/;
+    config.module.rules.push({
+      test: excludePattern,
+      exclude: /node_modules/,
+      use: [],
+    });
+    config.resolve.extensions = config.resolve.extensions.filter(item => !excludePattern.test(item));
 
     console.log(config.resolve.extensions);
     console.log(config.output.publicPath);
