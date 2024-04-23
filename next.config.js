@@ -1,7 +1,4 @@
-import webpack from "webpack";
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const WorkerUrlPlugin = require('worker-url/plugin');
+const webpack = require("webpack");
 const bb = require('browser-builtins');
 const nextEnv = require('next-env');
 const dotenvLoad = require('dotenv-load');
@@ -135,4 +132,4 @@ const config = {
   ...(+(process?.env?.NEXT_PUBLIC_I18N_DISABLE || 0) ? {} : { i18n }),
 };
 
-export default withNextEnv(config);
+module.exports = withNextEnv(config);
