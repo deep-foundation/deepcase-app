@@ -49,9 +49,6 @@ jspm_packages/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
-.env
-
 # next.js build output
 .next
 .export
@@ -119,7 +116,7 @@ projects/app/electron/app
 # migrations
 .migrate
 
-# deepcase
+# builds
 /app
 /out
 /electron/build
@@ -129,3 +126,12 @@ projects/app/electron/app
 /electron/*.provisionprofile
 
 deeplogs.txt
+# browser extention
+
+extension/locales
+extension/next
+extension/*.html
+/*.crx
+/*.pem
+
+.env*.local

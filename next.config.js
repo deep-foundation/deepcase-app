@@ -1,10 +1,11 @@
 import webpack from "webpack";
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
-import nextEnv from 'next-env';
-import dotenvLoad from 'dotenv-load';
 const WorkerUrlPlugin = require('worker-url/plugin');
 const bb = require('browser-builtins');
+const nextEnv = require('next-env');
+const dotenvLoad = require('dotenv-load');
+const { i18n } = require('./next-i18next.config');
 
 dotenvLoad();
 
@@ -14,12 +15,17 @@ const withNextEnv = nextEnv();
 const DOCKER = !!+process.env.DOCKER;
 const DEEPLINKS_URL = DOCKER ? 'http://host.docker.internal:3006' : 'http://localhost:3006';
 
-export default withNextEnv({
+ /** @type {import('next').NextConfig}*/
+const config = {
+  ...(process.env.GITHUB_REPOSITORY ? {
+    basePath: `/${process.env.GITHUB_REPOSITORY.split('/')[1]}`,
+  } : {}),
   distDir: 'app',
+  strictMode: false,
+
   allowImportingTsExtensions: true,
   webpack5: true,
   future: { webpack5: true },
-  strictMode: false,
   async headers() {
       return [
           {
@@ -126,4 +132,7 @@ export default withNextEnv({
 
     return config;
   },
-});
+  ...(+(process?.env?.NEXT_PUBLIC_I18N_DISABLE || 0) ? {} : { i18n }),
+};
+
+export default withNextEnv(config);
