@@ -1,56 +1,49 @@
 {
 	"compilerOptions": {
-		"allowSyntheticDefaultImports": true,
-		"experimentalDecorators": true,
-		"sourceMap": true,
-		"removeComments": true,
-		"jsx": "preserve",
-		"module": "ESNext",
-		"moduleResolution": "node",
-		"target": "ESNext",
-		"lib": [
-			"dom",
-			"dom.iterable",
-			"esnext",
-			"es2017",
-			"es6",
-			"es7",
-			"ES2019"
-		],
-		"resolveJsonModule": true,
-		"esModuleInterop": true,
-		"isolatedModules": true,
-		"declaration": true,
-		"allowJs": true,
-		"skipLibCheck": true,
-		"strict": false,
-		"forceConsistentCasingInFileNames": true,
-		"noEmit": true,
-		"incremental": true,
-		"plugins": [
-			{
-				"name": "next"
-			}
-		],
-		"strictNullChecks": true,
-		"downlevelIteration": true
+	  "allowSyntheticDefaultImports": true,
+	  "experimentalDecorators": true,
+	  "sourceMap": true,
+	  "noImplicitAny": false,
+	  "removeComments": true,
+	  "jsx": "preserve",
+	  "module": "ESNext",
+	  "moduleResolution": "node",
+	  "target": "es2015",
+	  "lib": [
+		"dom",
+		"es6",
+		"es7",
+		"ES2020",
+		"es2022.error"
+	  ],
+	  "resolveJsonModule": true,
+	  "esModuleInterop": true,
+	  "isolatedModules": true,
+	  "declaration": true,
+	  "allowJs": true,
+	  "skipLibCheck": true,
+	  "strict": false,
+	  "forceConsistentCasingInFileNames": true,
+	  "noEmit": true,
+	  "incremental": true,
+	  "plugins": [
+		{
+		  "name": "next"
+		}
+	  ],
+	  "strictNullChecks": false
 	},
 	"include": [
-		"next-env.d.ts",
-		"**/*.ts",
-		"**/*.tsx",
-		"app/types/**/*.ts",
-		".next/types/**/*.ts"
+	  "next-env.d.ts",
+	  "**/*.ts",
+	  "**/*.tsx",
+	  "app/types/**/*.ts"
 	],
 	"exclude": [
-		"node_modules",
-		"payments",
-		"electron"
+	  "node_modules",
+	  "electron"
 	],
 	"typeRoots": [
-		"./node_modules/@types"
-	],
-	"types": [
-		"chrome"
+	  "./node_modules/@types"
 	]
-}
+  }

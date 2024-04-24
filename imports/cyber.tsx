@@ -10,7 +10,7 @@ import store from '@deep-foundation/deeplinks/imports/cyber/redux/store';
 import SigningClientProvider, { useSigningClient } from '@deep-foundation/deeplinks/imports/cyber/signerClient';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import getConfig from 'next/config';
-import { useEffect, useState } from 'react';
+import { SetStateAction, useEffect, useState } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import pckg from '../package.json';
 
@@ -34,6 +34,7 @@ export function CyberDeepClientGlobal() {
   useEffect(() => { (async () => {
     const cyber = cyberConfig.CYBER;
     console.log(cyber);
+    // @ts-ignore
     global.cdc = await generateCyberDeepClient({
       config: cyberConfig.CYBER,
     });
@@ -59,7 +60,7 @@ export const InsertCyberLink = () => {
 
   const { signer, signingClient } = useSigningClient();
 
-  async function cyberlink(fromCid, toCid) {
+  async function cyberlink(fromCid: any, toCid: any) {
     const gas_limit = (await import('@deep-foundation/deeplinks/imports/cyber/config')).DEFAULT_GAS_LIMITS
 
     const fee = {
@@ -118,8 +119,8 @@ export const InsertCyberLink = () => {
   return (
     <Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
       <Text mb={3}>Insert Cyberlink</Text>
-      <Input value={from} onChange={(e) => {setFrom(e.target.value)}} mb={3} placeholder='From'/>
-      <Input value={to} onChange={(e) => {setTo(e.target.value)}} mb={3} placeholder='To'/>
+      <Input value={from} onChange={(e: { target: { value: SetStateAction<string>; }; }) => {setFrom(e.target.value)}} mb={3} placeholder='From'/>
+      <Input value={to} onChange={(e: { target: { value: SetStateAction<string>; }; }) => {setTo(e.target.value)}} mb={3} placeholder='To'/>
       <Button onClick={() => {cyberlink(from, to)}}>CYBER ~ DEEP cyberlink</Button>
     </Box>
   )
@@ -129,13 +130,13 @@ export const CyberSearch = () => {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState<string>('');
   const [searchResult, setSearchResult] = useState<any>("");
-  const toSearch = async (searchQuery) => {
+  const toSearch = async (searchQuery: any) => {
     const response = await queryClient?.search(searchQuery)
     setSearchResult(response);
   }
   return (<Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
     <Text mb={3}>Search</Text>
-    <Input placeholder="Search" value={search} onChange={(e) => {setSearch(e.target.value)}} mb={3}/>
+    <Input placeholder="Search" value={search} onChange={(e: { target: { value: SetStateAction<string>; }; }) => {setSearch(e.target.value)}} mb={3}/>
     <Button onClick={() => {toSearch(search)}} mb={3}>Search</Button>
     <Box>{JSON.stringify(searchResult)}</Box>
   </Box>)
@@ -145,13 +146,13 @@ export const GetBlock = () => {
   const queryClient = useQueryClient();
   const [blockNumber, setBlockNumber] = useState<any>("");
   const [blockInfoResult, setBlockInfoResult] = useState<any>("");
-  const findBlock = async (blockNumberQuery) => {
+  const findBlock = async (blockNumberQuery: number | undefined) => {
     const response = await queryClient?.getBlock(blockNumberQuery)
     setBlockInfoResult(response);
   }
   return (<Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
     <Text mb={3}>Get Block</Text>
-    <Input placeholder="Search" value={blockNumber} onChange={(e) => {setBlockNumber(e.target.value)}} mb={3}/>
+    <Input placeholder="Search" value={blockNumber} onChange={(e: { target: { value: any; }; }) => {setBlockNumber(e.target.value)}} mb={3}/>
     <Button onClick={() => {findBlock(+blockNumber)}} mb={3}>Search block</Button>
     <Box>{JSON.stringify(blockInfoResult)}</Box>
   </Box>)
@@ -161,13 +162,13 @@ export const GetTransaction = () => {
   const queryClient = useQueryClient();
   const [transactionHash, setTransactionHash] = useState<string>("");
   const [transactionInfoResult, setTransactionInfoResult] = useState<any>("");
-  const findTransaction = async (transactionHashQuery) => {
+  const findTransaction = async (transactionHashQuery: string) => {
     const response = await queryClient?.getTx(transactionHashQuery)
     setTransactionInfoResult(response);
   }
   return (<Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
     <Text mb={3}>Get Transaction</Text>
-    <Input placeholder="Search" value={transactionHash} onChange={(e) => {setTransactionHash(e.target.value)}} mb={3}/>
+    <Input placeholder="Search" value={transactionHash} onChange={(e: { target: { value: SetStateAction<string>; }; }) => {setTransactionHash(e.target.value)}} mb={3}/>
     <Button onClick={() => {findTransaction(transactionHash)}} mb={3}>Search tx</Button>
     <Box>{JSON.stringify(transactionInfoResult)}</Box>
   </Box>)
@@ -177,13 +178,13 @@ export const GetBalance = () => {
   const queryClient = useQueryClient();
   const [address, setAddress] = useState<string>("");
   const [balanceResult, setBalanceResult] = useState<any>("");
-  const getBalance = async (addressQuery) => {
+  const getBalance = async (addressQuery: string) => {
     const response = await queryClient?.getAllBalances(addressQuery)
     setBalanceResult(response);
   }
   return (<Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
     <Text mb={3}>Get Balance</Text>
-    <Input placeholder="Search" value={address} onChange={(e) => {setAddress(e.target.value)}} mb={3}/>
+    <Input placeholder="Search" value={address} onChange={(e: { target: { value: SetStateAction<string>; }; }) => {setAddress(e.target.value)}} mb={3}/>
     <Button onClick={() => {getBalance(address)}} mb={3}>Get Balance</Button>
     <Box>{JSON.stringify(balanceResult)}</Box>
   </Box>)
@@ -281,9 +282,9 @@ export const SendToken = () => {
     <Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
       <Text mb={3}>Send tokens</Text>
       <Input value={fromAddress} mb={3} placeholder='From' disabled={true} />
-      <Input value={toAddress} onChange={(e) => {setToAddress(e.target.value)}} mb={3} placeholder='To'/>
-      <Input value={amount} onChange={(e) => {setAmount(e.target.value)}} mb={3} placeholder='Amount'/>
-      <Input value={denom} onChange={(e) => {setDenom((e.target.value).toLowerCase())}} mb={3} placeholder='Token'/>
+      <Input value={toAddress} onChange={(e: { target: { value: SetStateAction<string>; }; }) => {setToAddress(e.target.value)}} mb={3} placeholder='To'/>
+      <Input value={amount} onChange={(e: { target: { value: SetStateAction<string>; }; }) => {setAmount(e.target.value)}} mb={3} placeholder='Amount'/>
+      <Input value={denom} onChange={(e: { target: { value: any; }; }) => {setDenom((e.target.value).toLowerCase())}} mb={3} placeholder='Token'/>
       <Button onClick={() => {sendTokens({toAddress, amount, denom})}}>Send tokens</Button>
       <Box>{JSON.stringify(sendTokensResult)}</Box>
     </Box>
@@ -385,9 +386,9 @@ export const SendContractToken = () => {
     <Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
       <Text mb={3}>Send contranct tokens</Text>
       <Input value={fromAddress} mb={3} placeholder='From' disabled={true} />
-      <Input value={toAddress} onChange={(e) => {setToAddress(e.target.value)}} mb={3} placeholder='To'/>
-      <Input value={amount} onChange={(e) => {setAmount(e.target.value)}} mb={3} placeholder='Amount'/>
-      <Input value={contractAddress} onChange={(e) => {setContractAddress((e.target.value).toLowerCase())}} mb={3} placeholder='Token address'/>
+      <Input value={toAddress} onChange={(e: { target: { value: SetStateAction<string>; }; }) => {setToAddress(e.target.value)}} mb={3} placeholder='To'/>
+      <Input value={amount} onChange={(e: { target: { value: SetStateAction<string>; }; }) => {setAmount(e.target.value)}} mb={3} placeholder='Amount'/>
+      <Input value={contractAddress} onChange={(e: { target: { value: any; }; }) => {setContractAddress((e.target.value).toLowerCase())}} mb={3} placeholder='Token address'/>
       <Button onClick={() => {sendContractTokens({toAddress, amount, contractAddress})}}>Send contract tokens</Button>
       <Box>{JSON.stringify(sendContractTokensResult)}</Box>
     </Box>
@@ -446,7 +447,7 @@ export const GetContractBalance = () => {
     <Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
       <Text mb={3}>Get contract balance</Text>
       <Input value={address} mb={3} placeholder='Address' />
-      <Input value={contractAddress} onChange={(e) => {setContractAddress((e.target.value).toLowerCase())}} mb={3} placeholder='Token address'/>
+      <Input value={contractAddress} onChange={(e: { target: { value: any; }; }) => {setContractAddress((e.target.value).toLowerCase())}} mb={3} placeholder='Token address'/>
       <Button onClick={() => {getContractBalance({address, contractAddress})}}>Get contract balance</Button>
       <Box>{JSON.stringify(balanceContractResult)}</Box>
     </Box>
@@ -527,9 +528,9 @@ export const MintContractNft = () => {
 
   return (<Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
     <Text mb={3}>Mint NFT</Text>
-    <Input placeholder="NFT address" value={nftAddress} onChange={(e) => {setNftAddress(e.target.value)}} mb={3}/>
-    <Input placeholder="Owner address" value={ownerAddress} onChange={(e) => {setOwnerAddress(e.target.value)}} mb={3}/>
-    <Input placeholder="Token id" value={tokenId} onChange={(e) => {setTokenId(e.target.value)}} mb={3}/>
+    <Input placeholder="NFT address" value={nftAddress} onChange={(e: { target: { value: SetStateAction<string>; }; }) => {setNftAddress(e.target.value)}} mb={3}/>
+    <Input placeholder="Owner address" value={ownerAddress} onChange={(e: { target: { value: any; }; }) => {setOwnerAddress(e.target.value)}} mb={3}/>
+    <Input placeholder="Token id" value={tokenId} onChange={(e: { target: { value: any; }; }) => {setTokenId(e.target.value)}} mb={3}/>
     <Button onClick={() => mintContractNft({nftAddress, ownerAddress, tokenId})}>Mint NFT</Button>
   </Box>)
 }
@@ -608,9 +609,9 @@ export const TransferContractNft = () => {
 
   return (<Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
     <Text mb={3}>Transfer NFT</Text>
-    <Input placeholder="NFT address" value={nftAddress} onChange={(e) => {setNftAddress(e.target.value)}} mb={3}/>
-    <Input placeholder="Owner address" value={ownerAddress} onChange={(e) => {setOwnerAddress(e.target.value)}} mb={3}/>
-    <Input placeholder="Token id" value={tokenId} onChange={(e) => {setTokenId(e.target.value)}} mb={3}/>
+    <Input placeholder="NFT address" value={nftAddress} onChange={(e: { target: { value: SetStateAction<string>; }; }) => {setNftAddress(e.target.value)}} mb={3}/>
+    <Input placeholder="Owner address" value={ownerAddress} onChange={(e: { target: { value: any; }; }) => {setOwnerAddress(e.target.value)}} mb={3}/>
+    <Input placeholder="Token id" value={tokenId} onChange={(e: { target: { value: any; }; }) => {setTokenId(e.target.value)}} mb={3}/>
     <Button onClick={() => mintContractNft({nftAddress, ownerAddress, tokenId})}>Transfer NFT</Button>
     <Box> {JSON.stringify(transferContractNftResult)} </Box>
   </Box>)
@@ -667,8 +668,8 @@ export const GetContractBalanceNft = () => {
   return (
     <Box w={320} borderWidth='1px' borderRadius='lg' bg="#fff" p={4}>
       <Text mb={3}>Get contract nft balance</Text>
-      <Input value={owner} mb={3} placeholder='Owner' onChange={(e) => setOwner(e.target.value)} />
-      <Input value={contractAddress} onChange={(e) => {setContractAddress((e.target.value).toLowerCase())}} mb={3} placeholder='Token address'/>
+      <Input value={owner} mb={3} placeholder='Owner' onChange={(e: { target: { value: SetStateAction<string>; }; }) => setOwner(e.target.value)} />
+      <Input value={contractAddress} onChange={(e: { target: { value: any; }; }) => {setContractAddress((e.target.value).toLowerCase())}} mb={3} placeholder='Token address'/>
       <Button onClick={() => {getContractBalanceNft({owner, contractAddress})}}>Get contract nft balance</Button>
       <Box>{JSON.stringify(balanceContractNftResult)}</Box>
     </Box>
