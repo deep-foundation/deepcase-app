@@ -8,10 +8,10 @@ import dynamic from "next/dynamic";
 // import('../background_worker').then(r => console.log('../background_worker', r));
 // import '../db_worker';
 
-const Page = dynamic(() => import('../imports/cyber'), {
-  ssr: false,
-  loading: () => <p>Loading...</p>,
-});
+// const Page = dynamic(() => import('../imports/cyber'), {
+//   ssr: false,
+//   loading: () => <p>Loading...</p>,
+// });
 
 export default function({ ...props }) {
   // @ts-ignore
