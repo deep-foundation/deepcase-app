@@ -15,9 +15,10 @@ COPY app ./app
 COPY public ./public
 COPY pages ./pages
 COPY next.config.js ./next.config.js
+COPY next-i18next.config.js ./next-i18next.config.js
 
 ENV PORT 3007
 ENV DOCKER 1
 
 EXPOSE 3007
-ENTRYPOINT ["npm", "start", "--", "-p", "3007"]
+ENTRYPOINT ["npm", "start"]

@@ -19,7 +19,7 @@
     "install-next-electron": "npm ci && cd electron && npm ci && cd ..",
     "export": "(cross-env NEXT_PUBLIC_EXPORT=1 NEXT_PUBLIC_I18N_DISABLE=1 next build)",
     "build": "rimraf app && next build",
-    "start": "(npx -q wait-on --timeout 10000 http-get://127.0.0.1:3007/api/revalidate &); next start",
+    "start": "(npx -q wait-on --timeout 10000 http-get://127.0.0.1:${PORT:-3007}/api/revalidate &); next start -p ${PORT:-3007}",
     "dev": "next dev",
     "run-ios": "npx cap run ios",
     "open-ios": "npx cap open ios",
