@@ -1,3 +1,5 @@
+# Deep.Case App
+
 [SDK](https://github.com/deep-foundation/sdk) based application, with configured [@deep-foundation/deepcase](https://github.com/deep-foundation/deepcase).
 
 [![Gitpod](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/deep-foundation/deepcase-app) 
@@ -17,4 +19,23 @@ export NEXT_PUBLIC_GQL_SSL=0;
 export NEXT_PUBLIC_ENGINES=1;
 
 export JWT_SECRET=<?>;
+```
+
+
+## Diagnostics
+
+### Logs
+
+#### Get container logs to console:
+
+```bash
+docker logs deep-case
+```
+
+#### Get container logs to file:
+
+Sometimes console cannot output the full logs so it might be helpful to store the entire container's logs as file. It can be done like this:
+
+```bash
+docker logs deep-case > log.txt
 ```
