@@ -19,6 +19,7 @@ const config = {
   } : {}),
   distDir: 'app',
   strictMode: false,
+  output: (+process.env.NEXT_PUBLIC_EXPORT) ? 'export' : 'standalone',
 
   allowImportingTsExtensions: true,
   webpack5: true,
