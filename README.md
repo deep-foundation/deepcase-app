@@ -37,5 +37,17 @@ docker logs deep-case
 Sometimes console cannot output the full logs so it might be helpful to store the entire container's logs as file. It can be done like this:
 
 ```bash
-docker logs deep-case > log.txt
+docker logs deep-case > deep-case.log.txt
+```
+
+#### Get live logs:
+
+```sh
+docker logs -f deep-case
+```
+
+#### Enter the sh from inside the docker container:
+
+```sh
+docker exec -it deep-case sh
 ```
