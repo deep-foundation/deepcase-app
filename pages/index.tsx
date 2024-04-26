@@ -64,6 +64,7 @@ export function Content({
   useEffect(() => {
     (async () => {
       TravelerRef.current = await deep.id('@deep-foundation/deepcase', 'Traveler');
+      deep.local = false; // attempt to fix bugs
     })();
   }, []);
 
