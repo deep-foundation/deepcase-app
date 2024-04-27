@@ -20,6 +20,7 @@ import { Button, Text } from '@chakra-ui/react';
 import pckg from '../package.json';
 import dpckg from '@deep-foundation/deepcase/package.json';
 import { CytoEditor } from '@deep-foundation/deepcase/imports/cyto/editor';
+import { useDeepPath } from '../src/provider';
 
 const CyberDeepProvider = dynamic(() => import('@deep-foundation/deeplinks/imports/cyber').then(m => m.CyberDeepProvider), {
   ssr: false,
@@ -64,7 +65,7 @@ export function Content({
   useEffect(() => {
     (async () => {
       TravelerRef.current = await deep.id('@deep-foundation/deepcase', 'Traveler');
-      deep.local = false; // attempt to fix bugs
+      // deep.local = false; // attempt to fix bugs
     })();
   }, []);
 
@@ -136,7 +137,7 @@ export default function Page({
   disableConnector: boolean;
 }) {
   // todo: put gqlPath and gqlSsl to localstorage so client handler page can use settings from connector
-  const [gqlPath, setGqlPath] = useState(defaultGqlPath);
+  const [gqlPath, setGqlPath] = useDeepPath(defaultGqlPath);
   const [gqlSsl, setGqlSsl] = useState(defaultGqlSsl);
   const [portal, setPortal] = useState(true);
 
