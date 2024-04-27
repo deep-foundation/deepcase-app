@@ -6,7 +6,7 @@ import { CapacitorStoreProvider } from '@deep-foundation/store/capacitor';
 import { CookiesStoreProvider } from '@deep-foundation/store/cookies';
 import { LocalStoreProvider, useLocalStore } from '@deep-foundation/store/local';
 import { QueryStoreProvider } from '@deep-foundation/store/query';
-import { CustomI18nProvider } from './i18n';
+import { CustomI18nProvider } from './i18n.tsx';
 
 export function useDeepPath(defaultValue: string | undefined = process?.env?.NEXT_PUBLIC_GRAPHQL_URL) {
   return useLocalStore('dc-dg-path', defaultValue);

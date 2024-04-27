@@ -1,6 +1,6 @@
 {
   "name": "@deep-foundation/deepcase-app",
-  "version": "0.1.0-beta.15",
+  "version": "0.1.0-beta.16",
   "license": "Unlicense",
   "scripts": {
     "build-pack": "(cd electron && npm run electron:pack)",

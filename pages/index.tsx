@@ -10,7 +10,7 @@ import CytoGraph from '@deep-foundation/deepcase/imports/cyto/graph';
 // import { AframeGraph } from '@deep-foundation/deepcase/imports/aframe/aframe-graph';
 import { useBreadcrumbs, useCytoViewport, useRefAutofill, useShowExtra, useSpaceId, useTraveler } from '@deep-foundation/deepcase/imports/hooks';
 import { DeepLoader } from '@deep-foundation/deepcase/imports/loader';
-import { Provider } from '@deep-foundation/deepcase/imports/provider';
+import { Provider, StaticProviders } from '@deep-foundation/deepcase/imports/provider';
 import { useRefstarter } from '@deep-foundation/deepcase/imports/refstater';
 import { Connector, parseUrl } from '@deep-foundation/deepcase/imports/connector/connector';
 import { PackagerInterface } from '@deep-foundation/deepcase/imports/packager-interface/packager-interface';
@@ -20,6 +20,7 @@ import { Button, Text } from '@chakra-ui/react';
 import pckg from '../package.json';
 import dpckg from '@deep-foundation/deepcase/package.json';
 import { CytoEditor } from '@deep-foundation/deepcase/imports/cyto/editor';
+import { useDeepPath } from '../src/provider.tsx';
 
 const CyberDeepProvider = dynamic(() => import('@deep-foundation/deeplinks/imports/cyber').then(m => m.CyberDeepProvider), {
   ssr: false,
@@ -120,7 +121,7 @@ export function Content({
   </React.Fragment>);
 };
 
-export default function Page({
+export function PageCore({
   serverUrl,
   deeplinksUrl,
   defaultGqlPath,
@@ -136,7 +137,7 @@ export default function Page({
   disableConnector: boolean;
 }) {
   // todo: put gqlPath and gqlSsl to localstorage so client handler page can use settings from connector
-  const [gqlPath, setGqlPath] = useState(defaultGqlPath);
+  const [gqlPath, setGqlPath] = useDeepPath(defaultGqlPath);
   const [gqlSsl, setGqlSsl] = useState(defaultGqlSsl);
   const [portal, setPortal] = useState(true);
 
@@ -163,45 +164,53 @@ export default function Page({
 
   return (<>
     {[
-      <Provider key={key} gqlPath={gqlPath} gqlSsl={gqlSsl}>
-        <DeepNamespaceProvider>
-          <MinilinksProvider>
-            {/* <CyberDeepProvider namespace="cyber"/> */}
-            <DeepProvider namespace="remote">
-            { !disableConnector ? 
-              <Connector
-                portalOpen={portal}
-                setPortal={setPortal as any}
-                // onClosePortal={() => setPortal(portal)}
-                gqlPath={gqlPath}
-                gqlSsl={gqlSsl}
-                serverUrl={serverUrl}
-                deeplinksUrl={deeplinksUrl}
-                setGqlPath={(path) => setGqlPath(path)}
-                setGqlSsl={(ssl) => setGqlSsl(ssl)}
-              /> : null }
-              {gqlPath ? [
-                <CatchErrors key={1} errorRenderer={(e) => <>
-                  <pre>Error in AutoGuest or content rendering.</pre>
-                  <pre>{e?.toString() || JSON.stringify(e, null, 2)}</pre>
-                </>}>
-                  <AutoGuest>
-                    <Content gqlPath={gqlPath} gqlSsl={gqlSsl} appVersion={appVersion} openPortal={() => setPortal(true)} />
-                    
-                    { !disableConnector ? <Button
-                      colorScheme='blue'
-                      onClick={() => setPortal(true)}
-                      pos='absolute' right='44' top='4'
-                      >connector</Button> : null }
-                  </AutoGuest>
-                </CatchErrors>
-              ] : []}
-            </DeepProvider>
-          </MinilinksProvider>
-        </DeepNamespaceProvider>
-      </Provider>
+      <StaticProviders>
+        <Provider key={key} gqlPath={gqlPath} gqlSsl={gqlSsl}>
+          <DeepNamespaceProvider>
+            <MinilinksProvider>
+              {/* <CyberDeepProvider namespace="cyber"/> */}
+              <DeepProvider namespace="remote">
+              { !disableConnector ? 
+                <Connector
+                  portalOpen={portal}
+                  setPortal={setPortal as any}
+                  // onClosePortal={() => setPortal(portal)}
+                  gqlPath={gqlPath}
+                  gqlSsl={gqlSsl}
+                  serverUrl={serverUrl}
+                  deeplinksUrl={deeplinksUrl}
+                  setGqlPath={(path) => setGqlPath(path)}
+                  setGqlSsl={(ssl) => setGqlSsl(ssl)}
+                /> : null }
+                {gqlPath ? [
+                  <CatchErrors key={1} errorRenderer={(e) => <>
+                    <pre>Error in AutoGuest or content rendering.</pre>
+                    <pre>{e?.toString() || JSON.stringify(e, null, 2)}</pre>
+                  </>}>
+                    <AutoGuest>
+                      <Content gqlPath={gqlPath} gqlSsl={gqlSsl} appVersion={appVersion} openPortal={() => setPortal(true)} />
+                      
+                      { !disableConnector ? <Button
+                        colorScheme='blue'
+                        onClick={() => setPortal(true)}
+                        pos='absolute' right='44' top='4'
+                        >connector</Button> : null }
+                    </AutoGuest>
+                  </CatchErrors>
+                ] : []}
+              </DeepProvider>
+            </MinilinksProvider>
+          </DeepNamespaceProvider>
+        </Provider>
+      </StaticProviders>
     ]}
   </>);
+}
+
+export default function Page(props) {
+  return <StaticProviders>
+    <PageCore {...props}/>
+  </StaticProviders>;
 }
 
 export async function getStaticProps() {
