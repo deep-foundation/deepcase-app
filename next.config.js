@@ -14,7 +14,7 @@ const DEEPLINKS_URL = DOCKER ? 'http://host.docker.internal:3006' : 'http://loca
 
  /** @type {import('next').NextConfig}*/
 const config = {
-  ...(process.env.GITHUB_REPOSITORY ? {
+  ...((process.env.GITHUB_REPOSITORY && !DOCKER) ? {
     basePath: `/${process.env.GITHUB_REPOSITORY.split('/')[1]}`,
   } : {}),
   distDir: 'app',
