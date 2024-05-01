@@ -3,7 +3,7 @@
   "version": "0.1.0-beta.16",
   "license": "Unlicense",
   "scripts": {
-    "publish": "npm i @deep-foundation/deeplinks@latest @deep-foundation/deepcase@latest --package-lock-only && git restore package.json && npm version patch --no-git-tag-version && git add . -a && git commit -m \"publish\" && git push origin main",
+    "git-publish": "npm i @deep-foundation/deeplinks@latest @deep-foundation/deepcase@latest --package-lock-only && git restore package.json && npm version patch --no-git-tag-version && git add . -a && git commit -m \"publish\" && git push origin main",
     "build-pack": "(cd electron && npm run electron:pack)",
     "build-core": "(cross-env npm_config_yes=true npm run build-electron)",
     "build-windows": "(cross-env MIGRATIONS_DIR=.migrate npm run build-core) && npm run build-pack",
