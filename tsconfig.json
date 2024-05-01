@@ -1,6 +1,7 @@
 {
 	"compilerOptions": {
 	  "allowSyntheticDefaultImports": true,
+	  "allowImportingTsExtensions": true,
 	  "experimentalDecorators": true,
 	  "sourceMap": true,
 	  "noImplicitAny": false,
