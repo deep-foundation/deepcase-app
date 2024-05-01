@@ -21,6 +21,13 @@ export NEXT_PUBLIC_ENGINES=1;
 export JWT_SECRET=<?>;
 ```
 
+## For maintainers
+
+Please publish new version to git (npm automatically in github actions) with this command:
+
+```bash
+npm run git-publish
+```
 
 ## Diagnostics
 
