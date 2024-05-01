@@ -58,9 +58,6 @@ const config = {
     });
     config.resolve.extensions = config.resolve.extensions.filter(item => !excludePattern.test(item));
 
-    console.log(config.resolve.extensions);
-    console.log(config.output.publicPath);
-
     config.module.rules.push({
       test: /\.cozo$/,
       use: 'raw-loader',
