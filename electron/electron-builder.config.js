@@ -29,6 +29,7 @@ module.exports = {
     "artifactName": "sdk_portable.exe"
   },
   "mac": {
+    "target": "default",
     "category": "public.app-category.developer-tools",
     "gatekeeperAssess": false,
     "hardenedRuntime": true,
@@ -47,4 +48,8 @@ module.exports = {
   "removePackageScripts": false,
   "includeSubNodeModules": false,
   "asar": false,
+  beforePack: (context) => {
+    console.log('beforePack outDir', context.outDir);
+    console.log('beforePack appOutDir', context.appOutDir);
+  },
 }

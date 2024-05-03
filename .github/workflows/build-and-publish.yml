@@ -1,6 +1,9 @@
 name: Build And Publish
 
 on: 
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -8,7 +11,6 @@ jobs:
     uses: ./.github/workflows/build-and-publish-reusable-workflow.yml
     with:
       app-name: deep-case
-      install-electron-dependencies-command: cd electron && npm ci && git clone https://github.com/deep-foundation/deeplinks.git && cp deeplinks/imports/engine.ts ./src/engine.ts && npx rimraf -I deeplinks
     secrets: 
       csc-key-password:  ${{ secrets.CSC_KEY_PASSWORD }}
       csc-link: ${{ secrets.CSC_LINK }}

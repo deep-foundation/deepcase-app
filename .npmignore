@@ -119,9 +119,26 @@ projects/app/electron/app
 # migrations
 .migrate
 
+# browser extension
+
+/extension/next
+extension/*.html
+/*.crx
+/*.pem
+# CocoaPods
+/ios/Pods/
+
+# Electron
+projects/app/electron/app
+
+# migrations
+.migrate
+
 # deepcase
-/app
-/out
 /electron/build
-/electron/deep-case*
+/electron/SDK*
 /electron/node_modules
+/electron/out
+/electron/Deep.Case*
+/electron/node_modules
+/electron/*.provisionprofile

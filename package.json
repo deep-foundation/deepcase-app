@@ -2,6 +2,10 @@
   "name": "@deep-foundation/deepcase-app",
   "version": "0.1.0-beta.19",
   "license": "Unlicense",
+  "main": "./bin/server.js",
+  "bin": {
+    "deep-sdk": "./bin/server.js"
+  },
   "scripts": {
     "git-publish": "npm i @deep-foundation/deeplinks@latest @deep-foundation/deepcase@latest --package-lock-only && git restore package.json && npm version prerelease --no-git-tag-version && git add . && git commit -m \"publish\" && git push origin main",
     "package:refresh": "rm -rf node_modules; rm -f package-lock.json; npm i --workspaces false",
@@ -15,7 +19,7 @@
     "build-chrome-extension": "run-script-os",
     "build-chrome-extension:linux": "npm run export && mv ./app/_next ./app/next && cd ./app && grep -rl '/_next' * | xargs sed -i 's|/_next|/next|g' && cd ../ && rsync -va --delete-after app/next/ extension/next/ && cp app/*.html extension && rimraf app",
     "build-chrome-extension:darwin": "npm run export && cp -r app/* extension && mv -i extension/_next extension/next && find ./extension -type f \\( -name \"*.js\" -o -name \"*.html\" -o -name \"*.json\" \\) -exec sed -i '' 's/_next/next/g' {} + && rimraf extension.pem && /Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --pack-extension=./extension",
-    "build-android": "rimraf app && rimraf app && npm run export && npx cap sync android",
+    "build-android": "rimraf app && npm run export && npx cap sync android",
     "build-electron": "npm run export && npx rimraf electron/app && npx cap copy electron",
     "dev-electron": "npm run export && npx rimraf electron/app && npx cap copy electron && npx cap open electron",
     "add-android": "npm run export && rimraf ./android && npx cap add android",
@@ -32,6 +36,7 @@
     "@builder.io/partytown": "^0.8.2",
     "@capacitor-community/electron": "^5.0.1",
     "@capacitor/android": "^5.7.4",
+    "@capacitor/cli": "^5.7.4",
     "@capacitor/core": "^5.7.4",
     "@capacitor/ios": "^5.7.4",
     "@chakra-ui/react": "^2.8.2",
@@ -93,7 +98,6 @@
     "rimraf": "^5.0.5",
     "run-script-os": "^1.1.6",
     "ts-node": "^10.9.1",
-    "typescript": "5.0.4",
     "typescript-json-schema": "^0.56.0"
   }
 }
