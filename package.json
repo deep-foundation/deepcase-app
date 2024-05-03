@@ -4,6 +4,8 @@
   "license": "Unlicense",
   "scripts": {
     "git-publish": "npm i @deep-foundation/deeplinks@latest @deep-foundation/deepcase@latest --package-lock-only && git restore package.json && npm version prerelease --no-git-tag-version && git add . && git commit -m \"publish\" && git push origin main",
+    "package:refresh": "rm -rf node_modules; rm -f package-lock.json; npm i --workspaces false",
+    "package:release": "npm version prerelease && git push",
     "build-pack": "(cd electron && npm run electron:pack)",
     "build-core": "(cross-env npm_config_yes=true npm run build-electron)",
     "build-windows": "(cross-env MIGRATIONS_DIR=.migrate npm run build-core) && npm run build-pack",
