@@ -22,7 +22,6 @@
     "declaration": true,
     "allowJs": true,
     "skipLibCheck": true,
-    "allowImportingTsExtensions": true,
     "strict": false,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
