@@ -1,49 +1,51 @@
 {
-	"compilerOptions": {
-	  "allowSyntheticDefaultImports": true,
-	  "experimentalDecorators": true,
-	  "sourceMap": true,
-	  "noImplicitAny": false,
-	  "removeComments": true,
-	  "jsx": "preserve",
-	  "module": "ESNext",
-	  "moduleResolution": "node",
-	  "target": "es2015",
-	  "lib": [
-		"dom",
-		"es6",
-		"es7",
-		"ES2020",
-		"es2022.error"
-	  ],
-	  "resolveJsonModule": true,
-	  "esModuleInterop": true,
-	  "isolatedModules": true,
-	  "declaration": true,
-	  "allowJs": true,
-	  "skipLibCheck": true,
-	  "strict": false,
-	  "forceConsistentCasingInFileNames": true,
-	  "noEmit": true,
-	  "incremental": true,
-	  "plugins": [
-		{
-		  "name": "next"
-		}
-	  ],
-	  "strictNullChecks": false
-	},
-	"include": [
-	  "next-env.d.ts",
-	  "**/*.ts",
-	  "**/*.tsx",
-	  "app/types/**/*.ts"
-	],
-	"exclude": [
-	  "node_modules",
-	  "electron"
-	],
-	"typeRoots": [
-	  "./node_modules/@types"
-	]
-  }
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "sourceMap": true,
+    "noImplicitAny": false,
+    "removeComments": true,
+    "jsx": "preserve",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "target": "es2015",
+    "lib": [
+      "dom",
+      "es6",
+      "es7",
+      "ES2020",
+      "es2022.error"
+    ],
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "declaration": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
+    "strict": false,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "strictNullChecks": false
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "app/types/**/*.ts",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "electron"
+  ],
+  "typeRoots": [
+    "./node_modules/@types"
+  ]
+}
