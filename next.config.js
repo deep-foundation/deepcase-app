@@ -21,7 +21,6 @@ const config = {
   strictMode: false,
   output: (+process.env.NEXT_PUBLIC_EXPORT) ? 'export' : 'standalone',
 
-  allowImportingTsExtensions: true,
   webpack5: true,
   future: { webpack5: true },
   async headers() {
