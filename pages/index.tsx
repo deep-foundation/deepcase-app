@@ -57,6 +57,9 @@ export function Content({
   const globalAny: any = global;
   globalAny.deep = deep;
   globalAny.ml = deep.minilinks;
+  useEffect(() => {
+    if (deep) deep.local = false;
+  }, [deep]);
   const [extra, setExtra] = useShowExtra();
   const [breadcrumbs, setBreadcrumbs] = useBreadcrumbs();
   const travelerRef = useRefAutofill(traveler);
