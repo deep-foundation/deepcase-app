@@ -26,7 +26,6 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "incremental": true,
-    "allowImportingTsExtensions": true,
     "plugins": [
       {
         "name": "next"
