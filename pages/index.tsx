@@ -21,6 +21,7 @@ import pckg from '../package.json';
 import dpckg from '@deep-foundation/deepcase/package.json';
 import { CytoEditor } from '@deep-foundation/deepcase/imports/cyto/editor';
 import { useDeepPath } from '../src/provider.tsx';
+import Head from 'next/head';
 
 const CyberDeepProvider = dynamic(() => import('@deep-foundation/deeplinks/imports/cyber').then(m => m.CyberDeepProvider), {
   ssr: false,
@@ -106,9 +107,17 @@ export function Content({
     1000,
   ) || [];
 
+  // const [title, setTitle] = useState('');
+  // useEffect(() => {(async () => {
+  //   if (deep.linkId) setTitle(await deep.name(spaceId));
+  // })()}, [spaceId, deep]);
+
   return (<React.Fragment
     key={`${spaceId}-${deep.linkId}`}
   >
+    <Head>
+      <title>{deep.nameLocal(spaceId)}</title>
+    </Head>
     <DeepLoader
       spaceId={spaceId}
     />
