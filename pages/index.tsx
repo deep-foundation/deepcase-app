@@ -20,8 +20,9 @@ import { Button, Text } from '@chakra-ui/react';
 import pckg from '../package.json';
 import dpckg from '@deep-foundation/deepcase/package.json';
 import { CytoEditor } from '@deep-foundation/deepcase/imports/cyto/editor';
-import { useDeepPath } from '../src/provider.tsx';
 import Head from 'next/head';
+
+const { useDeepPath } = require('../src/provider.tsx');
 
 const CyberDeepProvider = dynamic(() => import('@deep-foundation/deeplinks/imports/cyber').then(m => m.CyberDeepProvider), {
   ssr: false,
