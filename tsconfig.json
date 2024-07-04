@@ -4,6 +4,7 @@
     "experimentalDecorators": true,
     "sourceMap": true,
     "noImplicitAny": false,
+    "allowImportingTsExtensions": true,
     "removeComments": true,
     "jsx": "preserve",
     "module": "ESNext",
