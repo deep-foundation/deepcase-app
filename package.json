@@ -1,6 +1,6 @@
 {
   "name": "@deep-foundation/deepcase-app",
-  "version": "0.1.0-beta.33",
+  "version": "0.1.0-beta.34",
   "license": "Unlicense",
   "main": "./bin/server.js",
   "bin": {
