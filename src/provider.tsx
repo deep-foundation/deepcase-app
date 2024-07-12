@@ -26,7 +26,7 @@ export function ProviderCore({
       {!!connection ? (
         <ApolloClientTokenizedProvider
           options={{
-            client: "@deep-foundation/sdk",
+            client: "@deep-foundation/deepcase-app",
             ...(connection && {
               path:
                 new URL(connection).host +

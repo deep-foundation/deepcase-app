@@ -7,9 +7,7 @@ import { Provider } from '../src/provider.tsx';
 function App({ Component, pageProps }) {
   return (
     <>
-      <Provider>
-        <Component {...pageProps} />
-      </Provider>
+      <Component {...pageProps} />
     </>
   );
 }
